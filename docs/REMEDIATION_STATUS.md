@@ -17,7 +17,7 @@
 
 ## 이번에 진행하는 작업
 
-- ownership 검사는 PR 코드/계약을 실행하지 않는 `pull_request_target` workflow에서 main의 신뢰한 검사기/계약과 PR Git 객체를 대조한다. 실제 head에 `ownership` check를 기록한다. 신규 workflow는 main에 설치됐으며 기존 일반 PR workflow를 `ownership-local`로 구분해 실제 CI를 확인한다.
+- ownership 검사는 PR 코드/계약을 실행하지 않는 `pull_request_target` workflow에서 main의 신뢰한 검사기/계약과 PR Git 객체를 대조한다. API로 수동 등록한 성공 체크가 필수 게이트로 인정되지 않는 병합 오류를 확인해 native workflow job 이름을 `ownership`으로 맞췄다. main 설치·실제 병합 확인 전에는 기존 일반 PR의 필수 체크를 유지한다. 보호 규칙은 완화하지 않는다.
 - checker는 명시적 head를 검사하며 M0 이후 Phase 0 예외 재사용과 로컬 키/데이터/원음 경로를 거부한다. 합성 TTS/시험 음성은 계약이 허용한 소유 경로만 허용한다.
 - 기존 역할 브랜치를 최신 main에 다시 맞추고 default origin/main ownership, 역할별 local_checks, 미완료 의존 조건을 handoff에 기록한다.
 - I-01/02/04/05/06은 grader, I-03은 data-layer의 수정과 경계 검증을 확인한다. 실제 서비스 검증 전까지 이를 전체 시험 완료로 표시하지 않는다.
