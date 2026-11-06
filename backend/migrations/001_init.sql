@@ -1,3 +1,4 @@
+-- AI-assisted: 계약 DDL 골격은 OpenAI Codex의 도움으로 작성했습니다.
 CREATE EXTENSION IF NOT EXISTS vector;
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 

@@ -35,7 +35,7 @@
 
 ### A1 GET `/health`
 
-HTTP 200. 
+HTTP 200.
 
 응답 예시:
 ```json
@@ -55,7 +55,7 @@ HTTP 200.
 
 ### A2 GET `/scenarios`
 
-HTTP 200. 
+HTTP 200.
 
 응답 예시:
 ```json
@@ -132,7 +132,7 @@ HTTP 202. client_request_id 같으면 같은 세션(200). replaces_session_id �
 
 ### S2 GET `/sessions/{session_id}`
 
-HTTP 200. 
+HTTP 200.
 
 응답 예시:
 ```json
@@ -158,7 +158,7 @@ HTTP 200.
 
 ### S3 POST `/sessions/{session_id}/prepare/retry`
 
-HTTP 202. 
+HTTP 202.
 
 요청 본문 없음.
 
@@ -186,7 +186,7 @@ HTTP 202.
 
 ### S4 POST `/sessions/{session_id}/cancel`
 
-HTTP 200. 
+HTTP 200.
 
 요청 본문 없음.
 
@@ -210,7 +210,7 @@ HTTP 200.
 
 ### S5 POST `/sessions/{session_id}/start`
 
-HTTP 200. 
+HTTP 200.
 
 요청 본문 없음.
 
@@ -328,7 +328,7 @@ HTTP 202. 파일은 임시 경로에 쓴 뒤 create_answer 성공 시 최종 경
 
 ### U2 GET `/sessions/{session_id}/answers/{answer_id}`
 
-HTTP 200. 
+HTTP 200.
 
 응답 예시:
 ```json
@@ -351,7 +351,7 @@ HTTP 200.
 
 ### U3 POST `/sessions/{session_id}/answers/{answer_id}/retry-stt`
 
-HTTP 202. 
+HTTP 202.
 
 요청 본문 없음.
 
@@ -376,7 +376,7 @@ HTTP 202.
 
 ### E1 POST `/sessions/{session_id}/submit`
 
-HTTP 202. 
+HTTP 202.
 
 요청 본문 없음.
 
@@ -564,7 +564,7 @@ HTTP 200. AI를 호출하지 않는다. 저장값만 반환
 
 ### E3 POST `/sessions/{session_id}/regrade`
 
-HTTP 202. 
+HTTP 202.
 
 요청 본문 없음.
 
@@ -588,7 +588,7 @@ HTTP 202.
 
 ### X1 POST `/sessions/{session_id}/chat`
 
-HTTP 501. 
+HTTP 501.
 
 요청 본문 없음.
 

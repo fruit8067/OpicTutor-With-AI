@@ -7,7 +7,16 @@ backend/.env를 load_dotenv(override=False)로 읽어 os.getenv 기반 인증에
 평가 기준·API·DB 스키마는 v3 그대로다.
 
 ## 상태
-골격 구현 완료, 검증 진행 중 (2026-11-06 KST).
+CR orchestrator-01에 맞춘 M0 골격 재검증 통과, PR 병합 대기 (2026-11-06 KST). main 기반으로 브랜치를 재구성했으며 아래 과거 실행 기록과 현재 상태를 구분한다.
+
+## 공개 함수·화면
+contracts v4의 API/내부 타입·함수 골격. tier_of는 nullable 선언이며 C·grader 등의 함수 본문은 담당 역할의 stub으로 유지한다. Pickle LLM 설정은 공백 기본값과 os.getenv 인증을 위한 dotenv 로드를 사용한다.
+
+## 다른 에이전트에게 요청
+M0 main 병합 공지 후 각 역할은 origin/main에서 분기한다. 미구현 모듈은 자기 역할의 ignored tests_local 대역으로 검증하고, 실제 서비스 검증은 별도로 기록한다.
+
+## 측정값
+실제 LLM/임베딩 호출·평가 정확도/비용 측정 없음. 초기 골격 실행 결과는 아래 기록을 참고하며 이번 재검증 결과는 별도 추가한다.
 
 ## 완료한 것
 계약 v3의 API/내부 스키마, 모든 모듈 시그니처, DDL, Compose, 환경변수,
@@ -86,9 +95,11 @@ bash: `python -m venv backend/.venv && backend/.venv/bin/pip install -r backend/
 
 
 ## 최종 검증 추가
+- 감사 후 재검증: 전체 모듈 import, health/docs/openapi 각 200, 실제 PostgreSQL에 DDL 연속 2회 적용 성공.
+- 새 worktree에서 npm ci --ignore-scripts 및 npm run build 통과. 지정한 코퍼스·frontend lib 경로는 gitignore 대상이 아니다(출력 없음, git check-ignore의 정상 non-match exit 1).
+- nullable tier 골격과 SQL 첫 줄 출처를 수정했다. main의 정식 CR v4 및 trusted ownership 검사기를 사용한다.
 - WSL의 독립 Docker 엔진에 전용 PostgreSQL 16/pgvector 컨테이너를 띄워 검증.
 - init_db 반복 실행 및 001_init.sql 직접 적용 2회 모두 오류 없이 통과.
 - API 예시는 실제 스키마 enum·상태와 일치하도록 검토. 완료 스키마 필드 표 포함.
 - worker stub은 미구현 상태를 exit 오류로 알림. 정상 실행처럼 종료하지 않음.
 - GitHub 연결의 PR 생성은 403. 브랜치 push는 성공했으며 PR 병합은 대기.
-

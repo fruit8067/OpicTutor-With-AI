@@ -7,6 +7,6 @@ from datetime import datetime
 from app.schemas.api import *
 from app.schemas.internal import *
 
-def tier_of(level: str) -> dict:
+def tier_of(level: str | None) -> dict | None:
     """계약에 정의된 tier_of 호출. 구현 담당: grader."""
     raise NotImplementedError("grader: tier_of")
