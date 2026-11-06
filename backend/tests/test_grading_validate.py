@@ -94,3 +94,17 @@ def test_missing_transcripts_cannot_be_fulfilled_or_nl():
 def test_invalid_input_fails_before_llm():
     rows=snapshot();del rows[2]['target_functions']
     with pytest.raises(PermanentJobError,match='EVAL_INPUT_INVALID'): precheck_snapshot(rows)
+
+
+@pytest.mark.parametrize('status',['demonstrated','not_demonstrated'])
+def test_missing_transcript_fact_requires_not_observed(status):
+    rows=snapshot();rows[-1].update(stt_status='failed',stt_text='')
+    raw=output(rows)
+    raw['evaluation_scope'].update(usable_order_nos=list(range(2,8)),unusable_items=[dict(order_no=8,reason='STT 실패')])
+    for entries in raw['coverage'].values():
+        for entry in entries: entry['usable_order_nos']=[n for n in entry['usable_order_nos'] if n!=8]
+    raw['items'][-1].update(task_fulfillment='not_assessable',evidence=[])
+    raw['fact_evidence']=[dict(criterion='functions_tasks',observation='전사 확인 불가',status=status,order_no=8,quote=None)]
+    with pytest.raises(LLMOutputError,match='fact_evidence.unavailable'): validate(raw,rows)
+    raw['fact_evidence'][0]['status']='not_observed'
+    assert validate(raw,rows).assessment_status=='assessed'

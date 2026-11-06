@@ -10,7 +10,22 @@ LLM의 OpenAI 기본 URL·모델을 제거하고 실제 Pickle의 LLM_BASE_URL·
 임베딩 키와 Pickle 키는 각각 해당 서비스의 키를 별도 환경변수에 설정한다.
 
 ## 상태
-구현·로컬 규칙 검증 완료, 실제 외부 평가 대기 (2026-11-06 KST). agent/corpus 위에 쌓인 브랜치.
+감사 결함 수정·로컬 규칙 검증 통과, 실제 외부 평가/local_checks 대기 (2026-11-06 KST). M0 main afa076e 기준 독립 agent/grader 브랜치다.
+
+## 공개 함수·화면
+contracts v4의 app.grading/app.llm.chat. evaluate_exam의 job_id와 반환 타입 주석을 계약대로 복원했다. nullable tier 선언은 정식 CR orchestrator-01에 반영됐다. provider 추적은 내부 ContextVar이며 공개 함수 시그니처를 변경하지 않는다.
+
+## 다른 에이전트에게 요청
+data-layer: 실제 corpus ingest/DB 함수 main 반영. session-api: build_question_set main 반영. 해당 기능이 없는 M0 기준 브랜치에서는 평가 계획 연결 검사가 미완료다. 실제 Pickle URL·모델·키, 임베딩 키도 필요하다.
+
+## 측정값
+감사 후 grader 단위/provider 경계 44개 통과(2.76초). 전체 grader tests 최초 실행은 40 passed/1 failed였으며 실패 원인은 M0의 session-api stub이었다. 이 연결 검사는 면제하지 않고 main 의존 기능 준비 후 재실행한다. 실제 정확도·요금은 미측정이다.
+
+## 감사 후 수정
+- 기술적 결측 fact는 not_observed만 허용한다. demonstrated/not_demonstrated를 모두 거부하는 회귀 검증을 추가했다.
+- 유사 검색 후보와 대조 세트 확장 모두 현재 corpus_version을 다시 검사한다.
+- HTTP 408/429/502를 실제 설치 SDK+MockTransport로 재현해 LLMTransientError 및 재시도를 검증했다.
+- JSON 대체 협상 요청도 1회씩 기록하고 총 provider 요청 3회 예산에 포함한다. 4번째 요청은 전송하지 않으며 요청 본문/답변은 로그에 넣지 않는다.
 
 ## 완료한 것
 시스템 프롬프트 원문 로드, 구조화 출력/JSON 호환 경로, 누출 제외 RAG와 토큰 예산,
