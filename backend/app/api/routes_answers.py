@@ -48,13 +48,18 @@ async def upload(session_id: UUID,response: Response,order_no: Annotated[int,For
               and row['audio_mime']==mime and row['client_duration_ms']==duration_ms):
             # DB 접수 후 rename 실패는 같은 Blob/키 재전송으로 원래 답변을 복구한다.
             # 다른 내용이나 이미 저장된 원음을 덮어쓰지 않고 STT retry의 멱등 가드를 사용한다.
-            stored=Path(row['audio_path'])
-            if stored.resolve().parent!=folder.resolve(): raise AppError('INTERNAL_ERROR')
-            if not stored.is_file():
-                try: temp.replace(stored)
-                except OSError: raise AppError('INTERNAL_ERROR')
-            await run_in_threadpool(db.retry_stt,row['id'])
-            row=await run_in_threadpool(db.get_answer,row['id'])
+            current=await run_in_threadpool(db.get_session,session_id)
+            if current and current['status']=='in_progress' and current['current_order_no']==order_no:
+                stored=Path(row['audio_path'])
+                if stored.resolve().parent!=folder.resolve(): raise AppError('INTERNAL_ERROR')
+                if not stored.is_file():
+                    try: temp.replace(stored)
+                    except OSError: raise AppError('INTERNAL_ERROR')
+                try: await run_in_threadpool(db.retry_stt,row['id'])
+                except AppError as exc:
+                    # 다른 재녹음/순서 전진이 이긴 경우에도 원래 요청의 조회 멱등성은 유지한다.
+                    if exc.code not in ('INVALID_STATE','ANSWER_PENDING'): raise
+                row=await run_in_threadpool(db.get_answer,row['id'])
         response.status_code=202 if created else 200
         return await run_in_threadpool(answer_out,row)
     finally:
