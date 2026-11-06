@@ -1,3 +1,4 @@
+# AI-assisted: 기존 코퍼스 빌더와 계약 연결은 OpenAI Codex의 도움으로 작성했습니다.
 """
 OpicTutor RAG 코퍼스 빌더
 - source/*.yaml(루브릭, 승급 패턴, 문항 뱅크, 대조 세트)을 읽어 build/*.jsonl 로 변환한다.
