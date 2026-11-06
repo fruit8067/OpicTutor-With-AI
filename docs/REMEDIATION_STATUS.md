@@ -25,11 +25,13 @@
 
 ## 외부 입력·선행 구현이 필요한 조건
 
-Pickle의 실제 공개 base URL/모델 ID 및 로컬 LLM_API_KEY, 실제 임베딩 적재용 EMBED_API_KEY가 필요하다. C의 TTS·캐릭터·화면 구현과 실제 마이크 완주는 아직 완료되지 않았다. 이 조건들이 필요한 M1/M2/M3/M4 검증을 면제하거나 가짜 성공값으로 대신하지 않는다.
+Pickle 주소 `https://llm.pcl.kr/v1`와 모델 `pickle-general`은 사용자가 제공했고 CR v7 및 bootstrap 기본 설정이 main에 병합됐다. LLM_API_KEY 또는 PICKLE_API_KEY, EMBED_API_KEY를 저장해야 실제 연결·적재가 가능하다. 현재 primary backend/.env는 디스크 기준 0바이트다. C의 TTS·캐릭터·화면 구현과 실제 마이크 완주는 아직 완료되지 않았다. 이 조건들이 필요한 M1/M2/M3/M4 검증을 면제하거나 가짜 성공값으로 대신하지 않는다.
 
 이 파일의 진행 항목은 실행 결과 확인 후 갱신한다. 보고서의 원래 결함 재현 코드는 수정 후 회귀 검증을 대신하는 것이 아니다.
 
 ## A/B 심화 검증 결과
+
+v7 최신 검증은 [large/3072 기록](compliance/large-embedding-2026-11-07.json)의 **114 passed / skip 0 / 12.20초**다. 공개 함수64/API 모델29/경로17 차이0. data-layer는 원문 보존 전진 마이그레이션·exact cosine·모델/제공자 프로필별 재임베딩/검색을, grader는 os.getenv Pickle 키 별칭을 자기 PR에 push했다. M2 예상 임베딩 비용은 약 $0.123(전 요청3회 상한 $0.369)이나 실제 유료 호출은 0이다. 이전 v6 기록은 아래에 이력으로 보존한다.
 
 [요구사항/flowchart 대조표](CORE_REQUIREMENTS_VERIFICATION.md)와 [고정 검증 기록](compliance/verification-2026-11-07.json)을 추가했다. 독립 역할 모듈의 메모리 조합에서 실제 임시 PostgreSQL·HTTP·작업·결과 저장/복구 **110 passed, skip 0**. 실제 provider/마이크/C 완주와 구분한다. 기존 6개 감사 항목 외 세션/오디오 재전송·임베딩 응답·M1 평가 계획/개발 seed·JSON-only 제공자의 예산 내 수정 요청을 보강했다.
 

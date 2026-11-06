@@ -1,0 +1,31 @@
+{
+  "date_kst": "2026-11-07",
+  "contract_version": 7,
+  "scope": "A/B full precision large embedding transition; no new C implementation",
+  "sources": {
+    "session-api": "4ebf417b5377be30a2c382c056e07463f7a89d0b",
+    "data-layer": "4c060a4d9ea853850d746013fc3ed68325bc1bc6",
+    "grader": "eb321837048af51840d051a0de2eeb60041e31a0",
+    "worker-stt": "a68287c38049481eb637137ead890e0829fa8810"
+  },
+  "source_worktrees_clean": true,
+  "result": {"passed": 114, "failed": 0, "skipped": 0, "seconds": 12.20},
+  "interface_comparison": {"public_signatures": 64, "api_model_field_sets": 29, "api_endpoints_and_default_statuses": 17, "differences": []},
+  "regressions": ["1536 legacy migration preserves text and non-profile metadata", "reexecuting migration preserves new 3072 vectors", "model switch and provider switch require reembedding", "search excludes vectors with mismatched profiles", "second batch failure resumes only one uncommitted document out of 101", "dotenv supports canonical and Pickle key names", "key priority and dynamic rotation", "existing eight-upload, queue, grading fixture, failure and regrade flows"],
+  "local_existing_database": {"rag_docs_before": 0, "embedding_before": "vector(1536)", "embedding_after": "vector(3072)", "reset": false},
+  "embedding_plan": {
+    "model": "text-embedding-3-large", "dimensions": 3072, "search": "exact cosine float32",
+    "standard_input_usd_per_million": 0.13,
+    "pricing_source": "https://developers.openai.com/api/docs/models/text-embedding-3-large",
+    "tokenizer": "cl100k_base",
+    "main_M1": {"documents": 264, "embedding_targets": 247, "input_tokens": 46365, "estimated_usd": 0.00602745, "three_attempt_upper_usd": 0.01808235},
+    "corpus_M2": {"documents": 4539, "embedding_targets": 4522, "input_tokens": 945183, "estimated_usd": 0.12287379, "three_attempt_upper_usd": 0.36862137},
+    "paid_ingest_executed": false
+  },
+  "provider_check": {"env_file_bytes": 0, "llm_key_present": false, "embedding_key_present": false, "exit_code": 2, "external_requests": 0},
+  "grading_temperature": 0,
+  "real_provider_quality_measured": false,
+  "fixtures": ["TTS boundary", "ASR for regression suite", "embedding vectors", "LLM HTTP responses"],
+  "warnings": ["anyio assertion-rewrite from pre-pytest module composition"],
+  "goal_complete": false
+}
