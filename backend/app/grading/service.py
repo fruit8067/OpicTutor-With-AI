@@ -25,7 +25,10 @@ def _repair_guidance(error):
         'coverage.elicited':'coverage.elicited_order_nos는 required_output_metadata에서 같은 name의 목록과 정확히 일치해야 합니다.',
         'evaluation_scope.usable':'evaluation_scope.usable_order_nos에는 usable_order_nos_allowed의 번호만 넣으세요. 자기소개 1번은 포함하지 마세요.',
         'non_IM.rubric_version':'base_level이 IM이 아니면 im_rubric_version은 JSON null, im_estimation_status는 not_applicable입니다.'}
-    return '\n'.join(hint for label,hint in hints.items() if label in labels)
+    result=[hint for label,hint in hints.items() if label in labels]
+    if any(label.startswith('schema.') for label in labels):
+        result.append('JSON 스키마의 오류 경로를 확인하세요. 필수 필드를 모두 포함하고 nullable 값은 JSON null로 쓰세요. items.evidence는 최대3개, mistakes는 최대5개, feedback_cards는 최대5개입니다. enum 철자와 각 필드 타입을 그대로 따르세요.')
+    return '\n'.join(result)
 
 
 def evaluate_exam(snapshot: list[dict], *, exclude_contrast_set_ids: list[str] = (),
@@ -37,7 +40,7 @@ def evaluate_exam(snapshot: list[dict], *, exclude_contrast_set_ids: list[str] =
     evidence=build_evidence(snapshot,exclude_contrast_set_ids=exclude_contrast_set_ids)
     messages=build_messages(snapshot,evidence)
     invalid_retry=False
-    totals={'total_input_tokens':0,'total_output_tokens':0,'total_latency_ms':0,'llm_calls':0}
+    totals={'total_input_tokens':0,'total_output_tokens':0,'total_latency_ms':0,'llm_calls':0,'unknown_usage_requests':0}
     with _track_requests(1+contract()['policies']['llm_transient_retries']) as trace:
         for attempt in range(3):
             if token_count(messages)+token_count(EvaluationLLMOutput.model_json_schema())+1024>contract()['policies']['input_token_hard_limit']:
@@ -58,6 +61,7 @@ def evaluate_exam(snapshot: list[dict], *, exclude_contrast_set_ids: list[str] =
                 totals['total_input_tokens']+=record['input_tokens'] or 0
                 totals['total_output_tokens']+=record['output_tokens'] or 0
                 totals['total_latency_ms']+=record['latency_ms']
+                totals['unknown_usage_requests']+=int(record['input_tokens'] is None or record['output_tokens'] is None)
             if failure is None:
                 return result,{**usage,**totals,**system_meta,'system_prompt_sha1':system_meta['sha1'],
                     'user_template_version':TEMPLATE_VERSION,'prompt_version':system_meta['prompt_version']+'+'+TEMPLATE_VERSION,
