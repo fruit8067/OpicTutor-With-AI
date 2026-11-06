@@ -45,5 +45,9 @@ coverage는 실제 선택된 채점 문항의 태그 합집합과 시나리오 �
   이 연결 테스트는 TTS URL과 STT 계산만 명시적인 fixture로 대체하며 실제 음성·AI 완주가 아니다.
 - 1.5초/125초 초과/11MB/text/plain/빈 파일 거부와 임시 파일 정리, 다른 세션 답변 접근 거부 확인.
 - backend 전체 테스트: 21 passed, skip 0 (2026-11-06 KST).
+- 완료 조건 재점검: 새 업로드는 파일 읽기·저장 전에 상태/순서/처리 중 답변을 확인한다.
+  기존 모든 시도의 client_request_ids로 재전송을 구분하여 과거 시도나 제출 이후 재전송도 200을 유지한다.
+  최종 판정은 계속 db.create_answer 트랜잭션이 담당한다.
+- 추가 회귀 검증 후 backend 전체 테스트: 25 passed, skip 0 (PostgreSQL 포함).
 - 실제 uvicorn HTTP: /health 200(ready=false), /docs 200, /openapi.json 200.
 
