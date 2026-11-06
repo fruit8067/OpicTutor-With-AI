@@ -2,7 +2,8 @@
 # OWNER: grader (contracts.yaml ownership)
 import time
 import json
-from openai import (OpenAI, APIConnectionError, APITimeoutError, RateLimitError, InternalServerError, BadRequestError)
+from openai import (OpenAI, APIConnectionError, APITimeoutError, RateLimitError, InternalServerError, BadRequestError,
+                    LengthFinishReasonError,ContentFilterFinishReasonError)
 from pydantic import BaseModel, ValidationError
 from app.config import settings
 
@@ -46,3 +47,9 @@ def chat_structured(messages: list[dict], schema: type[BaseModel], *, timeout: f
         return parsed,meta
     except (APIConnectionError,APITimeoutError,RateLimitError,InternalServerError) as exc:
         raise LLMTransientError('LLM 일시적 연결/서비스 오류') from exc
+    except LengthFinishReasonError as exc:
+        raise LLMOutputError('LLM 응답 길이 제한 초과') from exc
+    except ContentFilterFinishReasonError as exc:
+        raise LLMRefusalError('LLM 콘텐츠 필터 거절') from exc
+    except (ValidationError,json.JSONDecodeError) as exc:
+        raise LLMOutputError('LLM 응답 스키마 불일치') from exc
