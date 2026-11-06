@@ -16,10 +16,20 @@ def matches(path: str, pattern: str) -> bool:
     return re.fullmatch(expression, path) is not None
 
 
+def local_file_forbidden(path: str) -> bool:
+    normalized=path.casefold()
+    name=Path(normalized).name
+    synthetic=normalized.startswith(('backend/static/tts/','backend/e2e_audio/'))
+    audio=normalized.endswith(('.webm','.wav','.mp3','.m4a','.ogg','.mp4'))
+    return (normalized.startswith('data/') or (name.startswith('.env') and name!='.env.example')
+            or (audio and not synthetic) or normalized.endswith(('.pt','.safetensors')))
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('agent_id')
     parser.add_argument('--base', default='origin/main')
+    parser.add_argument('--head', default='HEAD')
     parser.add_argument('--repo', type=Path, default=ROOT)
     parser.add_argument('--contract', type=Path)
     parser.add_argument('--phase0', action='store_true')
@@ -33,10 +43,10 @@ def main() -> int:
             parser.error('M0 이후에는 Phase 0 예외를 사용할 수 없습니다.')
     contract_path = args.contract or root / 'agents/contracts.yaml'
     contract = yaml.safe_load(contract_path.read_text(encoding='utf-8'))
-    result = subprocess.run(['git','diff','--name-only','-z',f'{args.base}...HEAD'],cwd=root,check=True,stdout=subprocess.PIPE)
+    result = subprocess.run(['git','diff','--name-only','-z',f'{args.base}...{args.head}'],cwd=root,check=True,stdout=subprocess.PIPE)
     errors = []
     for path in filter(None,result.stdout.decode('utf-8').split('\0')):
-        if path.startswith('data/') or Path(path).name == '.env' or path.endswith(('.webm','.wav','.mp3','.pt','.safetensors')):
+        if local_file_forbidden(path):
             errors.append(f'{path} (금지된 로컬 데이터/키/원음 경로)')
             continue
         if args.phase0:
