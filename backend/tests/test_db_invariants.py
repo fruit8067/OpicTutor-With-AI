@@ -126,6 +126,8 @@ def test_pending_retry_and_order(session):
     assert db.get_answer(aid)['stt_attempt']==2
     db.reject_stt(aid,'silence')
     newer=answer(session,1)[0]['id']
+    requests=db.get_session_question(session,1)['client_request_ids']
+    assert set(requests)=={db.get_answer(aid)['client_request_id'],db.get_answer(newer)['client_request_id']}
     complete(newer)
     with pytest.raises(AppError): complete(aid)
     assert db.get_session(session)['current_order_no']==2
@@ -146,6 +148,23 @@ def test_job_claims_and_lease(session):
             cur.execute("UPDATE jobs SET locked_until=now()-interval '1 second' WHERE id=%s",(j['id'],))
         assert not db.heartbeat_job(j['id'],j['locked_by'],60)
     assert db.recover_expired_jobs()>=2
+
+
+def test_expired_last_attempt_can_be_recovered(session):
+    with tx() as cur:
+        cur.execute("UPDATE jobs SET next_run_at=now()+interval '1 day' WHERE target_id=%s",(session,))
+        cur.execute("""INSERT INTO jobs(type,target_id,dedupe_key,status,max_attempts)
+            VALUES ('stt',%s,%s,'queued',1) RETURNING id""",(session,str(uuid4())))
+        jid=cur.fetchone()['id']
+    job=db.claim_job(['stt'],'crashed-worker',60)
+    assert job['id']==jid and job['attempts']==1
+    with tx() as cur:
+        cur.execute("UPDATE jobs SET locked_until=now()-interval '1 second' WHERE id=%s",(jid,))
+    assert db.recover_expired_jobs()>=1
+    recovered=db.claim_job(['stt'],'replacement-worker',60)
+    assert recovered is not None and recovered['id']==jid
+    # 재시도 상한은 핸들러가 보고한 실패에 적용한다. 리스 만료만으로 대상 답변을 고립시키지 않는다.
+    assert db.fail_job(jid,'replacement-worker',error_code='STT_ENGINE_ERROR',retryable=True)=='dead'
 
 
 def test_prepare_links_are_atomic(session):
