@@ -30,4 +30,4 @@ Pickle의 실제 공개 base URL/모델 ID 및 로컬 LLM_API_KEY, 실제 임베
 
 ## A/B 심화 검증 결과
 
-[요구사항/flowchart 대조표](CORE_REQUIREMENTS_VERIFICATION.md)와 [고정 검증 기록](compliance/verification-2026-11-07.json)을 추가했다. 독립 역할 모듈의 메모리 조합에서 실제 임시 PostgreSQL·HTTP·작업·결과 저장/복구 **104 passed, skip 0**. 실제 provider/마이크/C 완주와 구분한다. 기존 6개 감사 항목 외 세션/오디오 재전송·임베딩 응답·M1 평가 계획·JSON-only 제공자의 예산 내 수정 요청을 보강했다.
+[요구사항/flowchart 대조표](CORE_REQUIREMENTS_VERIFICATION.md)와 [고정 검증 기록](compliance/verification-2026-11-07.json)을 추가했다. 독립 역할 모듈의 메모리 조합에서 실제 임시 PostgreSQL·HTTP·작업·결과 저장/복구 **110 passed, skip 0**. 실제 provider/마이크/C 완주와 구분한다. 기존 6개 감사 항목 외 세션/오디오 재전송·임베딩 응답·M1 평가 계획/개발 seed·JSON-only 제공자의 예산 내 수정 요청을 보강했다.

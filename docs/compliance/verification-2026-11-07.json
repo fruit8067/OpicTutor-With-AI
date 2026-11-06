@@ -4,12 +4,12 @@
   "contract_version": 6,
   "sources": {
     "session-api": "b8c221db48446a914790aa26702d20a3d1c9d71d",
-    "data-layer": "510bc51722359b845f177751325bcd937333c67e",
+    "data-layer": "3fccb666b325b079cf68123c4fea5adaedab4cbf",
     "grader": "36671344a880b58cdcda39845397469b8b8e2520",
     "worker-stt": "0e6a2035fc4d9a490796141e11266abff3240819"
   },
   "source_worktrees_clean": true,
-  "result": {"passed": 104, "failed": 0, "skipped": 0, "seconds": 5.48},
+  "result": {"passed": 110, "failed": 0, "skipped": 0, "seconds": 5.83},
   "interface_comparison": {"public_signatures": 64, "api_model_field_sets": 29, "api_endpoints_and_default_statuses": 17, "differences": []},
   "warnings": ["anyio assertion-rewrite: imported during explicit module composition before pytest plugin initialization"],
   "database": {"real_postgresql": true, "temporary_database_created_and_dropped": true, "existing_database_reset": false},
