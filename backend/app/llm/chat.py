@@ -82,10 +82,10 @@ def llm_options() -> dict:
     options={
         'base_url':(os.getenv('LLM_BASE_URL') or settings.LLM_BASE_URL).strip(),
         'model':(os.getenv('LLM_MODEL') or settings.LLM_MODEL).strip(),
-        'api_key':os.getenv('LLM_API_KEY','').strip(),
+        'api_key':os.getenv('LLM_API_KEY','').strip() or os.getenv('PICKLE_API_KEY','').strip(),
     }
     missing=[name for name,key in [('LLM_BASE_URL','base_url'),('LLM_MODEL','model'),('LLM_API_KEY','api_key')] if not options[key]]
-    if missing: raise LLMConfigurationError('필수 LLM 환경변수 누락: '+', '.join(missing))
+    if missing: raise LLMConfigurationError('필수 LLM 환경변수 누락: '+', '.join(missing)+' (LLM_API_KEY 대신 PICKLE_API_KEY 가능)')
     parsed=urlsplit(options['base_url'])
     if parsed.scheme not in ('https','http') or not parsed.netloc:
         raise LLMConfigurationError('LLM_BASE_URL 형식이 올바르지 않습니다.')

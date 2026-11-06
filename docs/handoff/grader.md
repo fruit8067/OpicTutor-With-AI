@@ -49,6 +49,8 @@ IM은 서로 다른 채점 문항 유형 2개에서 실제 인용 2개 이상일
 금지 패턴: 발음\\s*점수, 합격\\s*보장, 숫자+%, AM 단독, Advanced Mid, 100\\s*점.
 
 ## 알려진 문제와 측정값
+
+contracts v7 / CR orchestrator-04: 호출 시점 os.getenv('LLM_API_KEY') 우선, 비어 있으면 os.getenv('PICKLE_API_KEY')를 사용한다. 설정 기본값은 main의 Pickle URL/model·large3072를 따른다. 채점 temperature=0 유지. 동적 키 교체·별칭·우선순위·누락 키 시 OPENAI_API_KEY 미사용을 검증한다. PC-B의 원격 rebase를 먼저 보존하고 구현 파일 동일성을 확인했다.
 현재 로컬 API 키가 구성되지 않아 실제 LLM 등급·토큰·지연·비용 및 반복 정확도는 미측정.
 로컬 구조/규칙 테스트를 실제 채점 정확도 리포트로 표시하지 않는다.
 평가 기준 원문이 다른 문서와 다르면 원문을 수정하지 않고 CR로 기록한다.

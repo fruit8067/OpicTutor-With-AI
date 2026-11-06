@@ -49,6 +49,7 @@ def test_pickle_options_and_getenv_key_are_used_at_request_time(monkeypatch,capl
 @pytest.mark.parametrize('missing',['LLM_BASE_URL','LLM_MODEL','LLM_API_KEY'])
 def test_missing_config_does_not_fall_back_to_openai_or_make_calls(monkeypatch,missing):
     configure(monkeypatch);monkeypatch.delenv(missing)
+    monkeypatch.delenv('PICKLE_API_KEY',raising=False)
     if missing!='LLM_API_KEY': monkeypatch.setattr(settings,missing,'')
     monkeypatch.setenv('OPENAI_API_KEY','embedding-only-must-not-be-forwarded')
     monkeypatch.setattr(chat,'OpenAI',lambda **kwargs:pytest.fail('미설정 상태에서 SDK 호출'))
@@ -57,9 +58,10 @@ def test_missing_config_does_not_fall_back_to_openai_or_make_calls(monkeypatch,m
     with pytest.raises(PermanentJobError,match='EVAL_INTERNAL'): service.evaluate_exam(snapshot())
 
 
-def test_dotenv_supports_getenv_without_overwriting_process_environment(tmp_path):
+@pytest.mark.parametrize('key_name',['LLM_API_KEY','PICKLE_API_KEY'])
+def test_dotenv_supports_getenv_without_overwriting_process_environment(tmp_path,key_name):
     env_file=tmp_path/'.env'
-    env_file.write_text('LLM_API_KEY=dotenv-fixture-key\nLLM_BASE_URL=https://pickle.example.invalid/v1\nLLM_MODEL=pickle-fixture\n',encoding='utf-8')
+    env_file.write_text(key_name+'=dotenv-fixture-key\nLLM_BASE_URL=https://pickle.example.invalid/v1\nLLM_MODEL=pickle-fixture\n',encoding='utf-8')
     script='''import sys,dotenv
 original=dotenv.load_dotenv
 def test_env(path,**kwargs):
@@ -70,7 +72,7 @@ from app.llm.chat import llm_options
 assert llm_options()['api_key']==sys.argv[2]
 '''
     environment=os.environ.copy()
-    for name in ['LLM_API_KEY','LLM_BASE_URL','LLM_MODEL']: environment.pop(name,None)
+    for name in ['LLM_API_KEY','PICKLE_API_KEY','LLM_BASE_URL','LLM_MODEL']: environment.pop(name,None)
     result=subprocess.run([sys.executable,'-c',script,str(env_file),'dotenv-fixture-key'],env=environment,capture_output=True)
     assert result.returncode==0
     environment['LLM_API_KEY']='process-fixture-key'
@@ -78,9 +80,20 @@ assert llm_options()['api_key']==sys.argv[2]
     assert result.returncode==0
 
 
-def test_embedding_defaults_are_unchanged(monkeypatch):
-    for name in ['EMBED_API_KEY','EMBED_BASE_URL','EMBED_MODEL','LLM_BASE_URL','LLM_MODEL']:
+def test_requested_pickle_and_large_defaults(monkeypatch):
+    for name in ['EMBED_API_KEY','EMBED_BASE_URL','EMBED_MODEL','EMBED_DIM','LLM_BASE_URL','LLM_MODEL']:
         monkeypatch.delenv(name,raising=False)
     isolated=Settings(_env_file=None)
-    assert isolated.LLM_BASE_URL=='' and isolated.LLM_MODEL==''
-    assert isolated.EMBED_BASE_URL=='https://api.openai.com/v1' and isolated.EMBED_MODEL=='text-embedding-3-small'
+    assert isolated.LLM_BASE_URL=='https://llm.pcl.kr/v1' and isolated.LLM_MODEL=='pickle-general'
+    assert isolated.EMBED_BASE_URL=='https://api.openai.com/v1' and isolated.EMBED_MODEL=='text-embedding-3-large'
+    assert isolated.EMBED_DIM==3072
+
+
+def test_pickle_key_alias_is_read_dynamically_with_canonical_key_priority(monkeypatch):
+    configure(monkeypatch)
+    monkeypatch.setenv('PICKLE_API_KEY','pickle-alias-fixture')
+    assert chat.llm_options()['api_key']=='pickle-fixture-key'
+    monkeypatch.setenv('LLM_API_KEY','  ')
+    assert chat.llm_options()['api_key']=='pickle-alias-fixture'
+    monkeypatch.setenv('PICKLE_API_KEY','rotated-alias-fixture')
+    assert chat.llm_options()['api_key']=='rotated-alias-fixture'
