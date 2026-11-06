@@ -11,7 +11,7 @@ def create_session(*, client_request_id: str | None, scenario_id: str, settings_
                    questions: list[SessionQuestionIn], replaces_session_id: UUID | None) -> tuple[UUID, bool]:
     with tx() as cur:
         idempotency_lock(cur,client_request_id)
-        if client_request_id:
+        if client_request_id is not None:
             cur.execute('SELECT id FROM sessions WHERE client_request_id=%s',(client_request_id,))
             existing=cur.fetchone()
             if existing: return existing['id'],False
@@ -41,6 +41,13 @@ def get_session(session_id: UUID) -> SessionRow | None:
             'duration_sec',a.duration_sec)) FROM session_host_lines h JOIN tts_assets a ON a.id=h.tts_asset_id
             WHERE h.session_id=s.id),'{}'::jsonb) AS host_lines FROM sessions s WHERE s.id=%s""",(session_id,))
         return cur.fetchone()
+
+
+def get_session_id_by_request_id(client_request_id: str) -> UUID | None:
+    with tx() as cur:
+        cur.execute('SELECT id FROM sessions WHERE client_request_id=%s',(client_request_id,))
+        row=cur.fetchone()
+        return row['id'] if row else None
 
 def list_session_questions(session_id: UUID) -> list[dict]:
     with tx() as cur:

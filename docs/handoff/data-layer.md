@@ -1,8 +1,8 @@
 # data-layer M1/M2
 
 ## 상태
-코드·로컬 fixture DB 검증 통과, 실제 코퍼스 적재/local_checks 및 M1·M2 병합 대기 (2026-11-06 KST).
-M0 main afa076e 기준 독립 브랜치로 재구성했다. 검사는 기본 origin/main 기준이며 타 역할 코드는 상속하지 않는다.
+코드·로컬 DB 검증 통과, 실제 코퍼스 적재/local_checks 및 M1·M2 병합 대기 (2026-11-07 KST).
+CR session-api-01/contracts v5 main 90e7835 기준 독립 브랜치다. 검사는 기본 origin/main 기준이며 타 역할 코드는 상속하지 않는다.
 
 ## 완료한 것
 app.db 계약의 세션/음성/답변/평가/RAG/작업/AI 메타데이터 함수 전부와 dev 함수 3개.
@@ -25,7 +25,7 @@ get_session_question의 내부 dict에는 해당 문항의 모든 client_request
 업로드의 빠른 사전 검사에서 이전 시도의 유효한 재전송을 새 요청과 구분할 수 있으며 API 응답 필드는 바뀌지 않는다.
 
 ## 알려진 문제 및 다른 에이전트에게 요청
-- corpus M1 자료는 별도 PR #5에서 재구성 중이다. 그 PR이 main에 반영되면 rebase하고 seed/dry-run을 다시 확인한다. 과거 아래 VERSION 누락 기록은 당시의 이력이다.
+- corpus M1은 PR #5로 main에 반영됐다. 현재 M1 dry-run은 264문서/예상 임베딩 247건이다. M2 확대 자료는 corpus PR #12이며 아직 main 적재 완료로 세지 않는다. 과거 VERSION 누락 기록은 당시의 이력이다.
 - 실제 임베딩 적재는 EMBED_API_KEY가 필요하다. --dry-run은 외부 호출 없이 적재 예정 건수를 계산한다.
 - STT 완료 콜백 시그니처에는 attempt/lease가 없어 이전 STT 시도를 엄격하게 구분할 수 없다.
   worker-stt는 작업 payload의 stt_attempt와 현재 answer.stt_attempt 및 작업 리스를 확인한 뒤 콜백해야 한다.
@@ -36,6 +36,10 @@ WSL Docker의 전용 PostgreSQL 16/pgvector 컨테이너에서 검증. 검증용
 실제 코퍼스 적재 수·임베딩 시간·비용은 키 미준비로 미측정이다. dry-run 예상 건수와 실제 완료 건수를 구분한다.
 
 ## 감사 후 수정·검증
+
+- 2026-11-07 추가 검증: 14 passed, skip 0(1.61초). HTTP 408/503 임베딩 재시도, 401 단일 실패, 중복 응답 index 거부를 실제 SDK+MockTransport로 검증했다.
+- CR session-api-01의 get_session_id_by_request_id를 구현하고 빈 문자열 키도 None과 구분해 동시 생성 시 1행/1작업을 보장한다. HTTP/SQL 공개 시그니처는 승인된 v5에 맞춘다.
+- A/B 메모리 조합 검증 101 passed(5.37초). 별도 생성/삭제한 테스트 DB를 사용했으며 기존 data-layer 단독 검증과 구분한다. TTS URL·ASR·LLM은 명시적 대역이고 실제 provider 정확도는 아니다.
 
 - I-03: complete_prepare의 질문 해시는 Python text.strip().encode('utf-8')의 SHA1을 사용한다. SQL의 원문 해시 비교를 제거했다.
 - 실제 PostgreSQL에서 9개 DB/임베딩 경계 테스트 통과(1.46초). 준비 링크 테스트는 탭·개행·Unicode 공백을 포함한 원문도 명세대로 만든 asset에 연결되는지 검증한다.

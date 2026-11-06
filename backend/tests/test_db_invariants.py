@@ -56,8 +56,11 @@ def complete(aid):
     return db.complete_stt(aid, text='This is a test.', timestamps=[], metrics={}, stt_version='fixture')
 
 
-def test_concurrent_session_and_answer_idempotency(session):
-    key = str(uuid4())
+@pytest.mark.parametrize('empty_key',[False,True])
+def test_concurrent_session_and_answer_idempotency(session,empty_key):
+    key = '' if empty_key else str(uuid4())
+    if empty_key and db.get_session_id_by_request_id(key) is not None:
+        pytest.skip('기존 빈 요청 키 세션을 테스트가 변경하지 않음')
     def create(_):
         return db.create_session(client_request_id=key, scenario_id='test', settings_json={},
             questions=questions(), replaces_session_id=None)
@@ -65,6 +68,8 @@ def test_concurrent_session_and_answer_idempotency(session):
         rows = list(ex.map(create, range(5)))
     assert len({r[0] for r in rows}) == 1 and sum(r[1] for r in rows) == 1
     sid = rows[0][0]
+    assert db.get_session_id_by_request_id(key)==sid
+    assert db.get_session_id_by_request_id(str(uuid4())) is None
     with tx() as cur:
         cur.execute('DELETE FROM jobs WHERE target_id=%s',(sid,))
         cur.execute('DELETE FROM sessions WHERE id=%s',(sid,))
