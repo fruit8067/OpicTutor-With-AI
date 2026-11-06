@@ -31,7 +31,7 @@ coverage는 실제 선택된 채점 문항의 태그 합집합과 시나리오 �
 ## 알려진 문제 및 다른 에이전트에게 요청
 - corpus M1의 Q000·시나리오·태그가 필요하다. 없으면 SCENARIO_UNAVAILABLE, 임의 문항 대체 없음.
 - tts-host가 stub을 구현해야 문항 재생 URL과 준비 완료가 동작한다.
-- DB 엔진이 미기동하여 실제 업로드→STT와 curl 완주 검증은 아직 불가.
+- 실제 PostgreSQL/API 연결은 검증했으나 실제 음성 STT·AI 완주는 다른 PC 구현이 필요하다.
 - 모든 DB 함수가 계약에 존재하므로 추가 DB 함수 CR은 필요 없음.
 - 업로드의 크기 제한은 UploadFile 스트림을 64KB씩 읽어 적용한다. ASGI 서버가 multipart를 파싱할 때의
   임시 스풀은 Starlette가 담당하며 인터넷 배포용 프록시 제한은 범위 밖이다.
@@ -40,4 +40,10 @@ coverage는 실제 선택된 채점 문항의 태그 합집합과 시나리오 �
 - pytest tests/test_exam_builder.py tests/test_api_upload.py: 12 passed.
 - FastAPI OpenAPI: 계약의 API 경로 17개, schemas 생성 성공.
 - 동일 업로드 키를 STT 순서 전진 후 재전송해도 기존 답변을 돌려주도록 최종 상태 판정을 DB에 위임.
+- 실제 PostgreSQL + TestClient로 세션 생성/중복 생성→음성 asset 링크→start→8개 업로드·중복·순서 검사
+  → STT 완료 콜백→submit 2회→결과 조회 10회(평가 호출 증가 0)를 검증했다.
+  이 연결 테스트는 TTS URL과 STT 계산만 명시적인 fixture로 대체하며 실제 음성·AI 완주가 아니다.
+- 1.5초/125초 초과/11MB/text/plain/빈 파일 거부와 임시 파일 정리, 다른 세션 답변 접근 거부 확인.
+- backend 전체 테스트: 21 passed, skip 0 (2026-11-06 KST).
+- 실제 uvicorn HTTP: /health 200(ready=false), /docs 200, /openapi.json 200.
 
