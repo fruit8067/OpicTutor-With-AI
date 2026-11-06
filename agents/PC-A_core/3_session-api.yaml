@@ -22,6 +22,11 @@ prompt: |
      - rag_docs/build/scenarios.json + questions.jsonl(status pilot) 로드, 파일 mtime 기준 캐시.
      - 슬롯 순서대로 pool에서 결정적으로 선택(random.Random(seed)), 이미 고른 id는 제외. 불가능하면 SCENARIO_UNAVAILABLE.
      - question_version = sha1(question_text)[:12]. SessionQuestionIn으로 반환. LLM 호출 없음.
+     - (contracts v3) 각 문항의 is_scored·target_functions·target_time_frames·context_scope를 questions.jsonl에서 그대로 복사한다.
+       태그가 빠진 pilot 문항이 뽑히면 SCENARIO_UNAVAILABLE(데이터 오류로 로그). 서버가 태그를 추측하거나 채우지 않는다.
+       is_scored=false 문항은 정확히 1개(order_no 1)여야 한다.
+     - 시나리오의 coverage(scenarios.json)와 실제 뽑힌 7개 채점 문항의 태그 합집합을 settings_json.coverage에 저장한다
+       ({functions, time_frames, contexts, warnings}). grader가 평가 입력으로 쓴다.
      - 짧은 pytest: 같은 seed → 같은 세트, 8개 모두 다름, 유형이 슬롯과 일치.
   2. 라우터 (contracts.yaml api.endpoints 전부, 경로·상태 코드·에러 코드 그대로)
      - A1 /health: db.ping(), 최근 워커 활동(jobs.updated_at 최신 running/done 기준 — data-layer 함수가 없으면 CR),
@@ -32,7 +37,7 @@ prompt: |
      - S2 GET: SessionOut. prepare 진행률 = 연결된 문항+대사 수 / 전체, failures = prepare_error_json.
        all_answered = current_order_no > question_count.
      - S3 retry, S4 cancel, S5 start: 해당 db 함수 호출. 상태 위반은 db가 INVALID_STATE를 던진다.
-     - Q1 GET /current: in_progress에서만. 현재 문항 + audio_url(app.tts.tts_url) + replay_count/limit
+     - Q1 GET /current: in_progress에서만. 현재 문항(is_scored 포함) + audio_url(app.tts.tts_url) + replay_count/limit
        + pending_answer(그 문항의 최신 답변이 queued/processing/rejected/failed면 그 상태) + host_lines(세션 연결 값).
      - Q2 replay: db.increment_replay(limit=policies.replay_limit).
      - U1 POST /answers (multipart):
@@ -46,7 +51,7 @@ prompt: |
        f) 202 AnswerOut. 깊은 검사(실제 길이·무음·손상)는 STT 워커 몫이다.
      - U2 GET answer, U3 retry-stt.
      - E1 submit → db.submit_session. E2 result → db.get_latest_evaluation + load_exam_snapshot로 answers 목록.
-       E2는 AI를 절대 호출하지 않는다. E3 regrade → db.create_regrade.
+       E2는 AI를 절대 호출하지 않는다. answers에는 is_scored를 포함한다. E3 regrade → db.create_regrade.
      - X1 chat → 501 NOT_IMPLEMENTED.
   3. app/main.py: 시작 시 db.init_db()(실패해도 앱은 뜨고 /health가 error 보고), 라우터 등록, /media/tts 마운트,
      CORS는 settings.CORS_ORIGINS만, uvicorn 실행 안내 docstring. 요청 로그에 답변 텍스트·파일 내용을 남기지 않는다.

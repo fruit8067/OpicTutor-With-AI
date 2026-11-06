@@ -28,7 +28,8 @@ prompt: |
      backend/e2e_audio/{level}/의 합성 답변 mp3를 업로드 → 매 문항 U2 폴링으로 done 확인 → submit → result 폴링 → done.
      옵션 --level IM2|IL, --fail-cases(아래 실패 시나리오 자동 확인). 결과를 표로 출력.
      기대: IM2 음성 세트는 base_level IM(estimated IM1~IM3 또는 세분화 보류), IL 세트는 NH~IM1 범위
-     (벗어나면 경고만, 실패 처리하지 않음 — 정확도 판단은 grader 리포트로). 결과 JSON의 2단 등급 규칙·rubric_version은 실패로 검사.
+     (벗어나면 경고만, 실패 처리하지 않음 — 정확도 판단은 grader 리포트로). 결과 JSON의 2단 등급 규칙·rubric_version·prompt_version(v3)·
+     evaluation_scope.feedback_only_order_nos == [1]·근거에 order_no 1 없음은 실패로 검사.
   3. 실패·불변 조건 확인(자동 가능한 것은 --fail-cases, 나머지는 수동) — 결과를 handoff 표로:
      - 세트 불변성: 같은 세션 새로고침·준비 재시도 후 문항 ID·순서 동일
      - TTS mp3 하나 삭제 → prepare_failed(TTS_FILE_MISSING) → 복구 → retry → ready

@@ -35,7 +35,10 @@ prompt: |
        selected_answer_ids를 order_no 순으로 고정 → evaluations(run_no=1, queued) + evaluate 작업 → status grading.
        submitted 상태는 같은 트랜잭션 안에서 거쳐 가도 되지만 submitted_at은 남긴다.
      - finish_evaluation / fail_evaluation: run_no가 그 세션의 최대 run_no이고 세션이 grading일 때만 반영.
-       (contracts v2) base_level·estimated_level·im_estimation_status·im_rubric_version 컬럼을 함께 저장한다.
+       (contracts v2~3) base_level·estimated_level·im_estimation_status·im_rubric_version·prompt_version 컬럼을 함께 저장한다.
+     - (contracts v3) session_questions의 is_scored·target_functions·target_time_frames·context_scope를 create_session에서 저장하고,
+       load_exam_snapshot이 이 필드와 stt_status·stt_version을 함께 돌려준다. settings_json.coverage는 받은 그대로 저장.
+       DB 차원 검사: 세션당 is_scored=false 문항은 최대 1개(부분 유니크 인덱스 또는 트리거).
        evaluations의 2단 등급 CHECK 제약이 DB 차원에서 잘못된 조합을 막는다 — 마이그레이션에 그대로 넣는다.
        create_regrade 후 이전 run의 늦은 완료가 결과를 덮어쓰지 않아야 한다.
      - claim_job: `SELECT … WHERE type = ANY(%s) AND status IN ('queued','failed') AND next_run_at <= now()
@@ -51,7 +54,8 @@ prompt: |
        코퍼스가 Q001~Q187(대조 답변 약 3,300건 이상)로 늘어나므로 배치·재시작(중단 지점부터 이어서)을 지원한다.
      - 필드 매핑: question_id, question_type, level, level_rank, contrast_set_id, text_style, text는 컬럼, 나머지는 metadata.
   6. scripts/db_reset.py --yes: 모든 테이블 DROP → init_db (로컬 개발용, --yes 없으면 거부).
-  7. app/db/dev.py: contracts.yaml app.db.dev의 seed_* 함수 3개. 다른 에이전트(worker-stt, grader, tts-host, session-api)가
+  7. app/db/dev.py: contracts.yaml app.db.dev의 seed_* 함수 3개. (v3) 문항 태그를 questions.jsonl에서 복사하고,
+     seed_grading_session은 1번 자기소개(is_scored=false) + 2~8번 채점 문항으로 만든다. 다른 에이전트(worker-stt, grader, tts-host, session-api)가
      앞 단계 없이 자기 부분을 시험하는 데 쓴다. M1에 반드시 포함하고 handoff에 사용 예시를 적는다.
      `python -m app.db.dev seed-grading --level IM2` 같은 CLI도 둔다.
 

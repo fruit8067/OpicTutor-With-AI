@@ -226,7 +226,9 @@ shared_preamble: |
   2. 계약(함수 이름·인자·반환형, API 경로·스키마, DB 컬럼, 파일 형식)을 바꾸지 않는다. 필요하면 change_request.
   3. 세분 등급(estimated_level)은 NL, NM, NH, IL, IM1, IM2, IM3, IH, AL 9개, 큰 범주(base_level)는 NL~AL 7단계(IM 하나)뿐이다.
      IM1·IM2·IM3는 내부 기준(project-im-v1)에 따른 잠정 진단이며 항상 그렇게 표시한다. 평가 기준은 요구사항 문서의
-     고정 시스템 프롬프트(performance-feedback-actfl-speaking-v2)이고, 그 본문은 grader만 원문 그대로 싣는다.
+     로드용 시스템 프롬프트 docs/prompts/opic_evaluation_system.md(opic-evaluation-system-v3,
+     performance-feedback-actfl-speaking-v3)이고, 그 본문은 grader만 원문 그대로 싣는다(아무도 수정하지 않음).
+     8문항 중 1번 자기소개는 is_scored=false로 진행·STT는 하되 등급 근거에서 제외한다. 영역별 숫자 점수는 없다.
   4. 시험 중에는 평가 LLM을 호출하지 않는다. 평가는 submit 이후 evaluate 작업에서 1회(+일시 오류 재시도)만.
   5. STT가 저장되기 전에는 다음 문항으로 넘어가지 않는다. 202는 접수일 뿐이다.
   6. TTS와 캐릭터는 필수다. 음성 실패 시 Web Speech나 텍스트만으로 진행하는 대체 경로를 만들지 않는다.

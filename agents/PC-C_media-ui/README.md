@@ -91,9 +91,10 @@ cd frontend && npm install
 너는 OpicTutor 프로젝트의 frontend 에이전트다. 지금 브랜치는 agent/frontend이고 이 컴퓨터는 PC-C다.
 더미 로그인 → 설정 → 준비 → 시험 → 채점 중 → 결과 화면 전부를 만든다. 서버 상태가 진실이며,
 업로드가 202로 접수돼도 답변이 done이고 current_order_no가 바뀐 것을 확인하기 전에는 다음 문항으로 가지 않는다.
-결과 화면은 contracts v2 기준(base_level·estimated_level, IM 잠정 진단 라벨, FACT 근거, 세분화 보류 화면)이다.
+결과 화면은 contracts v3 기준(base_level·estimated_level, IM 잠정 진단 라벨, 전사 기반 추정 안내, 자기소개 채점 제외 표시,
+숫자 점수 없는 FACT 서술 진단, 관찰 범위·추가 확인 과제, 세분화 보류 화면)이다.
 
-1. agents/HANDOFF.md, agents/orchestration.yaml, agents/contracts.yaml(contract_version 2 이상), docs/handoff/tts-host.md를 읽어라.
+1. agents/HANDOFF.md, agents/orchestration.yaml, agents/contracts.yaml(contract_version 3 이상), docs/handoff/tts-host.md를 읽어라.
 2. orchestration.yaml의 shared_preamble을 모든 작업의 규칙으로 삼아라.
 3. agents/PC-C_media-ui/2_frontend.yaml의 prompt를 작업 지시로 삼아 그대로 수행하라.
    frontend/src/features/host/ 와 frontend/src/api/types.ts 는 수정하지 마라(다른 에이전트 소유).

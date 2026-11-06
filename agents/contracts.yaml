@@ -8,8 +8,13 @@
 #
 # AI-assisted: this contract was written with help from Claude (Anthropic).
 
-contract_version: 2
+contract_version: 3
 changelog:
+  - "3 (2026-11-06, commit d5ec5bb 반영): 평가 기준 v3(performance-feedback-actfl-speaking-v3, opic-evaluation-system-v3),
+     로드용 원본 docs/prompts/opic_evaluation_system.md, 자기소개 워밍업 채점 제외(is_scored), 문항 과제·시간대·맥락 태그,
+     dimension_scores(1~5) 폐지 → dimension_feedback(서술), coverage·sustained_performance·breakdown_observations·
+     evaluation_scope·input_issues·additional_tasks_needed, items.evaluation_role·task_fulfillment, 카드 before null 허용,
+     EVAL_INPUT_INVALID, contrast_sets_06~08 재업로드본(Q038~Q187)"
   - "1 (2026-11-06): REQUIREMENTS_v2(설정 단계 전체 세트·TTS 준비 → STT 저장 후 이동 → 종료 후 종합 평가) 기준 최초 작성"
   - "2 (2026-11-06, commit 09af0ef 반영): 고정 시스템 프롬프트(performance-feedback-actfl-speaking-v2) + 내부 IM 세분화(project-im-v1),
      base_level/estimated_level 2단 등급, FACT 차원·fact_evidence·경계 근거 필드, rubrics.jsonl 기본 기준 주입 중단,
@@ -26,15 +31,38 @@ level_rules:
   - "IM 세분값은 항상 '내부 기준에 따른 잠정 진단'(im_estimation_status=provisional)이다. 공식·검증 완료로 표현하지 않는다"
 
 evaluation_criteria:
-  rubric_version: performance-feedback-actfl-speaking-v2
+  rubric_version: performance-feedback-actfl-speaking-v3
+  prompt_version: opic-evaluation-system-v3          # 시스템 프롬프트 버전(LLM system 역할)
+  user_template_version_prefix: evaluate_exam        # grader의 user 메시지 템플릿 버전(evaluate_exam.v1 …)은 별도 기록
   im_rubric_version: project-im-v1
-  system_prompt_source: "docs/REQUIREMENTS_v2.md F3의 '**시스템 프롬프트 본문 시작**'과 '**시스템 프롬프트 본문 끝**' 사이 전체(표 포함)"
-  system_prompt_file: backend/prompts/system/performance-feedback-actfl-speaking-v2.md   # grader가 원문 그대로 추출
+  assessment_basis: transcript_and_metrics           # 원음을 LLM에 보내지 않으므로 고정
+  system_prompt_file: docs/prompts/opic_evaluation_system.md   # 로드용 원본. 런타임이 이 파일을 그대로 읽는다(복사본 금지)
+  must_equal:                                         # 세 본문이 글자 단위로 같아야 함(줄바꿈 정규화 후). grader 테스트로 강제
+    - "docs/prompts/opic_evaluation_system.md 전체"
+    - "docs/REQUIREMENTS_v2.md F3 '**시스템 프롬프트 본문 시작**'~'**시스템 프롬프트 본문 끝**' 사이"
+    - "OpicTutor.md 같은 구간"
+  research_note: docs/OPIC_SCORING_RESEARCH.md
   rules:
-    - 시스템 프롬프트 본문은 한 글자도 바꾸지 않는다. 바꾸려면 문서를 먼저 고치고 rubric_version을 올린다
+    - 시스템 프롬프트 본문은 한 글자도 바꾸지 않는다. 바꾸려면 문서를 먼저 고치고 rubric_version·prompt_version을 올린다
+    - system 역할에는 이 파일만 넣는다. 출력 스키마·평가 입력은 user 메시지와 Structured Output으로 따로 준다
     - 런타임에 ACTFL PDF를 다운로드·파싱·임베딩하지 않는다
     - rag_docs의 rubrics.jsonl(단어 수 경계·전형 길이)을 기본 채점 기준으로 프롬프트에 넣지 않는다
     - RAG는 문항별 대조 답변·승급 패턴의 보조 근거로만 쓴다
+    - 영역별 숫자 점수·100점 환산·가중 평균을 만들지 않는다(dimension_feedback은 서술)
+    - 자기소개(is_scored=false)는 등급 근거에서 제외하고 items의 feedback_only로만 피드백한다
+    - 무음·STT 실패를 NL로 치환하지 않는다. 미출제 기능을 실패로 감점하지 않는다
+    - 전사 기반 추정이므로 발음·억양을 평가했다고 표시하지 않는다
+
+question_tags:     # questions.jsonl·session_questions에 저장. corpus가 실제 질문 요구만 태그한다(태그만 붙여 커버리지를 채우지 않음)
+  is_scored: "bool. self_intro(Q000)=false, 나머지 true"
+  target_functions: [self_introduce, describe, report_routine, narrate_past, compare, ask_information,
+                     solve_problem, explain_issue, state_future_plan, express_opinion]
+  target_time_frames: [present, past, future]
+  context_scope: [personal_familiar, everyday_transaction, community_public, unexpected_situation]
+  coverage_policy: |
+    시나리오 빌드 시 채점 대상 7문항의 functions·time_frames·contexts 커버리지를 계산해 scenarios.json에 기록한다.
+    future 시간대나 unexpected_situation이 없으면 실패가 아니라 경고(report)로 남기고, 세션 settings_json.coverage에 복사해
+    결과의 coverage.gaps로 보이게 한다. 시험 중 문항을 추가하거나 세트를 바꿔 메우지 않는다.
 
 tiers:            # 서버가 estimated_level → tier로 매핑한다. LLM은 tier를 만들지 않는다.
                   # estimated_level이 null이면(IM 세분화 보류, insufficient_evidence) tier도 null
@@ -47,17 +75,21 @@ tiers:            # 서버가 estimated_level → tier로 매핑한다. LLM은 t
 question_types: [self_intro, description, routine, past_experience, comparison, issue,
                  roleplay_ask, roleplay_solve, roleplay_experience]
 
-dimensions:       # FACT. 내부 1~5 정수, 관찰 기회가 없으면 null
+dimensions:       # FACT. v3부터 숫자 점수 없음 — dimension_feedback {summary, evidence_order_nos[], limitations[]}
   functions_tasks: "F — 과제 수행"
   accuracy: "A — 의미 전달의 정확성"
   context_content: "C — 상황·내용 범위"
   text_type: "T — 발화 구성"
-fact_status: [demonstrated, not_demonstrated, not_observed]   # not_observed는 낮은 점수의 근거가 아님
+fact_status: [demonstrated, not_demonstrated, not_observed]   # not_observed는 낮은 점수의 근거가 아님(기술적 결측 포함)
+task_fulfillment: [fulfilled, partial, not_fulfilled, not_assessable]
+evaluation_role: [scored, feedback_only]
+example_kind: [correction, practice]                           # practice면 before는 null 가능
 im_estimation_status: [provisional, insufficient_evidence, not_applicable]
 level_boundaries_to_measure: ["NH/IL", "IL/IM1", "IM1/IM2", "IM2/IM3", "IM3/IH", "IH/AL"]
 
 policies:
-  question_count: 8
+  question_count: 8               # 자기소개 워밍업 1(is_scored=false) + 채점 대상 7
+  scored_question_count: 7
   replay_limit: 1                 # 첫 재생은 세지 않음. 다시 듣기만 1회
   record_min_ms: 2000
   record_max_ms: 120000
@@ -139,6 +171,7 @@ env_vars:
   DATA_DIR: ../data                      # backend/ 기준. 원음은 {DATA_DIR}/audio/{session_id}/{answer_id}.{ext}
   TTS_DIR: static/tts                    # backend/ 기준
   RAG_BUILD_DIR: ../rag_docs/build
+  EVAL_SYSTEM_PROMPT_PATH: ../docs/prompts/opic_evaluation_system.md   # v3 로드용 원본(복사본 금지)
   LLM_BASE_URL: https://api.openai.com/v1
   LLM_API_KEY: ""
   LLM_MODEL: gpt-4o-mini                 # 실측 후 고정
@@ -163,6 +196,8 @@ ownership:
   - {path: "agents/**",                          owner: orchestrator}
   - {path: "docs/REQUIREMENTS_v2.md",            owner: orchestrator}
   - {path: "docs/FLOWCHART.md",                  owner: orchestrator}
+  - {path: "docs/prompts/**",                    owner: orchestrator}   # 평가 기준 원본. 에이전트는 읽기만
+  - {path: "docs/OPIC_SCORING_RESEARCH.md",      owner: orchestrator}
   - {path: "PROJECT_REQUIREMENTS.md",            owner: orchestrator}
   - {path: "docs/API_SPEC.md",                   owner: bootstrap}      # Phase 0에서 v2 작성 후 orchestrator 소유
   - {path: "docs/handoff/{agent_id}.md",         owner: "{agent_id}"}   # 각자 자기 파일만
@@ -223,7 +258,8 @@ data_files:
     owner: corpus
     note: |
       기존 필드(id, question_type, topic, survey, difficulty, status, question, doc_type, text) 유지.
-      출제에는 status == "pilot"만 쓴다. Q000(self_intro)을 pilot으로 추가한다:
+      v3 추가 필드(pilot 전부 필수): is_scored, target_functions, target_time_frames, context_scope (question_tags 어휘만).
+      출제에는 status == "pilot"만 쓴다. Q000(self_intro, is_scored=false)을 pilot으로 추가한다:
       "Let's start the interview now. Tell me a little bit about yourself."
   scenarios_json:
     path: rag_docs/build/scenarios.json
@@ -237,15 +273,18 @@ data_files:
             "label": "기본 구성",
             "description": "여러 주제가 섞인 기본 모의고사",
             "slots": [
-              {"order_no": 1, "question_types": ["self_intro"],  "pool": ["Q000"]},
-              {"order_no": 2, "question_types": ["description"], "pool": ["Q001", "Q006"]},
-              {"order_no": 8, "question_types": ["issue", "roleplay_experience"], "pool": ["Q009", "Q012"]}
-            ]
+              {"order_no": 1, "question_types": ["self_intro"],  "is_scored": false, "pool": ["Q000"]},
+              {"order_no": 2, "question_types": ["description"], "is_scored": true,  "pool": ["Q001", "Q006"]},
+              {"order_no": 8, "question_types": ["issue", "roleplay_experience"], "is_scored": true, "pool": ["Q009", "Q012"]}
+            ],
+            "coverage": {"functions": ["describe", "..."], "time_frames": ["present", "past"],
+                         "contexts": ["personal_familiar", "..."], "warnings": ["future 시간대 요구 문항 없음"]}
           }
         ]
       }
     rules:
-      - slots는 order_no 1..8을 빠짐없이 가진다
+      - slots는 order_no 1..8을 빠짐없이 가진다. order_no 1만 is_scored=false
+      - coverage는 pool 전체가 아니라 "어떤 문항이 뽑혀도 보장되는" 채점 대상 커버리지(교집합)와 경고
       - pool의 모든 id는 questions.jsonl의 pilot이며 question_type이 slot의 question_types에 속한다
       - 한 시나리오의 슬롯들에서 서로 다른 문항 8개를 뽑을 수 있어야 한다(중복 없이). corpus가 빌드 시 검사
       - 이 검사를 통과한 시나리오만 파일에 넣는다(지원 가능한 시나리오만 노출)
@@ -334,6 +373,10 @@ db_schema_sql: |
     question_version TEXT NOT NULL,                    -- sha1(question_text)[:12]
     question_text    TEXT NOT NULL,
     question_type    TEXT NOT NULL,
+    is_scored        BOOLEAN NOT NULL,                 -- 자기소개 워밍업 false
+    target_functions   TEXT[] NOT NULL DEFAULT '{}',   -- question_tags.target_functions
+    target_time_frames TEXT[] NOT NULL DEFAULT '{}',
+    context_scope      TEXT[] NOT NULL DEFAULT '{}',
     tts_asset_id     UUID NULL REFERENCES tts_assets(id),
     replay_count     INT  NOT NULL DEFAULT 0,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(), updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
@@ -519,7 +562,9 @@ module_interfaces:
     def get_evaluation(evaluation_id: UUID) -> dict | None
     def get_latest_evaluation(session_id: UUID) -> dict | None
     def load_exam_snapshot(session_id: UUID, selected_answer_ids: list[UUID]) -> list[dict]
-        # order_no 순 [{order_no, question_id, question_type, question_text, answer_id, stt_text, metrics}]
+        # order_no 순 [{order_no, question_id, question_type, question_text, is_scored, target_functions,
+        #              target_time_frames, context_scope, answer_id, stt_status, stt_text, metrics, stt_version}]
+        # + 세션 settings_json.coverage는 get_session으로
     def mark_evaluation_running(evaluation_id: UUID) -> bool
     def finish_evaluation(evaluation_id: UUID, *, result: dict, assessment_status: str,
                           base_level: str | None, estimated_level: str | None, im_estimation_status: str,
@@ -592,14 +637,18 @@ module_interfaces:
     # 핸들러는 이 둘 중 하나를 던져 재시도 여부를 알린다. 그 밖의 예외는 retryable로 취급.
 
   app.grading (grader): |
-    def load_system_prompt() -> tuple[str, str]   # (본문, rubric_version). system_prompt_file을 읽고 sha1을 함께 기록
+    def load_system_prompt() -> tuple[str, dict]  # (본문, {rubric_version, prompt_version, sha1}). system_prompt_file 그대로
+    def precheck_snapshot(snapshot: list[dict]) -> None
+        # LLM 호출 전 입력 검증: 8문항·order_no 연속·is_scored 존재·채점 대상 ≥1·태그 형식. 실패 시 EVAL_INPUT_INVALID
     def build_evidence(snapshot: list[dict], *, exclude_contrast_set_ids: list[str] = ()) -> EvidenceBundle
         # 문항별 대조 답변 + 승급 패턴만. rubrics.jsonl은 넣지 않는다(evaluation_criteria.rules)
     def build_messages(snapshot: list[dict], evidence: EvidenceBundle) -> list[dict]
     def validate_output(raw: EvaluationLLMOutput, snapshot: list[dict]) -> EvaluationResult   # 실패 시 LLMOutputError
     def evaluate_exam(snapshot: list[dict], *, exclude_contrast_set_ids: list[str] = (), job_id: UUID | None = None)
         -> tuple[EvaluationResult, dict]
-        # meta{model, prompt_version, rubric_version, im_rubric_version, system_prompt_sha1, corpus_version, retrieved_doc_ids}
+        # meta{model, prompt_version(opic-evaluation-system-v3), user_template_version, rubric_version, im_rubric_version,
+        #      system_prompt_sha1, corpus_version, retrieved_doc_ids}
+        # evaluations.prompt_version에는 "opic-evaluation-system-v3+evaluate_exam.v1" 형식으로 둘 다 기록
     def tier_of(level: str) -> dict         # {name, color}
     # app/grading/job.py
     def handle(job: dict) -> None           # evaluate 핸들러
@@ -687,7 +736,7 @@ error_codes:
   # 작업 오류 코드(응답 error_code 필드에 담김, HTTP 에러 아님)
   job_error_codes: [TTS_ASSET_MISSING, TTS_HASH_MISMATCH, TTS_FILE_MISSING, NO_ACTIVE_VOICE,
                     STT_DECODE_ERROR, STT_ENGINE_ERROR,
-                    LLM_TRANSIENT, LLM_REFUSED, LLM_INVALID_OUTPUT, EVAL_INPUT_TOO_LARGE, EVAL_INTERNAL]
+                    LLM_TRANSIENT, LLM_REFUSED, LLM_INVALID_OUTPUT, EVAL_INPUT_TOO_LARGE, EVAL_INPUT_INVALID, EVAL_INTERNAL]
 
 # ===========================================================================
 # 9. API 스키마 (app/schemas/api.py, frontend/src/api/types.ts 와 1:1)
@@ -704,7 +753,7 @@ api_schemas:
   SessionOut: {session_id: UUID, status: session_status, scenario_id: str, question_count: int,
                current_order_no: int, all_answered: bool, prepare: "PrepareProgress|null",
                latest_evaluation_status: "evaluation_status|null", created_at: datetime, updated_at: datetime}
-  QuestionOut: {order_no: int, question_id: str, question_type: str, text: str, audio_url: str,
+  QuestionOut: {order_no: int, question_id: str, question_type: str, is_scored: bool, text: str, audio_url: str,
                 duration_sec: "float|null", replay_count: int, replay_limit: int}
   CurrentQuestionOut: {session_status: session_status, total: int, all_answered: bool,
                        question: "QuestionOut|null", pending_answer: "AnswerOut|null",
@@ -716,23 +765,41 @@ api_schemas:
               reject_reason: "str|null", error_code: "str|null", stt_text: "str|null", metrics: "Metrics|null",
               session_status: session_status, current_order_no: int, all_answered: bool}
   Mistake: {quote: str, problem: str, fix: str}
-  ItemFeedback: {order_no: int, evidence: "list[str]", mistakes: "list[Mistake]", upgrade_tip: str}
-  FeedbackCard: {title: str, why: str, before: str, after: str, related_order_nos: "list[int]"}
-  DimensionScores: {functions_tasks: "int 1-5|null", accuracy: "int 1-5|null", context_content: "int 1-5|null",
-                    text_type: "int 1-5|null"}
+  ItemFeedback: {order_no: int, evaluation_role: evaluation_role, task_fulfillment: task_fulfillment,
+                 evidence: "list[str]", mistakes: "list[Mistake]", upgrade_tip: str}
+  FeedbackCard: {title: str, why: str, before: "str|null", after: str, example_kind: example_kind,
+                 related_order_nos: "list[int]", success_condition: str}
+  DimensionFeedback: {summary: str, evidence_order_nos: "list[int]", limitations: "list[str]"}
+  DimensionFeedbackSet: {functions_tasks: DimensionFeedback, accuracy: DimensionFeedback,
+                         context_content: DimensionFeedback, text_type: DimensionFeedback}
+  QuoteRef: {order_no: int, quote: str}
   FactEvidence: {criterion: "functions_tasks|accuracy|context_content|text_type", observation: str,
                  status: fact_status, order_no: "int|null", quote: "str|null"}
-  EvaluationResult: {assessment_status: assessment_status, base_level: "base_level|null", estimated_level: "level|null",
-                     im_estimation_status: im_estimation_status, im_rubric_version: "str|null",
+  CoverageEntry: {name: str, elicited_order_nos: "list[int]", usable_order_nos: "list[int]", gaps: "list[str]"}
+  Coverage: {functions: "list[CoverageEntry]", time_frames: "list[CoverageEntry]", contexts: "list[CoverageEntry]"}
+  SustainedPerformance: {capability: str, evidence: "list[QuoteRef]", summary: str}
+  BreakdownObservation: {demanded_function: str, evidence: "list[QuoteRef]", communicative_impact: str, recovery: str}
+  UnusableItem: {order_no: int, reason: str}
+  EvaluationScope: {submitted_order_nos: "list[int]", scored_order_nos: "list[int]", feedback_only_order_nos: "list[int]",
+                    usable_order_nos: "list[int]", unusable_items: "list[UnusableItem]"}
+  AdditionalTask: {target_function: str, reason: str, suggested_question: str}
+  EvaluationResult: {assessment_status: assessment_status, assessment_basis: "transcript_and_metrics",
+                     rubric_version: str, prompt_version: str, im_rubric_version: "str|null",
+                     evaluation_scope: EvaluationScope, input_issues: "list[str]",
+                     base_level: "base_level|null", estimated_level: "level|null",
+                     im_estimation_status: im_estimation_status,
                      provisional_label: "str|null  (IM 세분값이면 policies.im_provisional_label, 서버가 붙임)",
                      tier: "{name,color}|null", headline: str, grade_rationale: str,
-                     dimension_scores: "DimensionScores|null", fact_evidence: "list[FactEvidence]",
-                     fluency_observations: str, why_this_level: str, why_not_lower: str, next_level_gap: str,
+                     dimension_feedback: DimensionFeedbackSet, coverage: Coverage,
+                     fact_evidence: "list[FactEvidence]", sustained_performance: "list[SustainedPerformance]",
+                     breakdown_observations: "list[BreakdownObservation]", fluency_observations: str,
+                     why_this_level: str, why_not_lower: str, next_level_gap: str,
                      borderline_levels: "list[level]", uncertainty_reasons: "list[str]",
-                     items: "list[ItemFeedback]", feedback_cards: "list[FeedbackCard]", limitations: "list[str]",
-                     insufficient_reason: "str|null", rubric_version: str, disclaimer: str}
-  ResultItemOut: {order_no: int, question_id: str, question_type: str, question_text: str, stt_text: str,
-                  metrics: Metrics}
+                     items: "list[ItemFeedback]", feedback_cards: "list[FeedbackCard]",
+                     additional_tasks_needed: "list[AdditionalTask]", limitations: "list[str]",
+                     insufficient_reason: "str|null", disclaimer: str}
+  ResultItemOut: {order_no: int, question_id: str, question_type: str, question_text: str, is_scored: bool,
+                  stt_text: str, metrics: Metrics}
   ResultOut: {session_status: session_status, evaluation_status: "evaluation_status|null", run_no: "int|null",
               result: "EvaluationResult|null", answers: "list[ResultItemOut]", error_code: "str|null",
               graded_at: "datetime|null"}
@@ -740,40 +807,61 @@ api_schemas:
 # ===========================================================================
 # 10. 평가 LLM 출력 계약 (grader)
 # ===========================================================================
-evaluation_llm_output:   # app/schemas/internal.py EvaluationLLMOutput — Structured Output으로 강제
-  source: docs/REQUIREMENTS_v2.md F3 "출력 계약"
+evaluation_llm_output:   # app/schemas/internal.py EvaluationLLMOutput — Structured Output으로 강제 (contracts v3)
+  source: docs/REQUIREMENTS_v2.md F3 "출력 계약" (opic-evaluation-system-v3)
   fields:
     status: "assessed | insufficient_evidence"
+    assessment_basis: "transcript_and_metrics (고정값)"
+    rubric_version: "performance-feedback-actfl-speaking-v3 (고정값)"
+    prompt_version: "opic-evaluation-system-v3 (고정값)"
+    evaluation_scope: "{submitted_order_nos[], scored_order_nos[], feedback_only_order_nos[], usable_order_nos[], unusable_items[{order_no, reason}]}"
+    input_issues: "[str] 잘못되거나 누락된 태그·전사 메타데이터 등"
     base_level: "NL|NM|NH|IL|IM|IH|AL | null   (insufficient_evidence면 null)"
     estimated_level: "NL|NM|NH|IL|IM1|IM2|IM3|IH|AL | null   (level_rules)"
     im_estimation_status: "provisional | insufficient_evidence | not_applicable"
     im_rubric_version: "project-im-v1 | null  (IM 세분화를 썼을 때)"
-    insufficient_reason: "str | null  (status=insufficient_evidence 또는 IM 세분화 보류면 필수: 사유 + 추가로 필요한 문항)"
+    insufficient_reason: "str | null  (status=insufficient_evidence 또는 IM 세분화 보류면 필수)"
     headline: "한국어 총평 1~2문장. IM 세분값이면 '예상 IM2 · 내부 세분화 기준에 따른 잠정 진단' 형식"
-    grade_rationale: 전체 시험 근거의 판단 사유(한국어)
-    dimension_scores: "{functions_tasks, accuracy, context_content, text_type} 각 1~5 정수 또는 null(미관찰) | null"
+    grade_rationale: 채점 대상 문항 근거의 판단 사유(한국어)
+    dimension_feedback: "{functions_tasks|accuracy|context_content|text_type: {summary(ko), evidence_order_nos[], limitations[]}} — 숫자 점수 없음"
+    coverage: "{functions[], time_frames[], contexts[]} 각 {name, elicited_order_nos[], usable_order_nos[], gaps[]}"
     fact_evidence: "[{criterion, observation(ko), status(demonstrated|not_demonstrated|not_observed), order_no|null, quote|null}]"
-    fluency_observations: "관측 속도·멈춤·수정의 해석과 STT 한계(FACT와 별도, 한국어)"
+    sustained_performance: "[{capability, evidence[{order_no, quote}], summary}]"
+    breakdown_observations: "[{demanded_function, evidence[{order_no, quote}], communicative_impact, recovery}] (없으면 [])"
+    fluency_observations: "관측 속도·멈춤·수정의 해석과 STT 한계(한국어). 발음 평가 아님"
     why_this_level: 예상 등급의 직접 근거 요약
-    why_not_lower: 아래 등급과 구분되는 관찰
-    next_level_gap: 다음 등급의 미충족 특성과 연습 행동
-    borderline_levels: "[level] 근거가 섞일 때 인접 후보(estimated_level의 바로 위·아래만)"
-    uncertainty_reasons: "[str] 전사·과제 범위·일관성의 한계"
-    items: "[{order_no, evidence[0..3], mistakes[0..5]{quote, problem(ko), fix(en)}, upgrade_tip(ko)}]"
-    feedback_cards: "[{title, why, before, after, related_order_nos}] — assessed면 3~5장, 아니면 0~5장"
+    why_not_lower: "아래 등급과 구분되는 관찰 (NL이면 '서비스 최저 등급'이라고 명시)"
+    next_level_gap: "다음 등급의 미충족 특성과 연습 행동 (AL이면 AL 안의 안정성·범위 개선. AM 출력 금지)"
+    borderline_levels: "[level] 근거가 섞일 때 인접 후보"
+    uncertainty_reasons: "[str] 전사·과제 범위·답변 간 차이. 확률·신뢰도 %·합격 보장 표현 금지"
+    items: "[{order_no, evaluation_role(scored|feedback_only), task_fulfillment(fulfilled|partial|not_fulfilled|not_assessable), evidence[0..3], mistakes[0..5]{quote, problem(ko), fix(en)}, upgrade_tip(ko)}]"
+    feedback_cards: "[{title, why, before|null, after, example_kind(correction|practice), related_order_nos[], success_condition}] — assessed 3~5, insufficient 0~5"
+    additional_tasks_needed: "[{target_function, reason, suggested_question}] (없으면 [])"
     limitations: "[str] 음질·STT·근거 부족·세분화 보류 사유 등"
-  server_validation:     # validate_output이 하나라도 실패하면 LLMOutputError
+  server_validation:     # validate_output이 하나라도 실패하면 LLMOutputError. 조용히 보정하지 않는다
+    # 버전·범위
+    - assessment_basis·rubric_version·prompt_version이 evaluation_criteria의 고정값과 같다
+    - evaluation_scope.submitted_order_nos == 시험 전체 order_no, scored_order_nos == is_scored=true 집합,
+      feedback_only_order_nos == is_scored=false 집합(서버 스냅샷 기준). usable ⊆ scored, unusable_items ⊆ scored
+    # 등급
     - base_level ∈ base_levels, estimated_level ∈ levels, level_rules 전부, status와 일관
     - im_estimation_status는 base_level==IM일 때 provisional(세분값 있음) 또는 insufficient_evidence(세분값 null),
-      그 밖에는 not_applicable
-    - provisional이면 im_rubric_version == evaluation_criteria.im_rubric_version
+      그 밖에는 not_applicable. provisional이면 im_rubric_version == evaluation_criteria.im_rubric_version
     - IM 세분화 보류(estimated null)이거나 status insufficient_evidence면 insufficient_reason 필수
-    - borderline_levels는 levels 안의 값. estimated_level이 있으면 그와 인접(levels 순서 차 1)한 값만,
-      IM 세분화 보류면 IM1·IM2·IM3 안에서만
-    - items의 order_no 집합 == 시험 문항 order_no 집합(누락·중복·범위 밖 금지)
-    - evidence, mistakes.quote, fact_evidence.quote(null이 아니면), feedback_cards.before는 해당 문항 STT 텍스트의 부분 문자열
-      (대소문자·공백·구두점 정규화 후 비교). fact_evidence의 order_no가 null이면 quote도 null이어야 함
-    - fact_evidence.status가 not_observed면 quote는 null
-    - related_order_nos·fact_evidence.order_no는 시험 문항 order_no 안에서만
-    - 점수는 1~5 정수 또는 null
-    - 서버가 tier, provisional_label, rubric_version, disclaimer를 붙여 EvaluationResult로 만든다(LLM이 만든 tier는 받지 않음)
+    - borderline_levels는 levels 안의 값. estimated_level이 있으면 인접(levels 순서 차 1)한 값만, IM 세분화 보류면 IM1~IM3 안에서만
+    # 채점 제외 문항 혼입 금지 (v3 핵심)
+    - fact_evidence·sustained_performance·breakdown_observations의 order_no, dimension_feedback.evidence_order_nos,
+      coverage의 elicited/usable_order_nos, feedback_cards.related_order_nos는 모두 is_scored=true 문항만
+    - items: order_no 집합 == 전체 order_no(누락·중복 금지), evaluation_role이 스냅샷의 is_scored와 일치(true→scored)
+    - 유효 답변이 없는 문항(stt_status가 done이 아니거나 빈 전사)은 task_fulfillment=not_assessable이어야 하고
+      그 문항만을 근거로 NL을 주지 않는다(채점 대상 전부가 확인 불가면 status는 insufficient_evidence)
+    # 인용 실재
+    - items.evidence, mistakes.quote, fact_evidence.quote, sustained/breakdown evidence.quote, feedback_cards.before(null 아니면)는
+      해당 문항 STT 텍스트의 부분 문자열(대소문자·공백·구두점 정규화 후). before가 여러 문항이면 그중 하나에 있으면 통과
+    - fact_evidence: order_no null이면 quote null, status not_observed면 quote null
+    - feedback_cards: before가 null이면 example_kind=practice
+    - feedback_cards 개수: assessed 3~5, insufficient_evidence 0~5
+    # 금지 표현(간단한 문자열 검사, 걸리면 LLMOutputError)
+    - "headline·grade_rationale·fluency_observations·why_* 금지 패턴 — '발음 점수', '합격 보장', 숫자+% (정규식 \\d+\\s?%),
+      AM 단독 표기(\\bAM\\b), 'Advanced Mid', '100점'. 금지어 목록은 grader의 validate.py 상수로 두고 handoff에 적는다"
+    - 서버가 tier, provisional_label, disclaimer를 붙여 EvaluationResult로 만든다(LLM이 만든 tier는 받지 않음)

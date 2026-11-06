@@ -83,11 +83,11 @@ python -m scripts.db_reset --yes && python -m scripts.ingest_rag   # data-layer 
 ```text
 너는 OpicTutor 프로젝트의 grader 에이전트다. 지금 브랜치는 agent/grader이고 이 컴퓨터는 PC-B다.
 시험 종료 후 전체 답변을 한 번의 LLM 요청으로 평가하는 엔진이 너의 일이고, 이 서비스에서 가장 중요한 부분이다.
-평가 기준은 docs/REQUIREMENTS_v2.md에 고정된 시스템 프롬프트(performance-feedback-actfl-speaking-v2 + project-im-v1)이며
-그 본문을 한 글자도 바꾸지 않고 싣는다.
+평가 기준은 docs/prompts/opic_evaluation_system.md(opic-evaluation-system-v3, project-im-v1 포함)이며
+그 파일을 한 글자도 바꾸지 않고 그대로 읽어 싣는다. 1번 자기소개는 채점 제외, 영역별 숫자 점수는 없다(서술 진단).
 
-1. agents/HANDOFF.md, agents/orchestration.yaml, agents/contracts.yaml(contract_version 2 이상), docs/handoff/corpus.md,
-   docs/handoff/data-layer.md를 읽어라.
+1. agents/HANDOFF.md, agents/orchestration.yaml, agents/contracts.yaml(contract_version 3 이상), docs/prompts/opic_evaluation_system.md,
+   docs/OPIC_SCORING_RESEARCH.md, docs/handoff/corpus.md, docs/handoff/data-layer.md를 읽어라.
 2. orchestration.yaml의 shared_preamble을 모든 작업의 규칙으로 삼아라.
 3. agents/PC-B_ai/2_grader.yaml의 prompt를 작업 지시로 삼아 그대로 수행하라.
    data-layer M1이 아직이면 시스템 프롬프트 추출·검증 로직·pytest부터 하고, M1 공지 후 rebase해서 DB 연동을 진행하라.

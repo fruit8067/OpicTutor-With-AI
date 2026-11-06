@@ -25,8 +25,12 @@ prompt: |
      - 결과 조회가 AI를 호출하지 않는다. regrade 후 이전 run이 결과를 덮어쓰지 않는다
   2. 계약 준수: /openapi.json·실제 응답·DB 스키마를 contracts.yaml과 대조. 상태 전이 표 밖의 전이가 가능한 경로가 있는가
   3. 평가 신뢰성
-     - backend/prompts/system/performance-feedback-actfl-speaking-v2.md가 docs/REQUIREMENTS_v2.md의 시스템 프롬프트 본문과
-       글자 단위로 같고, 평가 요청의 system 역할에 그것만 들어가는가. rubrics.jsonl이 기본 기준으로 주입되지 않는가
+     - 런타임이 docs/prompts/opic_evaluation_system.md(opic-evaluation-system-v3)를 그대로 읽고, 그 본문이 REQUIREMENTS_v2·OpicTutor.md
+       수록 본문과 글자 단위로 같으며, system 역할에 그것만 들어가는가. rubrics.jsonl이 기본 기준으로 주입되지 않는가
+     - 자기소개(is_scored=false)가 등급 근거(fact_evidence·sustained·breakdown·dimension_feedback·카드)에 섞이는 경로가 있는가(있으면 🔴)
+       validate_output과 eval_exam 함정 시험(자기소개 혼입·결측·전부 결측·미출제 미래·인젝션) 결과를 확인
+     - 무음·STT 실패가 NL로 처리되는 경로, 영역별 숫자 점수·확률(%)·발음 판정 표현이 API·화면에 나오는가(있으면 🔴/🟠)
+     - 문항 태그가 실제 질문과 맞는가(rag_docs/source/question_tags_rationale.yaml 표본 10개 직접 대조)
      - 2단 등급: base_level≠IM이면 estimated==base, base IM이면 IM1~IM3 또는 null. DB CHECK·validate_output 양쪽에서 막히는가
      - IM 세분값이 화면·API 어디서든 "내부 세분화 기준에 따른 잠정 진단" 라벨 없이 노출되는 곳이 있는가(있으면 🟠)
      - IM 세분화 보류를 IM2 등으로 채우는 코드가 있는가(있으면 🔴)

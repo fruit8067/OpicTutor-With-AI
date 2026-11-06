@@ -3,23 +3,27 @@ agent_id: corpus
 phase: 1
 branch: agent/corpus
 milestones:
-  M1: "Q000 추가된 questions.jsonl, scenarios.json(최소 default), VERSION → 먼저 PR"
-  M2: "Q013~Q037 반영 완료 코퍼스, 시나리오 확장, 빌드 리포트"
+  M1: "Q000 추가 + pilot 13개 문항 태그(is_scored·target_functions·target_time_frames·context_scope) + scenarios.json(default, coverage 포함) + VERSION → 먼저 PR"
+  M2: "Q013~Q187 반영·태그 완료 코퍼스, 시나리오 확장(커버리지 경고 포함), 빌드 리포트"
 owns: ["rag_docs/**", "backend/requirements/corpus.txt", "docs/handoff/corpus.md", "docs/change-requests/corpus-*.md"]
 needs: [python 3.11+]
 
 prompt: |
-  [먼저 읽기] agents/orchestration.yaml(shared_preamble 포함) → agents/contracts.yaml(data_files 절)
+  [먼저 읽기] agents/orchestration.yaml(shared_preamble 포함) → agents/contracts.yaml(contract_version 3: data_files, question_tags 절)
   → rag_docs/README.md → rag_docs/source/*.yaml → rag_docs/scripts/build_corpus.py, check_monotonic.py
-  → docs/REQUIREMENTS_v2.md F0(출제 원천)·F5
+  → docs/REQUIREMENTS_v2.md F0(출제 원천·채점 여부·태그)·F5 → docs/prompts/opic_evaluation_system.md F절(문항 유형별 실제 요구)
+  → docs/OPIC_SCORING_RESEARCH.md 3절(미래 시간대 보강 결정)
 
   [역할] 출제 문제 은행·시나리오·평가 근거 코퍼스의 담당자다. 이 데이터가 시험 구성과 평가 근거를 모두 결정한다.
   지금 상태: question_bank.yaml은 Q001~Q030(pilot 12, todo 18)인데,
   source/contrast_sets_04~08.yaml에 Q013~Q187의 9등급 대조 답변이 이미 작성되어 있다
   (04: Q013~Q017, 05: Q018~Q037, 06: Q038~Q087, 07: Q088~Q137, 08: Q138~Q187). 빌드에는 아직 미반영(build는 12세트).
-  06~08은 수험생 복기 주제를 각색한 교육용 합성 예시이며 실제 기출 문구가 아니라고 파일 머리말에 적혀 있다. 그 문구를 유지한다.
-  평가 기준 변경(contracts v2): rubrics.jsonl은 더 이상 기본 채점 기준으로 프롬프트에 들어가지 않는다(고정 시스템 프롬프트가 기준).
-  rubrics.jsonl은 지우지 말고 빌드는 유지하되, README에 "참고용, 평가 기본 기준 아님(performance-feedback-actfl-speaking-v2 우선)"을 적는다.
+  06~08(재업로드본)은 기출 복기 주제에 맞춰 새로 쓴 OPIc 스타일 연습문항·교육용 합성 답변이며 실제 출제 원문이 아니라고
+  파일 머리말에 적혀 있다. 그 문구를 유지하고, 질문 문장은 각 문항 위의 "# Qxxx 질문:" 주석에 있다.
+  평가 기준(contracts v3): 고정 시스템 프롬프트(opic-evaluation-system-v3)가 기준이다. rubrics.jsonl은 기본 채점 기준이 아니다.
+  rubrics.jsonl은 지우지 말고 빌드는 유지하되, README에 "참고용, 평가 기본 기준 아님(performance-feedback-actfl-speaking-v3 우선)"을 적는다.
+  v3에서 문항 메타데이터가 평가 입력이 된다: 평가 모델은 문항 태그를 보고 "출제된 기능만" 판단하므로,
+  태그가 틀리면 미출제 기능을 실패로 감점하거나 출제된 기능을 놓친다. 태그 품질이 곧 평가 품질이다.
   대조 답변은 "보조 근거·학습 예시"다. IM1~IM3 대조 답변이 project-im-v1(REQUIREMENTS_v2 F3 C절)의 프로필과
   눈에 띄게 어긋나면(예: 단어 수만 늘고 내용 확장은 없음) report.md에 목록으로 남긴다(대량 재작성은 하지 않음).
 
@@ -28,9 +32,18 @@ prompt: |
      {id: Q000, question_type: self_intro, topic: self_intro, survey: common, difficulty: "1-6", status: pilot,
       question: "Let's start the interview now. Tell me a little bit about yourself."}
      build_corpus.py가 question_type self_intro를 허용하도록 고친다(대조 세트가 없어도 pilot으로 허용하는 예외는 Q000만).
+  1-1. pilot 13문항(Q000~Q012)에 v3 태그를 단다(contracts question_tags 어휘만):
+     is_scored(Q000만 false), target_functions, target_time_frames, context_scope.
+     규칙: "실제 질문 문장이 요구하는 것"만 태그한다. 유형 이름만 보고 붙이지 않는다(opic_evaluation_system.md F절).
+       예) "Tell me about the last time you went to the park"는 narrate_past·past. 미래를 묻지 않으면 future를 붙이지 않는다.
+       roleplay_ask는 ask_information, roleplay_solve는 solve_problem + unexpected_situation 여부를 문장으로 판단.
+     태그 근거(질문 속 구절)를 source/question_tags_rationale.yaml에 문항별 한 줄로 남긴다(검토 가능하게).
+     빌드 검사: pilot은 네 필드 모두 필수, 어휘 밖 값 금지, is_scored=false는 self_intro만.
   2. source/scenarios.yaml을 만들고 빌드가 build/scenarios.json을 쓰게 한다(contracts.yaml data_files.scenarios_json 형식).
      M1에는 현재 pilot 12개 + Q000으로 만들 수 있는 "default" 하나만 넣는다.
-     슬롯 구성은 REQUIREMENTS_v2 F0 표(1 self_intro … 8 issue|roleplay_experience).
+     슬롯 구성은 REQUIREMENTS_v2 F0 표(1 self_intro[is_scored=false] … 8 issue|roleplay_experience).
+     시나리오마다 coverage(채점 대상 슬롯에서 "어떤 문항이 뽑혀도 보장되는" functions·time_frames·contexts)와 warnings를 계산해 넣는다.
+     future 시간대·unexpected_situation이 보장되지 않으면 warnings에 적는다(실패 아님).
   3. 빌드 시 시나리오 검사: 각 슬롯 pool이 비어 있지 않고, pool의 모든 id가 pilot이며 유형이 맞고,
      8슬롯에서 서로 다른 문항을 뽑을 수 있는지(이분 매칭) 확인. 실패한 시나리오는 파일에서 빼고 report.md에 사유를 적는다.
   4. build/VERSION에 corpus_version(YYYY-MM-DD.N)을 쓰고, 모든 build/*.jsonl 문서에 corpus_version 필드를 넣는다.
@@ -41,13 +54,17 @@ prompt: |
      question_type·topic·survey·difficulty는 질문 내용을 보고 기존 분류 규칙에 맞춰 정한다. 판단이 애매한 항목은 report에 표시.
      문항이 150개 이상이므로 분류는 규칙 기반 스크립트(키워드·질문 형식)로 1차 처리하고, 애매한 것만 직접 판단한다.
      실제 기출 문구를 그대로 옮긴 것으로 보이는 문항이 있으면 report에 표시한다.
-  7. Q013~Q187 중 대조 세트가 9등급 모두 있고 build 검사(check_monotonic 포함)를 통과한 문항만 status를 pilot으로 바꾼다.
+     새 문항 전부에 1-1과 같은 규칙으로 태그를 단다(규칙 기반 1차 + 애매한 것만 직접 판단, rationale 파일에 근거).
+  7. Q013~Q187 중 대조 세트가 9등급 모두 있고 태그가 완비되고 build 검사(check_monotonic 포함)를 통과한 문항만 status를 pilot으로 바꾼다.
      통과하지 못한 문항은 todo로 두고 사유를 report.md에 남긴다. todo 자료를 출제에 쓰지 않는다.
   8. build_corpus.py로 answers.jsonl을 다시 만든다(clean + stt 변형, contrast_set_id = 문항 id 규칙 유지).
      기존 필드 이름을 바꾸지 않는다(data-layer의 ingest가 의존). 새 필드 추가는 허용.
   9. 늘어난 pilot으로 시나리오를 확장한다. 사용자 선택지로 의미 있는 묶음(예: "여가 중심", "운동·건강", "여행")을
      검사를 통과하는 것만 추가한다. 통과 못 하면 넣지 않는다(대체 문항으로 몰래 채우지 않음).
      label·description은 한국어, scenario_id는 영문 snake_case.
+  9-1. 미래 시간대 보강(OPIC_SCORING_RESEARCH 3절): pilot 중 실제로 미래 계획·예상 결과를 묻는 문항을 찾아
+     default의 한 슬롯(예: 5 comparison 또는 8 issue) pool에 포함할 수 있는지 검토한다. 슬롯 유형 규칙을 지키는 범위에서만 넣고,
+     없으면 report에 "미래 시간대 문항 부족"을 남긴다. 태그만 붙여 커버리지를 채우지 않는다.
   10. (여유가 있으면) Q000 대조 세트 9등급을 contrast_sets_q000.yaml로 작성한다(06~08은 이미 다른 문항이 쓰고 있음).
       형식·주의 문구는 08과 같게. IM1~IM3는 project-im-v1 프로필 차이가 드러나게 쓴다.
   11. README.md와 report.md를 갱신한다: 문서 수, 등급별 통계, 시나리오 목록과 슬롯별 pool 크기, 검사 결과.
@@ -62,6 +79,7 @@ local_checks:
   - "python scripts/check_monotonic.py  → 경고 0 (또는 report에 사유)"
   - "python -c \"import json;d=json.load(open('build/scenarios.json',encoding='utf-8'));print([s['scenario_id'] for s in d['scenarios']])\""
   - "grep -c '\"status\": \"pilot\"' build/questions.jsonl"
+  - "python -c \"import json;q=[json.loads(l) for l in open('build/questions.jsonl',encoding='utf-8')];p=[x for x in q if x['status']=='pilot'];print(len(p), sum(1 for x in p if not x['is_scored']), all('target_functions' in x for x in p))\"  → (N, 1, True)"
 
 handoff_must_include:
   - corpus_version
@@ -69,6 +87,8 @@ handoff_must_include:
   - M1 이후 바뀐 문항 문장 목록(TTS 재생성 대상)
   - todo로 남긴 문항과 사유
   - IM1~IM3 대조 답변 중 project-im-v1 프로필과 어긋나는 목록
+  - 시나리오별 coverage·warnings(특히 future·unexpected_situation 보장 여부)
+  - 태그 규칙 요약과 애매했던 문항 목록
   - 문항 수가 늘어 임베딩 대상이 몇 건인지(data-layer ingest 비용 추정용)
 
 done_when: "M2 PR 병합, build 검사 0건 오류"
