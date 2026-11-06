@@ -7,7 +7,7 @@ backend/.env를 load_dotenv(override=False)로 읽어 os.getenv 기반 인증에
 평가 기준·API·DB 스키마는 v3 그대로다.
 
 ## 상태
-CR orchestrator-01에 맞춘 M0 골격 재검증 통과, PR 병합 대기 (2026-11-06 KST). main 기반으로 브랜치를 재구성했으며 아래 과거 실행 기록과 현재 상태를 구분한다.
+M0는 PR #1/main afa076e에 병합 완료됐다. 2026-11-07에는 contracts v5에 맞춘 API 문서와 인수인계만 갱신한다. 초기 골격 검증과 이후 A/B 구현 검증을 구분하며 C 기능은 추가하지 않는다.
 
 ## 공개 함수·화면
 contracts v4의 API/내부 타입·함수 골격. tier_of는 nullable 선언이며 C·grader 등의 함수 본문은 담당 역할의 stub으로 유지한다. Pickle LLM 설정은 공백 기본값과 os.getenv 인증을 위한 dotenv 로드를 사용한다.
