@@ -1,0 +1,142 @@
+# AI-assisted: 문항 정리와 태그는 OpenAI Codex의 도움으로 작성했습니다.
+# 교육용 연습문항이며 실제 기출 원문/공식 채점 답안이 아닙니다. 기존 합성 답변 본문은 수정하지 않았습니다.
+Q000:
+  question_excerpt: Let's start the interview now. Tell me a little bit about yourself.
+  target_functions:
+  - self_introduce
+  target_time_frames:
+  - present
+  context_scope:
+  - personal_familiar
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q001:
+  question_excerpt: Please describe the place where you live. What does it look like,
+    and which room do you like the most? Tell me in as much detail as possible.
+  target_functions:
+  - describe
+  target_time_frames:
+  - present
+  context_scope:
+  - personal_familiar
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q002:
+  question_excerpt: You indicated that you go to the park. What do you usually do
+    when you go there? Who do you go with, and when do you usually go?
+  target_functions:
+  - report_routine
+  target_time_frames:
+  - present
+  context_scope:
+  - personal_familiar
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q003:
+  question_excerpt: Tell me about a memorable trip you took in your country. Where
+    did you go, who were you with, and what happened that made it so memorable?
+  target_functions:
+  - narrate_past
+  target_time_frames:
+  - past
+  context_scope:
+  - personal_familiar
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q004:
+  question_excerpt: When did you first become interested in music? What kind of music
+    did you listen to back then, and how has your taste changed since?
+  target_functions:
+  - narrate_past
+  - compare
+  target_time_frames:
+  - past
+  context_scope:
+  - personal_familiar
+  review_note: '문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음. 혼합 과제: 대표 유형
+    외의 실제 요구를 추가 태그로 기록.'
+Q005:
+  question_excerpt: How are cafes today different from the cafes you went to a few
+    years ago? Compare the atmosphere, menus, and the way people use them.
+  target_functions:
+  - compare
+  target_time_frames:
+  - present
+  context_scope:
+  - personal_familiar
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q006:
+  question_excerpt: What kind of movies do you like to watch? Tell me about your favorite
+    genre and why you enjoy it.
+  target_functions:
+  - describe
+  - express_opinion
+  target_time_frames:
+  - present
+  context_scope:
+  - personal_familiar
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q007:
+  question_excerpt: Tell me about your jogging or walking routine. Where do you go,
+    how often, and what do you do before and after exercising?
+  target_functions:
+  - report_routine
+  target_time_frames:
+  - present
+  context_scope:
+  - personal_familiar
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q008:
+  question_excerpt: Tell me about how people recycle in your country. What do people
+    usually recycle, and how do they do it?
+  target_functions:
+  - describe
+  - report_routine
+  target_time_frames:
+  - present
+  context_scope:
+  - community_public
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q009:
+  question_excerpt: Technology has changed the way people live. What is one piece
+    of technology that people commonly use these days, and what concerns do people
+    have about it?
+  target_functions:
+  - explain_issue
+  - compare
+  target_time_frames:
+  - present
+  context_scope:
+  - community_public
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q010:
+  question_excerpt: I'd like to give you a situation and ask you to act it out. You
+    want to join a new gym. Call the gym and ask three or four questions to get the
+    information you need.
+  target_functions:
+  - ask_information
+  target_time_frames:
+  - present
+  context_scope:
+  - everyday_transaction
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q011:
+  question_excerpt: I'm sorry, but there is a problem. You bought two concert tickets
+    for you and your friend, but something came up and you can't go. Call your friend,
+    explain the situation, and suggest two or three alternatives.
+  target_functions:
+  - solve_problem
+  target_time_frames:
+  - present
+  context_scope:
+  - everyday_transaction
+  - unexpected_situation
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q012:
+  question_excerpt: Have you ever had a situation where your plans were canceled or
+    something went wrong with a reservation? Tell me what happened and how you dealt
+    with it.
+  target_functions:
+  - narrate_past
+  target_time_frames:
+  - past
+  context_scope:
+  - everyday_transaction
+  - unexpected_situation
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.

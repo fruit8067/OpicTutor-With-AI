@@ -1,0 +1,120 @@
+{
+  "version": "2026-11-06.86127713111320",
+  "scenarios": [
+    {
+      "scenario_id": "default",
+      "label": "기본 구성",
+      "description": "여러 주제가 섞인 8문항 모의고사",
+      "slots": [
+        {
+          "order_no": 1,
+          "question_types": [
+            "self_intro"
+          ],
+          "is_scored": false,
+          "pool": [
+            "Q000"
+          ]
+        },
+        {
+          "order_no": 2,
+          "question_types": [
+            "description"
+          ],
+          "is_scored": true,
+          "pool": [
+            "Q001",
+            "Q006",
+            "Q008"
+          ]
+        },
+        {
+          "order_no": 3,
+          "question_types": [
+            "routine"
+          ],
+          "is_scored": true,
+          "pool": [
+            "Q002",
+            "Q007"
+          ]
+        },
+        {
+          "order_no": 4,
+          "question_types": [
+            "past_experience"
+          ],
+          "is_scored": true,
+          "pool": [
+            "Q003",
+            "Q004"
+          ]
+        },
+        {
+          "order_no": 5,
+          "question_types": [
+            "comparison"
+          ],
+          "is_scored": true,
+          "pool": [
+            "Q005"
+          ]
+        },
+        {
+          "order_no": 6,
+          "question_types": [
+            "roleplay_ask"
+          ],
+          "is_scored": true,
+          "pool": [
+            "Q010"
+          ]
+        },
+        {
+          "order_no": 7,
+          "question_types": [
+            "roleplay_solve"
+          ],
+          "is_scored": true,
+          "pool": [
+            "Q011"
+          ]
+        },
+        {
+          "order_no": 8,
+          "question_types": [
+            "issue",
+            "roleplay_experience"
+          ],
+          "is_scored": true,
+          "pool": [
+            "Q009",
+            "Q012"
+          ]
+        }
+      ],
+      "coverage": {
+        "functions": [
+          "ask_information",
+          "compare",
+          "describe",
+          "narrate_past",
+          "report_routine",
+          "solve_problem"
+        ],
+        "time_frames": [
+          "past",
+          "present"
+        ],
+        "contexts": [
+          "everyday_transaction",
+          "personal_familiar",
+          "unexpected_situation"
+        ],
+        "warnings": [
+          "future 시간대 요구가 모든 추첨에서 보장되지 않음"
+        ]
+      }
+    }
+  ]
+}
