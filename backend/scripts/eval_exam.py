@@ -21,6 +21,10 @@ from app.llm.chat import LLMOutputError,LLMConfigurationError,llm_options
 NOTICE='합성 데이터 기반 형식·규칙 회귀 검증이며 실제 수험생 채점 정확도가 아님. IM1~IM3는 내부 잠정 기준(project-im-v1)'
 LEVELS=contract()['levels']
 TRAPS=['warmup_only_al','technical_missing','all_missing','no_future','injection']
+WARMUP_FALLBACK={
+    'IL': 'My name is Alex. I live in a small town and work in an office. In my free time, I enjoy walking with my friends.',
+    'AL': 'I am Alex, a community project coordinator. Although I used to prefer working independently, organizing local events has taught me to adapt my plans and collaborate with people whose priorities differ from mine.',
+}
 
 
 def cases(traps=False):
@@ -48,9 +52,13 @@ def make_snapshot(case,answers):
     for index,q in enumerate(selected):
         level=('AL' if case['trap']=='warmup_only_al' else 'IL') if index==0 else case['levels'][index-1]
         source=answers.get((q.question_id,level))
+        version='synthetic-corpus:m1'
+        if source is None and index==0 and not q.is_scored and q.question_type=='self_intro':
+            source={'answer_text':WARMUP_FALLBACK[level],'est_seconds':30}
+            version='synthetic-fixed-warmup:v1'
         if source is None: raise ValueError('합성 답변 누락: '+q.question_id+'-'+level)
         text=source['answer_text'];duration=max(1,source.get('est_seconds',30));words=len(text.split())
-        row={**q.model_dump(), 'stt_status':'done','stt_text':text,'stt_version':'synthetic-corpus:m1',
+        row={**q.model_dump(), 'stt_status':'done','stt_text':text,'stt_version':version,
              'metrics':dict(duration_sec=duration,speech_sec=duration,word_count=words,wpm=round(words*60/duration,1),
                  articulation_wpm=None,long_pause_count=0,observed_filler_per100=None,metrics_version='m1')}
         snapshot.append(row)
@@ -146,6 +154,9 @@ def main():
         'planned_exams':planned,'max_llm_calls':planned*3,'upper_cost_usd':upper,'input_rate':rates[0],'output_rate':rates[1],
         'synthetic_metrics':True,'mode':'plan' if args.plan else 'live'}
     prepared=[(case,*make_snapshot(case,answers)) for case in selected]
+    metadata['fixed_warmup_fallback']={'version':'synthetic-fixed-warmup:v1',
+        'samples':WARMUP_FALLBACK,'case_ids':[case['id'] for case,snapshot,_ in prepared
+            if snapshot[0]['stt_version']=='synthetic-fixed-warmup:v1']}
     try: embed_encoding=tiktoken.encoding_for_model(settings.EMBED_MODEL)
     except KeyError: embed_encoding=tiktoken.get_encoding('cl100k_base')
     embed_texts=[row['stt_text'] for _,snapshot,_ in prepared for row in snapshot

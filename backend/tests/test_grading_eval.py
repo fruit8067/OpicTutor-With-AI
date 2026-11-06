@@ -1,6 +1,7 @@
 # AI-assisted: 합성 평가 계획 검증은 OpenAI Codex의 도움으로 작성했습니다.
 # OWNER: grader (contracts.yaml ownership)
 import json
+import pytest
 from scripts.eval_exam import cases,make_snapshot,metrics
 from app.config import settings
 from app.grading.validate import precheck_snapshot
@@ -26,3 +27,16 @@ def test_metrics_do_not_hide_failed_or_withheld_predictions():
         dict(id='c',expected='IM2',estimated_level=None,base_level='IM',status='done',latency_ms=1,estimated_cost_usd=0)])
     assert result['within_one']==1/3 and result['exact']==1/3
     assert result['base_agreement']==2/3 and result['im_withheld_rate']==1
+
+
+def test_optional_warmup_examples_have_documented_fallback_but_scored_answers_do_not():
+    answers={(row['question_id'],row['level']):row for row in
+        (json.loads(line) for line in (settings.RAG_BUILD_DIR/'answers.jsonl').read_text(encoding='utf-8').splitlines())
+        if row['text_style']=='stt' and row['question_id']!='Q000'}
+    case=cases()[0]
+    rows,_=make_snapshot(case,answers)
+    assert rows[0]['is_scored'] is False and rows[0]['stt_version']=='synthetic-fixed-warmup:v1'
+    assert rows[0]['stt_text'].startswith('My name is Alex.')
+    missing=rows[1]['question_id']
+    answers.pop((missing,case['levels'][0]))
+    with pytest.raises(ValueError,match=missing): make_snapshot(case,answers)

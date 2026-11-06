@@ -22,6 +22,8 @@ data-layer: 실제 corpus ingest/DB 함수 main 반영. session-api: build_quest
 감사 후 grader 단위/provider 경계 44개 통과(2.76초). 전체 grader tests 최초 실행은 40 passed/1 failed였으며 실패 원인은 M0의 session-api stub이었다. 이 연결 검사는 면제하지 않고 main 의존 기능 준비 후 재실행한다. 실제 정확도·요금은 미측정이다.
 
 ## 감사 후 수정
+- 2026-11-07 교차 검증에서 M1의 선택적 Q000 대조 답변 부재로 평가 계획 생성 실패를 재현했다. 워밍업만 고정 샘플(v1)로 대체하고 리포트에 샘플·적용 case ID를 기록한다. 채점 문항 대조 답변이 없으면 계속 실패한다. 채점 기준이나 사용자 답변을 대체하지 않는다.
+- A/B 메모리 조합 검증 101 passed(5.37초): 실제 DB·HTTP·STT/평가 작업 경계·결과 저장·10회 재조회·실패 후 재평가를 연결했다. ASR/LLM 추론은 명시적인 fixture이며 실제 정확도·서비스 성공 결과가 아니다.
 - 기술적 결측 fact는 not_observed만 허용한다. demonstrated/not_demonstrated를 모두 거부하는 회귀 검증을 추가했다.
 - 유사 검색 후보와 대조 세트 확장 모두 현재 corpus_version을 다시 검사한다.
 - HTTP 408/429/502를 실제 설치 SDK+MockTransport로 재현해 LLMTransientError 및 재시도를 검증했다.
