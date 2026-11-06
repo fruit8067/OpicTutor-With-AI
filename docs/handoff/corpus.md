@@ -1,7 +1,7 @@
 # corpus M1/M2
 
 ## 상태
-M1은 PR #5로 main 3f2d3c9에 병합됐다. M2 코드·빌드 검증 통과, M2 PR 대기 (2026-11-06 KST).
+M1은 PR #5로 main 3f2d3c9에 병합됐다. 2026-11-07 재빌드·unit 3개 통과. M2는 PR #12 Draft이며 data-layer M1/지정 병합 순서 대기다.
 같은 agent/corpus 브랜치를 main에 rebase하고 M2 자기 증분만 이어갔다. 과거 stacked/늦은 공개 위반은 감사 이력으로 보존한다.
 
 ## 완료한 것
