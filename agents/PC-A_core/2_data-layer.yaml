@@ -48,7 +48,8 @@ prompt: |
   4. app/llm/embeddings.py: embed_texts — openai SDK, EMBED_BASE_URL/EMBED_API_KEY/EMBED_MODEL, 배치 100, 일시 오류 재시도 2회,
      차원이 EMBED_DIM과 다르면 예외. log_ai_request(purpose='embed') 기록(텍스트는 기록하지 않음).
   5. scripts/ingest_rag.py: rag_docs/build/{rubrics,upgrade_patterns,questions,answers}.jsonl + VERSION 적재.
-     - id 기준 UPSERT, 같은 corpus_version·같은 text면 임베딩 재계산 생략(비용 절약).
+     - id 기준 UPSERT, 같은 corpus_version·text·임베딩 프로필(model/dim/endpoint hash)이면 임베딩 재계산 생략.
+       contracts v7: 3072 full precision exact cosine. 기존 1536 DB는 원문 보존 전진 마이그레이션 후 재임베딩.
      - 임베딩은 doc_type answer와 question만(루브릭·승급 패턴은 직접 조회하므로 NULL 허용).
      - 실행 전에 예상 임베딩 개수 출력, --dry-run 지원. 끝나면 doc_type별 건수 출력.
        코퍼스가 Q001~Q187(대조 답변 약 3,300건 이상)로 늘어나므로 배치·재시작(중단 지점부터 이어서)을 지원한다.

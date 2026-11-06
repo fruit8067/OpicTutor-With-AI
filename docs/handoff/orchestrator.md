@@ -2,6 +2,8 @@
 
 ## 상태
 
+CR orchestrator-04 제안: 사용자 제공 Pickle URL/model·키 별칭, large/3072와 모델별 재임베딩. main 병합 뒤 소유 역할에서 구현한다. 현재 기존 DB는 vector(1536), rag_docs 0행이며 키 파일은 저장 확인 대기다. native ASR 증거는 PR #20에 별도로 보존한다.
+
 진행 중, 2026-11-07 KST. CR orchestrator-01/session-api-01, M0, corpus M1, trusted ownership이 main에 반영됐다. C는 추가하지 않고 A/B 요구사항·API·flowchart 연결을 심화 검증한다. 과거 위반은 감사 이력으로 보존한다.
 
 ## 완료한 것
