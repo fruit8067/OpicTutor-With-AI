@@ -1,6 +1,6 @@
 # AI-assisted: 이 코드는 OpenAI Codex의 도움으로 작성되었습니다.
 # OWNER: bootstrap (contracts.yaml ownership)
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 from dotenv import load_dotenv
 from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -36,9 +36,19 @@ class Settings(BaseSettings):
     WORKER_JOB_TYPES: str = 'tts_prepare,stt,evaluate'
     LOG_LEVEL: str = 'INFO'
 
+    @field_validator('DATA_DIR','TTS_DIR','RAG_BUILD_DIR','EVAL_SYSTEM_PROMPT_PATH', mode='before')
+    @classmethod
+    def relative_path_settings(cls, value) -> Path:
+        # Stored configuration must move with the repository across Windows/POSIX.
+        raw=str(value)
+        if Path(raw).is_absolute() or PureWindowsPath(raw).drive or PureWindowsPath(raw).root:
+            raise ValueError('파일 설정은 backend/ 기준 상대 경로를 사용하세요.')
+        return Path(raw.replace('\\','/'))
+
     @field_validator('DATA_DIR','TTS_DIR','RAG_BUILD_DIR','EVAL_SYSTEM_PROMPT_PATH', mode='after')
     @classmethod
-    def absolute_paths(cls, value: Path) -> Path:
+    def resolve_backend_paths(cls, value: Path) -> Path:
+        # Compute from this checkout, never from a developer's home or current cwd.
         return (BACKEND_DIR / value).resolve()
 
 settings = Settings()
