@@ -1,6 +1,6 @@
 # 코퍼스 v3 빌드 리포트
 
-- corpus_version: 2026-11-06.77496797373666
+- corpus_version: 2026-11-06.188333975604103
 - 문항 238 / pilot 222 / todo 16
 - 문서 수: {'rubrics': 9, 'upgrade_patterns': 8, 'questions': 238, 'answers': 4284}
 - 예상 임베딩 대상: 4522

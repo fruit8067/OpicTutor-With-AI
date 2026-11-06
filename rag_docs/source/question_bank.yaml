@@ -1113,8 +1113,10 @@ questions:
   is_scored: true
   target_functions:
   - explain_issue
+  - narrate_past
   target_time_frames:
   - present
+  - past
   context_scope:
   - community_public
 - id: Q070
@@ -2225,6 +2227,7 @@ questions:
   - past
   context_scope:
   - personal_familiar
+  - unexpected_situation
 - id: Q139
   question_type: past_experience
   topic: school_work
@@ -2321,6 +2324,7 @@ questions:
   - past
   context_scope:
   - personal_familiar
+  - unexpected_situation
 - id: Q145
   question_type: past_experience
   topic: travel
