@@ -59,4 +59,4 @@ def require_state(row, *states):
     if row['status'] not in states: raise AppError('INVALID_STATE')
 
 def idempotency_lock(cur, key):
-    if key: cur.execute('SELECT pg_advisory_xact_lock(hashtextextended(%s, 0))', (key,))
+    if key is not None: cur.execute('SELECT pg_advisory_xact_lock(hashtextextended(%s, 0))', (key,))
