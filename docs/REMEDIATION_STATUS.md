@@ -13,6 +13,7 @@
 - 기존 혼합 Pickle PR #8은 닫고 실제 소유 역할의 변경으로 재구성했다.
 - 감사·trusted ownership 보강 PR #9는 필수 ownership 성공 확인 후 rebase 방식으로 main에 병합됐다(da004c5). 보호 규칙을 면제하거나 완화하지 않았다.
 - CR session-api-01은 PR #14/main 90e7835에 반영됐다. contracts v5는 생성 재전송이 코퍼스 변경에 영향을 받지 않도록 저장 세션 조회 함수를 추가한다.
+- CR data-layer-01은 PR #16/main a136406에 반영됐다. contracts v6는 기존 API/DB의 nullable 평가 메타데이터를 공개 함수 타입과 일치시킨다. 런타임·컬럼·평가 기준 변경은 없다.
 
 ## 이번에 진행하는 작업
 
