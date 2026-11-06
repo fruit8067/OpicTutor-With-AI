@@ -9,7 +9,7 @@
 - CR orchestrator-01: PR #10에서 승인·병합. contracts v4, orchestration v3, 실제 도구 attribution, nullable tier·strip UTF-8 TTS hash·provider 실제 요청 예산을 명확히 했다. 고정 평가 원문과 API/도메인 DB 스키마는 유지했다.
 - 저장소는 rebase merge만 허용한다. main-contract-gates ruleset이 활성화되어 있으며 상세 게이트 적용 여부를 API와 실제 CI로 재확인한다.
 - M0: bootstrap PR #1을 독립 브랜치로 재구성·검증하여 main에 병합했다.
-- corpus M1: PR #5를 main에 병합했다. M2 확대 자료는 별도 Draft PR #12에서 검증한다.
+- corpus M1: PR #5, M2 확대 자료: PR #12를 main에 병합했다.
 - 기존 혼합 Pickle PR #8은 닫고 실제 소유 역할의 변경으로 재구성했다.
 - 감사·trusted ownership 보강 PR #9는 필수 ownership 성공 확인 후 rebase 방식으로 main에 병합됐다(da004c5). 보호 규칙을 면제하거나 완화하지 않았다.
 - CR session-api-01은 PR #14/main 90e7835에 반영됐다. contracts v5는 생성 재전송이 코퍼스 변경에 영향을 받지 않도록 저장 세션 조회 함수를 추가한다.
@@ -25,15 +25,17 @@
 
 ## 외부 입력·선행 구현이 필요한 조건
 
-업데이트: .env 저장 후 실제 Pickle 연결, M1 및 M2 ingest(4,539문서/4,522벡터/중복0요청), IL v4 실제평가done 저장을 확인했다. 연결·적재 증거는 docs/compliance/live-*-2026-11-07.json에 있다. 경로는상대설정을강제하고 다른checkout/cwd 및native STT도 통과했다. F5 첫4시험v4의검증실패2건을v5로보강하여재검증중이다.
+업데이트: .env 저장 후 실제 Pickle 연결, M1/M2 ingest(4,539문서/4,522벡터/중복 0요청), IL v4 실제 평가 done 저장을 확인했다. 연결·적재 증거는 docs/compliance/live-*-2026-11-07.json에 있다. 상대 경로를 강제하고 다른 checkout/cwd 및 native STT도 통과했다. v5 전체 40시험은 5건 정상 후 6번째에 HTTP429/quota_exhausted로 중단됐다.
 
-Pickle 주소 `https://llm.pcl.kr/v1`와 모델 `pickle-general`, large3072·상대 경로 설정이main에 반영됐다. 현재키연결·적재는성공했으며 학교크레딧약$10범위로실제평가회귀를진행한다. 정확도/함정/반복·C·실제마이크완주는아직완료되지않았다. 필요한M2/M3/M4검증을면제하거나가짜성공값으로대신하지않는다.
+Pickle 주소 `https://llm.pcl.kr/v1`와 모델 `pickle-general`, large3072·상대 경로 설정이 main에 반영됐다. 사용자가 학교 크레딧 약 $10 사용을 허용했지만 현재 키의 공급자 할당량 거절이 확인되어 추가 호출은 중단했다. 실제 달러 잔액은 관측하지 않았다. 정확도/함정/반복·C·실제 마이크 완주는 미완료이며 M2/M3/M4 검증을 면제하지 않는다.
 
 이 파일의 진행 항목은 실행 결과 확인 후 갱신한다. 보고서의 원래 결함 재현 코드는 수정 후 회귀 검증을 대신하는 것이 아니다.
 
 ## A/B 심화 검증 결과
 
-v7 최신 검증은 [large/3072 기록](compliance/large-embedding-2026-11-07.json)의 **114 passed / skip 0 / 12.20초**다. 공개 함수64/API 모델29/경로17 차이0. data-layer는 원문 보존 전진 마이그레이션·exact cosine·모델/제공자 프로필별 재임베딩/검색을, grader는 os.getenv Pickle 키 별칭을 자기 PR에 push했다. M2 예상 임베딩 비용은 약 $0.123(전 요청3회 상한 $0.369)이나 실제 유료 호출은 0이다. 이전 v6 기록은 아래에 이력으로 보존한다.
+최신 로컬 회귀는 **128 passed/skip 0/13.65초**다. 독립 API/STT CLI도 실제 HTTP/로컬 Whisper/DB로 검증했다. 데이터 M1/M2와 corpus M2는 병합됐다. F5 전체 40시험은 정상 5건 뒤 학교 API 429/quota_exhausted로 중단됐고 작은 요청도 거절됐다. 완료 5건과 중단 이력을 유지하는 재개 검증은 통과했다. 남은 35시험·반복/함정 및 마이크 검증은 미완료다.
+
+초기 v7 검증은 [large/3072 기록](compliance/large-embedding-2026-11-07.json)의 114 passed / skip 0 / 12.20초였다. 이때 공개 함수64/API 모델29/경로17 차이0, 실제 유료 호출0이었다. 이후 실제 M2 적재가 완료됐으며 최신 결과는 위 128개 및 별도 실사용 기록이다. data-layer는 원문 보존 전진 마이그레이션·exact cosine·모델/제공자 프로필별 재임베딩/검색을, grader는 os.getenv Pickle 키 별칭을 자기 PR에 push했다. 이전 기록을 이력으로 보존한다.
 
 [요구사항/flowchart 대조표](CORE_REQUIREMENTS_VERIFICATION.md)와 [고정 검증 기록](compliance/verification-2026-11-07.json)을 추가했다. 독립 역할 모듈의 메모리 조합에서 실제 임시 PostgreSQL·HTTP·작업·결과 저장/복구 **110 passed, skip 0**. 실제 provider/마이크/C 완주와 구분한다. 기존 6개 감사 항목 외 세션/오디오 재전송·임베딩 응답·M1 평가 계획/개발 seed·JSON-only 제공자의 예산 내 수정 요청을 보강했다.
 

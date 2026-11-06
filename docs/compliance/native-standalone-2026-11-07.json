@@ -1,0 +1,39 @@
+{
+  "scope": "Real worker CLI + cached faster-whisper small.en + real DB; synthetic SAPI audio, not microphone",
+  "worker_exit_code": 0,
+  "standalone_worker_cli": true,
+  "elapsed_sec_including_startup": 5.046,
+  "audio_sha256": "cafbff79e986cb32ae8acd811855cdf754da37d0a5eeb27e087078e07b92224b",
+  "audio_duration_sec": 30.0,
+  "answer_status": "done",
+  "session_order_no": 2,
+  "job": {
+    "status": "done",
+    "attempts": 1
+  },
+  "stt_version": "faster-whisper:small.en:m1",
+  "metrics": {
+    "wpm": 144.0,
+    "speech_sec": 30.0,
+    "word_count": 72,
+    "duration_sec": 30.0,
+    "metrics_version": "m1",
+    "articulation_wpm": 144.0,
+    "long_pause_count": 0,
+    "observed_filler_per100": 5.6
+  },
+  "transcript_nonempty": true,
+  "synthetic_expected_keywords_observed": true,
+  "transcript_absent_from_worker_logs": true,
+  "external_llm_requests": 0,
+  "external_embedding_requests": 0,
+  "model_network_disabled": true,
+  "microphone_used": false,
+  "c_implementation_added": false,
+  "sources": {
+    "session-api": "56df4e8eee4a4197eef606fd82c3616d745b06a2",
+    "data-layer": "034e6d41531977f99345d431e617d5b4c433d348",
+    "grader": "9cb0c907c3be75a15d6f3149fe783a296370d495",
+    "worker-stt": "4c5e2c2529ed4ccc0bce0c6e9fa596a9e5a4742a"
+  }
+}

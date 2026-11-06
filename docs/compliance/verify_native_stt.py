@@ -23,6 +23,7 @@ def main():
     parser.add_argument('--audio',type=Path)
     parser.add_argument('--report',type=Path)
     parser.add_argument('--answers',type=int,choices=[1,8],default=1)
+    parser.add_argument('--standalone-worker',action='store_true',help='Launch python -m app.worker from the worker checkout, without composing child modules.')
     parser.add_argument('--child',action='store_true',help=argparse.SUPPRESS)
     args=parser.parse_args()
     sources=compose_sources(args.workspace,emit_manifest=not args.child)
@@ -60,11 +61,13 @@ def main():
                 audio_mime='audio/wav',audio_bytes=audio.stat().st_size,audio_hash=hashlib.sha256(audio.read_bytes()).hexdigest(),
                 client_duration_ms=round(probe.duration_sec*1000),answer_id=aid)
             environment={**os.environ,'DATABASE_URL':settings.DATABASE_URL,
-                'DATA_DIR':os.path.relpath(cache,sources['session-api']/'backend').replace(os.sep,'/'),
+                'DATA_DIR':os.path.relpath(cache,sources['worker-stt' if args.standalone_worker else 'session-api']/'backend').replace(os.sep,'/'),
                 'WHISPER_MODEL':'small.en','WHISPER_DEVICE':'cpu','WHISPER_COMPUTE_TYPE':'int8',
                 'HF_HUB_OFFLINE':'1','WORKER_ID':'native-check-'+uuid4().hex}
             started=time.monotonic()
-            child=subprocess.run([sys.executable,str(Path(__file__).resolve()),'--workspace',str(args.workspace),'--child'],
+            command=([sys.executable,'-m','app.worker','--types','stt','--once'] if args.standalone_worker else
+                [sys.executable,str(Path(__file__).resolve()),'--workspace',str(args.workspace.resolve()),'--child'])
+            child=subprocess.run(command,cwd=sources['worker-stt']/'backend' if args.standalone_worker else None,
                 env=environment,capture_output=True,text=True,encoding='utf-8',errors='replace',timeout=120)
             elapsed=time.monotonic()-started
             row=db.get_answer(aid);session=db.get_session(sid)
@@ -73,7 +76,7 @@ def main():
                 job=cur.fetchone()
             transcript=row.get('stt_text') or ''
             result={'scope':'Real worker CLI + cached faster-whisper small.en + real DB; synthetic SAPI audio, not microphone',
-                'worker_exit_code':child.returncode,'elapsed_sec_including_startup':round(elapsed,3),
+                'worker_exit_code':child.returncode,'standalone_worker_cli':args.standalone_worker,'elapsed_sec_including_startup':round(elapsed,3),
                 'audio_sha256':hashlib.sha256(audio.read_bytes()).hexdigest(),'audio_duration_sec':probe.duration_sec,
                 'answer_status':row['stt_status'],'session_order_no':session['current_order_no'],'job':job,
                 'stt_version':row['stt_version'],'metrics':row.get('metrics_json'),
@@ -136,11 +139,13 @@ def full_http_exam(args,sources,audio,probe,cache,settings,db,pool):
             assert replay.status_code==200 and replay.json()['answer_id']==str(aid)
             assert client.post(base+'/submit').status_code==409
             environment={**os.environ,'DATABASE_URL':settings.DATABASE_URL,
-                'DATA_DIR':os.path.relpath(cache,sources['session-api']/'backend').replace(os.sep,'/'),
+                'DATA_DIR':os.path.relpath(cache,sources['worker-stt' if args.standalone_worker else 'session-api']/'backend').replace(os.sep,'/'),
                 'WHISPER_MODEL':'small.en','WHISPER_DEVICE':'cpu','WHISPER_COMPUTE_TYPE':'int8',
                 'HF_HUB_OFFLINE':'1','WORKER_ID':'native-check-'+uuid4().hex}
             started=time.monotonic()
-            child=subprocess.run([sys.executable,str(Path(__file__).resolve()),'--workspace',str(args.workspace),'--child'],
+            command=([sys.executable,'-m','app.worker','--types','stt','--once'] if args.standalone_worker else
+                [sys.executable,str(Path(__file__).resolve()),'--workspace',str(args.workspace.resolve()),'--child'])
+            child=subprocess.run(command,cwd=sources['worker-stt']/'backend' if args.standalone_worker else None,
                 env=environment,capture_output=True,text=True,encoding='utf-8',errors='replace',timeout=120)
             row=db.get_answer(aid);transcript=row.get('stt_text') or ''
             polled=client.get(base+'/answers/'+str(aid)).json()
