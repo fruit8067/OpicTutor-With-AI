@@ -1,7 +1,7 @@
 # 로컬 실행 및 검증
 
-계약은 `agents/contracts.yaml` v3다. Core A 브랜치는 bootstrap → data-layer → session-api → integrator 순으로 쌓였다.
-다른 PC의 corpus·tts-host·worker-stt·grader·frontend 구현을 병합해야 실제 시험이 동작한다.
+계약은 `agents/contracts.yaml` v3다. 브랜치는 bootstrap → data-layer → session-api → corpus → grader → worker-stt → integrator 순으로 쌓였다.
+B의 corpus·grader·worker-stt는 구현되었다. C의 tts-host·frontend와 각 PR 병합 및 실제 키·음성 검증이 남아 있다.
 
 ## 준비
 
@@ -66,6 +66,18 @@ TTS 폴더를 반입하려면 `python -m scripts.import_tts static/tts/VOICE_ID 
 음성 재생성은 [tts-host 인수인계](handoff/tts-host.md)와 `colab/omnivoice_tts.ipynb`를 따른다.
 이 문서의 import_tts 및 worker 명령은 해당 PC 구현이 병합된 후에 사용할 수 있다.
 
+## B만 로컬 확인하기
+
+`agent/worker-stt` 또는 최신 `agent/integrator` 브랜치에서 backend 가상환경을 활성화한다.
+`python -m app.db.dev seed-session --status in_progress`로 개발용 세션을 만들고,
+`python -m app.db.dev seed-answer SESSION_ID ./answer.wav`로 자신이 준비한 녹음을 접수한다.
+`python -m app.worker --types stt --once` 후 답변 done과 current_order_no 전진을 확인한다.
+`python -m app.stt.engine ./answer.wav`는 명시적인 수동 확인용으로 전사·지표를 출력한다.
+코퍼스: `cd rag_docs` 후 `python scripts/build_corpus.py`와 `python scripts/test_corpus_v3.py`.
+평가 계획: backend에서 `python -m scripts.eval_exam --traps --plan`은 외부 호출 없이 계획 리포트를 만든다.
+실제 평가에는 키·코퍼스 적재와 LLM 입력/출력·검색 임베딩 단가 확인이 필요하다.
+순수 TTS stub은 워커가 확보하지 않아 대기 작업을 소진하지 않는다. C 반영 후 워커를 재시작한다.
+
 ## Core A 검증
 
 backend 가상환경에서 `pip install pytest httpx pyyaml` 후:
@@ -86,7 +98,10 @@ HTTP 오류·준비 실패·STT 실패·평가 실패·타임아웃은 exit 1이
 python agents/tools/check_ownership.py bootstrap --phase0
 python agents/tools/check_ownership.py data-layer --base agent/bootstrap
 python agents/tools/check_ownership.py session-api --base agent/data-layer
-python agents/tools/check_ownership.py integrator --base agent/session-api
+python agents/tools/check_ownership.py corpus --base agent/session-api
+python agents/tools/check_ownership.py grader --base agent/corpus
+python agents/tools/check_ownership.py worker-stt --base agent/grader
+python agents/tools/check_ownership.py integrator --base agent/worker-stt
 ```
 
 위 검사기는 현재 HEAD를 검사하므로 각 단계의 브랜치에서 실행한다. main에 병합한 뒤에는 기본 `--base origin/main` 사용.
