@@ -8,8 +8,10 @@
 #
 # AI-assisted: this contract was written with help from Claude (Anthropic).
 
-contract_version: 5
+contract_version: 6
 changelog:
+  - "6 (2026-11-07, CR data-layer-01): finish_evaluation의 im_rubric_version·corpus_version nullable 타입을
+     기존 API/도메인 DB·비 IM 결과의 실제 동작에 맞춰 선언. 런타임·DB 스키마·평가 기준 변경 없음."
   - "5 (2026-11-07, CR session-api-01): app.db.get_session_id_by_request_id 조회 함수를 추가.
      생성 재전송은 저장 세션을 우선 반환하여 코퍼스 변경에 영향을 받지 않음. API·도메인 DB·평가 기준은 유지."
   - "4 (2026-11-06, CR orchestrator-01): 사용자 요청 Pickle LLM 환경설정/os.getenv 키, nullable tier 선언,
@@ -574,8 +576,8 @@ module_interfaces:
     def mark_evaluation_running(evaluation_id: UUID) -> bool
     def finish_evaluation(evaluation_id: UUID, *, result: dict, assessment_status: str,
                           base_level: str | None, estimated_level: str | None, im_estimation_status: str,
-                          model: str, prompt_version: str, rubric_version: str, im_rubric_version: str,
-                          corpus_version: str, retrieved_doc_ids: list[str]) -> bool
+                          model: str, prompt_version: str, rubric_version: str, im_rubric_version: str | None,
+                          corpus_version: str | None, retrieved_doc_ids: list[str]) -> bool
         # 해당 run이 세션의 최신 run이고 세션이 grading일 때만: evaluation done + session done + result_id 갱신
     def fail_evaluation(evaluation_id: UUID, error_code: str, error_detail: dict | None) -> bool  # 같은 가드, grading_failed
     # 근거(RAG)
