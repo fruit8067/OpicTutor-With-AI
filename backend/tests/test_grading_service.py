@@ -10,7 +10,9 @@ from test_grading_validate import snapshot,output
 
 def setup_service(monkeypatch,failures):
     logs=[];calls=[];waits=[]
-    monkeypatch.setattr(service.settings,'LLM_API_KEY','local-test-no-network')
+    monkeypatch.setenv('LLM_API_KEY','local-test-no-network')
+    monkeypatch.setenv('LLM_BASE_URL','https://pickle.example.invalid/v1')
+    monkeypatch.setenv('LLM_MODEL','pickle-test-model')
     monkeypatch.setattr(service,'build_evidence',lambda *args,**kwargs:EvidenceBundle(corpus_version='fixture'))
     monkeypatch.setattr(service,'token_count',lambda value:100)
     monkeypatch.setattr(service.db,'log_ai_request',lambda **kwargs:logs.append(kwargs))

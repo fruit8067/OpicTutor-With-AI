@@ -3,6 +3,8 @@
 import time
 import json
 import logging
+import os
+from urllib.parse import urlsplit
 from openai import (OpenAI, APIConnectionError, APITimeoutError, RateLimitError, InternalServerError, BadRequestError,
                     LengthFinishReasonError,ContentFilterFinishReasonError)
 from pydantic import BaseModel, ValidationError
@@ -14,11 +16,27 @@ logging.getLogger('openai').setLevel(logging.WARNING)
 class LLMTransientError(Exception): pass
 class LLMRefusalError(Exception): pass
 class LLMOutputError(Exception): pass
+class LLMConfigurationError(ValueError): pass
+
+def llm_options() -> dict:
+    """Pickle 인증 키는 호출 시점의 프로세스 환경변수에서 읽는다."""
+    options={
+        'base_url':(os.getenv('LLM_BASE_URL') or settings.LLM_BASE_URL).strip(),
+        'model':(os.getenv('LLM_MODEL') or settings.LLM_MODEL).strip(),
+        'api_key':os.getenv('LLM_API_KEY','').strip(),
+    }
+    missing=[name for name,key in [('LLM_BASE_URL','base_url'),('LLM_MODEL','model'),('LLM_API_KEY','api_key')] if not options[key]]
+    if missing: raise LLMConfigurationError('필수 LLM 환경변수 누락: '+', '.join(missing))
+    parsed=urlsplit(options['base_url'])
+    if parsed.scheme not in ('https','http') or not parsed.netloc:
+        raise LLMConfigurationError('LLM_BASE_URL 형식이 올바르지 않습니다.')
+    return options
 
 def chat_structured(messages: list[dict], schema: type[BaseModel], *, timeout: float) -> tuple[BaseModel, dict]:
-    client=OpenAI(base_url=settings.LLM_BASE_URL,api_key=settings.LLM_API_KEY,timeout=timeout,max_retries=0)
+    options=llm_options()
+    client=OpenAI(base_url=options['base_url'],api_key=options['api_key'],timeout=timeout,max_retries=0)
     started=time.monotonic()
-    common=dict(model=settings.LLM_MODEL,messages=messages,temperature=0,max_tokens=8000)
+    common=dict(model=options['model'],messages=messages,temperature=0,max_tokens=8000)
     try:
         try:
             response=client.beta.chat.completions.parse(**common,response_format=schema)
