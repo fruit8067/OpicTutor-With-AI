@@ -78,3 +78,11 @@ bash: `python -m venv backend/.venv && backend/.venv/bin/pip install -r backend/
 - npm run build 통과, git check-ignore: 지정한 두 경로 출력 없음.
 - Docker 엔진 연결 미확인. SQL 실제 적용 검증은 data-layer 단계에서 재시도.
 
+
+## 최종 검증 추가
+- WSL의 독립 Docker 엔진에 전용 PostgreSQL 16/pgvector 컨테이너를 띄워 검증.
+- init_db 반복 실행 및 001_init.sql 직접 적용 2회 모두 오류 없이 통과.
+- API 예시는 실제 스키마 enum·상태와 일치하도록 검토. 완료 스키마 필드 표 포함.
+- worker stub은 미구현 상태를 exit 오류로 알림. 정상 실행처럼 종료하지 않음.
+- GitHub 연결의 PR 생성은 403. 브랜치 push는 성공했으며 PR 병합은 대기.
+

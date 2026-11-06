@@ -1,3 +1,4 @@
+// AI-assisted: Vite 골격을 OpenAI Codex로 구성했습니다.
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
