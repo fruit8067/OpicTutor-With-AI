@@ -21,6 +21,8 @@ bash: `docker compose up -d && cd backend && .venv/bin/python -m scripts.db_rese
 agents/contracts.yaml의 app.db 및 app.db.dev 전부. get_session은 host_lines와 latest_evaluation_status,
 get_session_question은 latest_answer를 함께 반환한다. SQL은 API에서 직접 쓰지 않는다.
 작업 payload는 tts_prepare.prepare_attempt, stt.stt_attempt, evaluate.run_no를 포함한다.
+get_session_question의 내부 dict에는 해당 문항의 모든 client_request_ids도 포함한다.
+업로드의 빠른 사전 검사에서 이전 시도의 유효한 재전송을 새 요청과 구분할 수 있으며 API 응답 필드는 바뀌지 않는다.
 
 ## 알려진 문제 및 다른 에이전트에게 요청
 - corpus M1의 scenarios.json, VERSION, Q000과 v3 문항 태그가 아직 없음. dev seed는 태그를 추측하지 않고 실패한다.
@@ -48,4 +50,8 @@ WSL Docker의 전용 PostgreSQL 16/pgvector 컨테이너에서 검증. 검증용
 - ingest는 임베딩만 가짜 벡터로 대체한 로컬 fixture 4건으로 적재·재적재 확인.
   실제 외부 임베딩 호출과 실제 코퍼스 적재는 아직 실행하지 않음. M1/M2 PR 병합은 대기.
 - 로컬 검증 컨테이너: WSL `opic-core-a-check-db`, 볼륨도 같은 이름, 127.0.0.1:5432.
+- 완료 조건 재점검에서 마지막 시도의 워커 종료 후 작업이 dead로 고립되는 문제를 재현했다.
+  recover_expired_jobs는 계약대로 running→failed로 복구하고 claim_job은 다시 확보한다.
+  max_attempts 판정은 fail_job에서 유지해 워커가 최종 실패를 답변/세션에 반영할 수 있다.
+- PostgreSQL 재검증: data-layer 테스트 9 passed, 리스 마지막 시도 복구 및 모든 시도의 멱등 키 조회 포함.
 

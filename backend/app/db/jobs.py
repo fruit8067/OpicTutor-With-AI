@@ -14,7 +14,7 @@ def claim_job(types: list[str], worker_id: str, lease_sec: int) -> dict | None:
     with tx() as cur:
         cur.execute("""WITH candidate AS (
             SELECT id FROM jobs WHERE type=ANY(%s) AND status IN ('queued','failed')
-            AND next_run_at<=now() AND attempts<max_attempts ORDER BY created_at,id LIMIT 1 FOR UPDATE SKIP LOCKED)
+            AND next_run_at<=now() ORDER BY created_at,id LIMIT 1 FOR UPDATE SKIP LOCKED)
             UPDATE jobs j SET status='running',attempts=attempts+1,locked_by=%s,
             locked_until=now()+make_interval(secs=>%s) FROM candidate c WHERE j.id=c.id RETURNING j.*""",
             (types,worker_id,lease_sec))
@@ -45,7 +45,9 @@ def fail_job(job_id: UUID, worker_id: str, *, error_code: str, retryable: bool, 
 
 def recover_expired_jobs() -> int:
     with tx() as cur:
-        cur.execute("""UPDATE jobs SET status=CASE WHEN attempts<max_attempts THEN 'failed' ELSE 'dead' END,
+        # 워커가 종료되어 핸들러의 실패 콜백조차 없었던 작업은 계약대로 다시 확보 가능하게 한다.
+        # max_attempts는 fail_job에서 적용하며 워커가 최종 실패를 대상 세션/답변에 반영한다.
+        cur.execute("""UPDATE jobs SET status='failed',
             locked_by=NULL,locked_until=NULL,next_run_at=now() WHERE status='running' AND locked_until<=now()""")
         return cur.rowcount
 

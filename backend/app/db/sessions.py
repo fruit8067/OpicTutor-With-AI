@@ -51,7 +51,9 @@ def list_session_questions(session_id: UUID) -> list[dict]:
 def get_session_question(session_id: UUID, order_no: int) -> dict | None:
     with tx() as cur:
         cur.execute("""SELECT q.*,t.file_path,t.duration_sec,(SELECT row_to_json(a) FROM answers a
-            WHERE a.session_question_id=q.id ORDER BY attempt_no DESC LIMIT 1) AS latest_answer
+            WHERE a.session_question_id=q.id ORDER BY attempt_no DESC LIMIT 1) AS latest_answer,
+            ARRAY(SELECT a.client_request_id FROM answers a WHERE a.session_question_id=q.id
+                  ORDER BY a.attempt_no) AS client_request_ids
             FROM session_questions q LEFT JOIN tts_assets t ON t.id=q.tts_asset_id
             WHERE q.session_id=%s AND q.order_no=%s""",(session_id,order_no))
         return cur.fetchone()
