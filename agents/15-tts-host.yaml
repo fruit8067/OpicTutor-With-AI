@@ -1,0 +1,82 @@
+# AI-assisted: this agent prompt was written with help from Claude (Anthropic).
+agent_id: tts-host
+phase: 1
+branch: agent/tts-host
+milestones:
+  M2: "TTS 반입·세션 준비 핸들러 + Colab 노트북 갱신 + 생성된 mp3 + 진행자 캐릭터·플레이어 + e2e용 답변 음성"
+owns: ["backend/app/tts/**", "backend/scripts/export_tts_jobs.py", "backend/scripts/import_tts.py",
+       "backend/static/tts/**", "backend/e2e_audio/**", "colab/**", "frontend/src/features/host/**",
+       "backend/requirements/tts-host.txt", "backend/tests/test_tts_*.py",
+       "docs/handoff/tts-host.md", "docs/change-requests/tts-host-*.md"]
+needs: [python 3.11+, node 20+, "Google 계정(Colab T4 GPU)", docker(M1 이후 준비 핸들러 확인용)]
+
+prompt: |
+  [먼저 읽기] agents/orchestration.yaml(shared_preamble 포함) → agents/contracts.yaml(data_files의 tts_*·host_lines·audio_files,
+  §6 tts_assets·session_questions·session_host_lines, module_interfaces.app.tts·app.db의 TTS 함수, frontend_interfaces)
+  → docs/REQUIREMENTS_v2.md F0-4·F6·F7 → colab/omnivoice_tts.ipynb(현재 버전)
+
+  [역할] 진행자 음성과 캐릭터 담당이다. 음성은 운영자가 Google Colab에서 OmniVoice로 "미리" 만들어 반입하고,
+  사용자가 설정을 제출하면 서버가 그 세션의 8문항 + 진행자 대사 음성이 정확히 준비됐는지 검사·연결한다(tts_prepare 작업).
+  TTS와 캐릭터는 필수 기능이다. 음성이 없으면 시험을 시작할 수 없어야 한다(Web Speech·텍스트 대체 없음).
+
+  [작업 — 음성 파이프라인]
+  1. app/tts/assets.py: text_hash(sha1 hex, utf-8, 앞뒤 공백 제거 후), active_voice_id(), tts_url(), tts_status().
+     cache_key = "{kind}:{ref_id}:{text_hash}:{voice_id}".
+  2. scripts/export_tts_jobs.py
+     - questions.jsonl의 pilot 전부(Q000 포함) + HOST_LINES → backend/static/tts/jobs.jsonl (contracts data_files.tts_jobs_jsonl 형식).
+     - --stale: 활성 voice의 manifest/DB 등록본과 text_sha1을 비교해 바뀌었거나 없는 항목만.
+     - --e2e: 코퍼스의 기본 시나리오용 stt가 아닌 clean 답변 중 IM2·IL 등급 각 8개(문항 유형별 1개)를 kind e2e_answer로 추가
+       (integrator의 자동 완주 테스트용 "가짜 수험생 음성". 실제 사람 목소리 아님).
+     - 끝에 항목 수·글자 수·"Colab에 업로드하세요" 출력.
+  3. colab/omnivoice_tts.ipynb 갱신(구조 유지, 셀 추가·수정만)
+     - jobs.jsonl의 id가 "question/Q001"처럼 kind/ref_id 형식임을 반영해 출력 경로를 {kind}/{ref_id}.mp3로.
+     - manifest에 model_revision(huggingface_hub로 k2-fsa/OmniVoice 최신 커밋 sha 조회, 실패 시 "unknown")과
+       settings_version(contracts 규칙: engine, model_revision, instruct, seed, speed, num_step의 정렬 JSON sha1[:10]) 추가.
+     - zip 최상위 폴더 이름 = settings_version.
+     - 기준 음성은 Voice Design으로 새로 만든 합성 음성만(실존 인물 음성 복제 금지 문구 유지).
+     - e2e_answer 항목은 진행자와 다른 목소리여야 한다: instruct를 "male, young adult, korean accent" 등으로 따로 만들어
+       별도 voice clone prompt로 생성하는 셀을 추가(선택 실행).
+  4. scripts/import_tts.py <zip 또는 폴더> [--activate]
+     - backend/static/tts/{voice_id}/ 에 풀고 manifest 검사(필수 키, 모든 item 파일 존재, mp3 길이를 PyAV로 측정해 0초 아님).
+     - 각 item을 db.upsert_tts_asset으로 등록(kind/ref_id는 id에서 분리, text_hash = manifest text_sha1).
+     - --activate면 active_voice.json 갱신. e2e_answer는 backend/e2e_audio/{level}/{ref_id}.mp3로도 복사.
+     - 결과 요약: 등록 수, 누락, 해시 불일치.
+  5. app/tts/prepare.py handle(job) — tts_prepare 핸들러
+     - 세션·attempt(job payload 또는 sessions.prepare_attempt) 확인. preparing이 아니면 종료(늦은 작업 무시).
+     - 활성 voice 없으면 fail_prepare(errors=[{error_code: NO_ACTIVE_VOICE}]).
+     - 각 session_question: text_hash(question_text)로 db.find_tts_asset(kind=question, ref_id=question_id, voice_id) →
+       없으면 TTS_ASSET_MISSING, 해시 다른 등록본만 있으면 TTS_HASH_MISMATCH, 파일이 디스크에 없으면 TTS_FILE_MISSING.
+     - HOST_LINES 4개도 같은 검사(host_key로 오류 기록).
+     - 오류가 하나라도 있으면 db.fail_prepare(전체 목록), 없으면 db.complete_prepare(링크 전부). 자동 재생성·대체 문항 없음.
+     - 파일 I/O만 하므로 PermanentJobError 대상은 없음(예외는 Retryable).
+  6. 실제 음성 생성: Colab에서 노트북 실행 → zip 반입 → 생성된 mp3와 manifest를 backend/static/tts/{voice_id}/ 로 커밋
+     (용량이 크면 64kbps mono 확인. 전체 수 MB 수준이어야 함). active_voice.json 커밋.
+     corpus의 M2에서 문항이 늘거나 문장이 바뀌면 --stale로 추가 생성해 반입한다(corpus handoff의 "문장 변경 목록" 확인).
+
+  [작업 — 프런트 진행자] (contracts.yaml frontend_interfaces.host 시그니처 그대로)
+  7. frontend/src/features/host/useTtsPlayer.ts
+     - HTMLAudioElement + 공유 AudioContext + AnalyserNode(fftSize 512). play(url) → Promise<'ended'|'blocked'|'error'>.
+       autoplay 차단(NotAllowedError) → 'blocked'(화면이 "눌러서 듣기" 버튼을 보여 주고 사용자 동작으로 재시도).
+       로드 실패 → 'error'(화면이 같은 문항 재시도). 절대 speechSynthesis를 쓰지 않는다.
+     - unlock(): 첫 사용자 클릭에서 AudioContext.resume().
+     - 같은 출처가 아닐 수 있으므로 crossOrigin="anonymous"(서버 StaticFiles CORS는 session-api가 이미 CORS 미들웨어로 처리).
+  8. frontend/src/features/host/Host.tsx — 오리지널 SVG 캐릭터(실존 시험 진행자·알려진 캐릭터를 닮지 않게, 단순 도형)
+     - state: idle(느린 숨쉬기), speaking(analyser RMS → 위아래 통통·좌우 미세 회전·입 크기), listening(귀 기울임 + 녹음 표시),
+       processing(생각하는 표시, 점 3개 등). requestAnimationFrame, 지수 평활 0.25.
+     - prefers-reduced-motion이면 입 모양 변화만. 크기는 부모에 맞춰(viewBox). props는 state(+ 선택 className)만.
+     - Host.demo.tsx(개발용 미리보기 페이지 컴포넌트)를 같은 폴더에 둔다(frontend 에이전트가 라우트에 연결할지 결정).
+
+local_checks:
+  - "cd backend && python -m scripts.export_tts_jobs --e2e  → jobs.jsonl"
+  - "Colab 노트북 실행 → tts_mp3.zip → python -m scripts.import_tts tts_mp3.zip --activate  → 누락 0"
+  - "(M1 병합 후) data-layer로 preparing 세션 생성 → python -m app.worker --types tts_prepare --once → ready"
+  - "mp3 하나 삭제 후 같은 절차 → prepare_failed + TTS_FILE_MISSING, 파일 복구 후 retry → ready"
+  - "cd frontend && npm run build (host 폴더 타입 오류 0)"
+  - "python agents/tools/check_ownership.py tts-host"
+
+handoff_must_include:
+  - 사용한 instruct/seed/speed와 voice_id, 생성 개수·총 길이·용량
+  - 운영자용 음성 재생성 절차(문장 변경 시)
+  - Host/useTtsPlayer 사용 예시 코드
+
+done_when: "M2 PR 병합, 기본 시나리오의 모든 pilot 문항 + 대사 음성이 반입되어 tts_status().missing_pilot == []"

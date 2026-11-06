@@ -1,0 +1,233 @@
+# OpicTutor — 오케스트레이션 (여러 컴퓨터에서 에이전트를 병렬로 돌리는 방법)
+#
+# 파일 구성 (agents/ 폴더)
+#   HANDOFF.md           ← 사람용 인수인계·GitHub 병합 전략 안내서 (먼저 읽기)
+#   orchestration.yaml   ← 이 파일. 실행 순서·브랜치·동기화·병합·완료 기준
+#   contracts.yaml       ← 모듈 경계·API·DB·데이터 형식의 단일 기준
+#   00-bootstrap.yaml    ← Phase 0 (컴퓨터 1대, 다른 에이전트보다 먼저)
+#   10-corpus.yaml  11-data-layer.yaml  12-session-api.yaml  13-worker-stt.yaml
+#   14-grader.yaml  15-tts-host.yaml    16-frontend.yaml      ← Phase 1 (동시에 7대까지)
+#   20-integrator.yaml   ← Phase 2
+#   30-reviewer.yaml     ← Phase 3
+#   tools/check_ownership.py  ← bootstrap이 만듦. 소유권 위반 검사
+#
+# 각 컴퓨터에서 에이전트에게 주는 프롬프트 = 아래 shared_preamble + 해당 파일의 prompt
+# (각 에이전트 파일의 prompt 맨 앞에 "이 두 파일을 먼저 읽어라"가 들어 있으므로 prompt만 붙여넣어도 된다)
+#
+# AI-assisted: this orchestration plan was written with help from Claude (Anthropic).
+
+version: 2
+contract_file: agents/contracts.yaml
+repo: https://github.com/fruit8067/OpicTutor-With-AI
+default_branch: main
+
+# ---------------------------------------------------------------------------
+# 역할
+# ---------------------------------------------------------------------------
+roles:
+  orchestrator:
+    who: 사람(프로젝트 리드) 또는 리드 에이전트 1개
+    does:
+      - 각 컴퓨터에 에이전트를 배정하고 시작 신호를 준다
+      - main 브랜치 병합 권한을 혼자 가진다(PR 리뷰 → merge)
+      - contracts.yaml 변경 요청을 승인·반영하고 contract_version을 올린 뒤 전원에게 공지한다
+      - 마일스톤마다 "rebase 하세요" 공지를 보낸다
+    does_not: 기능 코드를 직접 작성하지 않는다(integrator 단계 제외)
+
+agents:
+  # id: [파일, phase, 필요한 것, 예상 시간]
+  bootstrap:    {file: 00-bootstrap.yaml,   phase: 0, needs: [docker, node, python],                  est: "45~60분"}
+  corpus:       {file: 10-corpus.yaml,      phase: 1, needs: [python],                                est: "1.5~2시간"}
+  data-layer:   {file: 11-data-layer.yaml,  phase: 1, needs: [docker, python, EMBED_API_KEY],         est: "2~3시간"}
+  session-api:  {file: 12-session-api.yaml, phase: 1, needs: [docker, python],                        est: "2~3시간"}
+  worker-stt:   {file: 13-worker-stt.yaml,  phase: 1, needs: [docker, python, "CPU 4코어+ 또는 GPU", 마이크], est: "2~3시간"}
+  grader:       {file: 14-grader.yaml,      phase: 1, needs: [docker, python, LLM_API_KEY, EMBED_API_KEY], est: "2.5~3.5시간"}
+  tts-host:     {file: 15-tts-host.yaml,    phase: 1, needs: [python, node, "Google 계정(Colab)"],    est: "2~3시간"}
+  frontend:     {file: 16-frontend.yaml,    phase: 1, needs: [node, 마이크],                          est: "3~4시간"}
+  integrator:   {file: 20-integrator.yaml,  phase: 2, needs: [docker, python, node, 마이크, 모든 키],  est: "1.5~2시간"}
+  reviewer:     {file: 30-reviewer.yaml,    phase: 3, needs: [docker, python, node],                  est: "1시간"}
+
+# 컴퓨터가 7대보다 적을 때 묶는 방법 (같은 컴퓨터 = 순서대로 실행, 브랜치는 에이전트별로 따로)
+machine_plans:
+  "7대": [[bootstrap, data-layer, integrator], [corpus], [session-api], [worker-stt], [grader], [tts-host], [frontend, reviewer]]
+  "4대": [[bootstrap, data-layer, integrator], [corpus, grader], [session-api, worker-stt], [tts-host, frontend, reviewer]]
+  "3대": [[bootstrap, data-layer, session-api, integrator], [corpus, worker-stt, grader], [tts-host, frontend, reviewer]]
+  "2대": [[bootstrap, data-layer, session-api, worker-stt, integrator], [corpus, grader, tts-host, frontend, reviewer]]
+  rule: 한 컴퓨터에서 두 에이전트를 동시에 돌리지 않는다(작업 폴더·DB 포트 충돌). 끝나면 다음 에이전트로
+
+# ---------------------------------------------------------------------------
+# 실행 흐름
+# ---------------------------------------------------------------------------
+phases:
+  - id: 0
+    name: 뼈대·계약 코드화
+    agents: [bootstrap]
+    exit: "bootstrap PR이 main에 병합됨 → orchestrator가 'M0 완료, Phase 1 시작' 공지"
+  - id: 1
+    name: 병렬 구현
+    agents: [corpus, data-layer, session-api, worker-stt, grader, tts-host, frontend]
+    rule: 전원 M0 시점의 main에서 브랜치를 딴다. 서로 다른 경로만 수정하므로 병합 충돌이 나지 않는다
+  - id: 2
+    name: 통합
+    agents: [integrator]
+    entry: Phase 1 PR이 모두 병합됨(M2)
+  - id: 3
+    name: 독립 검토
+    agents: [reviewer]
+    entry: integrator PR 병합(M3)
+
+milestones:
+  M0:
+    when: Phase 0 끝
+    what: 폴더 뼈대, schemas, migrations, config, stub 모듈, frontend 스캐폴드·types.ts, API_SPEC v2, check_ownership.py
+  M1:
+    when: Phase 1 시작 후 약 1~1.5시간
+    what: "조기 공개(publish early) 병합: corpus의 Q000·scenarios.json·VERSION, data-layer의 DB 함수 전부(작업 큐 포함)·ingest"
+    why: 나머지 에이전트가 진짜 DB 함수와 출제 데이터로 로컬 테스트를 시작할 수 있게
+    action: orchestrator가 corpus·data-layer의 'M1' PR을 먼저 병합 → 전원 'git fetch && git rebase origin/main'
+  M2:
+    when: Phase 1 끝
+    what: 모든 Phase 1 PR 병합
+    merge_order: [corpus, data-layer, tts-host, worker-stt, session-api, grader, frontend]
+    rule: 한 PR 병합 후 다음 PR 브랜치가 rebase되어 있는지 확인. 소유권 검사·실행 확인 통과한 PR만 병합
+  M3:
+    when: Phase 2 끝
+    what: 처음부터 끝까지 시험 1회 완주(e2e_smoke 통과) + 실패 시나리오 확인
+  M4:
+    when: Phase 3 끝
+    what: docs/REVIEW.md 작성. 🔴 0건이면 MVP 완료
+
+# 진행 상황 그래프 (누가 누구를 기다리나)
+dependencies:
+  bootstrap: []
+  corpus: [bootstrap]
+  data-layer: [bootstrap]
+  session-api: [bootstrap, "data-layer@M1 (로컬 테스트용, 코드 작성은 M0부터 가능)", "corpus@M1"]
+  worker-stt: [bootstrap, "data-layer@M1"]
+  grader: [bootstrap, "data-layer@M1", "corpus@M1"]
+  tts-host: [bootstrap, "data-layer@M1", "corpus@M1(Q000)"]
+  frontend: [bootstrap]          # mock 서버로 시작, M2 이후 실제 서버로 확인
+  integrator: [M2]
+  reviewer: [M3]
+
+# ---------------------------------------------------------------------------
+# 각 컴퓨터 준비
+# ---------------------------------------------------------------------------
+machine_setup: |
+  1. git clone https://github.com/fruit8067/OpicTutor-With-AI && cd OpicTutor-With-AI
+  2. (Phase 1부터) git fetch origin && git switch -c agent/<agent_id> origin/main
+  3. Python 3.11+, Node 20+, Docker Desktop 설치 확인 (필요한 것은 agents.<id>.needs)
+  4. backend/.env.example → backend/.env 복사 후 필요한 키만 채움 (.env는 절대 커밋하지 않음)
+  5. DB가 필요한 에이전트: docker compose up -d && (M1 이후) python -m scripts.db_reset --yes
+     각 컴퓨터는 자기 로컬 DB를 따로 쓴다. 공용 DB 서버를 두지 않는다
+  6. Python 가상환경: cd backend && python -m venv .venv && (.venv\Scripts\activate | source .venv/bin/activate)
+     && pip install -r requirements.txt
+  7. 에이전트에게 프롬프트 전달
+
+# ---------------------------------------------------------------------------
+# Git 규칙
+# ---------------------------------------------------------------------------
+git_protocol:
+  guide: agents/HANDOFF.md        # 사람이 따라 하는 실행 안내서(저장소 설정·병합 전략·공지 문구)
+  merge_method: "Rebase and merge만 사용 (squash·merge commit 끔). M1 이후에도 같은 브랜치를 계속 쓰기 때문"
+  main_ruleset: [PR 필수(승인 0), linear history, force push 금지, 최신 main 기준 필수, status check 'ownership']
+  line_endings: ".gitattributes로 eol=lf 통일 (Phase 0 전에 orchestrator가 추가)"
+  branch: "agent/<agent_id>  (Phase 0은 agent/bootstrap, 계약 변경은 orchestrator/cr-<id>-<NN>)"
+  commit_message: "[<agent_id>] <요약>  + 본문 마지막 줄: AI-assisted (Claude)"
+  push: 작업 단위마다 자주 push한다(컴퓨터가 꺼져도 다른 사람이 이어받을 수 있게)
+  before_push:
+    - python agents/tools/check_ownership.py <agent_id>      # 소유하지 않은 파일이 바뀌었으면 실패
+    - 에이전트 파일의 local_checks를 실행
+  pull_request:
+    title: "[<agent_id>] <마일스톤> <요약>"
+    body: "docs/handoff/<agent_id>.md 링크 + 실행 확인 결과 붙여넣기"
+    reviewer: orchestrator
+  sync: "M1·M2 공지 또는 contract_version 변경 공지를 받으면: git fetch origin && git rebase origin/main"
+  forbidden:
+    - main에 직접 push
+    - git push --force (자기 브랜치에서 rebase 후 --force-with-lease만 허용)
+    - 다른 에이전트 브랜치 수정
+    - .env, data/, 원음 파일 커밋
+
+# ---------------------------------------------------------------------------
+# 소통 (같은 저장소 안의 파일 + PR로만 소통. 각자 자기 파일만 쓰므로 충돌 없음)
+# ---------------------------------------------------------------------------
+communication:
+  handoff:
+    file: docs/handoff/<agent_id>.md
+    when: 작업 시작 30분 이내 초안, 마일스톤마다 갱신
+    sections: |
+      ## 상태          (진행 중 / M1 완료 / 완료, 마지막 갱신 시각)
+      ## 완료한 것
+      ## 실행 방법      (다른 사람이 그대로 따라 할 수 있는 명령)
+      ## 공개 함수·화면  (contracts.yaml과 다르면 여기 명시 → 다르면 안 됨)
+      ## 알려진 문제
+      ## 다른 에이전트에게 요청
+      ## 측정값         (처리 시간, 정확도, 비용 등)
+  change_request:
+    file: docs/change-requests/<agent_id>-<NN>.md
+    when: contracts.yaml의 함수 형식·스키마·DB·경로를 바꿔야 할 때 (직접 고치지 않는다)
+    template: |
+      # CR <agent_id>-<NN>
+      - 바꿀 항목: contracts.yaml의 <섹션/키>
+      - 현재 → 제안:
+      - 이유:
+      - 영향 받는 에이전트:
+      - 막힘 여부: (막힘 / 우회 가능 — 우회 방법)
+    orchestrator_action: 승인 시 contracts.yaml 수정·contract_version+1·changelog 추가 → main 병합 → 전원 공지
+    meanwhile: 승인 전까지는 현재 계약대로 구현하고, 우회한 부분은 '# CR-<id>-<NN>' 주석을 남긴다
+  blocked:
+    rule: 30분 이상 막히면 handoff의 '알려진 문제'에 적고 orchestrator에게 알린다. 다른 에이전트 파일을 대신 고치지 않는다
+    stub_policy: |
+      아직 병합되지 않은 다른 모듈이 필요하면, 자기 브랜치에서만 쓰는 임시 가짜 구현을
+      backend/tests_local/<agent_id>_fakes.py(또는 frontend/src/__dev__/)에 두고 import를 교체해 테스트한다.
+      이 폴더는 .gitignore에 있으므로 커밋되지 않는다. PR에는 실제 계약 함수 호출만 남긴다.
+
+# ---------------------------------------------------------------------------
+# 모든 에이전트 공통 지침 (각 에이전트 prompt 앞에 붙는다)
+# ---------------------------------------------------------------------------
+shared_preamble: |
+  너는 OpicTutor-With-AI를 만드는 여러 에이전트 중 하나다. 다른 에이전트들은 다른 컴퓨터에서 동시에 일하고 있다.
+  OpicTutor는 로컬에서 실행하는 OPIc 모의고사 웹 서비스다:
+  설정 → 전체 8문항·순서·TTS 준비(ready) → 문항 음성 재생 + 캐릭터 → 녹음 → 로컬 STT 저장 후 다음 문항
+  → 전체 답변 저장 후 종료 → 서버가 DB를 조회해 LLM 1회로 예상 등급(NL~AL)·피드백 생성 → 검증·저장 → 결과 표시.
+
+  [먼저 읽을 것 — 순서대로]
+  1. agents/orchestration.yaml   (협업 규칙: 브랜치·소유권·handoff·change_request)
+  2. agents/contracts.yaml       (네가 지켜야 할 함수·API·DB·데이터 형식. 이것이 계약이다)
+  3. docs/REQUIREMENTS_v2.md, docs/FLOWCHART.md (요구사항. 계약과 충돌하면 멈추고 change_request)
+  4. docs/handoff/*.md           (다른 에이전트의 진행 상황, 있으면)
+
+  [절대 규칙]
+  1. contracts.yaml의 ownership에서 네 agent_id가 소유한 경로만 만들고 고친다.
+     push 전에 python agents/tools/check_ownership.py <agent_id> 를 실행한다.
+  2. 계약(함수 이름·인자·반환형, API 경로·스키마, DB 컬럼, 파일 형식)을 바꾸지 않는다. 필요하면 change_request.
+  3. 등급은 NL, NM, NH, IL, IM1, IM2, IM3, IH, AL 9개뿐이다.
+  4. 시험 중에는 평가 LLM을 호출하지 않는다. 평가는 submit 이후 evaluate 작업에서 1회(+일시 오류 재시도)만.
+  5. STT가 저장되기 전에는 다음 문항으로 넘어가지 않는다. 202는 접수일 뿐이다.
+  6. TTS와 캐릭터는 필수다. 음성 실패 시 Web Speech나 텍스트만으로 진행하는 대체 경로를 만들지 않는다.
+  7. 수험생 원음은 로컬 밖으로 보내지 않는다(외부 STT API 금지). 외부 LLM에는 답변 텍스트·지표·근거만 보낸다.
+  8. API 키는 backend/.env에서만 읽는다. 코드·로그·프론트엔드·커밋에 넣지 않는다. 답변 원문을 일반 로그에 남기지 않는다.
+  9. 서버와 DB는 127.0.0.1에만 바인딩한다.
+  10. 각 소스 파일 첫 줄에 출처 주석을 단다:
+      Python  # AI-assisted: <무엇> was written with help from Claude (Anthropic).
+      TS/TSX  // AI-assisted: <무엇> was written with help from Claude (Anthropic).
+  11. 개발 환경에 Windows가 섞여 있다. pathlib/path 모듈을 쓰고, 셸 명령은 PowerShell과 bash 양쪽 예시를 handoff에 적는다.
+  12. 주석·사용자 문구는 한국어, 식별자는 영어.
+  13. 테스트 프레임워크로 큰 테스트 묶음을 만들지 않는다. 대신 에이전트 파일의 local_checks를 실제로 실행해 결과를 handoff에 붙인다.
+      (순수 함수에는 짧은 pytest 몇 개는 허용: backend/tests/test_<module>.py — 자기 모듈 이름만)
+  14. 작업 시작 30분 안에 docs/handoff/<agent_id>.md 초안을 push하고, 마일스톤마다 갱신한다.
+  15. 계약에 없는 추가 기능을 만들지 않는다(채팅, 페르소나, 실제 로그인, 배포 등은 범위 밖).
+
+# ---------------------------------------------------------------------------
+# 최종 완료 기준 (M3)
+# ---------------------------------------------------------------------------
+definition_of_done:
+  - docker compose up -d → db_reset → ingest_rag → import_tts → uvicorn + worker 실행으로 로컬에서 서비스가 뜬다
+  - 기본 시나리오로 8문항을 실제 녹음해 완주하고 결과(등급·근거·카드·문항별 상세)를 본다
+  - 새로고침해도 같은 문항·같은 순서·같은 결과가 나온다(결과 새로고침에 AI 재호출 없음)
+  - TTS 하나를 지우면 prepare_failed가 되고, 반입 후 같은 세트로 재시도해 ready가 된다
+  - STT 처리 중에는 다음 문항으로 갈 수 없고, 무음 녹음은 rejected → 재녹음이 된다
+  - LLM 키를 틀리게 하면 grading_failed가 되고, 키를 고친 뒤 regrade로 done이 된다
+  - grader의 eval_exam 리포트(±1등급 일치율, 반복 변동)가 backend/eval_reports/에 있다
+  - docs/REVIEW.md에 🔴 차단 이슈가 없다

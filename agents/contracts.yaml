@@ -1,0 +1,714 @@
+# OpicTutor — 구현 계약 (모든 에이전트 공통, 단일 기준)
+#
+# 이 파일이 모듈 경계·API·DB·데이터 파일 형식의 "단일 기준(source of truth)"이다.
+# - 요구사항 기준: docs/REQUIREMENTS_v2.md, docs/FLOWCHART.md (이 계약은 그 요구사항을 구현 형태로 옮긴 것)
+# - docs/API_SPEC.md는 bootstrap 에이전트가 이 파일을 바탕으로 v2로 다시 쓴다.
+# - 이 파일은 orchestrator만 수정한다. 변경이 필요하면 agents/orchestration.yaml의 change_request 절차를 따른다.
+# - 수정할 때마다 contract_version을 올리고 changelog에 한 줄을 남긴다.
+#
+# AI-assisted: this contract was written with help from Claude (Anthropic).
+
+contract_version: 1
+changelog:
+  - "1 (2026-11-06): REQUIREMENTS_v2(설정 단계 전체 세트·TTS 준비 → STT 저장 후 이동 → 종료 후 종합 평가) 기준 최초 작성"
+
+# ===========================================================================
+# 1. 고정 값
+# ===========================================================================
+levels: [NL, NM, NH, IL, IM1, IM2, IM3, IH, AL]   # 이 밖의 등급은 어디에서도 출력하지 않는다(AH 없음)
+
+tiers:            # 서버가 estimated_level → tier로 매핑한다. LLM은 tier를 만들지 않는다.
+  bronze:   {levels: [NL, NM, NH], color: "#B0794A"}
+  silver:   {levels: [IL, IM1],    color: "#A8B3BD"}
+  gold:     {levels: [IM2, IM3],   color: "#E3B341"}
+  platinum: {levels: [IH],         color: "#4FC3C7"}
+  diamond:  {levels: [AL],         color: "#7C8CFF"}
+
+question_types: [self_intro, description, routine, past_experience, comparison, issue,
+                 roleplay_ask, roleplay_solve, roleplay_experience]
+
+dimensions:       # 내부 1~5 정수
+  task_completion: 과제 수행
+  text_type: 문장 구성
+  accuracy: 정확성
+  observed_fluency: 관측 유창성
+
+policies:
+  question_count: 8
+  replay_limit: 1                 # 첫 재생은 세지 않음. 다시 듣기만 1회
+  record_min_ms: 2000
+  record_max_ms: 120000
+  upload_max_bytes: 10485760      # 10MB
+  upload_client_duration_tolerance_ms: 5000
+  accepted_mime: ["audio/webm", "audio/ogg", "audio/wav", "audio/mp4"]
+  poll_interval_ms: 2000
+  grading_poll_slow_notice_ms: 180000
+  llm_transient_retries: 2        # 일시 오류만, 최대 2회 추가 재시도
+  job_lease_sec: 60
+  job_max_attempts: 3
+  evidence_token_budget: 24000    # 근거 자료(루브릭 제외 대조 예시)의 토큰 상한
+  input_token_hard_limit: 60000   # 전체 입력이 넘으면 EVAL_INPUT_TOO_LARGE로 실패(조용히 자르지 않음)
+  disclaimer: "합성 예시로 구성한 기준을 참고한 AI 예상 등급입니다. 공식 OPIc 결과가 아닙니다."
+  metrics_version: "m1"
+  stt_version_format: "faster-whisper:{model}:{metrics_version}"
+
+# ===========================================================================
+# 2. 상태 값
+# ===========================================================================
+session_status:
+  preparing:      설정 제출됨. 전체 세트 저장 완료, TTS 연결 작업 진행 중
+  prepare_failed: TTS 누락·해시 불일치 등. 같은 세트로 재시도 가능
+  ready:          전체 문항 + 진행자 대사 음성 연결 완료. 시험 시작 가능
+  cancelled:      취소(설정 변경 포함). 종료 상태
+  in_progress:    시험 중
+  submitted:      전체 예정 답변 STT 저장 확인, 채택 답변 고정(평가 작업 등록 직전의 짧은 상태)
+  grading:        종료 후 종합 평가 중
+  grading_failed: 평가 실패. 저장된 전체 답변으로 재평가 가능
+  done:           검증된 결과 저장 완료(assessed 또는 insufficient_evidence)
+
+session_transitions:            # 이 표 밖의 전이는 409 INVALID_STATE
+  - [preparing, ready]
+  - [preparing, prepare_failed]
+  - [prepare_failed, preparing]   # POST /prepare/retry
+  - [preparing, cancelled]
+  - [prepare_failed, cancelled]
+  - [ready, cancelled]
+  - [ready, in_progress]          # POST /start
+  - [in_progress, submitted]      # POST /submit
+  - [submitted, grading]          # 같은 트랜잭션 안에서 바로 이어짐
+  - [grading, done]
+  - [grading, grading_failed]
+  - [grading_failed, grading]     # POST /regrade
+  - [done, grading]               # POST /regrade (새 run_no로 저장, 성공 전까지 이전 결과 유지)
+
+answer_stt_status:
+  queued:     업로드 저장 + stt 작업 등록
+  processing: 워커가 처리 중
+  done:       텍스트·지표 저장 + 채택 + 순서 전진 완료
+  rejected:   무음·너무 짧음·손상·의미 있는 발화 없음 → 같은 문항 재녹음 필요 (reject_reason)
+  failed:     처리 오류(재시도 소진) → POST /retry-stt로 원음 재처리 가능
+
+reject_reasons: [too_short, too_long, silence, no_speech, corrupt, unsupported_format]
+
+evaluation_status: [queued, running, done, failed]
+assessment_status: [assessed, insufficient_evidence]
+
+job_types:
+  tts_prepare: {target: sessions.id,    handler: "app.tts.prepare:handle",   owner: tts-host}
+  stt:         {target: answers.id,     handler: "app.stt.job:handle",       owner: worker-stt}
+  evaluate:    {target: evaluations.id, handler: "app.grading.job:handle",   owner: grader}
+job_status: [queued, running, done, failed, dead]   # failed = 재시도 대기, dead = 시도 소진
+job_dedupe_keys:
+  tts_prepare: "tts_prepare:{session_id}:{prepare_attempt}"
+  stt:         "stt:{answer_id}:{stt_attempt}"
+  evaluate:    "evaluate:{session_id}:{run_no}"
+
+# ===========================================================================
+# 3. 환경 변수 (backend/.env.example — bootstrap이 전부 작성, 이후 추가는 change_request)
+# ===========================================================================
+env_vars:
+  DATABASE_URL: postgresql://opic:opic@127.0.0.1:5432/opic
+  API_HOST: 127.0.0.1
+  API_PORT: "8000"
+  CORS_ORIGINS: http://localhost:5173,http://127.0.0.1:5173
+  DATA_DIR: ../data                      # backend/ 기준. 원음은 {DATA_DIR}/audio/{session_id}/{answer_id}.{ext}
+  TTS_DIR: static/tts                    # backend/ 기준
+  RAG_BUILD_DIR: ../rag_docs/build
+  LLM_BASE_URL: https://api.openai.com/v1
+  LLM_API_KEY: ""
+  LLM_MODEL: gpt-4o-mini                 # 실측 후 고정
+  LLM_TIMEOUT_SEC: "90"
+  EMBED_BASE_URL: https://api.openai.com/v1
+  EMBED_API_KEY: ""
+  EMBED_MODEL: text-embedding-3-small
+  EMBED_DIM: "1536"
+  WHISPER_MODEL: small.en
+  WHISPER_DEVICE: cpu                    # cpu | cuda
+  WHISPER_COMPUTE_TYPE: int8             # cpu=int8, cuda=float16
+  WORKER_ID: ""                          # 비우면 hostname-pid
+  WORKER_JOB_TYPES: tts_prepare,stt,evaluate
+  LOG_LEVEL: INFO
+
+# ===========================================================================
+# 4. 폴더와 소유권 (경로 → 담당 에이전트). 소유자만 해당 경로를 수정한다.
+#    bootstrap은 Phase 0에서 아래 파일의 "빈 껍데기(stub)"를 만들고, Phase 1부터 소유자에게 넘긴다.
+#    agents/tools/check_ownership.py가 이 표로 브랜치 변경 파일을 검사한다(먼저 매칭되는 규칙 우선).
+# ===========================================================================
+ownership:
+  - {path: "agents/**",                          owner: orchestrator}
+  - {path: "docs/REQUIREMENTS_v2.md",            owner: orchestrator}
+  - {path: "docs/FLOWCHART.md",                  owner: orchestrator}
+  - {path: "PROJECT_REQUIREMENTS.md",            owner: orchestrator}
+  - {path: "docs/API_SPEC.md",                   owner: bootstrap}      # Phase 0에서 v2 작성 후 orchestrator 소유
+  - {path: "docs/handoff/{agent_id}.md",         owner: "{agent_id}"}   # 각자 자기 파일만
+  - {path: "docs/change-requests/{agent_id}-*.md", owner: "{agent_id}"}
+  - {path: "docs/REVIEW.md",                     owner: reviewer}
+  - {path: ".gitignore",                         owner: bootstrap}
+  - {path: "docker-compose.yml",                 owner: bootstrap}
+  - {path: "backend/.env.example",               owner: bootstrap}
+  - {path: "backend/requirements.txt",           owner: bootstrap}      # -r requirements/*.txt만 담음
+  - {path: "backend/requirements/{agent_id}.txt", owner: "{agent_id}"}  # 각자 패키지는 자기 파일에
+  - {path: "backend/app/config.py",              owner: bootstrap}
+  - {path: "backend/app/schemas/**",             owner: bootstrap}      # 변경은 change_request
+  - {path: "backend/app/errors.py",              owner: bootstrap}
+  - {path: "rag_docs/**",                        owner: corpus}
+  - {path: "backend/migrations/**",              owner: data-layer}
+  - {path: "backend/app/db/**",                  owner: data-layer}
+  - {path: "backend/app/llm/embeddings.py",      owner: data-layer}
+  - {path: "backend/scripts/ingest_rag.py",      owner: data-layer}
+  - {path: "backend/scripts/db_reset.py",        owner: data-layer}
+  - {path: "backend/app/main.py",                owner: session-api}
+  - {path: "backend/app/api/**",                 owner: session-api}
+  - {path: "backend/app/exam/**",                owner: session-api}
+  - {path: "backend/app/worker/**",              owner: worker-stt}
+  - {path: "backend/app/stt/**",                 owner: worker-stt}
+  - {path: "backend/app/llm/chat.py",            owner: grader}
+  - {path: "backend/app/grading/**",             owner: grader}
+  - {path: "backend/prompts/**",                 owner: grader}
+  - {path: "backend/scripts/eval_exam.py",       owner: grader}
+  - {path: "backend/eval_reports/**",            owner: grader}
+  - {path: "backend/app/tts/**",                 owner: tts-host}
+  - {path: "backend/scripts/export_tts_jobs.py", owner: tts-host}
+  - {path: "backend/scripts/import_tts.py",      owner: tts-host}
+  - {path: "backend/static/tts/**",              owner: tts-host}
+  - {path: "backend/e2e_audio/**",               owner: tts-host}
+  - {path: "colab/**",                           owner: tts-host}
+  - {path: "frontend/src/features/host/**",      owner: tts-host}
+  - {path: "frontend/src/api/types.ts",          owner: bootstrap}      # schemas와 1:1. 변경은 change_request
+  - {path: "frontend/**",                        owner: frontend}
+  - {path: "backend/scripts/e2e_smoke.py",       owner: integrator}
+  - {path: "docs/RUNBOOK.md",                    owner: integrator}
+  - {path: "docs/handoff/integrator-assets/**",  owner: integrator}
+  # 짧은 pytest: 각자 자기 접두어 파일만
+  - {path: "backend/tests/test_db_*.py",         owner: data-layer}
+  - {path: "backend/tests/test_exam_*.py",       owner: session-api}
+  - {path: "backend/tests/test_api_*.py",        owner: session-api}
+  - {path: "backend/tests/test_stt_*.py",        owner: worker-stt}
+  - {path: "backend/tests/test_grading_*.py",    owner: grader}
+  - {path: "backend/tests/test_tts_*.py",        owner: tts-host}
+  - {path: "backend/tests/conftest.py",          owner: bootstrap}
+  - {path: "**",                                 owner: orchestrator}   # 나머지
+
+# ===========================================================================
+# 5. 데이터 파일 형식
+# ===========================================================================
+data_files:
+  questions_jsonl:
+    path: rag_docs/build/questions.jsonl
+    owner: corpus
+    note: |
+      기존 필드(id, question_type, topic, survey, difficulty, status, question, doc_type, text) 유지.
+      출제에는 status == "pilot"만 쓴다. Q000(self_intro)을 pilot으로 추가한다:
+      "Let's start the interview now. Tell me a little bit about yourself."
+  scenarios_json:
+    path: rag_docs/build/scenarios.json
+    owner: corpus
+    example: |
+      {
+        "version": "2026-11-06.1",
+        "scenarios": [
+          {
+            "scenario_id": "default",
+            "label": "기본 구성",
+            "description": "여러 주제가 섞인 기본 모의고사",
+            "slots": [
+              {"order_no": 1, "question_types": ["self_intro"],  "pool": ["Q000"]},
+              {"order_no": 2, "question_types": ["description"], "pool": ["Q001", "Q006"]},
+              {"order_no": 8, "question_types": ["issue", "roleplay_experience"], "pool": ["Q009", "Q012"]}
+            ]
+          }
+        ]
+      }
+    rules:
+      - slots는 order_no 1..8을 빠짐없이 가진다
+      - pool의 모든 id는 questions.jsonl의 pilot이며 question_type이 slot의 question_types에 속한다
+      - 한 시나리오의 슬롯들에서 서로 다른 문항 8개를 뽑을 수 있어야 한다(중복 없이). corpus가 빌드 시 검사
+      - 이 검사를 통과한 시나리오만 파일에 넣는다(지원 가능한 시나리오만 노출)
+  corpus_version:
+    path: rag_docs/build/VERSION
+    owner: corpus
+    note: "한 줄 문자열(예: 2026-11-06.1). ingest 시 rag_docs.corpus_version, 평가 시 evaluations.corpus_version에 기록"
+  tts_jobs_jsonl:
+    path: backend/static/tts/jobs.jsonl
+    owner: tts-host
+    line: '{"id": "question/Q001", "kind": "question", "ref_id": "Q001", "text": "...", "text_sha1": "<sha1(utf-8 text)>"}'
+    kinds: [question, host, e2e_answer]
+  tts_manifest:
+    path: "backend/static/tts/{voice_id}/manifest.json  (Colab 노트북 출력, import_tts가 반입)"
+    owner: tts-host
+    shape: |
+      {"engine": "k2-fsa/OmniVoice", "model_revision": "<HF commit sha 또는 unknown>",
+       "instruct": "...", "seed": 42, "speed": 0.95, "num_step": 32,
+       "settings_version": "<sha1(위 6개 값 JSON, 정렬 키)>[:10]",
+       "items": [{"id": "question/Q001", "text_sha1": "...", "seconds": 7.4}]}
+    voice_id: "settings_version과 같은 값을 voice_id로 사용"
+  active_voice:
+    path: backend/static/tts/active_voice.json
+    owner: tts-host
+    shape: '{"voice_id": "a1b2c3d4e5"}'
+  host_lines:
+    owner: tts-host
+    keys:
+      greeting: "Hi, I'm Rin. I'll be your interviewer today. Let's get started."
+      say_again: "Sorry, I didn't catch that. Could you say that again?"
+      next: "Okay. Let's move on to the next question."
+      finish: "That's the end of the test. Thank you."
+    note: "진행자 이름은 임시. 바꾸면 change_request 없이 tts-host가 수정 가능(텍스트 해시로 자동 무효화)"
+  audio_files:
+    answer: "{DATA_DIR}/audio/{session_id}/{answer_id}.{webm|ogg|wav|m4a}"
+    tts_url: "/media/tts/{voice_id}/{kind}/{ref_id}.mp3  (FastAPI StaticFiles, TTS_DIR 마운트)"
+
+# ===========================================================================
+# 6. DB 스키마 — backend/migrations/001_init.sql (bootstrap 작성 → data-layer 소유)
+# ===========================================================================
+db_schema_sql: |
+  CREATE EXTENSION IF NOT EXISTS vector;
+  CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
+  CREATE OR REPLACE FUNCTION set_updated_at() RETURNS trigger AS $$
+  BEGIN NEW.updated_at = now(); RETURN NEW; END; $$ LANGUAGE plpgsql;
+
+  CREATE TABLE IF NOT EXISTS sessions (
+    id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    client_request_id   TEXT UNIQUE,
+    replaces_session_id UUID NULL REFERENCES sessions(id),
+    scenario_id         TEXT NOT NULL,
+    settings_json       JSONB NOT NULL DEFAULT '{}'::jsonb,
+    status              TEXT NOT NULL CHECK (status IN ('preparing','prepare_failed','ready','cancelled',
+                          'in_progress','submitted','grading','grading_failed','done')),
+    question_count      INT  NOT NULL,
+    current_order_no    INT  NOT NULL DEFAULT 1,       -- question_count + 1 이면 모든 답변 저장 완료
+    prepare_attempt     INT  NOT NULL DEFAULT 1,
+    prepare_error_json  JSONB NULL,                    -- [{order_no|host_key, ref_id, error_code}]
+    selected_answer_ids UUID[] NULL,                   -- submit 때 고정
+    result_id           UUID NULL,                     -- 현재 표시할 evaluations.id
+    started_at TIMESTAMPTZ NULL, submitted_at TIMESTAMPTZ NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(), updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+  );
+
+  CREATE TABLE IF NOT EXISTS tts_assets (
+    id               UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    cache_key        TEXT NOT NULL UNIQUE,             -- "{kind}:{ref_id}:{text_hash}:{voice_id}"
+    kind             TEXT NOT NULL CHECK (kind IN ('question','host','e2e_answer')),
+    ref_id           TEXT NOT NULL,                    -- question_id 또는 host line key
+    text_hash        TEXT NOT NULL,                    -- sha1(utf-8 text)
+    voice_id         TEXT NOT NULL,
+    settings_version TEXT NOT NULL,
+    status           TEXT NOT NULL CHECK (status IN ('available','missing','invalid')),
+    file_path        TEXT NOT NULL,                    -- TTS_DIR 기준 상대 경로
+    duration_sec     REAL NULL,
+    error_code       TEXT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(), updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+  );
+
+  CREATE TABLE IF NOT EXISTS session_questions (
+    id               UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    session_id       UUID NOT NULL REFERENCES sessions(id) ON DELETE CASCADE,
+    order_no         INT  NOT NULL,
+    question_id      TEXT NOT NULL,
+    question_version TEXT NOT NULL,                    -- sha1(question_text)[:12]
+    question_text    TEXT NOT NULL,
+    question_type    TEXT NOT NULL,
+    tts_asset_id     UUID NULL REFERENCES tts_assets(id),
+    replay_count     INT  NOT NULL DEFAULT 0,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(), updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    UNIQUE (session_id, order_no),
+    UNIQUE (session_id, question_id)
+  );
+
+  CREATE TABLE IF NOT EXISTS session_host_lines (
+    session_id   UUID NOT NULL REFERENCES sessions(id) ON DELETE CASCADE,
+    line_key     TEXT NOT NULL,
+    tts_asset_id UUID NOT NULL REFERENCES tts_assets(id),
+    PRIMARY KEY (session_id, line_key)
+  );
+
+  CREATE TABLE IF NOT EXISTS answers (
+    id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    session_question_id UUID NOT NULL REFERENCES session_questions(id) ON DELETE CASCADE,
+    attempt_no          INT  NOT NULL,
+    client_request_id   TEXT NOT NULL UNIQUE,          -- 업로드 재전송 멱등 키
+    audio_path          TEXT NOT NULL,
+    audio_mime          TEXT NOT NULL,
+    audio_bytes         INT  NOT NULL,
+    audio_hash          TEXT NOT NULL,                 -- sha256
+    client_duration_ms  INT  NOT NULL,
+    stt_status          TEXT NOT NULL CHECK (stt_status IN ('queued','processing','done','rejected','failed')),
+    stt_attempt         INT  NOT NULL DEFAULT 1,
+    reject_reason       TEXT NULL,
+    is_selected         BOOLEAN NOT NULL DEFAULT false,
+    stt_text            TEXT NULL,
+    timestamps_json     JSONB NULL,                    -- [{word,start,end}]
+    metrics_json        JSONB NULL,
+    stt_version         TEXT NULL,
+    error_code          TEXT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(), updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    UNIQUE (session_question_id, attempt_no)
+  );
+  CREATE UNIQUE INDEX IF NOT EXISTS answers_one_selected ON answers (session_question_id) WHERE is_selected;
+
+  CREATE TABLE IF NOT EXISTS evaluations (
+    id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    session_id          UUID NOT NULL REFERENCES sessions(id) ON DELETE CASCADE,
+    run_no              INT  NOT NULL,
+    selected_answer_ids UUID[] NOT NULL,
+    status              TEXT NOT NULL CHECK (status IN ('queued','running','done','failed')),
+    assessment_status   TEXT NULL CHECK (assessment_status IN ('assessed','insufficient_evidence')),
+    estimated_level     TEXT NULL CHECK (estimated_level IN ('NL','NM','NH','IL','IM1','IM2','IM3','IH','AL')),
+    result_json         JSONB NULL,                    -- schemas.EvaluationResult (검증 통과본)
+    model TEXT NULL, prompt_version TEXT NULL, rubric_version TEXT NULL, corpus_version TEXT NULL,
+    retrieved_doc_ids   TEXT[] NULL,
+    error_code          TEXT NULL,
+    error_detail        JSONB NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(), updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    UNIQUE (session_id, run_no),
+    CHECK ((assessment_status = 'assessed') = (estimated_level IS NOT NULL) OR status <> 'done')
+  );
+  ALTER TABLE sessions DROP CONSTRAINT IF EXISTS sessions_result_fk;
+  ALTER TABLE sessions ADD CONSTRAINT sessions_result_fk FOREIGN KEY (result_id) REFERENCES evaluations(id);
+
+  CREATE TABLE IF NOT EXISTS rag_docs (
+    id              TEXT PRIMARY KEY,
+    doc_type        TEXT NOT NULL CHECK (doc_type IN ('rubric','upgrade_pattern','question','answer')),
+    question_id     TEXT NULL,
+    question_type   TEXT NULL,
+    level           TEXT NULL,
+    level_rank      INT  NULL,
+    contrast_set_id TEXT NULL,
+    text_style      TEXT NULL,
+    text            TEXT NOT NULL,
+    metadata        JSONB NOT NULL DEFAULT '{}'::jsonb,
+    corpus_version  TEXT NOT NULL,
+    embedding       VECTOR(1536) NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+  );
+  CREATE INDEX IF NOT EXISTS rag_docs_lookup ON rag_docs (doc_type, contrast_set_id, text_style);
+  CREATE INDEX IF NOT EXISTS rag_docs_embedding ON rag_docs USING hnsw (embedding vector_cosine_ops);
+
+  CREATE TABLE IF NOT EXISTS jobs (
+    id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    type         TEXT NOT NULL CHECK (type IN ('tts_prepare','stt','evaluate')),
+    target_id    UUID NOT NULL,
+    dedupe_key   TEXT NOT NULL UNIQUE,
+    status       TEXT NOT NULL CHECK (status IN ('queued','running','done','failed','dead')),
+    attempts     INT  NOT NULL DEFAULT 0,
+    max_attempts INT  NOT NULL DEFAULT 3,
+    locked_by    TEXT NULL,
+    locked_until TIMESTAMPTZ NULL,
+    next_run_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
+    payload      JSONB NOT NULL DEFAULT '{}'::jsonb,
+    error_code   TEXT NULL,
+    error_detail JSONB NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(), updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+  );
+  CREATE INDEX IF NOT EXISTS jobs_ready ON jobs (type, status, next_run_at);
+
+  CREATE TABLE IF NOT EXISTS ai_requests (
+    id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    job_id        UUID NULL REFERENCES jobs(id),
+    purpose       TEXT NOT NULL CHECK (purpose IN ('evaluate','embed','eval_script')),
+    model         TEXT NOT NULL,
+    input_tokens  INT NULL, output_tokens INT NULL, latency_ms INT NULL,
+    status        TEXT NOT NULL CHECK (status IN ('ok','error','refused','invalid_output')),
+    error_code    TEXT NULL,
+    created_at    TIMESTAMPTZ NOT NULL DEFAULT now()
+  );                                               -- 답변 원문·프롬프트 본문은 저장하지 않는다
+
+  -- updated_at 트리거: sessions, tts_assets, session_questions, answers, evaluations, jobs
+  -- (data-layer가 DO 블록으로 각 테이블에 set_updated_at 트리거를 붙인다)
+
+# ===========================================================================
+# 7. 모듈 인터페이스 (Python). 이름·인자·반환형을 바꾸지 않는다.
+#    모든 DB 함수는 동기 함수, 내부에서 커넥션 풀을 쓴다. 트랜잭션 경계는 함수 단위.
+# ===========================================================================
+module_interfaces:
+
+  app.config: |
+    settings: Settings      # pydantic-settings, env_vars 전부. 경로는 backend/ 기준으로 resolve
+
+  app.errors: |
+    class AppError(Exception): code: str; http_status: int; message: str; detail: dict | None
+    def install_error_handlers(app: FastAPI) -> None   # §8 error_format, RequestValidationError → VALIDATION_ERROR
+
+  app.schemas: |
+    app/schemas/api.py      — §9 api_schemas 전부 (Pydantic v2)
+    app/schemas/internal.py — SessionQuestionIn, AnswerRow, SessionRow, JobRow, EvidenceBundle,
+                              EvaluationLLMOutput(§10), EvaluationResult(§10), Metrics, WordTS
+
+  app.db (data-layer): |
+    # 공통
+    def init_db() -> None                                   # migrations/*.sql 순서대로 적용(멱등)
+    def ping() -> bool
+    # 세션
+    def create_session(*, client_request_id: str | None, scenario_id: str, settings_json: dict,
+                       questions: list[SessionQuestionIn], replaces_session_id: UUID | None) -> tuple[UUID, bool]
+        # (session_id, created). 같은 client_request_id면 기존 세션 반환(created=False).
+        # 한 트랜잭션: replaces_session_id가 preparing/ready/prepare_failed면 cancelled로 → 세션·문항 INSERT
+        #              → tts_prepare 작업 등록(dedupe_key 규칙)
+    def get_session(session_id: UUID) -> SessionRow | None
+    def list_session_questions(session_id: UUID) -> list[dict]       # order_no 순, tts asset(url용 file_path) 포함
+    def get_session_question(session_id: UUID, order_no: int) -> dict | None
+    def retry_prepare(session_id: UUID) -> int               # prepare_failed→preparing, prepare_attempt+1, 작업 등록. 새 attempt 반환
+    def cancel_session(session_id: UUID) -> str              # 허용 상태에서만. 최종 status 반환
+    def start_session(session_id: UUID) -> SessionRow        # ready→in_progress (in_progress면 그대로 반환: 멱등)
+    def increment_replay(session_id: UUID, order_no: int, limit: int) -> int   # 초과 시 AppError REPLAY_LIMIT
+    # TTS 준비(작업 핸들러가 호출)
+    def upsert_tts_asset(*, kind: str, ref_id: str, text_hash: str, voice_id: str, settings_version: str,
+                         file_path: str, duration_sec: float | None, status: str = "available") -> UUID
+    def find_tts_asset(*, kind: str, ref_id: str, text_hash: str, voice_id: str) -> dict | None
+    def complete_prepare(session_id: UUID, attempt: int, question_links: dict[int, UUID],
+                         host_links: dict[str, UUID]) -> bool
+        # status가 preparing이고 prepare_attempt == attempt일 때만 링크 저장 + ready. 아니면 False(늦은 완료 무시)
+    def fail_prepare(session_id: UUID, attempt: int, errors: list[dict]) -> bool   # 같은 가드, prepare_failed
+    # 답변
+    def create_answer(*, session_id: UUID, order_no: int, client_request_id: str, audio_path: str,
+                      audio_mime: str, audio_bytes: int, audio_hash: str, client_duration_ms: int,
+                      answer_id: UUID) -> tuple[dict, bool]
+        # (answer, created). 같은 client_request_id면 기존 반환. 한 트랜잭션 + stt 작업 등록.
+        # 검사: in_progress, order_no == current_order_no, 같은 문항에 queued/processing 답변 없음
+        #       → 위반 시 AppError(INVALID_STATE | ORDER_MISMATCH | ANSWER_PENDING)
+    def get_answer(answer_id: UUID) -> dict | None           # session_id, order_no 포함
+    def mark_stt_processing(answer_id: UUID) -> bool
+    def complete_stt(answer_id: UUID, *, text: str, timestamps: list[dict], metrics: dict, stt_version: str) -> dict
+        # 한 트랜잭션: done + is_selected(같은 문항 이전 채택 해제) + current_order_no == 해당 order_no면 +1.
+        # 이미 done이면 아무것도 바꾸지 않고 현재 값 반환(멱등). 반환: {session_status, current_order_no, all_answered}
+    def reject_stt(answer_id: UUID, reason: str) -> None     # rejected (순서 전진 없음)
+    def fail_stt(answer_id: UUID, error_code: str) -> None   # failed (순서 전진 없음)
+    def retry_stt(answer_id: UUID) -> None                   # failed→queued, stt_attempt+1, 작업 등록
+    # 제출·평가
+    def submit_session(session_id: UUID) -> UUID
+        # 한 트랜잭션: 모든 문항에 is_selected done 답변이 있는지 확인(아니면 AppError NOT_ALL_ANSWERED)
+        # → selected_answer_ids 고정, submitted_at → evaluations(run_no=1) + evaluate 작업 → grading. evaluation_id 반환.
+        # 이미 submitted/grading/done이면 기존 최신 evaluation_id 반환(멱등).
+    def create_regrade(session_id: UUID) -> UUID             # grading_failed|done → 새 run_no, 작업 등록, grading
+    def get_evaluation(evaluation_id: UUID) -> dict | None
+    def get_latest_evaluation(session_id: UUID) -> dict | None
+    def load_exam_snapshot(session_id: UUID, selected_answer_ids: list[UUID]) -> list[dict]
+        # order_no 순 [{order_no, question_id, question_type, question_text, answer_id, stt_text, metrics}]
+    def mark_evaluation_running(evaluation_id: UUID) -> bool
+    def finish_evaluation(evaluation_id: UUID, *, result: dict, assessment_status: str, estimated_level: str | None,
+                          model: str, prompt_version: str, rubric_version: str, corpus_version: str,
+                          retrieved_doc_ids: list[str]) -> bool
+        # 해당 run이 세션의 최신 run이고 세션이 grading일 때만: evaluation done + session done + result_id 갱신
+    def fail_evaluation(evaluation_id: UUID, error_code: str, error_detail: dict | None) -> bool  # 같은 가드, grading_failed
+    # 근거(RAG)
+    def get_rag_docs(doc_type: str, *, corpus_version: str | None = None, **filters) -> list[dict]
+    def get_contrast_set(contrast_set_id: str, text_style: str = "stt") -> list[dict]   # level_rank 순
+    def search_similar_answers(embedding: list[float], *, question_type: str | None, text_style: str = "stt",
+                               exclude_contrast_set_ids: list[str] = (), k: int = 5) -> list[dict]
+    def current_corpus_version() -> str | None
+    # 작업 큐
+    def claim_job(types: list[str], worker_id: str, lease_sec: int) -> dict | None   # FOR UPDATE SKIP LOCKED
+    def heartbeat_job(job_id: UUID, worker_id: str, lease_sec: int) -> bool
+    def complete_job(job_id: UUID, worker_id: str) -> None
+    def fail_job(job_id: UUID, worker_id: str, *, error_code: str, retryable: bool, detail: dict | None = None) -> str
+        # retryable이고 attempts < max_attempts면 failed + next_run_at(2^attempts초 뒤), 아니면 dead. 최종 status 반환
+    def recover_expired_jobs() -> int                        # locked_until 지난 running → failed(재시도)
+    # 기록
+    def log_ai_request(*, job_id: UUID | None, purpose: str, model: str, input_tokens: int | None,
+                       output_tokens: int | None, latency_ms: int | None, status: str, error_code: str | None) -> None
+    def last_job_activity() -> datetime | None               # /health worker_seen_at (jobs.updated_at 최신, running|done)
+    def count_ai_requests(purpose: str, since: datetime | None = None) -> int   # 검증용
+
+  app.db.dev (data-layer, 개발·테스트 전용 — API에서 import 금지): |
+    # 다른 에이전트가 앞 단계 없이 자기 부분을 시험할 수 있게 상태를 바로 만든다. M1에 반드시 포함.
+    def seed_session(status: str = "ready", scenario_id: str = "default", link_tts: bool = False) -> UUID
+        # app.exam이 아직 없으면 questions.jsonl pilot에서 유형 순서대로 8개를 직접 고른다
+    def seed_queued_answer(session_id: UUID, audio_path: str, order_no: int | None = None) -> UUID   # 파일 복사 + stt 작업 등록
+    def seed_grading_session(level: str = "IM2", text_style: str = "stt") -> tuple[UUID, UUID]
+        # (session_id, evaluation_id). 코퍼스 대조 답변으로 8문항 답변을 done으로 채우고 submit까지 진행
+
+  app.llm.embeddings (data-layer): |
+    def embed_texts(texts: list[str]) -> list[list[float]]   # EMBED_* 설정, 배치 100, 재시도 2
+
+  app.llm.chat (grader): |
+    class LLMTransientError(Exception); class LLMRefusalError(Exception); class LLMOutputError(Exception)
+    def chat_structured(messages: list[dict], schema: type[BaseModel], *, timeout: float) -> tuple[BaseModel, dict]
+        # (parsed, usage{model,input_tokens,output_tokens,latency_ms}). temperature=0.
+        # parse 미지원 제공자면 json_object 모드 + model_validate_json 대체 경로
+
+  app.exam (session-api): |
+    def list_scenarios() -> list[ScenarioOut]                # scenarios.json + questions.jsonl, 프로세스 캐시
+    def build_question_set(scenario_id: str, seed: str) -> list[SessionQuestionIn]
+        # 슬롯별 pool에서 중복 없이 결정적으로 선택(seed=client_request_id 또는 새 UUID). 부족하면 AppError SCENARIO_UNAVAILABLE
+
+  app.tts (tts-host): |
+    HOST_LINES: dict[str, str]                               # app/tts/host_lines.py
+    def text_hash(text: str) -> str                          # sha1 hex
+    def active_voice_id() -> str | None                      # active_voice.json
+    def tts_url(file_path: str) -> str                       # "/media/tts/" + file_path
+    def tts_status() -> dict                                 # /health용 {voice_id, assets, missing_pilot}
+    # app/tts/prepare.py
+    def handle(job: dict) -> None                            # tts_prepare 핸들러
+
+  app.stt (worker-stt): |
+    def load_model() -> None; def is_loaded() -> bool
+    def probe_audio(path: Path) -> AudioProbe                # {duration_sec, sample_rate, rms_dbfs, ok, reason}
+    def transcribe(path: Path) -> SttResult                  # {text, words: list[WordTS], duration_sec, speech_segments}
+    def compute_metrics(words: list[WordTS], duration_sec: float, speech_segments: list[tuple[float,float]]) -> Metrics
+    # app/stt/job.py
+    def handle(job: dict) -> None                            # stt 핸들러
+
+  app.worker (worker-stt): |
+    python -m app.worker [--types stt,tts_prepare,evaluate] [--once]
+    # registry: job_types[*].handler 문자열을 importlib로 로드. 핸들러 예외 → 아래 규칙으로 fail_job
+    class RetryableJobError(Exception); class PermanentJobError(Exception)   # app/worker/errors.py
+    # 핸들러는 이 둘 중 하나를 던져 재시도 여부를 알린다. 그 밖의 예외는 retryable로 취급.
+
+  app.grading (grader): |
+    def build_evidence(snapshot: list[dict], *, exclude_contrast_set_ids: list[str] = ()) -> EvidenceBundle
+    def build_messages(snapshot: list[dict], evidence: EvidenceBundle) -> list[dict]
+    def validate_output(raw: EvaluationLLMOutput, snapshot: list[dict]) -> EvaluationResult   # 실패 시 LLMOutputError
+    def evaluate_exam(snapshot: list[dict], *, exclude_contrast_set_ids: list[str] = (), job_id: UUID | None = None)
+        -> tuple[EvaluationResult, dict]    # (result, meta{model,prompt_version,rubric_version,corpus_version,retrieved_doc_ids})
+    def tier_of(level: str) -> dict         # {name, color}
+    # app/grading/job.py
+    def handle(job: dict) -> None           # evaluate 핸들러
+
+frontend_interfaces:
+  host: |
+    // frontend/src/features/host/ (tts-host 소유). 화면(frontend)은 이 두 개만 import한다.
+    export type HostState = 'idle' | 'speaking' | 'listening' | 'processing'
+    export function Host(props: { state: HostState; className?: string }): JSX.Element
+    export function useTtsPlayer(): {
+      unlock(): Promise<void>                                  // 첫 사용자 클릭에서 호출
+      play(url: string): Promise<'ended' | 'blocked' | 'error'> // speechSynthesis 대체 없음
+      stop(): void
+      isPlaying: boolean
+      getAnalyser(): AnalyserNode | null                       // Host 애니메이션용(같은 컨텍스트 공유)
+    }
+  api_client: |
+    // frontend/src/api/client.ts (frontend 소유, 시그니처는 bootstrap이 고정)
+    // 함수 이름: getHealth, getScenarios, getHostLines, createSession, getSession, retryPrepare, cancelSession,
+    //           startSession, getCurrent, postReplay, uploadAnswer, getAnswer, retryStt, submitSession,
+    //           getResult, regrade
+    // 실패 시 ApiError {code, message, detail, status}를 throw
+
+# ===========================================================================
+# 8. HTTP API — Base: http://127.0.0.1:8000/api/v1
+# ===========================================================================
+api:
+  error_format: '{"error": {"code": "ORDER_MISMATCH", "message": "<한국어 사용자 문구>", "detail": {}}}'
+  rules:
+    - 긴 작업(TTS 준비, STT, 평가)은 202로 접수하고 워커가 처리한다. 클라이언트는 상태를 폴링한다(2초)
+    - 202는 접수일 뿐 완료가 아니다
+    - 모든 쓰기 요청은 멱등이다(client_request_id 또는 상태 기반)
+    - 500 응답에 스택 트레이스를 넣지 않는다
+  endpoints:
+    - {id: A1,  method: GET,  path: /health, res: HealthOut}
+    - {id: A2,  method: GET,  path: /scenarios, res: "list[ScenarioOut]"}
+    - {id: A3,  method: GET,  path: /host-lines, res: "dict[str, HostLineOut]",
+       note: "활성 음성의 진행자 대사 URL. 세션 시작 전 화면에서도 씀(say_again 등은 세션 링크 값을 우선)"}
+    - {id: S1,  method: POST, path: /sessions, req: CreateSessionIn, res: SessionOut, status: 202,
+       errors: [SCENARIO_UNAVAILABLE, MIC_CHECK_REQUIRED],
+       note: "client_request_id 같으면 같은 세션(200). replaces_session_id 주면 그 세션 취소"}
+    - {id: S2,  method: GET,  path: "/sessions/{session_id}", res: SessionOut, errors: [SESSION_NOT_FOUND]}
+    - {id: S3,  method: POST, path: "/sessions/{session_id}/prepare/retry", res: SessionOut, status: 202,
+       errors: [INVALID_STATE]}
+    - {id: S4,  method: POST, path: "/sessions/{session_id}/cancel", res: SessionOut, errors: [INVALID_STATE]}
+    - {id: S5,  method: POST, path: "/sessions/{session_id}/start", res: SessionOut, errors: [INVALID_STATE]}
+    - {id: Q1,  method: GET,  path: "/sessions/{session_id}/current", res: CurrentQuestionOut,
+       errors: [INVALID_STATE], note: "in_progress에서만. 모든 답변 저장 완료면 all_answered=true, question=null"}
+    - {id: Q2,  method: POST, path: "/sessions/{session_id}/questions/{order_no}/replay", res: ReplayOut,
+       errors: [REPLAY_LIMIT, ORDER_MISMATCH], note: "다시 듣기 직전에 호출. 첫 재생은 호출하지 않음"}
+    - {id: U1,  method: POST, path: "/sessions/{session_id}/answers", req: "multipart: order_no, client_request_id, duration_ms, audio",
+       res: AnswerOut, status: 202,
+       errors: [INVALID_STATE, ORDER_MISMATCH, ANSWER_PENDING, AUDIO_TOO_SHORT, AUDIO_TOO_LONG, UNSUPPORTED_MEDIA, PAYLOAD_TOO_LARGE],
+       note: "파일은 임시 경로에 쓴 뒤 create_answer 성공 시 최종 경로로 이동. 실패하면 임시 파일 삭제"}
+    - {id: U2,  method: GET,  path: "/sessions/{session_id}/answers/{answer_id}", res: AnswerOut, errors: [ANSWER_NOT_FOUND]}
+    - {id: U3,  method: POST, path: "/sessions/{session_id}/answers/{answer_id}/retry-stt", res: AnswerOut, status: 202,
+       errors: [INVALID_STATE]}
+    - {id: E1,  method: POST, path: "/sessions/{session_id}/submit", res: SessionOut, status: 202,
+       errors: [INVALID_STATE, NOT_ALL_ANSWERED]}
+    - {id: E2,  method: GET,  path: "/sessions/{session_id}/result", res: ResultOut, errors: [INVALID_STATE],
+       note: "AI를 호출하지 않는다. 저장값만 반환"}
+    - {id: E3,  method: POST, path: "/sessions/{session_id}/regrade", res: SessionOut, status: 202, errors: [INVALID_STATE]}
+    - {id: X1,  method: POST, path: "/sessions/{session_id}/chat", status: 501, errors: [NOT_IMPLEMENTED]}
+  static:
+    - "/media/tts/** → backend/{TTS_DIR} (StaticFiles)"
+
+error_codes:
+  VALIDATION_ERROR:     {http: 422, message: "요청 형식이 올바르지 않습니다."}
+  SERVICE_NOT_READY:    {http: 503, message: "서버를 준비하고 있어요. 잠시 후 다시 시도해 주세요."}
+  SESSION_NOT_FOUND:    {http: 404, message: "시험 정보를 찾을 수 없어요."}
+  ANSWER_NOT_FOUND:     {http: 404, message: "답변을 찾을 수 없어요."}
+  INVALID_STATE:        {http: 409, message: "지금 단계에서는 할 수 없는 요청이에요."}
+  SCENARIO_UNAVAILABLE: {http: 422, message: "선택한 시나리오로는 시험을 구성할 수 없어요. 다른 설정을 선택해 주세요."}
+  MIC_CHECK_REQUIRED:   {http: 422, message: "마이크 테스트를 먼저 완료해 주세요."}
+  ORDER_MISMATCH:       {http: 409, message: "현재 문항이 아니에요. 화면을 새로고침해 주세요."}
+  ANSWER_PENDING:       {http: 409, message: "이전 답변을 처리하고 있어요."}
+  REPLAY_LIMIT:         {http: 409, message: "다시 듣기는 한 번만 할 수 있어요."}
+  AUDIO_TOO_SHORT:      {http: 422, message: "녹음이 너무 짧아요. 다시 답변해 주세요."}
+  AUDIO_TOO_LONG:       {http: 422, message: "녹음이 너무 길어요."}
+  UNSUPPORTED_MEDIA:    {http: 415, message: "지원하지 않는 녹음 형식이에요."}
+  PAYLOAD_TOO_LARGE:    {http: 413, message: "녹음 파일이 너무 커요."}
+  NOT_ALL_ANSWERED:     {http: 409, message: "아직 저장되지 않은 답변이 있어요."}
+  NOT_IMPLEMENTED:      {http: 501, message: "준비 중인 기능이에요."}
+  INTERNAL_ERROR:       {http: 500, message: "잠시 후 다시 시도해 주세요."}
+  # 작업 오류 코드(응답 error_code 필드에 담김, HTTP 에러 아님)
+  job_error_codes: [TTS_ASSET_MISSING, TTS_HASH_MISMATCH, TTS_FILE_MISSING, NO_ACTIVE_VOICE,
+                    STT_DECODE_ERROR, STT_ENGINE_ERROR,
+                    LLM_TRANSIENT, LLM_REFUSED, LLM_INVALID_OUTPUT, EVAL_INPUT_TOO_LARGE, EVAL_INTERNAL]
+
+# ===========================================================================
+# 9. API 스키마 (app/schemas/api.py, frontend/src/api/types.ts 와 1:1)
+# ===========================================================================
+api_schemas:
+  HealthOut: {ready: bool, db: "ok|error", worker_seen_at: "datetime|null", whisper_model: str,
+              corpus_version: "str|null", tts: {voice_id: "str|null", assets: int, missing_pilot: "list[str]"}}
+  ScenarioOut: {scenario_id: str, label: str, description: str, question_count: int}
+  HostLineOut: {key: str, text: str, audio_url: "str|null"}
+  CreateSessionIn: {client_request_id: str, scenario_id: "str (기본 'default')", mic_check_passed: bool,
+                    replaces_session_id: "UUID|null"}
+  PrepareFailure: {order_no: "int|null", host_key: "str|null", ref_id: str, error_code: str}
+  PrepareProgress: {total: int, linked: int, failures: "list[PrepareFailure]"}
+  SessionOut: {session_id: UUID, status: session_status, scenario_id: str, question_count: int,
+               current_order_no: int, all_answered: bool, prepare: "PrepareProgress|null",
+               latest_evaluation_status: "evaluation_status|null", created_at: datetime, updated_at: datetime}
+  QuestionOut: {order_no: int, question_id: str, question_type: str, text: str, audio_url: str,
+                duration_sec: "float|null", replay_count: int, replay_limit: int}
+  CurrentQuestionOut: {session_status: session_status, total: int, all_answered: bool,
+                       question: "QuestionOut|null", pending_answer: "AnswerOut|null",
+                       host_lines: "dict[str, HostLineOut]"}
+  ReplayOut: {order_no: int, replay_count: int, replay_limit: int}
+  Metrics: {duration_sec: float, speech_sec: float, word_count: int, wpm: float, articulation_wpm: "float|null",
+            long_pause_count: int, observed_filler_per100: "float|null", metrics_version: str}
+  AnswerOut: {answer_id: UUID, order_no: int, attempt_no: int, stt_status: answer_stt_status,
+              reject_reason: "str|null", error_code: "str|null", stt_text: "str|null", metrics: "Metrics|null",
+              session_status: session_status, current_order_no: int, all_answered: bool}
+  Mistake: {quote: str, problem: str, fix: str}
+  ItemFeedback: {order_no: int, evidence: "list[str]", mistakes: "list[Mistake]", upgrade_tip: str}
+  FeedbackCard: {title: str, why: str, before: str, after: str, related_order_nos: "list[int]"}
+  DimensionScores: {task_completion: "int 1-5", text_type: "int 1-5", accuracy: "int 1-5", observed_fluency: "int 1-5"}
+  EvaluationResult: {assessment_status: assessment_status, estimated_level: "level|null", tier: "{name,color}|null",
+                     headline: str, grade_rationale: str, dimension_scores: "DimensionScores|null",
+                     items: "list[ItemFeedback]", feedback_cards: "list[FeedbackCard]", limitations: "list[str]",
+                     insufficient_reason: "str|null", disclaimer: str}
+  ResultItemOut: {order_no: int, question_id: str, question_type: str, question_text: str, stt_text: str,
+                  metrics: Metrics}
+  ResultOut: {session_status: session_status, evaluation_status: "evaluation_status|null", run_no: "int|null",
+              result: "EvaluationResult|null", answers: "list[ResultItemOut]", error_code: "str|null",
+              graded_at: "datetime|null"}
+
+# ===========================================================================
+# 10. 평가 LLM 출력 계약 (grader)
+# ===========================================================================
+evaluation_llm_output:   # app/schemas/internal.py EvaluationLLMOutput — Structured Output으로 강제
+  fields:
+    status: "assessed | insufficient_evidence"
+    estimated_level: "NL..AL | null   (insufficient_evidence면 null, assessed면 필수)"
+    insufficient_reason: "str | null  (insufficient_evidence면 필수)"
+    headline: 한국어 총평 1~2문장
+    grade_rationale: 전체 시험 근거의 판단 사유(한국어)
+    dimension_scores: "{task_completion, text_type, accuracy, observed_fluency} 각 1~5 정수 | null"
+    items: "[{order_no, evidence[0..3], mistakes[0..5]{quote, problem(ko), fix(en)}, upgrade_tip(ko)}]"
+    feedback_cards: "[{title, why, before, after, related_order_nos}] — assessed면 3~5장, 아니면 0~5장"
+    limitations: "[str] 음질·STT·근거 부족 등"
+  server_validation:     # validate_output이 하나라도 실패하면 LLMOutputError
+    - estimated_level ∈ levels, status와 일관
+    - items의 order_no 집합 == 시험 문항 order_no 집합(누락·중복·범위 밖 금지)
+    - evidence와 mistakes.quote, feedback_cards.before는 해당 문항(related_order_nos) STT 텍스트의 부분 문자열
+      (대소문자·공백·구두점 정규화 후 비교). before가 여러 문항이면 그중 하나에 있으면 통과
+    - related_order_nos는 시험 문항 order_no 안에서만
+    - 점수는 1~5 정수
+    - 서버가 tier와 disclaimer를 붙여 EvaluationResult로 만든다(LLM 출력의 tier는 받지 않음)

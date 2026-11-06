@@ -1,0 +1,63 @@
+# AI-assisted: this agent prompt was written with help from Claude (Anthropic).
+agent_id: corpus
+phase: 1
+branch: agent/corpus
+milestones:
+  M1: "Q000 추가된 questions.jsonl, scenarios.json(최소 default), VERSION → 먼저 PR"
+  M2: "Q013~Q037 반영 완료 코퍼스, 시나리오 확장, 빌드 리포트"
+owns: ["rag_docs/**", "backend/requirements/corpus.txt", "docs/handoff/corpus.md", "docs/change-requests/corpus-*.md"]
+needs: [python 3.11+]
+
+prompt: |
+  [먼저 읽기] agents/orchestration.yaml(shared_preamble 포함) → agents/contracts.yaml(data_files 절)
+  → rag_docs/README.md → rag_docs/source/*.yaml → rag_docs/scripts/build_corpus.py, check_monotonic.py
+  → docs/REQUIREMENTS_v2.md F0(출제 원천)·F5
+
+  [역할] 출제 문제 은행·시나리오·평가 근거 코퍼스의 담당자다. 이 데이터가 시험 구성과 평가 근거를 모두 결정한다.
+  지금 상태: question_bank.yaml은 Q001~Q030(pilot 12, todo 18)인데,
+  source/contrast_sets_04.yaml·05.yaml에는 Q013~Q037의 9등급 대조 답변이 이미 작성되어 있다(빌드에는 아직 미반영, build는 12세트).
+
+  [작업 — M1 (가장 먼저, 1시간 안에 PR)]
+  1. question_bank.yaml에 Q000을 추가한다:
+     {id: Q000, question_type: self_intro, topic: self_intro, survey: common, difficulty: "1-6", status: pilot,
+      question: "Let's start the interview now. Tell me a little bit about yourself."}
+     build_corpus.py가 question_type self_intro를 허용하도록 고친다(대조 세트가 없어도 pilot으로 허용하는 예외는 Q000만).
+  2. source/scenarios.yaml을 만들고 빌드가 build/scenarios.json을 쓰게 한다(contracts.yaml data_files.scenarios_json 형식).
+     M1에는 현재 pilot 12개 + Q000으로 만들 수 있는 "default" 하나만 넣는다.
+     슬롯 구성은 REQUIREMENTS_v2 F0 표(1 self_intro … 8 issue|roleplay_experience).
+  3. 빌드 시 시나리오 검사: 각 슬롯 pool이 비어 있지 않고, pool의 모든 id가 pilot이며 유형이 맞고,
+     8슬롯에서 서로 다른 문항을 뽑을 수 있는지(이분 매칭) 확인. 실패한 시나리오는 파일에서 빼고 report.md에 사유를 적는다.
+  4. build/VERSION에 corpus_version(YYYY-MM-DD.N)을 쓰고, 모든 build/*.jsonl 문서에 corpus_version 필드를 넣는다.
+  5. .gitignore 때문에 build/ 새 파일이 무시되면 handoff에 적고 orchestrator에게 알린다(.gitignore는 bootstrap 소유).
+
+  [작업 — M2]
+  6. Q031~Q037을 question_bank.yaml에 추가한다. question 문장은 contrast_sets_05.yaml의 "# Qxxx 질문:" 주석에서 가져오고,
+     question_type·topic·survey·difficulty는 질문 내용을 보고 기존 분류 규칙에 맞춰 정한다. 판단이 애매한 항목은 report에 표시.
+  7. Q013~Q037 중 대조 세트가 9등급 모두 있고 build 검사(check_monotonic 포함)를 통과한 문항만 status를 pilot으로 바꾼다.
+     통과하지 못한 문항은 todo로 두고 사유를 report.md에 남긴다. todo 자료를 출제에 쓰지 않는다.
+  8. build_corpus.py로 answers.jsonl을 다시 만든다(clean + stt 변형, contrast_set_id = 문항 id 규칙 유지).
+     기존 필드 이름을 바꾸지 않는다(data-layer의 ingest가 의존). 새 필드 추가는 허용.
+  9. 늘어난 pilot으로 시나리오를 확장한다. 사용자 선택지로 의미 있는 묶음(예: "여가 중심", "운동·건강", "여행")을
+     검사를 통과하는 것만 추가한다. 통과 못 하면 넣지 않는다(대체 문항으로 몰래 채우지 않음).
+     label·description은 한국어, scenario_id는 영문 snake_case.
+  10. (여유가 있으면) Q000 대조 세트 9등급을 contrast_sets_06.yaml로 작성한다. 형식·주의 문구는 05와 같게.
+  11. README.md와 report.md를 갱신한다: 문서 수, 등급별 통계, 시나리오 목록과 슬롯별 pool 크기, 검사 결과.
+
+  [주의]
+  - 대조 답변 내용 자체를 대량으로 고쳐 쓰지 않는다. 형식 오류·명백한 등급 역전만 고치고 report에 기록한다.
+  - ACTFL 원문을 넣지 않는다(README의 라이선스 메모 유지).
+  - questions.jsonl 문장은 TTS 음성 해시의 기준이 된다. M1 이후 문장을 바꾸면 handoff에 "문장 변경 목록"을 남긴다(tts-host가 재생성).
+
+local_checks:
+  - "cd rag_docs && python scripts/build_corpus.py  → exit 0"
+  - "python scripts/check_monotonic.py  → 경고 0 (또는 report에 사유)"
+  - "python -c \"import json;d=json.load(open('build/scenarios.json',encoding='utf-8'));print([s['scenario_id'] for s in d['scenarios']])\""
+  - "grep -c '\"status\": \"pilot\"' build/questions.jsonl"
+
+handoff_must_include:
+  - corpus_version
+  - pilot 문항 수(유형별), 시나리오 목록과 슬롯별 pool 크기
+  - M1 이후 바뀐 문항 문장 목록(TTS 재생성 대상)
+  - todo로 남긴 문항과 사유
+
+done_when: "M2 PR 병합, build 검사 0건 오류"
