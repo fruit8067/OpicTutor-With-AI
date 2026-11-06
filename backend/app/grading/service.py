@@ -56,4 +56,5 @@ def evaluate_exam(snapshot: list[dict], *, exclude_contrast_set_ids: list[str] =
                 invalid_retry=True
                 messages=[*messages,{'role':'user','content':'이전 응답의 검증 오류: '+str(failure)+'. 동일 시험을 출력 계약과 대조하여 다시 평가하세요.'}]
                 continue
+            failure.evaluation_usage=totals.copy()
             raise failure
