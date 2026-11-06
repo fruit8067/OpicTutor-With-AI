@@ -1,7 +1,16 @@
 # worker-stt M2
 
 ## 상태
-로컬 워커·STT 구현 및 합성 음성/실제 리스 복구 검증 완료, 마이크 검증 대기 (2026-11-06 KST). agent/grader 위에 쌓은 브랜치.
+코드와 과거 합성 음성/리스 검증 기록을 보존, M1 의존성 및 마이크 검증 대기 (2026-11-07 KST). main 기반 독립 브랜치로 재구성했다.
+
+## 공개 함수·화면
+contracts v4 app.stt/app.worker 및 app.stt.job.handle. 공개 인터페이스 변경 없음. 로컬 Whisper만 사용하며 사용자 원음을 외부로 보내지 않는다.
+
+## 다른 에이전트에게 요청
+data-layer M1의 tx/DB 함수가 main에 반영되어야 실제 DB job 검증을 재실행할 수 있다. 현재 독립 브랜치 전체 pytest는 tx stub 미구현으로 수집 실패했고 통과로 세지 않는다. 실제 사용자 마이크 발화 검증도 필요하다.
+
+## 이번 검증
+독립 metrics/audio/worker 경계 16 passed(1.77초). A/B 메모리 조합 검증 101 passed(5.37초)는 전용 테스트 DB에서 실제 queue·HTTP·저장/진행 경계를 연결했다. ASR 추론은 fixture여서 실제 Whisper 품질이나 마이크 검증으로 표시하지 않는다. C 구현은 추가하지 않았다.
 
 ## 완료한 것
 jobs claim·30초 복구·20초 heartbeat·취소 플래그·유형별 핸들러 지연 로드, 로컬 PyAV/faster-whisper,
