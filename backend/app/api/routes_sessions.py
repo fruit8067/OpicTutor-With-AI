@@ -13,6 +13,10 @@ router=APIRouter()
 @router.post('/sessions',response_model=SessionOut,status_code=202)
 def create_session(data: CreateSessionIn,response: Response):
     if not data.mic_check_passed: raise AppError('MIC_CHECK_REQUIRED')
+    existing=db.get_session_id_by_request_id(data.client_request_id)
+    if existing is not None:
+        response.status_code=200
+        return session_out(existing)
     questions=exam.build_question_set(data.scenario_id,data.client_request_id)
     sid,created=db.create_session(client_request_id=data.client_request_id,scenario_id=data.scenario_id,
         settings_json={'mic_check_passed':True,'coverage':coverage_for(data.scenario_id,questions)},
