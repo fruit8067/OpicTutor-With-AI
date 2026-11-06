@@ -474,7 +474,7 @@ limitations[]: 음질·STT·근거 부족 등 한계
 
 ## 8. 계약·API 동기화 이력과 현재 기준
 
-초안의 contract_version=1 및 이전 grader 지시는 영역 점수·평가 출력과 충돌했다. 이후 `agents/contracts.yaml`과 `PC-A_core`/`PC-B_ai` 역할 지시가 개정됐고, 현재 계약 v5는 v3의 채점 여부·문항 태그·서술 진단·관찰 범위와 Pickle 환경설정·복구용 DB 조회 선언을 포함한다. 평가 원문 버전은 v3 그대로다. 계약 개정은 런타임·실제 서비스 검증 완료를 뜻하지 않는다.
+초안의 contract_version=1 및 이전 grader 지시는 영역 점수·평가 출력과 충돌했다. 이후 `agents/contracts.yaml`과 `PC-A_core`/`PC-B_ai` 역할 지시가 개정됐고, 현재 계약 v6는 v3의 채점 여부·문항 태그·서술 진단·관찰 범위와 Pickle 환경설정·복구용 DB 조회·nullable 평가 메타데이터 선언을 포함한다. 평가 원문 버전은 v3 그대로다. 계약 개정은 런타임·실제 서비스 검증 완료를 뜻하지 않는다.
 
 `API_SPEC.md`는 API 명세 v2/HTTP 형식 v3로 갱신됐다. 구체적인 경로·HTTP 스키마의 정본은 `agents/contracts.yaml`이다. 아래 표는 이전 설계에서 바꿔야 했던 항목이며 현재 구현에서도 계속 확인할 기준이다. 현재 A/B 검증과 실제 서비스에 남은 조건은 `CORE_REQUIREMENTS_VERIFICATION.md`를 확인한다.
 

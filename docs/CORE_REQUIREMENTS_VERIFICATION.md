@@ -1,12 +1,13 @@
 # A/B 코어 요구사항·흐름 검증
 
-2026-11-07 KST. 사용자의 최신 목표에 따라 C를 새로 만들지 않고 A/B를 프로젝트 전체 흐름에 대조했다. 기준은 REQUIREMENTS_v2, PROJECT_REQUIREMENTS, FLOWCHART, API_SPEC 및 contracts v5다. 요구사항을 현재 구현에 맞춰 낮추지 않았다.
+2026-11-07 KST. 사용자의 최신 목표에 따라 C를 새로 만들지 않고 A/B를 프로젝트 전체 흐름에 대조했다. 기준은 REQUIREMENTS_v2, PROJECT_REQUIREMENTS, FLOWCHART, API_SPEC 및 contracts v6다. 요구사항을 현재 구현에 맞춰 낮추지 않았다.
 
 ## 판정
 
 **A/B 핵심 흐름은 명시적인 외부 경계 대역을 사용한 실제 HTTP 계층·PostgreSQL·작업·검증·결과 저장 조합에서 통과했다. 실제 Pickle·임베딩 서비스 연결, 실제 마이크 품질, 제품/브라우저 완주까지 완료한 상태는 아니다.**
 
-- 기존 모듈 검증과 신규 회귀/흐름 검증 합계 **104 passed, skip 0, 5.56초**.
+- 기존 모듈 검증과 신규 회귀/흐름 검증 합계 **104 passed, skip 0, 5.48초**.
+- 별도 선언 대조: **공개 함수 64개, API 모델 29개 필드 집합, 경로/기본 성공 status 17개 차이 0**. 이 대조만으로 모든 데이터 제약·모델 품질을 검증했다고 주장하지 않으며 동작 제약은 위 테스트로 확인한다.
 - 별도 `opic_ab_check_<무작위 ID>` DB를 생성해 검증하고 연결을 닫은 후 삭제했다. 기존 개발 DB를 reset하지 않았다.
 - 각 역할 worktree 모듈을 메모리에 명시적으로 조합했다. 다른 역할 코드를 자기 브랜치에 상속하거나 운영 소스의 stub을 가짜 구현으로 바꾸지 않았다.
 - TTS URL/사전 자산, ASR 추론, LLM HTTP 응답은 테스트 대역이다. DB claim/리스·파일 업로드·STT 처리/저장·평가 검증/저장은 실제 A/B 코드다. 합성 tone은 마이크/실제 영어 발화가 아니다.
@@ -39,6 +40,7 @@
 ## 이번에 해결한 결함
 
 기존 I-01~06: 기술적 결측 FACT 상태, fallback RAG 버전, TTS strip 해시, HTTP 408 분류, 실제 provider 요청 로그/예산, 공개 시그니처를 수정했다. nullable tier는 CR orchestrator-01로 선언 모순을 해소했다.
+추가로 CR data-layer-01/계약 v6는 비 IM 결과와 선택적 corpus 메타데이터의 기존 nullable API/DB 동작을 함수 타입에 정확히 반영했다. 실제 IL 재평가의 두 null 메타데이터 저장/조회도 검증했다. 평가 기준·도메인 컬럼은 바꾸지 않았다.
 
 추가로 다음 흐름 문제를 수정했다.
 
@@ -50,7 +52,7 @@
 
 ## 절차 복구
 
-CR #10/#14, M0 #1, corpus M1 #5, ownership 기반 #11 및 감사/보강 #9가 main에 병합됐다. rebase-only·main ruleset·필수 ownership을 유지한다. 새 trusted workflow는 PR의 코드/계약을 실행하지 않고 main 기준과 PR 객체를 검사한다. 실제 CI에서 `ownership`/`trusted ownership runner` 성공을 확인했다.
+CR #10/#14/#16, M0 #1, corpus M1 #5, ownership 기반 #11 및 감사/보강 #9가 main에 병합됐다. rebase-only·main ruleset·필수 ownership을 유지한다. 새 trusted workflow는 PR의 코드/계약을 실행하지 않고 main 기준과 PR 객체를 검사한다. 실제 CI에서 `ownership`/`trusted ownership runner` 성공을 확인했다.
 
 A/B 기능 PR은 각자 최신 기준의 자기 증분으로 재구성하고 기본 origin/main ownership을 사용한다. main 외 역할 브랜치를 PR base로 두지 않도록 정리한다. 작업자별 실행 결과와 남은 의존 조건은 해당 handoff에 기록한다. C를 추가해 M2/M3를 억지로 완료하지 않는다.
 
@@ -63,6 +65,7 @@ A/B 기능 PR은 각자 최신 기준의 자기 증분으로 재구성하고 기
 ```
 
 이 명령은 `OpicTutor-session`, `OpicTutor-data`, `OpicTutor-grader`, `OpicTutor-worker` worktree와 해당 의존 패키지를 사용한다. PostgreSQL 테스트 계정은 임시 DB 생성/삭제 권한이 필요하다. `core_flow_cases.py`가 실제 HTTP/DB/작업/결과 복구를 검증한다.
+같은 명령 끝에 `--interfaces-only`를 붙이면 DB를 변경하지 않고 공개 함수 선언/API 필드·경로·기본 status를 대조한다.
 
 ## 아직 검증할 조건
 
