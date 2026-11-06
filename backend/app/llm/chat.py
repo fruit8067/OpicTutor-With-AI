@@ -139,7 +139,7 @@ def chat_structured(messages: list[dict], schema: type[BaseModel], *, timeout: f
             if trace is None or provider not in trace.json_only:
                 endpoint=client.beta.chat.completions
                 raw=getattr(endpoint,'with_raw_response',None)
-                parse=raw.parse if raw is not None else endpoint.parse
+                parse=getattr(raw,'parse',None) or endpoint.parse
                 response=_send(lambda:parse(**common,response_format=schema),options['model'])
         except (AttributeError,NotImplementedError):
             if trace is not None: trace.json_only.add(provider)
