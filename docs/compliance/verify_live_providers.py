@@ -23,13 +23,14 @@ def main():
     parser.add_argument('--workspace',type=Path,required=True)
     parser.add_argument('--run',action='store_true')
     args=parser.parse_args()
-    env_file=args.workspace/'OpicTutor-With-AI/backend/.env'
+    env_relative=Path('backend/.env') if (args.workspace/'backend/app').is_dir() else Path('OpicTutor-With-AI/backend/.env')
+    env_file=args.workspace/env_relative
     # The user maintains this one file. Never copy credentials among worktrees.
     load_dotenv(env_file,override=False)
     compose_sources(args.workspace,emit_manifest=False)
     from app.config import settings
     from app.llm import chat,embeddings
-    report={'env_file':str(env_file.resolve()),'env_file_bytes':env_file.stat().st_size if env_file.exists() else None,
+    report={'env_file':env_relative.as_posix(),'env_file_bytes':env_file.stat().st_size if env_file.exists() else None,
             'llm_model':settings.LLM_MODEL,'embedding_model':settings.EMBED_MODEL,'embedding_dimensions':settings.EMBED_DIM,
             'llm_key_present':bool(os.getenv('LLM_API_KEY','').strip() or os.getenv('PICKLE_API_KEY','').strip()),
             'embedding_key_present':bool(settings.EMBED_API_KEY.strip()),'external_requests_before_run':0}

@@ -79,7 +79,7 @@ def check_interfaces():
 
 def compose_sources(root,emit_manifest=True):
     root=Path(root).resolve()
-    sources={role:root/('OpicTutor-'+folder) for role,folder in
+    sources={role:(root if (root/'backend/app').is_dir() else root/('OpicTutor-'+folder)) for role,folder in
              [('session-api','session'),('data-layer','data'),('grader','grader'),('worker-stt','worker')]}
     for role,path in sources.items():
         if not (path/'backend/app').is_dir(): raise ValueError(f'Missing {role} worktree: {path}')
@@ -93,7 +93,7 @@ def compose_sources(root,emit_manifest=True):
     package('app.worker',sources['worker-stt']/'backend/app/worker')
     package('app.stt',sources['worker-stt']/'backend/app/stt')
     package('app.grading',sources['grader']/'backend/app/grading')
-    manifest={role:{'path':str(path),'commit':subprocess.check_output(
+    manifest={role:{'path':path.relative_to(root).as_posix(),'commit':subprocess.check_output(
         ['git','rev-parse','HEAD'],cwd=path,text=True).strip(),
         'dirty':bool(subprocess.check_output(['git','status','--porcelain'],cwd=path,text=True).strip())}
         for role,path in sources.items()}

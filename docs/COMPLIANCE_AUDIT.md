@@ -141,9 +141,8 @@ Pickle의 공개 base URL·정확한 모델 ID 및 실제 키가 아직 주어�
 감사 대상 구현 worktree와 그 가상환경이 있는 상태에서 다음을 실행한다. 재현 스크립트는 실제 provider 네트워크 대신 MockTransport/메모리 대역을 사용하며, DB에서는 해시 비교 SELECT만 한다. 경로를 인자로 받는다.
 
 ```powershell
-& 'C:/Users/fruit/Documents/OpicTutor/OpicTutor-With-AI/backend/.venv/Scripts/python.exe' `
-  'C:/Users/fruit/Documents/OpicTutor/OpicTutor-audit/docs/compliance/probe.py' `
-  'C:/Users/fruit/Documents/OpicTutor/OpicTutor-With-AI'
+# 가상환경을 활성화하고 감사 도구가 있는 저장소 루트에서 실행.
+python docs/compliance/probe.py ../OpicTutor-With-AI
 ```
 
 1. orchestrator가 LF·저장소 보호/ownership 정책을 정식 PR·설정 절차로 준비한다. main 자동 병합으로 이를 건너뛰지 않는다.
