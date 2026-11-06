@@ -7,6 +7,10 @@ contracts v7 기본값은 Pickle `https://llm.pcl.kr/v1` / `pickle-general`이�
 
 ## 상태
 
+40시험 전체 v5 회귀는5건정상(NL/NL/NM/NH/NH) 후6번째에서학교 API HTTP429/quota_exhausted로자동중단됐다. 40건전체성공/정확도를주장하지않는다. 작은별도요청도같은거절을확인했다. quota_exhausted는일시적429와구분해1요청후중단하도록수정했다. --resume-report는동일system/user template hash·model·corpus·시험순서/대조세트제외목록을검사하며기존5건과할당량중단이력을유지한다. 실제중단리포트로다음single-NH-1/남은35시험을네트워크없이확인했다. 실제입력대조세트제외40시험·반복3회·함정완주/IM2 실제큐저장은한도갱신후남은조건이다.
+
+재개 명령(저장소 루트, 가상환경 활성화): `python docs/compliance/run_eval.py --workspace .. --traps --school-credit-usd 10 --embedding-usd-per-million .13 --resume-report ../OpicTutor-grader/backend/eval_reports/20261107-075645-174912-live.json --yes`. 단일통합checkout에서는 --workspace . 및 backend/eval_reports/... 상대 경로를사용한다. 원래 실패 리포트는 덮어쓰지 않는다.
+
 F5 대조 세트 제외 실제4시험: v4는2/4 정확·±1(50%), 검증실패50%; v5는3/4 정확·±1(75%), 검증실패25%다. v5에서NL2건/NM1건은정상이고NM1건은SDK파싱실패였다. SDK raw response에서사용량을먼저읽고본문없는스키마필드/오류코드를보존하도록수정했고, 해당NM시험만다시점검중이다. 아래의v4단일IL시험은정확도연구가아닌저장흐름점검이다.
 
 후속 실제 v4 IL 시험: 최초 응답의 잘못된 인용은 거부하고 수정 응답으로 queue/evaluation/session 모두done, IL/IL·8items 저장. 2요청, 입력31,392+31,424/출력6,094+6,751토큰, 전체85.844초. 실제 전체 회귀·반복 정확도 검증을 대신하지 않는다. 사용자는 학교 크레딧 약$10 사용을 명시했다. 단가 미공개 시 --school-credit-usd 10으로 실제 비용을 미산정(None)으로 기록하며 예산/인증 거절은 일괄 중단한다. 각 시험 후 같은 리포트에 체크포인트를 기록한다. 실패 시 실제 요청/토큰도 별도 누적한다.

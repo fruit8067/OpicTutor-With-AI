@@ -155,6 +155,26 @@ def provider_limit(error):
     return False
 
 
+def resume_records(path,metadata,prepared,repeat):
+    previous=json.loads(path.read_text(encoding='utf-8'))
+    old=previous['metadata']
+    for field in ['system_prompt_sha1','user_template_sha256','user_template_version','corpus_version','model','planned_exams']:
+        if old.get(field)!=metadata.get(field): raise ValueError('이어 실행 기준 불일치: '+field)
+    records=list(previous['records']);history=list(old.get('provider_pause_records',[]))
+    if old.get('run_status')=='stopped_provider_limit' and records and records[-1]['status']=='error':
+        history.append(records.pop())
+    expected=[(case['id'],run,case,excluded) for run in range(1,repeat+1) for case,snapshot,excluded in prepared]
+    if len(records)>=len(expected): raise ValueError('이미 완료된 리포트입니다.')
+    for record,(case_id,run,case,excluded) in zip(records,expected):
+        if (record.get('id'),record.get('repeat'))!=(case_id,run) or record.get('status') not in ('done','error'):
+            raise ValueError('이전 결과가 현재 시험 순서의 연속된 앞부분이 아닙니다.')
+        if record.get('expected')!=case['expected'] or record.get('trap')!=case['trap'] or record.get('excluded_contrast_set_ids')!=excluded:
+            raise ValueError('이전 시험 입력/제외 대조 세트가 변경됐습니다.')
+    metadata.update(resumed_from=path.name,resumed_from_implementation_commit=old.get('implementation_commit'),
+                    provider_pause_records=history)
+    return records
+
+
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--limit',type=int);p.add_argument('--traps',action='store_true');p.add_argument('--repeat',type=int,default=1)
@@ -163,8 +183,10 @@ def main():
     p.add_argument('--embedding-usd-per-million',type=float)
     p.add_argument('--school-credit-usd',type=float,help='User-declared school credit budget when no public LLM token tariff exists; actual USD cost remains unknown.')
     p.add_argument('--case-id',action='append',help='Run only named cases for a targeted regression; repeat to select several.')
+    p.add_argument('--resume-report',type=Path,help='Continue a stopped report with matching prompt/model/corpus; preserve provider-limit history.')
     args=p.parse_args()
     if args.repeat<1 or args.limit is not None and args.limit<1: p.error('repeat/limit는 양수여야 합니다.')
+    if args.plan and args.resume_report: p.error('--plan과 --resume-report는 별도로 사용하세요.')
     if any(rate is not None and (not math.isfinite(rate) or rate<0) for rate in [args.input_usd_per_million,args.output_usd_per_million,args.embedding_usd_per_million]): p.error('단가는 유한한 음수 아닌 값이어야 합니다.')
     if args.school_credit_usd is not None and (not math.isfinite(args.school_credit_usd) or args.school_credit_usd<=0): p.error('학교 크레딧은 유한한 양수여야 합니다.')
     selected=cases(args.traps)
@@ -219,16 +241,25 @@ def main():
     if not settings.EMBED_API_KEY: p.error('실제 실행에는 EMBED_API_KEY가 필요합니다.')
     if (upper is None and args.school_credit_usd is None) or embed_upper is None:
         p.error('실행 전 LLM 단가 또는 사용자 학교 크레딧, 검색 임베딩 단가를 입력하세요.')
+    try: records=resume_records(args.resume_report,metadata,prepared,args.repeat) if args.resume_report else []
+    except (OSError,ValueError,KeyError,TypeError) as exc: p.error(str(exc))
+    finished={(record['id'],record['repeat']) for record in records}
+    if args.resume_report: print(f'이전 결과 {len(records)}시험 유지, 남은 {planned-len(records)}시험 실행',flush=True)
     if not args.yes and input('위 호출 수와 비용 상한으로 실행할까요? [yes/N] ').strip().lower()!='yes':
         p.exit(1,'실행 취소\n')
-    records=[];stopped=False
+    stopped=False
     stem=datetime.now(timezone(timedelta(hours=9))).strftime('%Y%m%d-%H%M%S-%f')
     def checkpoint(status):
-        metadata.update(run_status=status,completed_exams=len(records))
-        write_report(dict(metadata=metadata,metrics=metrics(records),records=records),'live',stem=stem)
+        metadata.update(run_status=status,completed_exams=len(records),pending_exams=planned-len(records),
+                        benchmark_complete=status=='completed' and len(records)==planned)
+        summary=metrics(records)
+        history=metadata.get('provider_pause_records',[])
+        summary['llm_calls_including_provider_pauses']=summary['total_observed_llm_calls']+sum(r.get('llm_calls',0) for r in history)
+        write_report(dict(metadata=metadata,metrics=summary,records=records),'live',stem=stem)
     checkpoint('running')
     for repeat in range(args.repeat):
         for case,snapshot,excluded in prepared:
+            if (case['id'],repeat+1) in finished: continue
             started=time.monotonic()
             record=dict(id=case['id'],repeat=repeat+1,expected=case['expected'],trap=case['trap'],excluded_contrast_set_ids=excluded)
             try:
