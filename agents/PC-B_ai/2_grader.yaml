@@ -62,7 +62,8 @@ prompt: |
      tiers.py tier_of(estimated_level) — null이면 tier null. 통과 시 EvaluationResult에 tier·provisional_label·disclaimer를 서버가 붙인다.
   7. app/grading/service.py evaluate_exam: precheck → system prompt → evidence → messages → chat_structured → validate.
      LLMTransientError 최대 2회 재시도(2초, 4초). LLMOutputError(검증 실패 포함)는 검증 오류 목록을 덧붙여 같은 입력으로 1회만 재요청
-     (재시도 예산 안에서). refusal은 재시도하지 않는다. 모든 호출을 db.log_ai_request로 기록(본문·답변 텍스트 기록 금지).
+     (재시도 예산 안에서). refusal은 재시도하지 않는다. 최초 요청과 재시도를 합친 실제 provider HTTP 요청 예산은 3회다.
+     parse 미지원 확인 요청과 json_object 대체 요청도 각각 예산에 포함하고 db.log_ai_request로 기록한다(본문·답변 텍스트 기록 금지).
   8. app/grading/job.py handle(job): mark_evaluation_running → get_evaluation → get_session(settings_json.coverage)
      → load_exam_snapshot → evaluate_exam → db.finish_evaluation(base_level, estimated_level, im_estimation_status,
      rubric_version, im_rubric_version, prompt_version 포함). 실패 시 error_code(LLM_REFUSED·LLM_INVALID_OUTPUT·LLM_TRANSIENT·

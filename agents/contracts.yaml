@@ -8,8 +8,10 @@
 #
 # AI-assisted: this contract was written with help from Claude (Anthropic).
 
-contract_version: 3
+contract_version: 4
 changelog:
+  - "4 (2026-11-06, CR orchestrator-01): 사용자 요청 Pickle LLM 환경설정/os.getenv 키, nullable tier 선언,
+     TTS strip UTF-8 SHA1 정규화, 실제 provider 요청 기준 기록·3회 예산을 명확히 함. 평가 원문·API·도메인 DB 스키마는 v3 유지."
   - "3 (2026-11-06, commit d5ec5bb 반영): 평가 기준 v3(performance-feedback-actfl-speaking-v3, opic-evaluation-system-v3),
      로드용 원본 docs/prompts/opic_evaluation_system.md, 자기소개 워밍업 채점 제외(is_scored), 문항 과제·시간대·맥락 태그,
      dimension_scores(1~5) 폐지 → dimension_feedback(서술), coverage·sustained_performance·breakdown_observations·
@@ -172,9 +174,9 @@ env_vars:
   TTS_DIR: static/tts                    # backend/ 기준
   RAG_BUILD_DIR: ../rag_docs/build
   EVAL_SYSTEM_PROMPT_PATH: ../docs/prompts/opic_evaluation_system.md   # v3 로드용 원본(복사본 금지)
-  LLM_BASE_URL: https://api.openai.com/v1
+  LLM_BASE_URL: ""                        # Pickle의 공개 OpenAI 호환 base URL을 명시
   LLM_API_KEY: ""
-  LLM_MODEL: gpt-4o-mini                 # 실측 후 고정
+  LLM_MODEL: ""                           # Pickle의 정확한 모델 ID를 명시
   LLM_TIMEOUT_SEC: "90"
   EMBED_BASE_URL: https://api.openai.com/v1
   EMBED_API_KEY: ""
@@ -355,7 +357,7 @@ db_schema_sql: |
     cache_key        TEXT NOT NULL UNIQUE,             -- "{kind}:{ref_id}:{text_hash}:{voice_id}"
     kind             TEXT NOT NULL CHECK (kind IN ('question','host','e2e_answer')),
     ref_id           TEXT NOT NULL,                    -- question_id 또는 host line key
-    text_hash        TEXT NOT NULL,                    -- sha1(utf-8 text)
+    text_hash        TEXT NOT NULL,                    -- sha1(text.strip().encode('utf-8'))
     voice_id         TEXT NOT NULL,
     settings_version TEXT NOT NULL,
     status           TEXT NOT NULL CHECK (status IN ('available','missing','invalid')),
@@ -615,7 +617,7 @@ module_interfaces:
 
   app.tts (tts-host): |
     HOST_LINES: dict[str, str]                               # app/tts/host_lines.py
-    def text_hash(text: str) -> str                          # sha1 hex
+    def text_hash(text: str) -> str                          # sha1(text.strip().encode('utf-8')).hexdigest()
     def active_voice_id() -> str | None                      # active_voice.json
     def tts_url(file_path: str) -> str                       # "/media/tts/" + file_path
     def tts_status() -> dict                                 # /health용 {voice_id, assets, missing_pilot}
@@ -649,7 +651,7 @@ module_interfaces:
         # meta{model, prompt_version(opic-evaluation-system-v3), user_template_version, rubric_version, im_rubric_version,
         #      system_prompt_sha1, corpus_version, retrieved_doc_ids}
         # evaluations.prompt_version에는 "opic-evaluation-system-v3+evaluate_exam.v1" 형식으로 둘 다 기록
-    def tier_of(level: str) -> dict         # {name, color}
+    def tier_of(level: str | None) -> dict | None   # {name, color}; 등급 null이면 tier null
     # app/grading/job.py
     def handle(job: dict) -> None           # evaluate 핸들러
 
