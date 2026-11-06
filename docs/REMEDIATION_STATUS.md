@@ -12,6 +12,7 @@
 - corpus M1: PR #5를 main에 병합했다. M2 확대 자료는 별도 Draft PR #12에서 검증한다.
 - 기존 혼합 Pickle PR #8은 닫고 실제 소유 역할의 변경으로 재구성했다.
 - 감사·trusted ownership 보강 PR #9는 필수 ownership 성공 확인 후 rebase 방식으로 main에 병합됐다(da004c5). 보호 규칙을 면제하거나 완화하지 않았다.
+- CR session-api-01은 PR #14/main 90e7835에 반영됐다. contracts v5는 생성 재전송이 코퍼스 변경에 영향을 받지 않도록 저장 세션 조회 함수를 추가한다.
 
 ## 이번에 진행하는 작업
 
@@ -25,3 +26,7 @@
 Pickle의 실제 공개 base URL/모델 ID 및 로컬 LLM_API_KEY, 실제 임베딩 적재용 EMBED_API_KEY가 필요하다. C의 TTS·캐릭터·화면 구현과 실제 마이크 완주는 아직 완료되지 않았다. 이 조건들이 필요한 M1/M2/M3/M4 검증을 면제하거나 가짜 성공값으로 대신하지 않는다.
 
 이 파일의 진행 항목은 실행 결과 확인 후 갱신한다. 보고서의 원래 결함 재현 코드는 수정 후 회귀 검증을 대신하는 것이 아니다.
+
+## A/B 심화 검증 결과
+
+[요구사항/flowchart 대조표](CORE_REQUIREMENTS_VERIFICATION.md)와 [고정 검증 기록](compliance/verification-2026-11-07.json)을 추가했다. 독립 역할 모듈의 메모리 조합에서 실제 임시 PostgreSQL·HTTP·작업·결과 저장/복구 **104 passed, skip 0**. 실제 provider/마이크/C 완주와 구분한다. 기존 6개 감사 항목 외 세션/오디오 재전송·임베딩 응답·M1 평가 계획·JSON-only 제공자의 예산 내 수정 요청을 보강했다.

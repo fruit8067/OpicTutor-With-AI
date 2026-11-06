@@ -174,6 +174,6 @@ stateDiagram-v2
 5. 마지막 답변 저장 후에만 전체 등급 평가·피드백을 시작한다.
 6. 채팅·재연습은 모의고사 주 흐름의 필수 단계가 아니다.
 
-기존 [API_SPEC.md](API_SPEC.md)는 아직 이전 방식이다. 상세 요구사항 8장의 동기화 목록에 따라 구현 계약을 갱신해야 한다.
+[API_SPEC.md](API_SPEC.md)는 현재 계약의 확정 세트·STT 저장 후 이동·종료 후 평가 흐름으로 갱신됐다. 실제 API 스키마의 정본은 agents/contracts.yaml이며, A/B의 단계별 검증과 아직 실행하지 못한 실제 서비스 조건은 [코어 검증](CORE_REQUIREMENTS_VERIFICATION.md)에 기록한다.
 
 사전 TTS 생성 방식은 원격 OmniVoice 변경을 반영했다. 세션 설정 단계의 전체 문제 세트 확정·음성 준비 완료 조건은 그대로 유지한다.
