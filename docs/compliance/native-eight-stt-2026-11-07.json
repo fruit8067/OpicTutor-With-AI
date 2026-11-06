@@ -1,0 +1,202 @@
+{
+  "scope": "8 real HTTP uploads + 8 native worker CLI/Whisper transcriptions + real DB + submit; C fixtures only",
+  "audio_source": "Windows SAPI Zira synthetic English, repeated to exercise transport/ASR, not question-answer quality",
+  "audio_sha256": "cafbff79e986cb32ae8acd811855cdf754da37d0a5eeb27e087078e07b92224b",
+  "audio_duration_sec": 30.0,
+  "model": "small.en",
+  "device": "cpu",
+  "compute_type": "int8",
+  "model_network_disabled": true,
+  "microphone_used": false,
+  "c_implementation_added": false,
+  "answers": [
+    {
+      "order_no": 1,
+      "worker_exit_code": 0,
+      "answer_status": "done",
+      "session_order_after": 2,
+      "job": {
+        "status": "done",
+        "attempts": 1
+      },
+      "metrics": {
+        "wpm": 144.0,
+        "speech_sec": 30.0,
+        "word_count": 72,
+        "duration_sec": 30.0,
+        "metrics_version": "m1",
+        "articulation_wpm": 144.0,
+        "long_pause_count": 0,
+        "observed_filler_per100": 5.6
+      },
+      "worker_sec_including_startup": 5.594,
+      "transcript_logged": false
+    },
+    {
+      "order_no": 2,
+      "worker_exit_code": 0,
+      "answer_status": "done",
+      "session_order_after": 3,
+      "job": {
+        "status": "done",
+        "attempts": 1
+      },
+      "metrics": {
+        "wpm": 144.0,
+        "speech_sec": 30.0,
+        "word_count": 72,
+        "duration_sec": 30.0,
+        "metrics_version": "m1",
+        "articulation_wpm": 144.0,
+        "long_pause_count": 0,
+        "observed_filler_per100": 5.6
+      },
+      "worker_sec_including_startup": 5.5,
+      "transcript_logged": false
+    },
+    {
+      "order_no": 3,
+      "worker_exit_code": 0,
+      "answer_status": "done",
+      "session_order_after": 4,
+      "job": {
+        "status": "done",
+        "attempts": 1
+      },
+      "metrics": {
+        "wpm": 144.0,
+        "speech_sec": 30.0,
+        "word_count": 72,
+        "duration_sec": 30.0,
+        "metrics_version": "m1",
+        "articulation_wpm": 144.0,
+        "long_pause_count": 0,
+        "observed_filler_per100": 5.6
+      },
+      "worker_sec_including_startup": 5.438,
+      "transcript_logged": false
+    },
+    {
+      "order_no": 4,
+      "worker_exit_code": 0,
+      "answer_status": "done",
+      "session_order_after": 5,
+      "job": {
+        "status": "done",
+        "attempts": 1
+      },
+      "metrics": {
+        "wpm": 144.0,
+        "speech_sec": 30.0,
+        "word_count": 72,
+        "duration_sec": 30.0,
+        "metrics_version": "m1",
+        "articulation_wpm": 144.0,
+        "long_pause_count": 0,
+        "observed_filler_per100": 5.6
+      },
+      "worker_sec_including_startup": 5.469,
+      "transcript_logged": false
+    },
+    {
+      "order_no": 5,
+      "worker_exit_code": 0,
+      "answer_status": "done",
+      "session_order_after": 6,
+      "job": {
+        "status": "done",
+        "attempts": 1
+      },
+      "metrics": {
+        "wpm": 144.0,
+        "speech_sec": 30.0,
+        "word_count": 72,
+        "duration_sec": 30.0,
+        "metrics_version": "m1",
+        "articulation_wpm": 144.0,
+        "long_pause_count": 0,
+        "observed_filler_per100": 5.6
+      },
+      "worker_sec_including_startup": 5.453,
+      "transcript_logged": false
+    },
+    {
+      "order_no": 6,
+      "worker_exit_code": 0,
+      "answer_status": "done",
+      "session_order_after": 7,
+      "job": {
+        "status": "done",
+        "attempts": 1
+      },
+      "metrics": {
+        "wpm": 144.0,
+        "speech_sec": 30.0,
+        "word_count": 72,
+        "duration_sec": 30.0,
+        "metrics_version": "m1",
+        "articulation_wpm": 144.0,
+        "long_pause_count": 0,
+        "observed_filler_per100": 5.6
+      },
+      "worker_sec_including_startup": 5.484,
+      "transcript_logged": false
+    },
+    {
+      "order_no": 7,
+      "worker_exit_code": 0,
+      "answer_status": "done",
+      "session_order_after": 8,
+      "job": {
+        "status": "done",
+        "attempts": 1
+      },
+      "metrics": {
+        "wpm": 144.0,
+        "speech_sec": 30.0,
+        "word_count": 72,
+        "duration_sec": 30.0,
+        "metrics_version": "m1",
+        "articulation_wpm": 144.0,
+        "long_pause_count": 0,
+        "observed_filler_per100": 5.6
+      },
+      "worker_sec_including_startup": 5.484,
+      "transcript_logged": false
+    },
+    {
+      "order_no": 8,
+      "worker_exit_code": 0,
+      "answer_status": "done",
+      "session_order_after": 9,
+      "job": {
+        "status": "done",
+        "attempts": 1
+      },
+      "metrics": {
+        "wpm": 144.0,
+        "speech_sec": 30.0,
+        "word_count": 72,
+        "duration_sec": 30.0,
+        "metrics_version": "m1",
+        "articulation_wpm": 144.0,
+        "long_pause_count": 0,
+        "observed_filler_per100": 5.6
+      },
+      "worker_sec_including_startup": 5.485,
+      "transcript_logged": false
+    }
+  ],
+  "selected_answers": 8,
+  "session_status": "grading",
+  "evaluation_status": "queued",
+  "external_llm_requests": 0,
+  "external_embedding_requests": 0,
+  "provider_evaluation": "not run; remains queued, not a successful grading claim",
+  "sources": {
+    "session-api": "b8c221db48446a914790aa26702d20a3d1c9d71d",
+    "data-layer": "3fccb666b325b079cf68123c4fea5adaedab4cbf",
+    "grader": "36671344a880b58cdcda39845397469b8b8e2520",
+    "worker-stt": "0e6a2035fc4d9a490796141e11266abff3240819"
+  }
+}
