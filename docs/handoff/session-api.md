@@ -53,4 +53,3 @@ coverage는 실제 선택된 채점 문항의 태그 합집합과 시나리오 �
   최종 판정은 계속 db.create_answer 트랜잭션이 담당한다.
 - 추가 회귀 검증 후 backend 전체 테스트: 25 passed, skip 0 (PostgreSQL 포함).
 - 실제 uvicorn HTTP: /health 200(ready=false), /docs 200, /openapi.json 200.
-
