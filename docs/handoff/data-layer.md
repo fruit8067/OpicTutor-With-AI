@@ -37,6 +37,8 @@ WSL Docker의 전용 PostgreSQL 16/pgvector 컨테이너에서 검증. 검증용
 
 ## 감사 후 수정·검증
 
+- 개발용 seed-grading은 M1의 선택적 Q000 예시가 없을 때만 출처 표시된 고정 워밍업을 사용한다. 채점 문항 누락/빈 본문/유효하지 않은 시간은 세션 생성 전에 실패한다. unsupported scenario를 임의 기본 세트로 대체하지 않으며 이미 합성 완료한 STT의 대기 작업을 남기지 않는다. 고정 워밍업은 development_seed 설정과 stt_version에 기록한다.
+
 - CR data-layer-01/PR #16 승인 후 finish_evaluation의 nullable 메타데이터 타입을 API/DB와 일치시켰다. 실제 IL 재평가를 im_rubric_version=None/corpus_version=None으로 저장·조회하는 검증을 추가했다. 런타임·컬럼·평가 기준 변경은 없다.
 
 - 2026-11-07 추가 검증: 14 passed, skip 0(1.61초). HTTP 408/503 임베딩 재시도, 401 단일 실패, 중복 응답 index 거부를 실제 SDK+MockTransport로 검증했다.
