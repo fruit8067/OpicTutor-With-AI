@@ -13,7 +13,7 @@ SELF_INTRO = "Let's start the interview now. Tell me a little bit about yourself
 ASK = {10,44,52,54,62,78,79,81,*range(108,118),*range(158,168),*range(208,218)}
 SOLVE = {11,16,20,21,35,36,55,58,59,60,61,65,76,77,80,82,*range(118,128),*range(168,178),*range(218,228)}
 COMPARE = {5,15,29,39,42,43,45,50,51,63,64,67,86,87,*range(98,108),*range(148,158),*range(198,208)}
-PAST = {3,4,12,14,19,22,23,24,25,27,28,31,32,34,38,40,46,47,49,53,56,57,66,74,83,84,130,
+PAST = {3,4,12,14,19,22,23,24,25,27,28,31,32,34,38,40,46,47,49,53,56,57,66,74,83,84,
         *range(88,98),*range(138,148),*range(188,198)}
 ISSUE = {9,17,30,37,68,69,70,71,72,85,*range(133,138),*range(183,188),*range(233,238)}
 ROUTINE = {2,7,33,73,75}
@@ -41,6 +41,8 @@ def tags(number, text, kind):
     functions=[FUNCTION[kind]]
     past=kind in ('past_experience','roleplay_experience') or number in MIXED_PAST or number==41
     frames=['past'] if kind in ('past_experience','roleplay_experience') else ['present']
+    if number in {4,47}: frames.append('present')
+    if number==130: frames=['past']  # 방문 당시 장소의 묘사이며 사건 전개를 요구하지 않는다.
     if past and 'past' not in frames: frames.append('past')
     if re.search(r'\b(compare|similar|different|changed|changes)\b',lower) and number not in SOLVE and number not in ASK:
         functions.append('compare')
@@ -49,6 +51,8 @@ def tags(number, text, kind):
     if number in {8,33,39,41,43,75,87,128,129,131,132,178,180,182,206,230,231,232}:
         functions.append('report_routine')
     if number in {41,43,47,75}: functions.append('describe')
+    if number==33: functions.append('describe')
+    if number==41: functions.append('narrate_past')
     if number==71: frames.append('future')  # "what effects might it have"가 실제 예상 결과를 요구한다.
     contexts=['personal_familiar']
     if kind.startswith('roleplay_'): contexts=['everyday_transaction']
@@ -74,7 +78,8 @@ def topic(text):
 def prepare(phase):
     old=yaml.safe_load((SRC/'question_bank.yaml').read_text(encoding='utf-8'))['questions']
     bank={q['id']:q for q in old}
-    changes=[]
+    change_file=SRC/'question_text_changes.yaml'
+    changes=(yaml.safe_load(change_file.read_text(encoding='utf-8')) or {}).get('changed_from_original_bank',[]) if change_file.exists() else []
     if phase=='m2':
         for path in sorted(SRC.glob('contrast_sets_*.yaml')):
             for qid,text in re.findall(r'^#\s*(Q\d+)\s*질문:\s*(.+)$',path.read_text(encoding='utf-8'),re.M):
@@ -110,7 +115,7 @@ def prepare(phase):
             slots.append(dict(order_no=order,question_types=list(kinds),is_scored=order!=1,pool=pool))
         scenarios.append(dict(scenario_id=sid,label=label,description=description,slots=slots))
     (SRC/'scenarios.yaml').write_text(header+yaml.safe_dump({'scenarios':scenarios},allow_unicode=True,sort_keys=False),encoding='utf-8')
-    (SRC/'question_text_changes.yaml').write_text(header+yaml.safe_dump({'changed_from_original_bank':changes,
+    (SRC/'question_text_changes.yaml').write_text(header+yaml.safe_dump({'changed_from_original_bank':sorted(set(changes)),
         'note':'Q013~Q030의 기존 뱅크 문장이 대조 세트 질문 주석과 달라 원본 대조 세트에 맞춤. M1 pilot Q000~Q012 문장은 변경 없음.'},allow_unicode=True,sort_keys=False),encoding='utf-8')
 
 

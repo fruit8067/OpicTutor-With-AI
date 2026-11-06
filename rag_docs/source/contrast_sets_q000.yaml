@@ -1,0 +1,40 @@
+# AI-assisted: 자기소개 합성 연습 예시는 OpenAI Codex의 도움으로 작성했습니다.
+# Q000은 채점 제외 워밍업이다. 아래 수준 표시는 전개 방식의 연습 예시일 뿐 자기소개로 시험 등급을 판정하지 않는다.
+# 실제 기출 원문·실제 수험생 답변·공식 채점 답안이 아니다. grader의 등급 근거 RAG에 이 세트를 넣지 않는다.
+Q000:
+  NL:
+    text: "Min. Student. Seoul. Music."
+    rationale: "이름·신분·관심사를 낱말로 전하는 연습 예시. 자기소개는 채점 근거에서 제외한다."
+    upgrade_tip: "I am a student처럼 짧은 문장으로 자기 정보를 전해 본다."
+  NM:
+    text: "My name is Min. I am student. I live Seoul. I like music. I like movie. My family is good."
+    rationale: "익힌 정형 문장으로 정보를 덧붙이는 연습 예시. 시험 등급의 정답이 아니다."
+    upgrade_tip: "좋아하는 활동 하나에 구체적인 정보를 더해 본다."
+  NH:
+    text: "Hi, my name is Min. I am a university student, and I live with my family in Seoul. I like listening to music and watching movies. On weekends I meet my friends. We usually go to a cafe near my home."
+    rationale: "익숙한 일상을 짧은 문장으로 설명하는 연습용 자기소개."
+    upgrade_tip: "자신의 활동에 이유나 예시를 더해 본다."
+  IL:
+    text: "Hi, I'm Min. I study engineering at a university in Seoul. My classes are sometimes difficult, but I like making small things with my classmates. I live with my parents, so I take a bus to school. After class I often listen to music. It helps me relax when I feel tired. On weekends I usually meet a friend for coffee."
+    rationale: "개인 정보를 자기 의미로 조합하고 기본 이유를 연결하는 연습 예시."
+    upgrade_tip: "경험 하나의 진행과 결과를 연결해 본다."
+  IM1:
+    text: "Hello, I'm Min, and I'm an engineering student in Seoul. I live with my family in an apartment near a bus stop. My university is about forty minutes away. I like my major because I enjoy understanding how everyday devices work. My favorite class is a practical design class. We work in small groups and build things together. In my free time, I usually listen to music or take a walk. Walking is relaxing for me. I also like meeting friends at a cafe. We talk about our classes and our plans for the weekend."
+    rationale: "여러 기본 정보를 이어 전하지만 내용이 목록처럼 분리되는 연습용 전개."
+    upgrade_tip: "같은 의미 반복 대신 활동의 구체적 이유·사례를 이어 본다."
+  IM2:
+    text: "Hi, I'm Min, an engineering student living in Seoul with my family. I chose my major because I enjoy solving practical problems, especially when I can see how a small change makes something easier to use. These days, my classmates and I are working on a simple sensor project. We divide the tasks, but we also check each other's work because the parts need to fit together. Outside school, I like walking along a nearby stream. After a long day in front of a computer, being outdoors helps me clear my head. I sometimes go with a friend, and we talk about things other than assignments. That gives me a better balance between studying and taking a break."
+    rationale: "관심사에 이유와 구체적인 활동을 더하는 내부 프로필 연습 예시. 자기소개로 IM 세분 등급을 확정하지 않는다."
+    upgrade_tip: "경험을 원인·행동·결과의 흐름으로 더 안정적으로 전개해 본다."
+  IM3:
+    text: "Hi, I'm Min, and I'm studying engineering in Seoul. I still live with my family, which makes the commute a little longer, but I appreciate having dinner with them after a busy day. What I enjoy most about my major is taking an idea and turning it into something useful. Last semester, my group built a small device to remind people to water their plants. Our first version gave the wrong readings, so we spent an afternoon testing the sensor in different conditions. Once we found the cause, we changed its position and got much more consistent results. That experience made me more patient about troubleshooting. When I'm not studying, I usually walk along the stream near our apartment. I like having an activity where I don't need to check a screen or follow a schedule. It helps me come back to my work feeling less rushed."
+    rationale: "관심사와 구체적 경험의 사건·결과를 연결하는 연습용 전개."
+    upgrade_tip: "더 낯선 요구에서도 시간 관계와 설명의 흐름을 유지하는 연습을 한다."
+  IH:
+    text: "Hello, I'm Min, an engineering student in Seoul. I grew up here, although I spent one semester living near my university before moving back in with my family. Living on my own taught me to plan my time more carefully, and I still use some of those habits now. At university, I'm especially interested in designs that make everyday tasks easier. Last semester, my team developed a simple reminder for watering plants. We initially focused on adding features, but during testing we realized that the basic sensor reading wasn't reliable. We had to put the extra ideas aside and work out what was actually going wrong. After several adjustments, the device became much more useful, even though it looked less impressive than our original plan. Outside my classes, I enjoy walking and taking photographs of ordinary places in my neighborhood. I used to think I needed to travel somewhere special to find interesting subjects. Now I pay more attention to changes in light and to how people use familiar spaces. I'd like to keep that habit when I start working because it gives me a different way to notice problems and possibilities."
+    rationale: "자기소개 안에서 경험·변화·관심사를 연결하는 연습 예시. 실제 IH 판정은 채점 대상의 여러 과제로 판단한다."
+    upgrade_tip: "다양한 과제에서 설명·서술을 지속하는 연습으로 확장한다."
+  AL:
+    text: "Hello, I'm Min, and I'm studying engineering in Seoul. I've lived in the city for most of my life, but spending a semester near my university changed the way I organize my day. At first I enjoyed the shorter commute without thinking much about the other responsibilities. Then I realized that if I left shopping, cooking, and assignments until the last minute, even a small problem could disrupt the whole week. I learned to leave some room in my schedule rather than trying to plan every minute. That lesson has also influenced the way I approach group projects. Last semester, my team built a simple device to help people look after houseplants. We had imagined several extra features, but the first tests showed that our sensor readings were unreliable. Instead of adding more functions, we asked a few classmates to try the basic version and watched where they became confused. Their feedback helped us simplify the design and place the sensor more consistently. The result was less elaborate than our first proposal, but people could actually use it without needing a long explanation. Outside school, I enjoy walking and photographing familiar streets. I like noticing how a place changes at different times of day. After graduation, I hope to work on practical products while keeping that habit of observing how people use things in ordinary life."
+    rationale: "현재·과거·앞으로의 계획을 구어 문단으로 연결하는 교육용 전개 예시. 자기소개는 등급 근거로 사용하지 않는다."
+    upgrade_tip: null
