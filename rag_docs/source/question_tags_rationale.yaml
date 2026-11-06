@@ -785,8 +785,10 @@ Q069:
     How has it developed, and what factors have helped it grow?
   target_functions:
   - explain_issue
+  - narrate_past
   target_time_frames:
   - present
+  - past
   context_scope:
   - community_public
   review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
@@ -1583,6 +1585,7 @@ Q138:
   - past
   context_scope:
   - personal_familiar
+  - unexpected_situation
   review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
 Q139:
   question_excerpt: Tell me about a time your internet connection failed when you
@@ -1651,6 +1654,7 @@ Q144:
   - past
   context_scope:
   - personal_familiar
+  - unexpected_situation
   review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음. 단조성 휴리스틱 경고가
     있어 출제는 todo로 보류.
 Q145:

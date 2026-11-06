@@ -42,6 +42,8 @@ def tags(number, text, kind):
     past=kind in ('past_experience','roleplay_experience') or number in MIXED_PAST or number==41
     frames=['past'] if kind in ('past_experience','roleplay_experience') else ['present']
     if number in {4,47}: frames.append('present')
+    if number==69:
+        frames.append('past');functions.append('narrate_past')  # 산업의 발전 과정과 성장 요인을 실제로 묻는다.
     if number==130: frames=['past']  # 방문 당시 장소의 묘사이며 사건 전개를 요구하지 않는다.
     if past and 'past' not in frames: frames.append('past')
     if re.search(r'\b(compare|similar|different|changed|changes)\b',lower) and number not in SOLVE and number not in ASK:
@@ -58,7 +60,7 @@ def tags(number, text, kind):
     if kind.startswith('roleplay_'): contexts=['everyday_transaction']
     if kind=='issue' or number in {8,17,23,27,36,48,69,75,128,130,131,132,178,179,180,181,182,188,196,228,229,231,232}:
         contexts=['community_public']
-    if kind=='roleplay_solve' or (past and re.search(r'problem|wrong|hurt|cancel|interrupt|unexpected|lost|failed|broke|damaged|misunderstood|mix-up|late|missing',lower)):
+    if kind=='roleplay_solve' or (past and re.search(r'problem|wrong|hurt|cancel|interrupt|unexpected|lost|failed|broke|damaged|misunderstood|mix-up|late|missing|suddenly|not arrive',lower)):
         contexts.append('unexpected_situation')
     return dict(is_scored=number!=0,target_functions=list(dict.fromkeys(functions)),
                 target_time_frames=list(dict.fromkeys(frames)),context_scope=list(dict.fromkeys(contexts)))
