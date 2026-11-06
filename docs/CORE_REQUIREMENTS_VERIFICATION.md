@@ -15,6 +15,18 @@
 
 원본 커밋/조건은 [검증 기록](compliance/verification-2026-11-07.json)에 고정했다. [기존 감사](COMPLIANCE_AUDIT.md)의 과거 위반을 삭제하지 않는다.
 
+## 실제 ASR·워커 CLI 추가 검증
+
+추론 대역을 사용한 110개 회귀 검증과 별도로, 캐시된 small.en/CPU/int8 및 실제 worker CLI를 사용했다. [단일 기록](compliance/native-stt-2026-11-07.json)과 [8문항 기록](compliance/native-eight-stt-2026-11-07.json)을 남겼다.
+
+- 단일 30초 SAPI 합성 영어 음성: 프로세스 시작 포함 5.500초, answer/job done, attempts 1, order 1→2. 실제 Whisper 텍스트·단어 timestamp·VAD/m1 지표를 DB에 저장했다.
+- 8문항: 실제 HTTP 파일 업로드·중복 전송 → 실제 worker CLI 8회/Whisper 전사 → STT 저장 후 order 1→9 → 전체 답변 고정·submit 중복 방지까지 통과했다. 문항별 프로세스 시작 포함 5.438~5.594초였다.
+- 워밍업은 채점 제외, 채택 답변 8개, 시험 중 evaluate/embed 외부 요청 0. 마지막 상태는 grading/evaluation queued이며 **LLM 평가 성공이 아니다**.
+- TTS URL/자산은 경계 fixture다. 원래 SAPI 샘플 한 개를 반복해 전송·ASR·진행을 검증했으므로 실제 수험생의 발화 품질이나 질문별 과제 수행 정확도를 검증한 것은 아니다. 사용자 마이크와 C 구현은 사용/추가하지 않았다.
+- 모델 다운로드를 비활성화하고 기존 캐시만 읽었다. 검증용 DB 및 임시 업로드 파일은 실행 후 제거했으며 원본 합성 음성·모델 캐시는 보존했다.
+
+재현: 기존 명령의 Python으로 `docs/compliance/verify_native_stt.py --workspace <worktree parent> --audio <기존 합성 wav> --answers 8 --report <결과.json>`을 실행한다. 기본 `--answers 1`은 단일 실제 STT/DB 경로를 검사한다. 실제 서비스 검증 시 사용할 설정은 primary `OpicTutor-With-AI/backend/.env`에 두고 서비스 검증 프로세스에서 명시적으로 로드한다. 이 ASR 검증은 외부 LLM/임베딩을 호출하지 않는다.
+
 ## 요구사항과 검증 근거
 
 | 요구사항·flowchart 단계 | A/B 구현과 검증 | 판정/한계 |

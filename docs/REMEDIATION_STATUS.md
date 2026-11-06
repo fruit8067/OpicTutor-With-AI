@@ -32,3 +32,5 @@ Pickle의 실제 공개 base URL/모델 ID 및 로컬 LLM_API_KEY, 실제 임베
 ## A/B 심화 검증 결과
 
 [요구사항/flowchart 대조표](CORE_REQUIREMENTS_VERIFICATION.md)와 [고정 검증 기록](compliance/verification-2026-11-07.json)을 추가했다. 독립 역할 모듈의 메모리 조합에서 실제 임시 PostgreSQL·HTTP·작업·결과 저장/복구 **110 passed, skip 0**. 실제 provider/마이크/C 완주와 구분한다. 기존 6개 감사 항목 외 세션/오디오 재전송·임베딩 응답·M1 평가 계획/개발 seed·JSON-only 제공자의 예산 내 수정 요청을 보강했다.
+
+후속 현재 상태 검증에서 실제 Whisper/worker CLI로 합성 30초 음성 8개를 HTTP 업로드부터 제출 대기까지 처리했다. 모두 done/attempt 1, 순서 1→9, 모델 네트워크/외부 평가·임베딩 호출 없음. 단일 5.500초, 8개 각각 5.438~5.594초(시작 포함). ASR 추론 대역을 제거한 별도 증거이며 실제 마이크/LLM 평가 품질이나 C 완주를 대신하지 않는다.

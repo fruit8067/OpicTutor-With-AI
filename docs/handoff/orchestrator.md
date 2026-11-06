@@ -26,5 +26,7 @@ CR은 tier nullable 선언·TTS hash 정규화·provider 요청 기록/예산을
 
 ## 측정값
 
+추가 실제 ASR/CLI 검증: 30초 합성 SAPI 파일 단일 5.500초, HTTP 업로드 8문항 각각 5.438~5.594초(프로세스 시작 포함), answer/job 모두 done/attempt 1, order 1→9, submit 후 selected 8/evaluation queued. 실제 모델 캐시를 오프라인 사용하고 테스트 DB·업로드를 정리했다. 외부 평가/임베딩 호출 0, 실제 마이크·C 없음. 원본 기록은 docs/compliance/native-*-2026-11-07.json이며 LLM 완료를 주장하지 않는다.
+
 ownership 경계 unittest 5개 통과(2.304초), 두 workflow YAML 파싱 성공. trusted contract/head 객체 비교·M0 예외 재사용 거부·합성 음성 허용/로컬 자료 금지를 검증했다. 정확도·외부 요청 요금은 측정하지 않았다. 기존 테스트 82 passed는 결함 해결 증거로 재사용하지 않는다.
 이번 A/B 코어 조합은 깨끗한 역할 커밋을 대상으로 전용 임시 DB에서 110 passed, skip 0, 5.83초다. HTTP/queue/STT 저장/평가 검증/결과 재조회/401 후 재평가와 M1 개발 seed를 연결했으며 추론과 C 경계는 fixture다. 실제 외부 LLM/임베딩 호출은 0회다. contracts v6 선언 기준 공개 함수 64개/API 모델 필드 집합 29개/경로·기본 status 17개 차이 0도 확인했다.

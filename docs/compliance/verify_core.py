@@ -77,17 +77,12 @@ def check_interfaces():
     return int(bool(errors))
 
 
-def main():
-    parser=argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--workspace',type=Path,required=True)
-    parser.add_argument('--interfaces-only',action='store_true',help='Compare declared signatures, API fields and routes without DB changes.')
-    parser.add_argument('tests',nargs='*',help='Optional pytest paths; defaults to existing A/B module tests.')
-    args=parser.parse_args()
-    root=args.workspace.resolve()
+def compose_sources(root,emit_manifest=True):
+    root=Path(root).resolve()
     sources={role:root/('OpicTutor-'+folder) for role,folder in
              [('session-api','session'),('data-layer','data'),('grader','grader'),('worker-stt','worker')]}
     for role,path in sources.items():
-        if not (path/'backend/app').is_dir(): parser.error(f'Missing {role} worktree: {path}')
+        if not (path/'backend/app').is_dir(): raise ValueError(f'Missing {role} worktree: {path}')
     sys.path[:0]=[str(p/'backend') for p in sources.values()]+[str(p/'backend/tests') for p in sources.values()]
     package('app',sources['session-api']/'backend/app')
     package('app.db',sources['data-layer']/'backend/app/db')
@@ -102,8 +97,20 @@ def main():
         ['git','rev-parse','HEAD'],cwd=path,text=True).strip(),
         'dirty':bool(subprocess.check_output(['git','status','--porcelain'],cwd=path,text=True).strip())}
         for role,path in sources.items()}
-    print(json.dumps({'verification':'A/B modules in-memory composition; C boundary fixtures only',
-                      'sources':manifest},ensure_ascii=True),flush=True)
+    if emit_manifest:
+        print(json.dumps({'verification':'A/B modules in-memory composition; C boundary fixtures only',
+                          'sources':manifest},ensure_ascii=True),flush=True)
+    return sources
+
+
+def main():
+    parser=argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--workspace',type=Path,required=True)
+    parser.add_argument('--interfaces-only',action='store_true',help='Compare declared signatures, API fields and routes without DB changes.')
+    parser.add_argument('tests',nargs='*',help='Optional pytest paths; defaults to existing A/B module tests.')
+    args=parser.parse_args()
+    try: sources=compose_sources(args.workspace)
+    except ValueError as exc: parser.error(str(exc))
     if args.interfaces_only: return check_interfaces()
     # 프로젝트 테스트의 subprocess도 backend에서 app을 찾도록 기존 실행 조건을 보존한다.
     tests=args.tests or [str(path/'backend/tests') for path in sources.values()]
