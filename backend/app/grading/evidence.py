@@ -22,9 +22,13 @@ def build_evidence(snapshot: list[dict], *, exclude_contrast_set_ids: list[str] 
             vector=embed_texts([text])[0]
             found=db.search_similar_answers(vector,question_type=row['question_type'],text_style='stt',
                                            exclude_contrast_set_ids=list(excluded),k=5)
-            candidate=next((d.get('contrast_set_id') for d in found if d.get('contrast_set_id') and d['contrast_set_id'] not in excluded),None)
-            if candidate:
-                examples=[d for d in db.get_contrast_set(candidate,text_style='stt') if d.get('contrast_set_id') not in excluded]
+            for candidate in dict.fromkeys(d.get('contrast_set_id') for d in found
+                    if d.get('contrast_set_id') and d['contrast_set_id'] not in excluded
+                    and (version is None or d.get('corpus_version')==version)):
+                examples=[d for d in db.get_contrast_set(candidate,text_style='stt')
+                          if d.get('contrast_set_id') not in excluded
+                          and (version is None or d.get('corpus_version')==version)]
+                if examples: break
         for d in examples:
             if d.get('doc_type')!='answer' or d.get('text_style')!='stt': continue
             documents.append({k:d.get(k) for k in ['id','doc_type','level','contrast_set_id','text']} |

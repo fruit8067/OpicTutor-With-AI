@@ -4,8 +4,11 @@ import time
 import json
 import logging
 import os
+from contextlib import contextmanager
+from contextvars import ContextVar
+from dataclasses import dataclass, field
 from urllib.parse import urlsplit
-from openai import (OpenAI, APIConnectionError, APITimeoutError, RateLimitError, InternalServerError, BadRequestError,
+from openai import (OpenAI, APIConnectionError, APITimeoutError, APIStatusError, RateLimitError, InternalServerError, BadRequestError,
                     LengthFinishReasonError,ContentFilterFinishReasonError)
 from pydantic import BaseModel, ValidationError
 from app.config import settings
@@ -17,6 +20,61 @@ class LLMTransientError(Exception): pass
 class LLMRefusalError(Exception): pass
 class LLMOutputError(Exception): pass
 class LLMConfigurationError(ValueError): pass
+
+
+@dataclass
+class _Requests:
+    limit: int
+    records: list[dict] = field(default_factory=list)
+
+    @property
+    def remaining(self): return self.limit-len(self.records)
+
+
+_requests = ContextVar('evaluation_provider_requests', default=None)
+
+
+@contextmanager
+def _track_requests(limit: int):
+    trace=_Requests(limit)
+    token=_requests.set(trace)
+    try: yield trace
+    finally: _requests.reset(token)
+
+
+def _error_status(exc):
+    if isinstance(exc,(LLMRefusalError,ContentFilterFinishReasonError)):
+        return 'refused','LLM_REFUSED'
+    if isinstance(exc,(LLMOutputError,LengthFinishReasonError,ValidationError,json.JSONDecodeError)):
+        return 'invalid_output','LLM_INVALID_OUTPUT'
+    if isinstance(exc,(LLMTransientError,APIConnectionError,APITimeoutError)) or (
+            isinstance(exc,APIStatusError) and (exc.status_code in (408,429) or exc.status_code>=500)):
+        return 'error','LLM_TRANSIENT'
+    return 'error','EVAL_INTERNAL'
+
+
+def _send(call, model: str):
+    """실제 SDK 요청마다 예산을 차감하고 본문 없는 메타데이터만 수집한다."""
+    trace=_requests.get()
+    if trace is not None and trace.remaining<=0:
+        raise LLMOutputError('LLM provider 요청 예산 소진')
+    record=dict(model=model,input_tokens=None,output_tokens=None,latency_ms=0,status='error',error_code=None)
+    if trace is not None: trace.records.append(record)
+    started=time.monotonic()
+    try:
+        response=call()
+        usage=getattr(response,'usage',None)
+        record.update(model=getattr(response,'model',model),input_tokens=getattr(usage,'prompt_tokens',None),
+                      output_tokens=getattr(usage,'completion_tokens',None),status='ok')
+        return response
+    except Exception as exc:
+        if isinstance(exc,(AttributeError,NotImplementedError)) and trace is not None:
+            # 로컬 SDK 메서드 미지원: 네트워크 요청 전 실패는 예산/로그에서 제외한다.
+            trace.records.pop()
+        record['status'],record['error_code']=_error_status(exc)
+        raise
+    finally:
+        record['latency_ms']=int((time.monotonic()-started)*1000)
 
 def llm_options() -> dict:
     """Pickle 인증 키는 호출 시점의 프로세스 환경변수에서 읽는다."""
@@ -39,7 +97,9 @@ def chat_structured(messages: list[dict], schema: type[BaseModel], *, timeout: f
     common=dict(model=options['model'],messages=messages,temperature=0,max_tokens=8000)
     try:
         try:
-            response=client.beta.chat.completions.parse(**common,response_format=schema)
+            # 속성 접근 자체가 미지원이면 HTTP 요청이 없으므로 차감/기록하지 않는다.
+            parse=client.beta.chat.completions.parse
+            response=_send(lambda:parse(**common,response_format=schema),options['model'])
         except (AttributeError,NotImplementedError):
             response=None
         except BadRequestError as exc:
@@ -50,7 +110,7 @@ def chat_structured(messages: list[dict], schema: type[BaseModel], *, timeout: f
         if response is None:
             # JSON 모드 제공자에도 전체 출력 계약을 전달한다.
             fallback=[*messages,{'role':'user','content':'Return JSON matching this schema: '+json.dumps(schema.model_json_schema(),ensure_ascii=False)}]
-            response=client.chat.completions.create(**{**common,'messages':fallback},response_format={'type':'json_object'})
+            response=_send(lambda:client.chat.completions.create(**{**common,'messages':fallback},response_format={'type':'json_object'}),options['model'])
         if not response.choices:
             raise LLMOutputError('LLM 응답 choice 누락')
         choice=response.choices[0];message=choice.message
@@ -69,6 +129,10 @@ def chat_structured(messages: list[dict], schema: type[BaseModel], *, timeout: f
         return parsed,meta
     except (APIConnectionError,APITimeoutError,RateLimitError,InternalServerError) as exc:
         raise LLMTransientError('LLM 일시적 연결/서비스 오류') from exc
+    except APIStatusError as exc:
+        if exc.status_code==408:
+            raise LLMTransientError('LLM HTTP 요청 시간 초과') from exc
+        raise
     except LengthFinishReasonError as exc:
         raise LLMOutputError('LLM 응답 길이 제한 초과') from exc
     except ContentFilterFinishReasonError as exc:

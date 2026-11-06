@@ -116,6 +116,8 @@ def validate_output(raw: EvaluationLLMOutput, snapshot: list[dict]) -> Evaluatio
             scoped(entry['usable_order_nos'],expected&available,'coverage.usable')
     for fact in raw.fact_evidence:
         require(fact.order_no is None or fact.order_no in scored,'fact_evidence.order')
+        if fact.order_no in missing:
+            require(fact.status=='not_observed','fact_evidence.unavailable')
         if fact.order_no is None or fact.status=='not_observed':
             require(fact.quote is None,'fact_evidence.null_quote')
         elif fact.quote is not None:

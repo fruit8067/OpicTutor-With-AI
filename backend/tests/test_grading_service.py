@@ -1,6 +1,8 @@
 # AI-assisted: 평가 재시도·검색 누출 방지 테스트는 OpenAI Codex의 도움으로 작성했습니다.
 # OWNER: grader (contracts.yaml ownership)
 import pytest
+from types import SimpleNamespace
+from app.llm.chat import _send
 from app.grading import service,evidence
 from app.schemas.internal import EvidenceBundle,EvaluationLLMOutput
 from app.llm.chat import LLMTransientError,LLMRefusalError,LLMOutputError
@@ -19,7 +21,10 @@ def setup_service(monkeypatch,failures):
     monkeypatch.setattr(service.time,'sleep',lambda seconds:waits.append(seconds))
     def chat(*args,**kwargs):
         calls.append(args[0])
-        if failures: raise failures.pop(0)
+        def request():
+            if failures: raise failures.pop(0)
+            return SimpleNamespace(model='fixture',usage=SimpleNamespace(prompt_tokens=10,completion_tokens=5))
+        _send(request,'fixture')
         return EvaluationLLMOutput.model_validate(output()),dict(model='fixture',input_tokens=10,output_tokens=5,latency_ms=1)
     monkeypatch.setattr(service,'chat_structured',chat)
     return calls,logs,waits
@@ -71,3 +76,17 @@ def test_excluded_direct_and_similar_sets_never_leak(monkeypatch):
     assert all(d['contrast_set_id']!='Q002' for d in result.docs)
     assert all(d['order_no']!=1 for d in result.docs)
     assert seen==[['Q002']] and 'OTHER-IM2-stt' in result.retrieved_doc_ids
+
+
+def test_stale_similar_set_and_stale_expansion_are_excluded(monkeypatch):
+    def doc(qid,version):
+        return dict(id=qid+'-'+version,doc_type='answer',level='IM2',contrast_set_id=qid,text='reference',text_style='stt',corpus_version=version)
+    monkeypatch.setattr(evidence.db,'current_corpus_version',lambda:'current')
+    monkeypatch.setattr(evidence.db,'get_rag_docs',lambda *a,**kw:[])
+    monkeypatch.setattr(evidence,'embed_texts',lambda texts:[[1.0]])
+    monkeypatch.setattr(evidence,'token_count',lambda value:100)
+    monkeypatch.setattr(evidence.db,'search_similar_answers',lambda *a,**kw:[doc('OLD','old'),doc('EMPTY','current'),doc('GOOD','current')])
+    monkeypatch.setattr(evidence.db,'get_contrast_set',lambda qid,**kw:
+        [doc(qid,'old'),doc(qid,'current')] if qid=='GOOD' else [doc(qid,'old')])
+    result=evidence.build_evidence(snapshot())
+    assert result.corpus_version=='current' and result.retrieved_doc_ids==['GOOD-current']
