@@ -7,3 +7,6 @@ from datetime import datetime
 from pydantic import BaseModel
 from app.schemas.api import *
 from app.schemas.internal import *
+
+if __name__ == "__main__":
+    raise NotImplementedError("worker-stt: 워커 루프 구현이 필요합니다.")
