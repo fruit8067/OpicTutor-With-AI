@@ -1,6 +1,7 @@
 # AI-assisted: 이 코드는 OpenAI Codex의 도움으로 작성되었습니다.
 # OWNER: data-layer (contracts.yaml ownership)
 from uuid import UUID
+import hashlib
 from psycopg.types.json import Jsonb
 from app.errors import AppError
 from .pool import tx, session_for_update
@@ -24,13 +25,14 @@ def complete_prepare(session_id: UUID, attempt: int, question_links: dict[int, U
     with tx() as cur:
         s=session_for_update(cur,session_id)
         if s['status']!='preparing' or s['prepare_attempt']!=attempt: return False
-        cur.execute('SELECT order_no FROM session_questions WHERE session_id=%s',(session_id,))
-        if set(question_links)!={r['order_no'] for r in cur.fetchall()} or set(host_links)!={'greeting','say_again','next','finish'}:
+        cur.execute('SELECT order_no,question_text FROM session_questions WHERE session_id=%s',(session_id,))
+        hashes={r['order_no']:hashlib.sha1(r['question_text'].strip().encode('utf-8')).hexdigest() for r in cur.fetchall()}
+        if set(question_links)!=set(hashes) or set(host_links)!={'greeting','say_again','next','finish'}:
             raise AppError('INVALID_STATE')
         for no,asset in question_links.items():
             cur.execute("""UPDATE session_questions q SET tts_asset_id=a.id FROM tts_assets a
                 WHERE q.session_id=%s AND q.order_no=%s AND a.id=%s AND a.kind='question' AND a.ref_id=q.question_id
-                AND a.text_hash=encode(digest(q.question_text,'sha1'),'hex') AND a.status='available'""",(session_id,no,asset))
+                AND a.text_hash=%s AND a.status='available'""",(session_id,no,asset,hashes[no]))
             if cur.rowcount!=1: raise AppError('INVALID_STATE')
         for key,asset in host_links.items():
             cur.execute("SELECT id FROM tts_assets WHERE id=%s AND kind='host' AND ref_id=%s AND status='available'",(asset,key))

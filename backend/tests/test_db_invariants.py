@@ -169,6 +169,10 @@ def test_expired_last_attempt_can_be_recovered(session):
 
 def test_prepare_links_are_atomic(session):
     question_links={};host_links={};asset_ids=[]
+    # Python strip이 제거하는 Unicode 공백도 TTS manifest와 같은 해시로 연결한다.
+    with tx() as cur:
+        cur.execute('UPDATE session_questions SET question_text=%s WHERE session_id=%s AND order_no=1',
+                    ('\t \u2003Question 1\n\u00a0',session))
     for q in questions():
         asset=db.upsert_tts_asset(kind='question',ref_id=q.question_id,
             text_hash=hashlib.sha1(q.question_text.encode()).hexdigest(),voice_id=str(session),settings_version='fixture',
