@@ -1,0 +1,27 @@
+{
+  "transport": "standalone python -m uvicorn + real loopback HTTP",
+  "scope": "startup and preparing/cancel API only; no TTS override or full exam claim",
+  "api_operations": 17,
+  "db": "ok",
+  "ready": false,
+  "scenarios": [
+    "default",
+    "leisure",
+    "health"
+  ],
+  "mic_check_rejected": true,
+  "create_status": 202,
+  "duplicate_status": 200,
+  "preparing_start_blocked": true,
+  "cancel_status": "cancelled",
+  "row_counts": {
+    "sessions": 1,
+    "session_questions": 8,
+    "jobs": 1,
+    "answers": 0,
+    "ai_requests": 0
+  },
+  "data_dir_configuration_relative": true,
+  "c_implementation_added": false,
+  "own_process_and_database_cleaned": true
+}

@@ -6,7 +6,7 @@
 
 **A/B HTTP·PostgreSQL·작업·검증·결과 저장 조합, 실제 Pickle 연결/합성 IL 결과 저장, 실제 large3072 M1/M2 적재는 통과했다. 전체 평가 정확도·반복/함정 및 실제 마이크·제품/브라우저 완주는 아직 검증 중이다.**
 
-- v7 최신 M2 코퍼스/학교 크레딧 회귀까지 **123 passed, skip 0, 13.65초**. [현재 증거](compliance/core-current-2026-11-07.json). 이전114/110개 실행은 각각 별도 증거로 보존한다.
+- v7 최신 M2 코퍼스/학교 크레딧/이어 실행 및 SDK 호환성까지 **128 passed, skip 0, 13.65초**. [현재 증거](compliance/core-current-2026-11-07.json). 이전 실행도 기록에 보존한다.
 - 별도 선언 대조: **공개 함수 64개, API 모델 29개 필드 집합, 경로/기본 성공 status 17개 차이 0**. 이 대조만으로 모든 데이터 제약·모델 품질을 검증했다고 주장하지 않으며 동작 제약은 위 테스트로 확인한다.
 - 별도 `opic_ab_check_<무작위 ID>` DB를 생성해 검증하고 연결을 닫은 후 삭제했다. 기존 개발 DB를 reset하지 않았다.
 - 각 역할 worktree 모듈을 메모리에 명시적으로 조합했다. 다른 역할 코드를 자기 브랜치에 상속하거나 운영 소스의 stub을 가짜 구현으로 바꾸지 않았다.
@@ -93,11 +93,13 @@ python docs/compliance/verify_core.py --workspace ..
 
 ## 스트리밍·경로 이식성 추가 검증
 
+독립 실행도 확인했다. worker checkout의 `python -m app.worker --types stt --once`는 자식 모듈 조합 없이5.046초/answer·job done/order+1이었다([STT CLI](compliance/native-standalone-2026-11-07.json)). session checkout의 실제 uvicorn CLI는 TTS override 없이17 operation·DB ok·mic 거부·202/200 생성 멱등성·preparing 시작409·취소를 통과했다([API CLI](compliance/standalone-api-2026-11-07.json)). ready=false를 유지하며 실제 제품 완주로 세지 않는다.
+
 실제 M2 적재는4,539문서/4,522벡터/46요청, 같은 명령 추가요청0, 검색질의 포함945,194토큰·47요청이었다. 공개 단가 기준 약$0.122875,236.594초, exact 검색62ms다([M2 적재](compliance/live-ingest-m2-2026-11-07.json)). 실제 상대 경로 설정의 native STT도5.110초/answer와job done으로 재확인했다([기록](compliance/native-relative-path-2026-11-07.json)).
 
 실제 IL 전체 평가 v1/v2/v3 실패 후 v4는 잘못된 첫 인용을 거부하고 수정 응답으로 IL/IL·8items·session/evaluation done을 저장했다([실패 이력](compliance/live-single-grade-2026-11-07.json), [v4](compliance/live-v4-grade-2026-11-07.json)). 이 점검은 대조 세트 제외 정확도 연구가 아니다. 실제 잘못된 키는1요청 후 grading_failed, 재시도 폭주 없이 실패했고 원래 .env는 보존했다([인증 실패](compliance/live-invalid-key-2026-11-07.json)).
 
-F5 회귀는 모든 사용 대조 세트를 제외하는 별도 grader CLI로 진행한다. v4 첫4시험은NL2건의 fact_evidence.null_quote 검증 실패/NM2건 정상으로50%였다. v5는 관찰 없음의 quote=null 규칙과 오류별 수정 안내를 명시했으며 같은4시험을 재검증 중이다. 사용자가 학교 크레딧 약$10 사용을 허용했다. 단가 미공개를0원으로 적지 않고 비용None/실제 토큰/요청을 기록한다. 각 시험 후 동일 JSON/Markdown을 원자적으로 갱신하고 공급자 예산/인증 거절은 일괄 중단한다. `python docs/compliance/run_eval.py --workspace .. --limit 4 --school-credit-usd 10 --embedding-usd-per-million .13 --yes`로 재현한다.
+F5 회귀는 사용한 대조 세트를 모두 제외하는 별도 grader CLI로 진행한다. v4 첫 4시험은 NL 검증 실패 2건/NM 정상 2건으로 50%였다. v5는 같은 4시험에서 정상 3건/SDK 파싱 실패 1건으로 75%였다. 관찰 없음의 quote=null 규칙과 수정 안내를 명확히 했으며, 사용량/스키마 오류 기록을 보완한 뒤 해당 NM1만 다시 실행해 NM 판정 성공을 확인했다. 이 재실행을 기존 보고서와 합쳐 100%라고 표시하지 않는다. 이후 전체 40시험은 아래의 공급자 한도로 중단됐다. 사용자는 학교 크레딧 약 $10 사용을 허용했다. 단가 미공개는 비용 None과 관측 토큰/요청으로 기록한다. 매 시험 뒤 JSON/Markdown을 갱신하고 공급자 한도/인증 거절 시 일괄 중단한다. 첫 4시험 재현 명령은 `python docs/compliance/run_eval.py --workspace .. --limit 4 --school-credit-usd 10 --embedding-usd-per-million .13 --yes`다.
 
 기존 multipart 업로드는20MiB 전체를 임시 spool에 받은 뒤에야413으로 거부했다(재현에서22개 chunk 모두 소비). 수신 파서에서 파일당10MiB 초과 즉시 중단하도록 session-api 소유 경로에서 수정했다. 종료 boundary 없이도 실제 Uvicorn HTTP가413/PAYLOAD_TOO_LARGE를 반환한다([HTTP 증거](compliance/wire-upload-2026-11-07.json)). 정확히10MiB는 허용하고, 파싱 오류는422 계약 응답, 연결 종료는 부분 spool 정리/답변 생성0을 검증했다. A/B 전체117 passed /skip0/13.01초(변경된 session-api 작업 트리 기준).
 
@@ -105,4 +107,6 @@ F5 회귀는 모든 사용 대조 세트를 제외하는 별도 grader CLI로 �
 
 ## 아직 검증할 조건
 
-Pickle/large3072 연결과 실제 M1 ingest는 통과했다. 전체 평가 회귀/함정/반복·비용, M2 확대 적재 및 실제 마이크 검증은 남아 있다. 모든 YAML done_when 완료를 아직 선언할 수 없다. C의 화면/음성 제작을 새로 구현해서 이 조건을 대신하지 않는다.
+Pickle/large3072 연결, 실제 M1/M2 ingest, IL 실제 결과 저장 및 독립 API/STT CLI는 통과했다. 40시험 v5 회귀는5건정상 후6번째에서 HTTP429/quota_exhausted로 중단됐다. 작은 요청도 같은 한도 거절을 확인했다([한도 증거](compliance/provider-quota-2026-11-07.json)). 현재 키의 할당량 회복 전에는 남은35시험 및3회반복/함정 완주를 검증할 수 없다. 실제 마이크 파일도 아직 받지 않았다. 모든 YAML done_when 완료를 선언하지 않으며 C를 새로 구현해서 대체하지 않는다.
+
+재개는 템플릿 hash·model·corpus·시험 순서/제외 대조 세트가 맞을 때만 가능하다. 기존 모델 검증 실패와 공급자 할당량 중단 이력을 보존한다. 할당량 회복 후 `python docs/compliance/run_eval.py --workspace .. --traps --school-credit-usd 10 --embedding-usd-per-million .13 --resume-report ../OpicTutor-grader/backend/eval_reports/20261107-075645-174912-live.json --yes`로 재개한다. 원래 보고서는 덮어쓰지 않는다. 실제 보고서로 5건 유지/다음 single-NH-1/남은 35건을 네트워크 없이 확인했다.
