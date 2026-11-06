@@ -44,10 +44,11 @@ def main():
     probe=probe_audio(audio)
     if not probe.ok: raise ValueError('Synthetic audio rejected: '+str(probe.reason))
     database='opic_ab_native_'+uuid4().hex[:16]
-    cache=args.workspace.resolve()/'OpicTutor-With-AI/data'
+    root=args.workspace.resolve()
+    cache=root/'data' if (root/'backend/app').is_dir() else root/'OpicTutor-With-AI/data'
     if not (cache/'models/models--Systran--faster-whisper-small.en').is_dir():
         parser.error('Expected cached small.en model; this verifier does not download weights.')
-    with psycopg.connect(settings.DATABASE_URL,autocommit=True) as admin:
+    with psycopg.connect(settings.DATABASE_URL,autocommit=True,connect_timeout=5) as admin:
         admin.execute(sql.SQL('CREATE DATABASE {}').format(sql.Identifier(database)))
         settings.DATABASE_URL=make_conninfo(settings.DATABASE_URL,dbname=database)
         try:
@@ -58,7 +59,8 @@ def main():
             db.create_answer(session_id=sid,order_no=1,client_request_id=uuid4().hex,audio_path=str(audio),
                 audio_mime='audio/wav',audio_bytes=audio.stat().st_size,audio_hash=hashlib.sha256(audio.read_bytes()).hexdigest(),
                 client_duration_ms=round(probe.duration_sec*1000),answer_id=aid)
-            environment={**os.environ,'DATABASE_URL':settings.DATABASE_URL,'DATA_DIR':str(cache),
+            environment={**os.environ,'DATABASE_URL':settings.DATABASE_URL,
+                'DATA_DIR':os.path.relpath(cache,sources['session-api']/'backend').replace(os.sep,'/'),
                 'WHISPER_MODEL':'small.en','WHISPER_DEVICE':'cpu','WHISPER_COMPUTE_TYPE':'int8',
                 'HF_HUB_OFFLINE':'1','WORKER_ID':'native-check-'+uuid4().hex}
             started=time.monotonic()
@@ -133,7 +135,8 @@ def full_http_exam(args,sources,audio,probe,cache,settings,db,pool):
             replay=client.post(base+'/answers',data=fields,files=files)
             assert replay.status_code==200 and replay.json()['answer_id']==str(aid)
             assert client.post(base+'/submit').status_code==409
-            environment={**os.environ,'DATABASE_URL':settings.DATABASE_URL,'DATA_DIR':str(cache),
+            environment={**os.environ,'DATABASE_URL':settings.DATABASE_URL,
+                'DATA_DIR':os.path.relpath(cache,sources['session-api']/'backend').replace(os.sep,'/'),
                 'WHISPER_MODEL':'small.en','WHISPER_DEVICE':'cpu','WHISPER_COMPUTE_TYPE':'int8',
                 'HF_HUB_OFFLINE':'1','WORKER_ID':'native-check-'+uuid4().hex}
             started=time.monotonic()

@@ -113,7 +113,12 @@ def main():
     except ValueError as exc: parser.error(str(exc))
     if args.interfaces_only: return check_interfaces()
     # 프로젝트 테스트의 subprocess도 backend에서 app을 찾도록 기존 실행 조건을 보존한다.
-    tests=args.tests or [str(path/'backend/tests') for path in sources.values()]
+    patterns={'session-api':['test_api_*.py','test_exam_*.py'],'data-layer':['test_db_*.py'],
+              'grader':['test_grading_*.py'],'worker-stt':['test_stt_*.py']}
+    # After M1, merged DB tests are inherited by every role checkout. Collect each
+    # owner's files once rather than importing duplicate basenames from all trees.
+    tests=args.tests or list(dict.fromkeys(str(test) for role,path in sources.items()
+        for pattern in patterns[role] for test in sorted((path/'backend/tests').glob(pattern))))
     tests=[str(Path(path).resolve()) for path in tests]
     os.chdir(sources['grader']/'backend')
     import pytest
@@ -123,7 +128,7 @@ def main():
     from app.config import settings
     from app.db import pool
     database='opic_ab_check_'+uuid4().hex[:16]
-    with psycopg.connect(settings.DATABASE_URL,autocommit=True) as admin:
+    with psycopg.connect(settings.DATABASE_URL,autocommit=True,connect_timeout=5) as admin:
         admin.execute(sql.SQL('CREATE DATABASE {}').format(sql.Identifier(database)))
         settings.DATABASE_URL=make_conninfo(settings.DATABASE_URL,dbname=database)
         print(json.dumps({'isolated_test_database':database}),flush=True)

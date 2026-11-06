@@ -441,8 +441,8 @@ limitations[]: 음질·STT·근거 부족 등 한계
 | PostgreSQL + pgvector, Docker | 관계형 데이터·작업 상태·근거 검색 |
 | faster-whisper 로컬 small.en | 전사·단어 타임스탬프 |
 | OmniVoice + Google Colab | 운영자 사전 음성 생성; 로컬 서버는 캐시 검사·연결·재생 제공 |
-| OpenAI SDK 또는 호환 API | 구조화 출력 지원 LLM; 모델은 실측 후 고정 |
-| text-embedding-3-small | 필요 시 검색; 적재·조회 모델과 차원 일치 |
+| OpenAI 호환 SDK + Pickle pickle-general | 사용자 지정 LLM; 구조화 출력·검증·실측 기록 |
+| text-embedding-3-large / 3072 | 사용자 요청; 적재·조회 모델/차원/프로필 일치, full precision exact cosine |
 | 로컬 data/audio/, TTS 캐시 | 원음·문항 음성 파일 |
 
 ## 7. DB·파일·작업 설계
@@ -474,7 +474,7 @@ limitations[]: 음질·STT·근거 부족 등 한계
 
 ## 8. 계약·API 동기화 이력과 현재 기준
 
-초안의 contract_version=1 및 이전 grader 지시는 영역 점수·평가 출력과 충돌했다. 이후 `agents/contracts.yaml`과 `PC-A_core`/`PC-B_ai` 역할 지시가 개정됐고, 현재 계약 v6는 v3의 채점 여부·문항 태그·서술 진단·관찰 범위와 Pickle 환경설정·복구용 DB 조회·nullable 평가 메타데이터 선언을 포함한다. 평가 원문 버전은 v3 그대로다. 계약 개정은 런타임·실제 서비스 검증 완료를 뜻하지 않는다.
+초안의 contract_version=1 및 이전 grader 지시는 영역 점수·평가 출력과 충돌했다. 이후 `agents/contracts.yaml`과 `PC-A_core`/`PC-B_ai` 역할 지시가 개정됐고, 현재 계약 v7은 v3의 채점 여부·문항 태그·서술 진단·관찰 범위와 Pickle 환경설정·복구용 DB 조회·nullable 평가 메타데이터 및 사용자 요청 large3072를 포함한다. 평가 원문 버전은 v3 그대로다. 계약 개정은 런타임·실제 서비스 검증 완료를 뜻하지 않는다.
 
 `API_SPEC.md`는 API 명세 v2/HTTP 형식 v3로 갱신됐다. 구체적인 경로·HTTP 스키마의 정본은 `agents/contracts.yaml`이다. 아래 표는 이전 설계에서 바꿔야 했던 항목이며 현재 구현에서도 계속 확인할 기준이다. 현재 A/B 검증과 실제 서비스에 남은 조건은 `CORE_REQUIREMENTS_VERIFICATION.md`를 확인한다.
 
@@ -509,6 +509,7 @@ limitations[]: 음질·STT·근거 부족 등 한계
 
 - 로컬 API·DB는 로컬 인터페이스에 바인딩하고 허용 Origin을 제한한다.
 - 키는 백엔드 환경 설정에만 두고 Git·프론트엔드·일반 로그에 노출하지 않는다.
+- 파일 설정은 backend/ 기준 상대 경로를 사용한다. 특정 PC의 사용자 홈·드라이브 절대 경로를 설정이나 실행 예제에 고정하지 않는다. 실행 시 위치는 해당 checkout에서 계산하며 cwd를 바꿔도 같은 파일을 찾는다.
 - 수험생 원음과 STT는 로컬에서 처리한다. Colab에는 사전 음성 생성용 문항·진행자 대사만 전달하며, 평가 제공자에는 필요한 답변 텍스트·지표·근거를 전송한다.
 - 텍스트에도 개인정보가 있을 수 있음을 안내하고 불필요한 식별정보를 최소화한다.
 - `data/`와 키 파일은 Git에서 제외하고 답변 원문을 일반 운영 로그에 남기지 않는다.

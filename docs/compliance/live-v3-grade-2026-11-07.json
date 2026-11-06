@@ -1,0 +1,58 @@
+{
+  "scope": "One real synthetic exam through queue/validation/DB, in a disposable database.",
+  "synthetic_source_level": "IL",
+  "worker_outcome": "dead",
+  "session_status": "grading_failed",
+  "evaluation_status": "failed",
+  "error_code": "LLM_INVALID_OUTPUT",
+  "error_detail": {
+    "validation_errors": [
+      "items.evidence: quote"
+    ]
+  },
+  "schema_error_types": [],
+  "base_level": null,
+  "estimated_level": null,
+  "assessment_status": null,
+  "item_count": 0,
+  "elapsed_sec": 82.281,
+  "ai_requests": [
+    {
+      "model": "pickle-general",
+      "input_tokens": 36435,
+      "output_tokens": 6522,
+      "latency_ms": 41624,
+      "status": "invalid_output",
+      "error_code": "LLM_INVALID_OUTPUT"
+    },
+    {
+      "model": "pickle-general",
+      "input_tokens": 36467,
+      "output_tokens": 5882,
+      "latency_ms": 39859,
+      "status": "invalid_output",
+      "error_code": "LLM_INVALID_OUTPUT"
+    }
+  ],
+  "sources": {
+    "session-api": {
+      "path": "OpicTutor-session",
+      "note": "explicit role composition"
+    },
+    "data-layer": {
+      "path": "OpicTutor-data",
+      "note": "explicit role composition"
+    },
+    "grader": {
+      "path": "OpicTutor-grader",
+      "note": "explicit role composition"
+    },
+    "worker-stt": {
+      "path": "OpicTutor-worker",
+      "note": "explicit role composition"
+    }
+  },
+  "c_implementation_added": false,
+  "accuracy_study": false,
+  "isolated_database_cleaned": true
+}

@@ -1,0 +1,33 @@
+{
+  "date_kst": "2026-11-07",
+  "scope": "one real Pickle synthetic IL exam through queue/handler/validation/DB; not accuracy study",
+  "worker_outcome": "dead",
+  "session_status": "grading_failed",
+  "evaluation_status": "failed",
+  "error_code": "LLM_INVALID_OUTPUT",
+  "base_level": null,
+  "estimated_level": null,
+  "assessment_status": null,
+  "item_count": 0,
+  "elapsed_sec": 92.109,
+  "ai_requests": [
+    {
+      "model": "pickle-general",
+      "input_tokens": 34159,
+      "output_tokens": 7447,
+      "latency_ms": 62577,
+      "status": "invalid_output",
+      "error_code": "LLM_INVALID_OUTPUT"
+    },
+    {
+      "model": "pickle-general",
+      "input_tokens": 34209,
+      "output_tokens": 7202,
+      "latency_ms": 28717,
+      "status": "invalid_output",
+      "error_code": "LLM_INVALID_OUTPUT"
+    }
+  ],
+  "isolated_database_cleaned": true,
+  "c_implementation_added": false
+}

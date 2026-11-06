@@ -1,0 +1,71 @@
+{
+  "scope": "One real synthetic exam through queue/validation/DB, in a disposable database.",
+  "synthetic_source_level": "IL",
+  "worker_outcome": "done",
+  "session_status": "done",
+  "evaluation_status": "done",
+  "error_code": null,
+  "error_detail": null,
+  "schema_error_types": [],
+  "user_template_version": "evaluate_exam.v4",
+  "invalid_quote_diagnostics": [
+    {
+      "order_no": 6,
+      "characters": 25,
+      "html_entities_present": false,
+      "valid_after_html_unescape": false,
+      "matches_another_answer": false
+    },
+    {
+      "order_no": 8,
+      "characters": 27,
+      "html_entities_present": false,
+      "valid_after_html_unescape": false,
+      "matches_another_answer": false
+    }
+  ],
+  "base_level": "IL",
+  "estimated_level": "IL",
+  "assessment_status": "assessed",
+  "item_count": 8,
+  "elapsed_sec": 85.844,
+  "ai_requests": [
+    {
+      "model": "pickle-general",
+      "input_tokens": 31392,
+      "output_tokens": 6094,
+      "latency_ms": 40078,
+      "status": "invalid_output",
+      "error_code": "LLM_INVALID_OUTPUT"
+    },
+    {
+      "model": "pickle-general",
+      "input_tokens": 31424,
+      "output_tokens": 6751,
+      "latency_ms": 44922,
+      "status": "ok",
+      "error_code": null
+    }
+  ],
+  "sources": {
+    "session-api": {
+      "path": "OpicTutor-session",
+      "note": "explicit role composition"
+    },
+    "data-layer": {
+      "path": "OpicTutor-data",
+      "note": "explicit role composition"
+    },
+    "grader": {
+      "path": "OpicTutor-grader",
+      "note": "explicit role composition"
+    },
+    "worker-stt": {
+      "path": "OpicTutor-worker",
+      "note": "explicit role composition"
+    }
+  },
+  "c_implementation_added": false,
+  "accuracy_study": false,
+  "isolated_database_cleaned": true
+}
