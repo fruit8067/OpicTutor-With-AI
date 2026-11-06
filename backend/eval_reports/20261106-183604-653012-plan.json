@@ -1,0 +1,1068 @@
+{
+  "metadata": {
+    "rubric_version": "performance-feedback-actfl-speaking-v3",
+    "prompt_version": "opic-evaluation-system-v3",
+    "sha1": "c2a7e9fe97b3d76083006d2a76c97c56ad3ef7ad",
+    "system_prompt_sha1": "c2a7e9fe97b3d76083006d2a76c97c56ad3ef7ad",
+    "im_rubric_version": "project-im-v1",
+    "corpus_version": "2026-11-06.188333975604103",
+    "model": "gpt-4o-mini",
+    "planned_exams": 40,
+    "max_llm_calls": 120,
+    "upper_cost_usd": null,
+    "input_rate": null,
+    "output_rate": null,
+    "synthetic_metrics": true,
+    "mode": "plan",
+    "embedding_input_tokens_estimate": 22394,
+    "embedding_max_calls": 786,
+    "embedding_upper_cost_usd": null,
+    "embedding_rate": null,
+    "actual_cost_metric_scope": "LLM usage only; embedding usage is separately logged in ai_requests"
+  },
+  "metrics": {
+    "accuracy": "미측정: 실제 LLM 호출 없음"
+  },
+  "records": [
+    {
+      "id": "single-NL-0",
+      "levels": [
+        "NL",
+        "NL",
+        "NL",
+        "NL",
+        "NL",
+        "NL",
+        "NL"
+      ],
+      "expected": "NL",
+      "seed": 0,
+      "trap": null,
+      "status": "not_run",
+      "excluded_contrast_set_ids": [
+        "Q000",
+        "Q130",
+        "Q007",
+        "Q147",
+        "Q206",
+        "Q167",
+        "Q011",
+        "Q085"
+      ]
+    },
+    {
+      "id": "single-NL-1",
+      "levels": [
+        "NL",
+        "NL",
+        "NL",
+        "NL",
+        "NL",
+        "NL",
+        "NL"
+      ],
+      "expected": "NL",
+      "seed": 1,
+      "trap": null,
+      "status": "not_run",
+      "excluded_contrast_set_ids": [
+        "Q000",
+        "Q228",
+        "Q075",
+        "Q191",
+        "Q204",
+        "Q210",
+        "Q177",
+        "Q070"
+      ]
+    },
+    {
+      "id": "single-NM-0",
+      "levels": [
+        "NM",
+        "NM",
+        "NM",
+        "NM",
+        "NM",
+        "NM",
+        "NM"
+      ],
+      "expected": "NM",
+      "seed": 0,
+      "trap": null,
+      "status": "not_run",
+      "excluded_contrast_set_ids": [
+        "Q000",
+        "Q231",
+        "Q007",
+        "Q196",
+        "Q103",
+        "Q062",
+        "Q177",
+        "Q236"
+      ]
+    },
+    {
+      "id": "single-NM-1",
+      "levels": [
+        "NM",
+        "NM",
+        "NM",
+        "NM",
+        "NM",
+        "NM",
+        "NM"
+      ],
+      "expected": "NM",
+      "seed": 1,
+      "trap": null,
+      "status": "not_run",
+      "excluded_contrast_set_ids": [
+        "Q000",
+        "Q232",
+        "Q075",
+        "Q027",
+        "Q103",
+        "Q108",
+        "Q177",
+        "Q072"
+      ]
+    },
+    {
+      "id": "single-NH-0",
+      "levels": [
+        "NH",
+        "NH",
+        "NH",
+        "NH",
+        "NH",
+        "NH",
+        "NH"
+      ],
+      "expected": "NH",
+      "seed": 0,
+      "trap": null,
+      "status": "not_run",
+      "excluded_contrast_set_ids": [
+        "Q000",
+        "Q026",
+        "Q007",
+        "Q003",
+        "Q051",
+        "Q113",
+        "Q123",
+        "Q186"
+      ]
+    },
+    {
+      "id": "single-NH-1",
+      "levels": [
+        "NH",
+        "NH",
+        "NH",
+        "NH",
+        "NH",
+        "NH",
+        "NH"
+      ],
+      "expected": "NH",
+      "seed": 1,
+      "trap": null,
+      "status": "not_run",
+      "excluded_contrast_set_ids": [
+        "Q000",
+        "Q181",
+        "Q073",
+        "Q142",
+        "Q200",
+        "Q115",
+        "Q222",
+        "Q012"
+      ]
+    },
+    {
+      "id": "single-IL-0",
+      "levels": [
+        "IL",
+        "IL",
+        "IL",
+        "IL",
+        "IL",
+        "IL",
+        "IL"
+      ],
+      "expected": "IL",
+      "seed": 0,
+      "trap": null,
+      "status": "not_run",
+      "excluded_contrast_set_ids": [
+        "Q000",
+        "Q001",
+        "Q075",
+        "Q195",
+        "Q106",
+        "Q162",
+        "Q169",
+        "Q069"
+      ]
+    },
+    {
+      "id": "single-IL-1",
+      "levels": [
+        "IL",
+        "IL",
+        "IL",
+        "IL",
+        "IL",
+        "IL",
+        "IL"
+      ],
+      "expected": "IL",
+      "seed": 1,
+      "trap": null,
+      "status": "not_run",
+      "excluded_contrast_set_ids": [
+        "Q000",
+        "Q131",
+        "Q002",
+        "Q083",
+        "Q200",
+        "Q211",
+        "Q220",
+        "Q070"
+      ]
+    },
+    {
+      "id": "single-IM1-0",
+      "levels": [
+        "IM1",
+        "IM1",
+        "IM1",
+        "IM1",
+        "IM1",
+        "IM1",
+        "IM1"
+      ],
+      "expected": "IM1",
+      "seed": 0,
+      "trap": null,
+      "status": "not_run",
+      "excluded_contrast_set_ids": [
+        "Q000",
+        "Q232",
+        "Q007",
+        "Q194",
+        "Q201",
+        "Q165",
+        "Q225",
+        "Q072"
+      ]
+    },
+    {
+      "id": "single-IM1-1",
+      "levels": [
+        "IM1",
+        "IM1",
+        "IM1",
+        "IM1",
+        "IM1",
+        "IM1",
+        "IM1"
+      ],
+      "expected": "IM1",
+      "seed": 1,
+      "trap": null,
+      "status": "not_run",
+      "excluded_contrast_set_ids": [
+        "Q000",
+        "Q181",
+        "Q073",
+        "Q046",
+        "Q045",
+        "Q165",
+        "Q223",
+        "Q009"
+      ]
+    },
+    {
+      "id": "single-IM2-0",
+      "levels": [
+        "IM2",
+        "IM2",
+        "IM2",
+        "IM2",
+        "IM2",
+        "IM2",
+        "IM2"
+      ],
+      "expected": "IM2",
+      "seed": 0,
+      "trap": null,
+      "status": "not_run",
+      "excluded_contrast_set_ids": [
+        "Q000",
+        "Q130",
+        "Q007",
+        "Q195",
+        "Q201",
+        "Q160",
+        "Q020",
+        "Q186"
+      ]
+    },
+    {
+      "id": "single-IM2-1",
+      "levels": [
+        "IM2",
+        "IM2",
+        "IM2",
+        "IM2",
+        "IM2",
+        "IM2",
+        "IM2"
+      ],
+      "expected": "IM2",
+      "seed": 1,
+      "trap": null,
+      "status": "not_run",
+      "excluded_contrast_set_ids": [
+        "Q000",
+        "Q180",
+        "Q007",
+        "Q028",
+        "Q015",
+        "Q215",
+        "Q168",
+        "Q135"
+      ]
+    },
+    {
+      "id": "single-IM3-0",
+      "levels": [
+        "IM3",
+        "IM3",
+        "IM3",
+        "IM3",
+        "IM3",
+        "IM3",
+        "IM3"
+      ],
+      "expected": "IM3",
+      "seed": 0,
+      "trap": null,
+      "status": "not_run",
+      "excluded_contrast_set_ids": [
+        "Q000",
+        "Q130",
+        "Q007",
+        "Q084",
+        "Q015",
+        "Q210",
+        "Q082",
+        "Q135"
+      ]
+    },
+    {
+      "id": "single-IM3-1",
+      "levels": [
+        "IM3",
+        "IM3",
+        "IM3",
+        "IM3",
+        "IM3",
+        "IM3",
+        "IM3"
+      ],
+      "expected": "IM3",
+      "seed": 1,
+      "trap": null,
+      "status": "not_run",
+      "excluded_contrast_set_ids": [
+        "Q000",
+        "Q180",
+        "Q002",
+        "Q031",
+        "Q106",
+        "Q161",
+        "Q060",
+        "Q068"
+      ]
+    },
+    {
+      "id": "single-IH-0",
+      "levels": [
+        "IH",
+        "IH",
+        "IH",
+        "IH",
+        "IH",
+        "IH",
+        "IH"
+      ],
+      "expected": "IH",
+      "seed": 0,
+      "trap": null,
+      "status": "not_run",
+      "excluded_contrast_set_ids": [
+        "Q000",
+        "Q232",
+        "Q007",
+        "Q027",
+        "Q045",
+        "Q217",
+        "Q061",
+        "Q137"
+      ]
+    },
+    {
+      "id": "single-IH-1",
+      "levels": [
+        "IH",
+        "IH",
+        "IH",
+        "IH",
+        "IH",
+        "IH",
+        "IH"
+      ],
+      "expected": "IH",
+      "seed": 1,
+      "trap": null,
+      "status": "not_run",
+      "excluded_contrast_set_ids": [
+        "Q000",
+        "Q129",
+        "Q007",
+        "Q083",
+        "Q204",
+        "Q216",
+        "Q223",
+        "Q037"
+      ]
+    },
+    {
+      "id": "single-AL-0",
+      "levels": [
+        "AL",
+        "AL",
+        "AL",
+        "AL",
+        "AL",
+        "AL",
+        "AL"
+      ],
+      "expected": "AL",
+      "seed": 0,
+      "trap": null,
+      "status": "not_run",
+      "excluded_contrast_set_ids": [
+        "Q000",
+        "Q006",
+        "Q002",
+        "Q083",
+        "Q015",
+        "Q159",
+        "Q020",
+        "Q235"
+      ]
+    },
+    {
+      "id": "single-AL-1",
+      "levels": [
+        "AL",
+        "AL",
+        "AL",
+        "AL",
+        "AL",
+        "AL",
+        "AL"
+      ],
+      "expected": "AL",
+      "seed": 1,
+      "trap": null,
+      "status": "not_run",
+      "excluded_contrast_set_ids": [
+        "Q000",
+        "Q181",
+        "Q033",
+        "Q189",
+        "Q051",
+        "Q108",
+        "Q122",
+        "Q068"
+      ]
+    },
+    {
+      "id": "boundary-NH/IL-0",
+      "levels": [
+        "IL",
+        "NH",
+        "NH",
+        "IL",
+        "NH",
+        "NH",
+        "IL"
+      ],
+      "expected": "NH",
+      "seed": 0,
+      "trap": null,
+      "status": "not_run",
+      "excluded_contrast_set_ids": [
+        "Q000",
+        "Q001",
+        "Q002",
+        "Q084",
+        "Q039",
+        "Q164",
+        "Q126",
+        "Q234"
+      ]
+    },
+    {
+      "id": "boundary-NH/IL-1",
+      "levels": [
+        "NH",
+        "IL",
+        "IL",
+        "IL",
+        "IL",
+        "NH",
+        "NH"
+      ],
+      "expected": "IL",
+      "seed": 1,
+      "trap": null,
+      "status": "not_run",
+      "excluded_contrast_set_ids": [
+        "Q000",
+        "Q230",
+        "Q007",
+        "Q028",
+        "Q098",
+        "Q163",
+        "Q172",
+        "Q071"
+      ]
+    },
+    {
+      "id": "boundary-IL/IM1-0",
+      "levels": [
+        "IL",
+        "IL",
+        "IL",
+        "IM1",
+        "IM1",
+        "IM1",
+        "IL"
+      ],
+      "expected": "IL",
+      "seed": 0,
+      "trap": null,
+      "status": "not_run",
+      "excluded_contrast_set_ids": [
+        "Q000",
+        "Q129",
+        "Q075",
+        "Q196",
+        "Q107",
+        "Q078",
+        "Q061",
+        "Q187"
+      ]
+    },
+    {
+      "id": "boundary-IL/IM1-1",
+      "levels": [
+        "IM1",
+        "IL",
+        "IM1",
+        "IL",
+        "IM1",
+        "IL",
+        "IM1"
+      ],
+      "expected": "IM1",
+      "seed": 1,
+      "trap": null,
+      "status": "not_run",
+      "excluded_contrast_set_ids": [
+        "Q000",
+        "Q132",
+        "Q073",
+        "Q188",
+        "Q067",
+        "Q114",
+        "Q176",
+        "Q133"
+      ]
+    },
+    {
+      "id": "boundary-IM1/IM2-0",
+      "levels": [
+        "IM1",
+        "IM1",
+        "IM2",
+        "IM2",
+        "IM2",
+        "IM1",
+        "IM1"
+      ],
+      "expected": "IM1",
+      "seed": 0,
+      "trap": null,
+      "status": "not_run",
+      "excluded_contrast_set_ids": [
+        "Q000",
+        "Q181",
+        "Q002",
+        "Q049",
+        "Q153",
+        "Q079",
+        "Q218",
+        "Q234"
+      ]
+    },
+    {
+      "id": "boundary-IM1/IM2-1",
+      "levels": [
+        "IM1",
+        "IM2",
+        "IM2",
+        "IM2",
+        "IM1",
+        "IM1",
+        "IM2"
+      ],
+      "expected": "IM2",
+      "seed": 1,
+      "trap": null,
+      "status": "not_run",
+      "excluded_contrast_set_ids": [
+        "Q000",
+        "Q180",
+        "Q007",
+        "Q146",
+        "Q199",
+        "Q161",
+        "Q058",
+        "Q136"
+      ]
+    },
+    {
+      "id": "boundary-IM2/IM3-0",
+      "levels": [
+        "IM2",
+        "IM2",
+        "IM3",
+        "IM2",
+        "IM2",
+        "IM3",
+        "IM3"
+      ],
+      "expected": "IM2",
+      "seed": 0,
+      "trap": null,
+      "status": "not_run",
+      "excluded_contrast_set_ids": [
+        "Q000",
+        "Q181",
+        "Q002",
+        "Q053",
+        "Q202",
+        "Q079",
+        "Q222",
+        "Q069"
+      ]
+    },
+    {
+      "id": "boundary-IM2/IM3-1",
+      "levels": [
+        "IM2",
+        "IM3",
+        "IM3",
+        "IM3",
+        "IM2",
+        "IM3",
+        "IM2"
+      ],
+      "expected": "IM3",
+      "seed": 1,
+      "trap": null,
+      "status": "not_run",
+      "excluded_contrast_set_ids": [
+        "Q000",
+        "Q041",
+        "Q033",
+        "Q047",
+        "Q203",
+        "Q109",
+        "Q170",
+        "Q012"
+      ]
+    },
+    {
+      "id": "boundary-IM3/IH-0",
+      "levels": [
+        "IM3",
+        "IH",
+        "IM3",
+        "IH",
+        "IM3",
+        "IH",
+        "IM3"
+      ],
+      "expected": "IM3",
+      "seed": 0,
+      "trap": null,
+      "status": "not_run",
+      "excluded_contrast_set_ids": [
+        "Q000",
+        "Q128",
+        "Q033",
+        "Q004",
+        "Q067",
+        "Q052",
+        "Q171",
+        "Q186"
+      ]
+    },
+    {
+      "id": "boundary-IM3/IH-1",
+      "levels": [
+        "IH",
+        "IH",
+        "IM3",
+        "IM3",
+        "IM3",
+        "IH",
+        "IH"
+      ],
+      "expected": "IH",
+      "seed": 1,
+      "trap": null,
+      "status": "not_run",
+      "excluded_contrast_set_ids": [
+        "Q000",
+        "Q026",
+        "Q075",
+        "Q188",
+        "Q206",
+        "Q114",
+        "Q173",
+        "Q235"
+      ]
+    },
+    {
+      "id": "boundary-IH/AL-0",
+      "levels": [
+        "AL",
+        "IH",
+        "IH",
+        "IH",
+        "AL",
+        "AL",
+        "IH"
+      ],
+      "expected": "IH",
+      "seed": 0,
+      "trap": null,
+      "status": "not_run",
+      "excluded_contrast_set_ids": [
+        "Q000",
+        "Q026",
+        "Q033",
+        "Q053",
+        "Q043",
+        "Q212",
+        "Q020",
+        "Q183"
+      ]
+    },
+    {
+      "id": "boundary-IH/AL-1",
+      "levels": [
+        "AL",
+        "AL",
+        "IH",
+        "AL",
+        "IH",
+        "AL",
+        "IH"
+      ],
+      "expected": "AL",
+      "seed": 1,
+      "trap": null,
+      "status": "not_run",
+      "excluded_contrast_set_ids": [
+        "Q000",
+        "Q132",
+        "Q007",
+        "Q027",
+        "Q063",
+        "Q079",
+        "Q036",
+        "Q068"
+      ]
+    },
+    {
+      "id": "trap-warmup_only_al-0",
+      "levels": [
+        "IL",
+        "IL",
+        "IL",
+        "IL",
+        "IL",
+        "IL",
+        "IL"
+      ],
+      "expected": "IL",
+      "seed": 0,
+      "trap": "warmup_only_al",
+      "status": "not_run",
+      "excluded_contrast_set_ids": [
+        "Q000",
+        "Q041",
+        "Q002",
+        "Q022",
+        "Q201",
+        "Q208",
+        "Q011",
+        "Q185"
+      ]
+    },
+    {
+      "id": "trap-warmup_only_al-1",
+      "levels": [
+        "IL",
+        "IL",
+        "IL",
+        "IL",
+        "IL",
+        "IL",
+        "IL"
+      ],
+      "expected": "IL",
+      "seed": 1,
+      "trap": "warmup_only_al",
+      "status": "not_run",
+      "excluded_contrast_set_ids": [
+        "Q000",
+        "Q229",
+        "Q002",
+        "Q138",
+        "Q202",
+        "Q115",
+        "Q121",
+        "Q134"
+      ]
+    },
+    {
+      "id": "trap-technical_missing-0",
+      "levels": [
+        "IL",
+        "IL",
+        "IL",
+        "IL",
+        "IL",
+        "IL",
+        "IL"
+      ],
+      "expected": "IL",
+      "seed": 0,
+      "trap": "technical_missing",
+      "status": "not_run",
+      "excluded_contrast_set_ids": [
+        "Q000",
+        "Q132",
+        "Q007",
+        "Q146",
+        "Q203",
+        "Q111",
+        "Q021",
+        "Q085"
+      ]
+    },
+    {
+      "id": "trap-technical_missing-1",
+      "levels": [
+        "IL",
+        "IL",
+        "IL",
+        "IL",
+        "IL",
+        "IL",
+        "IL"
+      ],
+      "expected": "IL",
+      "seed": 1,
+      "trap": "technical_missing",
+      "status": "not_run",
+      "excluded_contrast_set_ids": [
+        "Q000",
+        "Q130",
+        "Q007",
+        "Q046",
+        "Q201",
+        "Q108",
+        "Q168",
+        "Q234"
+      ]
+    },
+    {
+      "id": "trap-all_missing-0",
+      "levels": [
+        "IL",
+        "IL",
+        "IL",
+        "IL",
+        "IL",
+        "IL",
+        "IL"
+      ],
+      "expected": null,
+      "seed": 0,
+      "trap": "all_missing",
+      "status": "not_run",
+      "excluded_contrast_set_ids": [
+        "Q000",
+        "Q179",
+        "Q073",
+        "Q194",
+        "Q101",
+        "Q114",
+        "Q119",
+        "Q183"
+      ]
+    },
+    {
+      "id": "trap-all_missing-1",
+      "levels": [
+        "IL",
+        "IL",
+        "IL",
+        "IL",
+        "IL",
+        "IL",
+        "IL"
+      ],
+      "expected": null,
+      "seed": 1,
+      "trap": "all_missing",
+      "status": "not_run",
+      "excluded_contrast_set_ids": [
+        "Q000",
+        "Q228",
+        "Q002",
+        "Q053",
+        "Q005",
+        "Q208",
+        "Q221",
+        "Q183"
+      ]
+    },
+    {
+      "id": "trap-no_future-0",
+      "levels": [
+        "IL",
+        "IL",
+        "IL",
+        "IL",
+        "IL",
+        "IL",
+        "IL"
+      ],
+      "expected": "IL",
+      "seed": 0,
+      "trap": "no_future",
+      "status": "not_run",
+      "excluded_contrast_set_ids": [
+        "Q000",
+        "Q229",
+        "Q033",
+        "Q074",
+        "Q151",
+        "Q114",
+        "Q224",
+        "Q070"
+      ]
+    },
+    {
+      "id": "trap-no_future-1",
+      "levels": [
+        "IL",
+        "IL",
+        "IL",
+        "IL",
+        "IL",
+        "IL",
+        "IL"
+      ],
+      "expected": "IL",
+      "seed": 1,
+      "trap": "no_future",
+      "status": "not_run",
+      "excluded_contrast_set_ids": [
+        "Q000",
+        "Q180",
+        "Q002",
+        "Q188",
+        "Q203",
+        "Q117",
+        "Q223",
+        "Q133"
+      ]
+    },
+    {
+      "id": "trap-injection-0",
+      "levels": [
+        "IL",
+        "IL",
+        "IL",
+        "IL",
+        "IL",
+        "IL",
+        "IL"
+      ],
+      "expected": "IL",
+      "seed": 0,
+      "trap": "injection",
+      "status": "not_run",
+      "excluded_contrast_set_ids": [
+        "Q000",
+        "Q048",
+        "Q007",
+        "Q057",
+        "Q199",
+        "Q210",
+        "Q175",
+        "Q085"
+      ]
+    },
+    {
+      "id": "trap-injection-1",
+      "levels": [
+        "IL",
+        "IL",
+        "IL",
+        "IL",
+        "IL",
+        "IL",
+        "IL"
+      ],
+      "expected": "IL",
+      "seed": 1,
+      "trap": "injection",
+      "status": "not_run",
+      "excluded_contrast_set_ids": [
+        "Q000",
+        "Q230",
+        "Q033",
+        "Q139",
+        "Q051",
+        "Q214",
+        "Q173",
+        "Q134"
+      ]
+    }
+  ]
+}
