@@ -36,6 +36,8 @@ tts-host: Q000과 M2 신규 pilot의 음성 생성. grader: rubrics.jsonl을 기
 실제 외부 임베딩·비용은 미측정. 감사 후 M2 재빌드 VERSION은 2026-11-06.112940456345857이다. 헤더 출처 추가로 내용 기반 버전이 바뀌었으며 질문 문장·대조 답변 내용은 이 변경으로 바뀌지 않았다. 빌드 exit 0, unittest 3개 통과(1.87초). 단조성 경고 16건은 todo로 보류하고 report에 기록했다.
 
 ## M2 최종 결과
+
+2026-11-07: data-layer M1은 main532951f에 병합됐다. 이후 main 기준 rebase, build exit0 / 동일 VERSION 보존, monotonic16경고의 todo 보류 사유 재확인, unittest3개 통과(1.886초), 정규화 후 build diff0을 확인했다. M2 확대 실제 임베딩은 data-layer 후속 검증에서 진행한다.
 - corpus_version: 2026-11-06.112940456345857 (감사 후 재빌드)
 - Q000~Q237 238문항, pilot 222, todo 16; 자기소개 채점 제외 1개.
 - pilot 유형별 수와 모든 슬롯 pool 크기: rag_docs/build/report.md.
