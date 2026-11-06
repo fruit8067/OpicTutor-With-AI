@@ -15,6 +15,19 @@ from .evidence import build_evidence
 from .rules import contract,token_count
 
 
+def _repair_guidance(error):
+    labels=set(getattr(error,'validation_errors',[]) or str(error).split('; '))
+    hints={
+        'fact_evidence.null_quote':'fact_evidence에서 status가 not_observed이거나 order_no가 null이면 quote도 반드시 JSON null입니다. 문자열 "null"이나 인용문을 넣지 마세요.',
+        'items.evidence: quote':'items.evidence는 해당 item의 verbatim_quote_candidates에서 그대로 복사하거나 빈 배열로 두세요. 요약/번역/수정한 문장은 인용이 아닙니다.',
+        'feedback_cards.before':'카드 before는 related_order_nos의 실제 전사 구절이어야 합니다. 새 예문이면 before=null, example_kind=practice로 두세요.',
+        'coverage.vocabulary':'coverage.name은 required_output_metadata의 영문 name만 그대로 사용하세요.',
+        'coverage.elicited':'coverage.elicited_order_nos는 required_output_metadata에서 같은 name의 목록과 정확히 일치해야 합니다.',
+        'evaluation_scope.usable':'evaluation_scope.usable_order_nos에는 usable_order_nos_allowed의 번호만 넣으세요. 자기소개 1번은 포함하지 마세요.',
+        'non_IM.rubric_version':'base_level이 IM이 아니면 im_rubric_version은 JSON null, im_estimation_status는 not_applicable입니다.'}
+    return '\n'.join(hint for label,hint in hints.items() if label in labels)
+
+
 def evaluate_exam(snapshot: list[dict], *, exclude_contrast_set_ids: list[str] = (),
                   job_id: UUID | None = None) -> tuple[EvaluationResult, dict]:
     precheck_snapshot(snapshot)
@@ -54,7 +67,7 @@ def evaluate_exam(snapshot: list[dict], *, exclude_contrast_set_ids: list[str] =
                 time.sleep(2**(attempt+1));continue
             if isinstance(failure,LLMOutputError) and not invalid_retry and attempt<2 and trace.remaining>0:
                 invalid_retry=True
-                messages=[*messages,{'role':'user','content':'이전 응답의 검증 오류: '+str(failure)+'. 동일 시험을 출력 계약과 대조하여 다시 평가하세요.'}]
+                messages=[*messages,{'role':'user','content':'이전 응답의 검증 오류: '+str(failure)+'. 동일 시험을 출력 계약과 대조하여 다시 평가하세요.\n'+_repair_guidance(failure)}]
                 continue
             failure.evaluation_usage=totals.copy()
             raise failure

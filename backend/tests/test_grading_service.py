@@ -48,6 +48,16 @@ def test_invalid_output_retries_once_refusal_never(monkeypatch):
     assert len(calls)==1 and logs[0]['status']=='refused'
 
 
+def test_not_observed_quote_retry_explains_the_required_null_instead_of_only_a_code(monkeypatch):
+    failure=LLMOutputError('fact_evidence.null_quote')
+    failure.validation_errors=['fact_evidence.null_quote']
+    calls,logs,_=setup_service(monkeypatch,[failure])
+    service.evaluate_exam(snapshot())
+    correction=calls[1][-1]['content']
+    assert 'not_observed' in correction and 'JSON null' in correction
+    assert len(calls)==2 and len(logs)==2
+
+
 def test_invalid_input_and_hard_limit_make_no_call(monkeypatch):
     calls,logs,waits=setup_service(monkeypatch,[])
     with pytest.raises(PermanentJobError): service.evaluate_exam(snapshot()[:-1])
