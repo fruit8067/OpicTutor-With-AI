@@ -1,0 +1,15 @@
+# AI-assisted: OpenAI Codex
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    ports: ["127.0.0.1:5432:5432"]
+    environment:
+      POSTGRES_USER: opic
+      POSTGRES_PASSWORD: opic
+      POSTGRES_DB: opic
+    volumes: ["./data/pg:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U opic -d opic"]
+      interval: 5s
+      timeout: 5s
+      retries: 12

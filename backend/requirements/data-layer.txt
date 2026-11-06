@@ -1,0 +1,3 @@
+psycopg[binary,pool]>=3.2
+pgvector
+openai>=1.40
