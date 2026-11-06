@@ -1,0 +1,21 @@
+{
+  "date_kst": "2026-11-07",
+  "contract_version": 7,
+  "scope": "A/B current M2-corpus regression; C and inference boundary fixtures in this suite",
+  "sources": {
+    "session-api": "56df4e8eee4a4197eef606fd82c3616d745b06a2",
+    "data-layer": "034e6d41531977f99345d431e617d5b4c433d348",
+    "grader": "c1a4255f5b28bde64cd4f62dfb533031f4f2408d",
+    "worker-stt": "4c5e2c2529ed4ccc0bce0c6e9fa596a9e5a4742a"
+  },
+  "source_note": "Grader had untracked running evaluation report files; tested production sources matched the listed commit. Later v5 repair hint has a separate targeted six-test check.",
+  "result": {"passed": 123, "failed": 0, "skipped": 0, "seconds": 13.65},
+  "interface_comparison": {"public_signatures": 64, "api_model_field_sets": 29, "api_endpoints_and_default_statuses": 17, "differences": []},
+  "database": {"real_postgresql": true, "isolated_database_created_and_dropped": true, "existing_database_reset": false},
+  "additional_real_checks": ["M1 and M2 paid large3072 ingest and zero-call replay", "native small.en worker via relative DATA_DIR", "Pickle structured ping", "Pickle synthetic IL queue/validation/result persistence", "invalid API key single-request failure", "loopback HTTP early upload rejection"],
+  "real_student_grading_accuracy_measured": false,
+  "full_synthetic_regression_complete": false,
+  "actual_microphone_checked": false,
+  "c_implementation_added": false,
+  "warnings": ["anyio assertion-rewrite: imported during explicit A/B composition before pytest"]
+}

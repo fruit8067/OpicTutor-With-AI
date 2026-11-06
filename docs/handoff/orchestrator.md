@@ -2,9 +2,9 @@
 
 ## 상태
 
-최신: 사용자가 .env를 저장하여 Pickle 구조화 ping1요청/large3072 실제 연결과 M1 실제 적재247벡터/중복 재실행0요청을 확인했다. session-api의 늦은 파일 크기 검사를 수신 단계로 옮기고 실제HTTP413을 검증했다. 사용자 경로 이식성 요청에 따라 문서 고정 경로를 제거하고 bootstrap이 상대 경로 강제/별도 checkout·cwd 검증을 수행했다. 아래 0바이트 기록은 저장 전 이력이다.
+최신: M1/data-layer PR#2와 corpus M2/#12는 main에 병합됐다. 실제 M2 large3072 적재4,522벡터·재실행0요청·검색62ms와 실제 IL 평가v4의done 저장을 확인했다. F5 대조 세트 제외 v4 첫4시험은NL검증오류2/NM성공2였고 v5 보강 후 재검증 중이다. 사용자는 학교 크레딧 약$10 사용을 허용했다. C를 새로 구현하지 않는다.
 
-CR orchestrator-04는 PR #21/main, 기본 설정은 PR #22/main에 반영됐다. 사용자 제공 Pickle URL/model·키 별칭, large/3072와 모델별 재임베딩 구현은 역할 PR #2/#6에 push했다. 기존 DB를 reset 없이 vector(3072)로 전환했고 기존 코퍼스는 0행이다. 키 파일은 디스크 기준 아직 0바이트라 실제 요청/유료 ingest는 대기다. native ASR 증거는 PR #20/main에 보존했다.
+CR orchestrator-04는 PR#21/main, 기본 설정은#22/main, 상대 경로 강제 설정은#25/main이다. 기존 DB는 reset 없이 vector(3072)로 전환했고 실제M2 적재가 완료됐다. 키는 저장됐고 연결 성공했다. native ASR 증거는#20/main 및 상대 경로 후속 기록에 보존했다. data-layer M2 측정값은PR#27이며 API/grader/worker의 M2 완료·C·마이크 조건은 아직 남아 있다.
 
 진행 중, 2026-11-07 KST. CR orchestrator-01/session-api-01, M0, corpus M1, trusted ownership이 main에 반영됐다. C는 추가하지 않고 A/B 요구사항·API·flowchart 연결을 심화 검증한다. 과거 위반은 감사 이력으로 보존한다.
 
@@ -22,13 +22,15 @@ CR은 tier nullable 선언·TTS hash 정규화·provider 요청 기록/예산을
 
 ## 알려진 문제
 
-기능 수정은 각 역할 PR에 push했다. 주소·모델은 확정됐으며 디스크에 저장된 키 부재로 ingest·평가 정확도 local_checks가 남아 있다. C를 새로 구현하지 않으며 M2/M3 전체 완료를 주장하지 않는다. 현재 A/B 코어 구현 검증은 docs/CORE_REQUIREMENTS_VERIFICATION.md에 기록한다.
+기능 수정은 각 역할 PR에 push했다. 실제 ingest·인증 성공/실패·IL 평가 저장은 확인했고, 전체 정확도/함정/반복 및 실제 마이크 local_checks가 남아 있다. C를 새로 구현하지 않으며 M2/M3 전체 완료를 주장하지 않는다. 현재 A/B 코어 구현 검증은 docs/CORE_REQUIREMENTS_VERIFICATION.md에 기록한다.
 
 ## 다른 에이전트에게 요청
 
 순차적으로 원래 소유 역할에서 수정하고 default origin/main ownership을 사용한다. M0 이후 역할 브랜치를 재구성하고 미충족 local_checks를 기록한다.
 
 ## 측정값
+
+최신 A/B123 passed/skip0/13.65초, 별도 선언64/29/17 차이0. M2 실사용945,194입력토큰/47요청(질의 포함), 추정$0.12287522,236.594초, 검색62ms. native 상대 경로 STT5.110초, 실제 잘못된 키1요청/0.984초 후실패. IL v4실제2요청/85.844초 후done. 현재CLI의 일반실패까지요청/토큰을 누적하고 비용미공개는None으로 기록한다. 아래110/114개 및키부재 기록은 과거 이력이다.
 
 후속 A/B117 passed/skip0/13.01초. 실제HTTP는 약20MiB Content-Length 중10MiB+64KiB만 보내고 종료 boundary 없이413. 이식성 unittest1개 통과(0.298초). M1 실제 적재13.921초, 질의 포함4요청/46,376토큰, 검색47.0ms/top5. LLM ping48/12토큰·3.532초. 채점 품질은 미측정.
 

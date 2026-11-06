@@ -4,9 +4,9 @@
 
 ## 판정
 
-**A/B 핵심 흐름은 명시적인 외부 경계 대역을 사용한 실제 HTTP 계층·PostgreSQL·작업·검증·결과 저장 조합에서 통과했다. 실제 Pickle·임베딩 서비스 연결, 실제 마이크 품질, 제품/브라우저 완주까지 완료한 상태는 아니다.**
+**A/B HTTP·PostgreSQL·작업·검증·결과 저장 조합, 실제 Pickle 연결/합성 IL 결과 저장, 실제 large3072 M1/M2 적재는 통과했다. 전체 평가 정확도·반복/함정 및 실제 마이크·제품/브라우저 완주는 아직 검증 중이다.**
 
-- v7 large/3072·Pickle 별칭 후 최신 회귀/흐름 검증 합계 **114 passed, skip 0, 12.20초**. [v7 증거](compliance/large-embedding-2026-11-07.json). 이전 v6 실행은 110 passed, 5.83초로 별도 보존한다.
+- v7 최신 M2 코퍼스/학교 크레딧 회귀까지 **123 passed, skip 0, 13.65초**. [현재 증거](compliance/core-current-2026-11-07.json). 이전114/110개 실행은 각각 별도 증거로 보존한다.
 - 별도 선언 대조: **공개 함수 64개, API 모델 29개 필드 집합, 경로/기본 성공 status 17개 차이 0**. 이 대조만으로 모든 데이터 제약·모델 품질을 검증했다고 주장하지 않으며 동작 제약은 위 테스트로 확인한다.
 - 별도 `opic_ab_check_<무작위 ID>` DB를 생성해 검증하고 연결을 닫은 후 삭제했다. 기존 개발 DB를 reset하지 않았다.
 - 각 역할 worktree 모듈을 메모리에 명시적으로 조합했다. 다른 역할 코드를 자기 브랜치에 상속하거나 운영 소스의 stub을 가짜 구현으로 바꾸지 않았다.
@@ -92,6 +92,12 @@ python docs/compliance/verify_core.py --workspace ..
 같은 명령 끝에 `--interfaces-only`를 붙이면 DB를 변경하지 않고 공개 함수 선언/API 필드·경로·기본 status를 대조한다.
 
 ## 스트리밍·경로 이식성 추가 검증
+
+실제 M2 적재는4,539문서/4,522벡터/46요청, 같은 명령 추가요청0, 검색질의 포함945,194토큰·47요청이었다. 공개 단가 기준 약$0.122875,236.594초, exact 검색62ms다([M2 적재](compliance/live-ingest-m2-2026-11-07.json)). 실제 상대 경로 설정의 native STT도5.110초/answer와job done으로 재확인했다([기록](compliance/native-relative-path-2026-11-07.json)).
+
+실제 IL 전체 평가 v1/v2/v3 실패 후 v4는 잘못된 첫 인용을 거부하고 수정 응답으로 IL/IL·8items·session/evaluation done을 저장했다([실패 이력](compliance/live-single-grade-2026-11-07.json), [v4](compliance/live-v4-grade-2026-11-07.json)). 이 점검은 대조 세트 제외 정확도 연구가 아니다. 실제 잘못된 키는1요청 후 grading_failed, 재시도 폭주 없이 실패했고 원래 .env는 보존했다([인증 실패](compliance/live-invalid-key-2026-11-07.json)).
+
+F5 회귀는 모든 사용 대조 세트를 제외하는 별도 grader CLI로 진행한다. v4 첫4시험은NL2건의 fact_evidence.null_quote 검증 실패/NM2건 정상으로50%였다. v5는 관찰 없음의 quote=null 규칙과 오류별 수정 안내를 명시했으며 같은4시험을 재검증 중이다. 사용자가 학교 크레딧 약$10 사용을 허용했다. 단가 미공개를0원으로 적지 않고 비용None/실제 토큰/요청을 기록한다. 각 시험 후 동일 JSON/Markdown을 원자적으로 갱신하고 공급자 예산/인증 거절은 일괄 중단한다. `python docs/compliance/run_eval.py --workspace .. --limit 4 --school-credit-usd 10 --embedding-usd-per-million .13 --yes`로 재현한다.
 
 기존 multipart 업로드는20MiB 전체를 임시 spool에 받은 뒤에야413으로 거부했다(재현에서22개 chunk 모두 소비). 수신 파서에서 파일당10MiB 초과 즉시 중단하도록 session-api 소유 경로에서 수정했다. 종료 boundary 없이도 실제 Uvicorn HTTP가413/PAYLOAD_TOO_LARGE를 반환한다([HTTP 증거](compliance/wire-upload-2026-11-07.json)). 정확히10MiB는 허용하고, 파싱 오류는422 계약 응답, 연결 종료는 부분 spool 정리/답변 생성0을 검증했다. A/B 전체117 passed /skip0/13.01초(변경된 session-api 작업 트리 기준).
 

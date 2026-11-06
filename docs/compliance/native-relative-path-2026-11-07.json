@@ -1,0 +1,38 @@
+{
+  "scope": "Real worker CLI + cached faster-whisper small.en + real DB; synthetic SAPI audio, not microphone",
+  "worker_exit_code": 0,
+  "elapsed_sec_including_startup": 5.11,
+  "audio_sha256": "cafbff79e986cb32ae8acd811855cdf754da37d0a5eeb27e087078e07b92224b",
+  "audio_duration_sec": 30.0,
+  "answer_status": "done",
+  "session_order_no": 2,
+  "job": {
+    "status": "done",
+    "attempts": 1
+  },
+  "stt_version": "faster-whisper:small.en:m1",
+  "metrics": {
+    "wpm": 144.0,
+    "speech_sec": 30.0,
+    "word_count": 72,
+    "duration_sec": 30.0,
+    "metrics_version": "m1",
+    "articulation_wpm": 144.0,
+    "long_pause_count": 0,
+    "observed_filler_per100": 5.6
+  },
+  "transcript_nonempty": true,
+  "synthetic_expected_keywords_observed": true,
+  "transcript_absent_from_worker_logs": true,
+  "external_llm_requests": 0,
+  "external_embedding_requests": 0,
+  "model_network_disabled": true,
+  "microphone_used": false,
+  "c_implementation_added": false,
+  "sources": {
+    "session-api": "30f6be1ac92717ca5829183de464dc872284dc5b",
+    "data-layer": "4570a4be0b9bbc6949e7af63f09b2a1dbc56ce7e",
+    "grader": "e7b80c04a5f729b4616b444c335f3f6def1c2e8a",
+    "worker-stt": "a68287c38049481eb637137ead890e0829fa8810"
+  }
+}

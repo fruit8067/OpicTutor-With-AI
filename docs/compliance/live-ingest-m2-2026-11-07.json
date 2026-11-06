@@ -1,0 +1,47 @@
+{
+  "date_kst": "2026-11-07",
+  "stage": "M2 real large embedding ingest and exact search",
+  "model": "text-embedding-3-large",
+  "dimensions": 3072,
+  "corpus_version": "2026-11-06.112940456345857",
+  "rows": [
+    {
+      "doc_type": "answer",
+      "total": 4284,
+      "embedded": 4284
+    },
+    {
+      "doc_type": "question",
+      "total": 238,
+      "embedded": 238
+    },
+    {
+      "doc_type": "rubric",
+      "total": 9,
+      "embedded": 0
+    },
+    {
+      "doc_type": "upgrade_pattern",
+      "total": 8,
+      "embedded": 0
+    }
+  ],
+  "initial_ingest_requests": 46,
+  "repeat_ingest_additional_requests": 0,
+  "embedding_usage_including_query": {
+    "requests": 47,
+    "input_tokens": 945194
+  },
+  "estimated_usd_from_observed_tokens": 0.12287522,
+  "search_ms": 62.0,
+  "search_doc_ids": [
+    "Q002-NL-stt",
+    "Q002-NH-stt",
+    "Q002-IM2-stt",
+    "Q002-IM1-stt",
+    "Q002-IH-stt"
+  ],
+  "elapsed_sec": 236.594,
+  "existing_database_reset": false,
+  "c_implementation_added": false
+}
