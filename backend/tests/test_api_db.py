@@ -68,6 +68,7 @@ def test_real_db_http_flow(corpus,tmp_path,monkeypatch):
         eid=db.get_latest_evaluation(sid)['id']
         assert client.post(prefix+'/submit').status_code==202
         assert db.get_latest_evaluation(sid)['id']==eid
+        assert upload().status_code==200  # 제출 이후에도 동일 업로드 키는 원래 답변을 반환한다.
         result=client.get(prefix+'/result')
         assert result.status_code==200 and result.json()['evaluation_status']=='queued'
         assert len(result.json()['answers'])==8 and result.json()['answers'][0]['is_scored'] is False

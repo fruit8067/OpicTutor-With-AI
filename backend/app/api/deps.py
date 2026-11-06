@@ -25,6 +25,20 @@ def require_answer(sid,aid):
 def require_in_progress(s):
     if s['status']!='in_progress': raise AppError('INVALID_STATE')
 
+def preflight_upload(sid,order_no,client_request_id):
+    s=require_session(sid)
+    q=db.get_session_question(sid,order_no)
+    # 가장 최근 시도가 아니어도 같은 문항에 이미 저장된 키라면 멱등 재전송이다.
+    # 저장 여부를 읽는 검사일 뿐이며 최종 중복/상태 판정은 create_answer 트랜잭션이 한다.
+    if q and client_request_id in q['client_request_ids']:
+        return
+    require_in_progress(s)
+    if q is None or order_no!=s['current_order_no'] or order_no>s['question_count']:
+        raise AppError('ORDER_MISMATCH')
+    pending=q.get('latest_answer')
+    if pending and pending['stt_status'] in ('queued','processing'):
+        raise AppError('ANSWER_PENDING')
+
 def session_out(sid):
     s=require_session(sid)
     prepare=None
