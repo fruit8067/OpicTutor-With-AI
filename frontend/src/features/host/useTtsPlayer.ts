@@ -51,6 +51,7 @@ function ensureGraph(): { ctx: AudioContext | null; audio: HTMLAudioElement; ana
 export function useTtsPlayer(): TtsPlayer {
   const [isPlaying, setPlaying] = useState(false);
   const settle = useRef<((r: PlayResult) => void) | null>(null);
+  const token = useRef(0);
 
   const finish = useCallback((r: PlayResult) => {
     setPlaying(false);
@@ -71,6 +72,7 @@ export function useTtsPlayer(): TtsPlayer {
   }, []);
 
   const stop = useCallback(() => {
+    token.current++;
     const audio = sharedAudio;
     if (audio) {
       audio.pause();
@@ -84,9 +86,11 @@ export function useTtsPlayer(): TtsPlayer {
       new Promise<PlayResult>((resolve) => {
         const { ctx, audio } = ensureGraph();
         if (settle.current) finish('ended'); // 이전 재생은 끝난 것으로 처리(동시 재생 없음)
+        const my = ++token.current;          // 이 재생의 번호. 늦게 도착한 이전 재생의 결과는 무시한다
         settle.current = resolve;
-        const onEnded = () => { cleanup(); finish('ended'); };
-        const onError = () => { cleanup(); finish('error'); };
+        const done = (r: PlayResult) => { cleanup(); if (my === token.current) finish(r); };
+        const onEnded = () => done('ended');
+        const onError = () => done('error');
         const cleanup = () => {
           audio.removeEventListener('ended', onEnded);
           audio.removeEventListener('error', onError);
@@ -98,13 +102,14 @@ export function useTtsPlayer(): TtsPlayer {
           if (ctx && ctx.state === 'suspended') {
             try { await ctx.resume(); } catch { /* play()가 차단 여부를 알려 준다 */ }
           }
+          if (my !== token.current) return;
           try {
             await audio.play();
-            setPlaying(true);
+            if (my === token.current) setPlaying(true);
           } catch (e) {
-            cleanup();
             const name = (e as { name?: string })?.name;
-            finish(name === 'NotAllowedError' ? 'blocked' : 'error');
+            if (name === 'AbortError') { cleanup(); return; } // 새 재생/정지로 중단됨 — 오류 아님
+            done(name === 'NotAllowedError' ? 'blocked' : 'error');
           }
         };
         void start();
