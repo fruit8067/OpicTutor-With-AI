@@ -21,6 +21,11 @@ def client(tmp_path,monkeypatch):
     monkeypatch.setattr(settings,'DATA_DIR',tmp_path)
     monkeypatch.setattr(db,'get_session',lambda value:session.copy() if value==sid else None)
     monkeypatch.setattr(db,'get_answer',lambda aid:answers.get(aid))
+    def question(value,order):
+        rows=[a for a in answers.values() if a['order_no']==order]
+        return {'client_request_ids':[a['client_request_id'] for a in rows],
+                'latest_answer':rows[-1] if rows else None} if value==sid and 1<=order<=8 else None
+    monkeypatch.setattr(db,'get_session_question',question)
     def create(**kwargs):
         key=kwargs['client_request_id']
         if key in keys: return answers[keys[key]],False
@@ -79,3 +84,27 @@ def test_invalid_uuid_has_contract_error(client):
     c,*_=client
     response=c.get('/api/v1/sessions/invalid')
     assert response.status_code==422 and response.json()['error']['code']=='VALIDATION_ERROR'
+
+
+@pytest.mark.parametrize('state,order,code',[
+    ('ready',1,'INVALID_STATE'),('in_progress',2,'ORDER_MISMATCH')])
+def test_upload_state_preflight_does_not_read_audio(client,monkeypatch,state,order,code):
+    from starlette.datastructures import UploadFile
+    c,sid,session,answers,path=client
+    session['status']=state
+    async def must_not_read(*args,**kwargs):
+        raise AssertionError('상태/순서가 맞지 않는 새 업로드는 읽지 않아야 합니다.')
+    monkeypatch.setattr(UploadFile,'read',must_not_read)
+    response=send(c,sid,order=order)
+    assert response.status_code==409 and response.json()['error']['code']==code
+    assert not answers and not list(path.iterdir())
+
+
+def test_preflight_preserves_old_attempt_retransmission(client):
+    c,sid,session,answers,path=client
+    first=send(c,sid,key='original').json()['answer_id']
+    next(iter(answers.values()))['stt_status']='rejected'
+    assert send(c,sid,key='rerecording').status_code==202
+    session['status']='grading';session['current_order_no']=9
+    duplicate=send(c,sid,key='original')
+    assert duplicate.status_code==200 and duplicate.json()['answer_id']==first

@@ -9,7 +9,7 @@ from app import db
 from app.config import settings
 from app.errors import AppError
 from app.schemas.api import AnswerOut
-from .deps import (require_session,require_in_progress,require_answer,answer_out,MIME_EXT,
+from .deps import (preflight_upload,require_answer,answer_out,MIME_EXT,
     RECORD_MIN_MS,RECORD_MAX_MS,UPLOAD_TOLERANCE_MS,UPLOAD_MAX_BYTES)
 
 router=APIRouter()
@@ -18,8 +18,7 @@ router=APIRouter()
 async def upload(session_id: UUID,response: Response,order_no: Annotated[int,Form()],
                  client_request_id: Annotated[str,Form()],duration_ms: Annotated[int,Form()],
                  audio: Annotated[UploadFile,File()]):
-    s=await run_in_threadpool(require_session,session_id)
-    # 최종 상태·순서 판정은 DB에서 수행한다. 이전 문항의 동일 키 재전송도 DB가 기존 답변을 돌려줘야 한다.
+    await run_in_threadpool(preflight_upload,session_id,order_no,client_request_id)
     mime=(audio.content_type or '').split(';',1)[0].strip().lower()
     if mime not in MIME_EXT: raise AppError('UNSUPPORTED_MEDIA')
     if duration_ms<RECORD_MIN_MS: raise AppError('AUDIO_TOO_SHORT')
