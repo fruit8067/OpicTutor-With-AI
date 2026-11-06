@@ -71,8 +71,8 @@ def mark_evaluation_running(evaluation_id: UUID) -> bool:
 
 def finish_evaluation(evaluation_id: UUID, *, result: dict, assessment_status: str,
                       base_level: str | None, estimated_level: str | None, im_estimation_status: str,
-                      model: str, prompt_version: str, rubric_version: str, im_rubric_version: str,
-                      corpus_version: str, retrieved_doc_ids: list[str]) -> bool:
+                      model: str, prompt_version: str, rubric_version: str, im_rubric_version: str | None,
+                      corpus_version: str | None, retrieved_doc_ids: list[str]) -> bool:
     with tx() as cur:
         s,e=locked_evaluation(cur,evaluation_id)
         if e is None: return False

@@ -2,7 +2,7 @@
 
 ## 상태
 코드·로컬 DB 검증 통과, 실제 코퍼스 적재/local_checks 및 M1·M2 병합 대기 (2026-11-07 KST).
-CR session-api-01/contracts v5 main 90e7835 기준 독립 브랜치다. 검사는 기본 origin/main 기준이며 타 역할 코드는 상속하지 않는다.
+CR session-api-01 및 data-layer-01/contracts v6 main a136406 기준 독립 브랜치다. 검사는 기본 origin/main 기준이며 타 역할 코드는 상속하지 않는다.
 
 ## 완료한 것
 app.db 계약의 세션/음성/답변/평가/RAG/작업/AI 메타데이터 함수 전부와 dev 함수 3개.
@@ -36,6 +36,8 @@ WSL Docker의 전용 PostgreSQL 16/pgvector 컨테이너에서 검증. 검증용
 실제 코퍼스 적재 수·임베딩 시간·비용은 키 미준비로 미측정이다. dry-run 예상 건수와 실제 완료 건수를 구분한다.
 
 ## 감사 후 수정·검증
+
+- CR data-layer-01/PR #16 승인 후 finish_evaluation의 nullable 메타데이터 타입을 API/DB와 일치시켰다. 실제 IL 재평가를 im_rubric_version=None/corpus_version=None으로 저장·조회하는 검증을 추가했다. 런타임·컬럼·평가 기준 변경은 없다.
 
 - 2026-11-07 추가 검증: 14 passed, skip 0(1.61초). HTTP 408/503 임베딩 재시도, 401 단일 실패, 중복 응답 index 거부를 실제 SDK+MockTransport로 검증했다.
 - CR session-api-01의 get_session_id_by_request_id를 구현하고 빈 문자열 키도 None과 구분해 동시 생성 시 1행/1작업을 보장한다. HTTP/SQL 공개 시그니처는 승인된 v5에 맞춘다.
