@@ -1,8 +1,8 @@
 # data-layer M1/M2
 
 ## 상태
-코드·로컬 DB 검증 통과, 실제 코퍼스 적재/local_checks 및 M1·M2 병합 대기 (2026-11-07 KST).
-CR session-api-01 및 data-layer-01/contracts v6 main a136406 기준 독립 브랜치다. 검사는 기본 origin/main 기준이며 타 역할 코드는 상속하지 않는다.
+코드·로컬 DB 및 실제 M1 코퍼스 적재 검증 통과, M1·M2 병합 대기 (2026-11-07 KST).
+contracts v7/main 68f2de2 기준 독립 브랜치다. 검사는 기본 origin/main 기준이며 타 역할 코드는 상속하지 않는다.
 
 ## 완료한 것
 app.db 계약의 세션/음성/답변/평가/RAG/작업/AI 메타데이터 함수 전부와 dev 함수 3개.
@@ -32,6 +32,8 @@ get_session_question의 내부 dict에는 해당 문항의 모든 client_request
 - 외부 AI 호출은 실제 키로 실행하지 않음. 답변/프롬프트 원문을 AI 요청 로그에 저장하지 않음.
 
 ## 측정값
+
+실제 키 저장 후 M1 ingest 완료:264문서(answer216/question31/rubric9/upgrade8), large3072 임베딩247개/3요청. 동일 명령 재실행은 추가 임베딩 요청0. 검색 질의 포함4요청/46,376입력토큰, 적재/재실행/질의 전체13.921초, exact 검색47.0ms/top5 반환. 보고서 docs/compliance/live-ingest-m1-2026-11-07.json(오케스트레이터 PR) 참조. 실제 DB reset 없이 검증했으며 M2 확대 코퍼스와 모델 채점 정확도를 검증한 것은 아니다.
 WSL Docker의 전용 PostgreSQL 16/pgvector 컨테이너에서 검증. 검증용 합성 자료만 사용.
 실제 코퍼스 적재 수·임베딩 시간·비용은 키 미준비로 미측정이다. dry-run 예상 건수와 실제 완료 건수를 구분한다.
 
