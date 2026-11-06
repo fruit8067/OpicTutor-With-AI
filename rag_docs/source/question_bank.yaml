@@ -1,0 +1,69 @@
+# 문항 뱅크 — 실제 기출 문장을 옮기지 않고, OPIc 시험 구성(서베이 항목, 문제 유형, 롤플레이 11~13 구조, 돌발 주제)을 기준으로 직접 작성한 문항.
+# question_type: description | routine | past_experience | comparison | issue | roleplay_ask | roleplay_solve | roleplay_experience
+# survey: 서베이 선택 항목 / unexpected(돌발)
+# difficulty: 이 문항이 주로 등장하는 Self Assessment 난이도대
+# status: pilot = 9등급 답변 작성 완료, todo = 확장 스크립트로 생성할 문항
+
+questions:
+  - {id: Q001, question_type: description, topic: housing_apartment, survey: 거주(가족과 아파트), difficulty: "3-6", status: pilot,
+     question: "Please describe the place where you live. What does it look like, and which room do you like the most? Tell me in as much detail as possible."}
+  - {id: Q002, question_type: routine, topic: leisure_park, survey: 여가(공원 가기), difficulty: "3-6", status: pilot,
+     question: "You indicated that you go to the park. What do you usually do when you go there? Who do you go with, and when do you usually go?"}
+  - {id: Q003, question_type: past_experience, topic: travel_domestic, survey: 휴가(국내 여행), difficulty: "3-6", status: pilot,
+     question: "Tell me about a memorable trip you took in your country. Where did you go, who were you with, and what happened that made it so memorable?"}
+  - {id: Q004, question_type: past_experience, topic: hobby_music, survey: 취미(음악 감상), difficulty: "3-6", status: pilot,
+     question: "When did you first become interested in music? What kind of music did you listen to back then, and how has your taste changed since?"}
+  - {id: Q005, question_type: comparison, topic: leisure_cafe, survey: 여가(카페 가기), difficulty: "4-6", status: pilot,
+     question: "How are cafes today different from the cafes you went to a few years ago? Compare the atmosphere, menus, and the way people use them."}
+  - {id: Q006, question_type: description, topic: leisure_movie, survey: 여가(영화 보기), difficulty: "3-6", status: pilot,
+     question: "What kind of movies do you like to watch? Tell me about your favorite genre and why you enjoy it."}
+  - {id: Q007, question_type: routine, topic: exercise_jogging, survey: 운동(조깅/걷기), difficulty: "3-6", status: pilot,
+     question: "Tell me about your jogging or walking routine. Where do you go, how often, and what do you do before and after exercising?"}
+  - {id: Q008, question_type: description, topic: unexpected_recycling, survey: unexpected, difficulty: "4-6", status: pilot,
+     question: "Tell me about how people recycle in your country. What do people usually recycle, and how do they do it?"}
+  - {id: Q009, question_type: issue, topic: unexpected_technology, survey: unexpected, difficulty: "5-6", status: pilot,
+     question: "Technology has changed the way people live. What is one piece of technology that people commonly use these days, and what concerns do people have about it?"}
+  - {id: Q010, question_type: roleplay_ask, topic: exercise_gym, survey: 운동(헬스), difficulty: "3-6", status: pilot,
+     question: "I'd like to give you a situation and ask you to act it out. You want to join a new gym. Call the gym and ask three or four questions to get the information you need."}
+  - {id: Q011, question_type: roleplay_solve, topic: leisure_concert, survey: 여가(콘서트 보기), difficulty: "5-6", status: pilot,
+     question: "I'm sorry, but there is a problem. You bought two concert tickets for you and your friend, but something came up and you can't go. Call your friend, explain the situation, and suggest two or three alternatives."}
+  - {id: Q012, question_type: roleplay_experience, topic: leisure_concert, survey: 여가(콘서트 보기), difficulty: "5-6", status: pilot,
+     question: "Have you ever had a situation where your plans were canceled or something went wrong with a reservation? Tell me what happened and how you dealt with it."}
+
+  # ---- 확장 대상 (scripts/generate_answers.py 로 9등급 생성) ----
+  - {id: Q013, question_type: description, topic: housing_neighborhood, survey: 거주, difficulty: "3-6", status: todo,
+     question: "Describe your neighborhood. What kinds of buildings and places are there, and what do you like about living there?"}
+  - {id: Q014, question_type: past_experience, topic: housing_change, survey: 거주, difficulty: "4-6", status: todo,
+     question: "Has anything changed in your home since you first moved in? Tell me about a change you made to your house and why you made it."}
+  - {id: Q015, question_type: routine, topic: hobby_cooking, survey: 취미(요리하기), difficulty: "3-6", status: todo,
+     question: "You indicated that you like cooking. What do you usually cook, and what is your process from preparing ingredients to finishing a meal?"}
+  - {id: Q016, question_type: past_experience, topic: leisure_movie, survey: 여가(영화 보기), difficulty: "3-6", status: todo,
+     question: "Tell me about the most memorable movie you have seen recently. Who did you go with, and what happened in the movie?"}
+  - {id: Q017, question_type: comparison, topic: hobby_music, survey: 취미(음악 감상), difficulty: "4-6", status: todo,
+     question: "How is the way people listen to music now different from the past? Compare the devices and services people used then and now."}
+  - {id: Q018, question_type: description, topic: travel_overseas, survey: 휴가(해외 여행), difficulty: "3-6", status: todo,
+     question: "Describe a country you have visited or would like to visit. What is it like there, and what makes it special?"}
+  - {id: Q019, question_type: past_experience, topic: travel_overseas, survey: 휴가(해외 여행), difficulty: "4-6", status: todo,
+     question: "Tell me about a problem you had while traveling abroad. What happened, and how did you solve it?"}
+  - {id: Q020, question_type: routine, topic: travel_home_vacation, survey: 휴가(집에서 보내는 휴가), difficulty: "3-6", status: todo,
+     question: "What do you usually do when you spend your vacation at home? Who do you spend time with, and what activities do you do?"}
+  - {id: Q021, question_type: description, topic: unexpected_weather, survey: unexpected, difficulty: "3-6", status: todo,
+     question: "Tell me about the weather in your country. How is each season different, and which season do you like the most?"}
+  - {id: Q022, question_type: comparison, topic: unexpected_holiday, survey: unexpected, difficulty: "4-6", status: todo,
+     question: "Tell me about a holiday in your country. How did people celebrate it in the past, and how do they celebrate it now?"}
+  - {id: Q023, question_type: issue, topic: unexpected_recycling, survey: unexpected, difficulty: "5-6", status: todo,
+     question: "What are some issues or concerns related to recycling these days? How do people and the government try to deal with them?"}
+  - {id: Q024, question_type: issue, topic: housing_neighborhood, survey: 거주, difficulty: "5-6", status: todo,
+     question: "What are some issues people in your country talk about regarding housing? Why are these issues important?"}
+  - {id: Q025, question_type: roleplay_ask, topic: travel_domestic, survey: 휴가(국내 여행), difficulty: "3-6", status: todo,
+     question: "You are planning a trip and want to book a hotel. Call the hotel and ask three or four questions about the room and services."}
+  - {id: Q026, question_type: roleplay_solve, topic: travel_domestic, survey: 휴가(국내 여행), difficulty: "5-6", status: todo,
+     question: "When you arrive at the hotel, you find that your reservation was not made. Explain the situation to the staff and suggest two or three ways to solve the problem."}
+  - {id: Q027, question_type: roleplay_ask, topic: leisure_movie, survey: 여가(영화 보기), difficulty: "3-6", status: todo,
+     question: "Your friend wants to see a movie with you. Call your friend and ask three or four questions about the movie plan."}
+  - {id: Q028, question_type: roleplay_solve, topic: exercise_gym, survey: 운동(헬스), difficulty: "5-6", status: todo,
+     question: "You signed up for a gym membership, but the machine you wanted to use is broken. Talk to the manager, explain the problem, and offer two or three solutions."}
+  - {id: Q029, question_type: comparison, topic: exercise_jogging, survey: 운동(조깅/걷기), difficulty: "4-6", status: todo,
+     question: "How has your exercise routine changed compared to when you first started? What do you do differently now, and why?"}
+  - {id: Q030, question_type: past_experience, topic: leisure_park, survey: 여가(공원 가기), difficulty: "3-6", status: todo,
+     question: "Tell me about a memorable experience you had at a park. When was it, and what happened?"}

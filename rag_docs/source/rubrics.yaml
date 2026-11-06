@@ -1,0 +1,214 @@
+# OPIc 등급 루브릭 (doc_type: rubric) + 인접 등급 승급 패턴 (doc_type: upgrade_pattern)
+# 작성 원칙: ACTFL 2024 원문은 재배포·수정이 금지되어 있으므로 원문을 옮기지 않고,
+# 기준을 우리 말로 다시 정리했다(paraphrase). IM1~IM3 세분화는 ACTFL에 없는 OPIc 고유 체계라
+# 공개 해설 자료(B 등급)와 OPIc 난이도 설명을 근거로 프로젝트 내부 기준으로 정의했다.
+# source_tier: A = 공식 기준 기반 재서술, B = 비공식 해설 기반 프로젝트 정의
+
+levels:
+  - level: NL
+    level_rank: 1
+    source_tier: A
+    summary: 거의 단어 단위로만 말한다. 인사·이름·익숙한 사물 이름 정도를 시간과 단서가 있어야 말할 수 있다.
+    task: 실질적인 과제 수행이 어렵다. 질문을 이해해도 단어 1~2개나 침묵으로 끝난다.
+    text_type: isolated_words (고립된 단어, 한국어 어순·발음 간섭이 강함)
+    time_frame: 시제 개념이 드러나지 않음
+    connectors: 없음
+    fluency: 긴 침묵, 같은 단어 반복, "I don't know", "sorry" 빈번
+    comprehensibility: 동정적인 청자도 이해가 어려움
+    typical_length: 약 10단어 이하
+    breakdown: 문장을 만들려는 시도 자체가 거의 없다.
+    rater_cues: [단어 나열, "my house... big", 질문 단어 그대로 반복, 응답 포기]
+
+  - level: NM
+    level_rank: 2
+    source_tier: A
+    summary: 외운 단어와 짧은 정형 표현으로 아주 기본적인 사교적 과제를 처리한다.
+    task: 자기 이름, 좋아하는 것 등 가장 익숙한 주제만 짧게 말한다.
+    text_type: words + memorized phrases (외운 구, 짧은 정형 문장)
+    time_frame: 현재형 정형 표현에 의존
+    connectors: and 정도
+    fluency: 잦은 멈춤, 같은 표현 재사용, 새로운 문장 생성 거의 없음
+    comprehensibility: 동정적인 청자가 노력해야 이해
+    typical_length: 10~25단어
+    breakdown: 외운 표현 밖으로 나가면 바로 끊긴다.
+    rater_cues: ['"I like ~ very much", "It is good" 반복', 문장 2개 이상 연결 불가]
+
+  - level: NH
+    level_rank: 3
+    source_tier: A
+    summary: 일상·개인 주제에 대해 짧은 문장을 만들 수 있지만 꾸준히 문장 수준을 유지하지는 못한다. Intermediate에 가장 가까운 Novice.
+    task: 간단한 질문에 답하고 정형 질문 몇 개를 할 수 있다. 오해가 생기면 바꿔 말하기로 수습을 시도한다.
+    text_type: 짧은 문장 + 구 (문장 수준을 대부분 유지하나 자주 무너짐)
+    time_frame: 대부분 현재형. 과거형 시도는 거의 실패
+    connectors: and, but, because (단순)
+    fluency: 멈춤 잦음, 자기 수정 시도
+    comprehensibility: 익숙한 청자는 대체로 이해
+    typical_length: 25~45단어
+    breakdown: 과거 경험·묘사 요구에서 단어 나열로 후퇴한다.
+    rater_cues: [주어-동사 일치 오류 다수, "I go yesterday", 문장 3~4개 후 중단]
+
+  - level: IL
+    level_rank: 4
+    source_tier: A
+    summary: 익숙한 주제에서 단순하고 짧은 문장으로 제한된 수의 과제를 해낸다. Intermediate의 하한.
+    task: 질문에 반응적으로 답한다. 스스로 이야기를 확장하지 않는다.
+    text_type: 짧고 분리된 문장 (sentence-level, 문장끼리 연결이 약함)
+    time_frame: 현재형 중심, 과거형은 산발적으로 맞음
+    connectors: and, so, because
+    fluency: 긴 멈춤과 재시작. 답이 2~3문장에서 멈추는 경우가 많음
+    comprehensibility: 오류가 있어도 익숙한 청자는 이해
+    typical_length: 40~60단어
+    breakdown: 질문 범위를 벗어난 확장, 서술(narration)에서 무너짐.
+    rater_cues: [문장 단위는 되지만 각 문장이 독립적, '반복적인 "I like it"', 예시 없음]
+
+  - level: IM1
+    level_rank: 5
+    source_tier: B
+    summary: Intermediate Mid의 하단. 문장을 이어서 말하기 시작하지만 사실을 말하고 멈춘다.
+    task: 묻는 것에 끝까지 답하지만 이유·대조·예시 같은 두 번째 움직임을 스스로 덧붙이지 않는다.
+    text_type: 짧은 문장의 나열 (strings of sentences의 초입)
+    time_frame: 현재형 안정. 과거형 서술은 대부분 현재형으로 미끄러짐
+    connectors: and, so, because, but
+    fluency: 멈춤과 자기 수정이 있으나 진행은 됨
+    comprehensibility: 한 번에 대체로 이해됨
+    typical_length: 55~75단어
+    breakdown: 사건 순서 서술, 문제 상황 설명에서 정보량이 급감.
+    rater_cues: [답은 완결되나 얇다, 정보 추가 없음, 질문 되묻기 어려움]
+
+  - level: IM2
+    level_rank: 6
+    source_tier: B
+    summary: 일상 주제에서 문장을 자연스럽게 이어 말하고, 이유나 짧은 예시를 스스로 덧붙인다. 응시자 비중이 가장 큰 등급.
+    task: 개인·일상 주제 대부분을 처리하고, 롤플레이에서 질문을 할 수 있다. 문제 상황은 언급만 하고 해결 과정은 얇다.
+    text_type: 이어진 문장들 (strings of sentences), 문단 구조는 아직 없음 — 사건이 목록처럼 나열됨
+    time_frame: 과거 이야기 중 상당수 문장이 현재형으로 미끄러짐
+    connectors: so, because, and then, also, but, actually
+    fluency: 청자가 기다릴 만큼의 수리(repair)는 적음
+    comprehensibility: 원어민 발음이 아니어도 한 번에 이해됨
+    typical_length: 75~100단어 (공개 예시 기준 약 80단어)
+    breakdown: 시제 유지, 묘사 디테일, 문단 단위 조직.
+    rater_cues: [이유 1개 + 예시 1개 수준의 확장, 과거/현재 혼용, 연결어 반복]
+
+  - level: IM3
+    level_rank: 7
+    source_tier: B
+    summary: Intermediate Mid의 상단. 이야기의 시간 순서가 이어지고 과거형을 대체로 유지한다.
+    task: 과거 경험을 시간 순서대로 연결해 말하고, 문제 상황을 제시하지만 그 원인과 해결 설명은 아직 부족하다.
+    text_type: 시간 순서로 연결된 문장들, 문단의 모양이 나타나기 시작
+    time_frame: 과거형 대부분 유지, 가끔 실수
+    connectors: first, after that, when, while, but then, finally
+    fluency: 흐름이 대체로 매끄러움, 어휘 반복이 남아 있음
+    comprehensibility: 쉽게 이해됨
+    typical_length: 100~130단어 (공개 예시 기준 약 130단어)
+    breakdown: 복잡한 상황 설명, 의견의 근거 전개, 어휘 다양성.
+    rater_cues: [서론-사건-결말 순서, 감정 표현 추가, 단 원인·해결의 구체성 부족]
+
+  - level: IH
+    level_rank: 8
+    source_tier: A
+    summary: 일상·학업·사회적 주제를 편안하고 자신 있게 다루며 Advanced 수준 과제를 상당 부분 해내지만 꾸준히 유지하지 못한다.
+    task: 낯설거나 예상 밖의 상황 대부분에서 설명하고 문제를 해결한다. 1~2개 문항에서 품질이 떨어진다.
+    text_type: 대부분 문단 단위, 일부 답변에서 문장 나열로 후퇴
+    time_frame: 과거·현재·미래 대부분 통제, 일부 이야기에서 현재형으로 미끄러짐
+    connectors: however, on the other hand, because of that, which, so that, by the time
+    fluency: 멈춤 적음, 말의 양이 많음
+    comprehensibility: 원어민도 큰 노력 없이 이해
+    typical_length: 130~170단어, 대부분 1분 이상 (공개 예시 기준 약 160단어)
+    breakdown: 압박 상황에서 어휘 폭 축소, 시제 일관성 흔들림, 문단이 문장으로 붕괴.
+    rater_cues: [다양한 어휘, 문단 구성, 그러나 일관성이 문항마다 다름]
+
+  - level: AL
+    level_rank: 9
+    source_tier: A
+    summary: OPIc의 최상위 등급. 과거·현재·미래로 서술하고 묘사하며, 접속 표현으로 문장을 연결해 응집력 있는 문단을 만든다.
+    task: 낯설고 복잡한 상황에서도 설명하고 문제를 해결한다. 돌발 문제와 롤플레이 문제 해결까지 모든 문항에서 품질이 유지된다.
+    text_type: 연결되고 응집력 있는 문단 (서술과 묘사가 함께 작동)
+    time_frame: 처음부터 끝까지 시제 통제 (과거 이야기는 과거로 유지)
+    connectors: even though, as a result, which meant that, not only ~ but also, looking back
+    fluency: 머뭇거림·자기 수정이 있어도 스스로 회복
+    comprehensibility: 원어민 청자가 쉽게 이해, 표현이 자연스럽고 정밀
+    typical_length: 170~230단어 (공개 예시 기준 약 200단어)
+    breakdown: 거의 없음. 추상적 논증(Superior 과제)에서는 깊이가 제한될 수 있음.
+    rater_cues: [일관된 시제, 다양한 형용사·부사, 원인-결과-교훈 구조, 예상 밖 질문에도 완결된 답]
+
+upgrade_patterns:
+  - from: NL
+    to: NM
+    key_shift: 고립된 단어에서 외운 구·정형 문장으로
+    actions:
+      - 자기소개·좋아하는 것 등 정형 문장 5~6개를 소리 내어 말할 수 있게 만든다
+      - 질문의 핵심 단어를 받아서 "I like ~", "My ~ is ~" 틀에 넣는다
+      - 침묵 대신 "Let me think" 같은 시간 버는 표현을 쓴다
+    example_before: "house... um... big. apartment."
+    example_after: "I live in apartment. My house is big. I like my house."
+
+  - from: NM
+    to: NH
+    key_shift: 외운 표현 재사용에서 스스로 만든 짧은 문장으로
+    actions:
+      - 주어+동사+목적어 기본 문장을 질문 주제에 맞게 새로 만든다
+      - and/but/because로 두 문장을 잇는다
+      - 같은 문장 반복을 줄이고 정보를 하나씩 추가한다
+    example_before: "I like music. Music is good. I like music very much."
+    example_after: "I like music because it is relax. I listen music in subway. I like K-pop and ballad."
+
+  - from: NH
+    to: IL
+    key_shift: 무너지기 쉬운 문장에서 꾸준히 유지되는 문장 수준으로
+    actions:
+      - 답변 전체를 문장 단위로 유지한다 (단어 나열로 후퇴하지 않기)
+      - 주어-동사 일치, 기본 과거형(went, ate, saw)을 정확히 한다
+      - 질문의 의문사(what, where, when)마다 한 문장씩 답한다
+    example_before: "Yesterday I go park. Friend... and walk. Good."
+    example_after: "Yesterday I went to the park with my friend. We walked there. It was good."
+
+  - from: IL
+    to: IM1
+    key_shift: 2~3문장에서 멈추는 답변에서 끝까지 완결된 답변으로
+    actions:
+      - 도입 한 문장 → 내용 3~4문장 → 마무리 한 문장 틀을 쓴다
+      - 질문이 요구한 하위 항목(무엇·언제·누구와)을 빠짐없이 다룬다
+      - 긴 멈춤 대신 "well", "actually"로 흐름을 잇는다
+    example_before: "I like the park. It is near my house. That's it."
+    example_after: "Well, I like the park near my house. It is very close, so I go there often. There are many trees and a small lake. I usually walk there in the evening. That's why I like it."
+
+  - from: IM1
+    to: IM2
+    key_shift: 사실만 말하고 멈추기에서 이유·예시를 스스로 덧붙이기로
+    actions:
+      - 모든 주장 뒤에 because 이유 하나 + for example 예시 하나를 붙인다
+      - 롤플레이에서 질문을 3개 이상 스스로 한다
+      - 연결어를 다양하게 쓴다 (also, actually, and then)
+    example_before: "I go to the gym three times a week. I do running. It is good."
+    example_after: "I go to the gym three times a week because I sit all day at school. For example, I usually run for 30 minutes and then do some weights. Actually, after exercise I feel much better."
+
+  - from: IM2
+    to: IM3
+    key_shift: 사건 목록에서 시간 순서로 이어진 이야기로, 과거형 유지
+    actions:
+      - 과거 경험 질문은 처음부터 끝까지 과거형을 유지한다
+      - first → after that → then → finally로 사건의 순서를 드러낸다
+      - 사건 중 겪은 문제를 한 문장 이상 언급하고 그때의 감정을 말한다
+    example_before: "Last summer I go to Jeju. I eat black pork and I see the beach. It is fun."
+    example_after: "Last summer I went to Jeju with my family. First, we visited Hyeopjae Beach and swam all afternoon. After that, we had black pork for dinner. But it suddenly rained, so we had to stay in the hotel. Still, it was a really fun trip."
+
+  - from: IM3
+    to: IH
+    key_shift: 이어진 문장에서 문단 단위 답변으로, 문제의 원인과 해결까지 설명
+    actions:
+      - 문제 상황을 언급만 하지 말고 왜 생겼는지와 어떻게 해결했는지 설명한다
+      - 형용사·부사·관계사절(which, who)로 묘사의 밀도를 높인다
+      - 대부분의 답변을 1분 이상 유지한다
+    example_before: "But it suddenly rained, so we had to stay in the hotel. Still, it was fun."
+    example_after: "But on the second day it suddenly started pouring, which ruined our plan to hike Hallasan. Since we couldn't go outside, we looked for an indoor museum nearby and ended up at a small art gallery, which turned out to be surprisingly interesting."
+
+  - from: IH
+    to: AL
+    key_shift: 문항마다 흔들리는 품질에서 모든 문항, 특히 돌발·롤플레이에서 일관된 품질로
+    actions:
+      - 돌발 문제와 사회 이슈 문제에서도 문단 구조(도입-전개-결론)를 유지한다
+      - 과거 이야기는 끝까지 과거형, 비교 문제는 과거와 현재를 명확히 대비한다
+      - 원인-결과-교훈(looking back, as a result)으로 이야기를 마무리한다
+      - 롤플레이 문제 해결 문항에서 대안을 2개 이상 구체적으로 제시한다
+    example_before: "Recycling is important. In Korea we separate plastic and paper. It's good for the environment, I think."
+    example_after: "In Korea, recycling is taken pretty seriously, and it has become part of everyday life. Each apartment complex has a designated day when residents separate plastic, paper, glass and cans, and if you get it wrong, the security guard will politely remind you. Looking back, when I was a kid it was much more relaxed, but as a result of stricter rules, people now rinse containers before throwing them out."

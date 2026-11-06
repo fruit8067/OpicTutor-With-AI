@@ -1,0 +1,155 @@
+# 등급 대조 세트 (source_tier C: 루브릭 기반 합성, 직접 작성)
+# 각 답변: text(깔끔한 전사본) / rationale(이 등급인 이유) / upgrade_tip(다음 등급으로 가는 핵심 1가지)
+# 하위 등급의 문법 오류는 한국인 학습자에게 흔한 유형(관사 누락, 3인칭 단수, 시제 미끄러짐, 복수형 누락)을 의도적으로 넣었다.
+
+Q001:
+  NL:
+    text: "House... apartment. Big. My room."
+    rationale: 질문 핵심어와 관련된 단어만 나열하고 문장을 만들지 못함.
+    upgrade_tip: '"I live in ~", "My room is ~" 같은 정형 문장으로 단어를 감싸기.'
+  NM:
+    text: "I live in apartment. My house is big. I like my room. My room is good. Very good."
+    rationale: 외운 정형 문장을 반복할 뿐 새로운 정보가 거의 없고 문장 연결이 없음.
+    upgrade_tip: 방 안에 무엇이 있는지 한 문장씩 새로 만들어 정보를 추가하기.
+  NH:
+    text: "I live in apartment with my family. My apartment have three room. My room is small but I like. There is bed and desk and computer. I like my room because I play game."
+    rationale: 짧은 문장을 스스로 만들지만 주어-동사 일치·복수형 오류가 많고 묘사가 목록 수준.
+    upgrade_tip: 관사와 복수형을 바로잡고, 집 전체→내 방 순서로 문장 수준을 끝까지 유지하기.
+  IL:
+    text: "I live in an apartment in Busan with my family. My apartment is on the tenth floor. It has three rooms and two bathroom. My favorite room is my room. It is small. There is a bed, a desk and a computer. I like it because I can rest."
+    rationale: 문장 수준은 유지되지만 각 문장이 독립적이고 짧으며 스스로 확장하지 않음.
+    upgrade_tip: 도입-공간별 묘사-좋아하는 이유-마무리 구조로 답을 완결하기.
+  IM1:
+    text: "I live in an apartment in Busan with my parents and my sister. It is on the tenth floor. When you come in, there is a living room. It has a big sofa and a TV. We have three rooms and two bathrooms. My favorite room is my bedroom. There is a bed, a desk, and a computer. I like my room because it is quiet. That's all about my house."
+    rationale: 질문의 하위 항목에 모두 답하고 문장이 이어지지만, 사실만 나열하고 예시나 개인적 확장이 없음.
+    upgrade_tip: 좋아하는 방에서 실제로 하는 일을 예시로 덧붙이기.
+  IM2:
+    text: "Well, I live in an apartment in Busan with my family. Our apartment is on the tenth floor, so the view is pretty good. When you open the door, you can see the living room first. There is a big sofa and a TV, and my family usually watch TV there after dinner. We have three bedrooms and two bathrooms. My favorite room is my bedroom because it is my own space. For example, I study, play games and sometimes watch YouTube there. Actually, it is a little small, but I really like it."
+    rationale: 이유와 예시를 스스로 덧붙이며 문장이 자연스럽게 이어지지만, 공간 묘사가 나열식이고 문단 구조가 약함.
+    upgrade_tip: 공간을 이동하며 묘사하는 순서와 분위기 형용사(cozy, bright)를 추가해 묘사를 조직하기.
+  IM3:
+    text: "Okay, let me tell you about my home. I live in an apartment in Busan with my parents and my younger sister. It's on the tenth floor, so we have a nice view of the mountains. When you walk in, the first thing you see is the living room. It's bright because it has a big window, and there's a gray sofa where my family usually sits and talks after dinner. Next to the living room, there is the kitchen, which is small but clean. My favorite room is my bedroom. It's not very big, but it's really cozy. I have a desk by the window, and I usually study or watch videos there at night. So I spend most of my free time in my room."
+    rationale: 공간 이동 순서로 묘사가 조직되고 형용사가 다양해졌지만, 하나의 서술 흐름을 넘어선 깊이(변화·의미)는 부족함.
+    upgrade_tip: 이사 온 이후 바뀐 점이나 그 공간의 의미를 다른 시제로 덧붙여 문단을 확장하기.
+  IH:
+    text: "Sure. I live in a three-bedroom apartment in Busan with my parents and my younger sister. We moved here about five years ago, and honestly, it was one of the best decisions my family made. Our place is on the tenth floor, so we get a great view of the mountains, especially in autumn when the leaves change color. When you walk in, there's a spacious living room with a big window, which makes the whole place feel bright and open. That's where my family usually hangs out after dinner. My favorite room, though, is my bedroom. It's on the small side, but I've decorated it with plants and warm lighting, so it feels really cozy. I have a desk right by the window, and that's where I study, read, or just relax at night. It's basically my own little space."
+    rationale: 과거(이사)와 현재 묘사를 오가며 관계사절과 다양한 어휘로 문단을 구성하지만, 마무리가 단순하고 미래·의미 확장은 없음.
+    upgrade_tip: 그 공간이 자신에게 갖는 의미와 앞으로의 계획까지 연결해 문단의 결론을 완성하기.
+  AL:
+    text: "Sure, I'd be happy to. I live in a three-bedroom apartment in Busan with my parents and my younger sister. We moved in about five years ago, and before that we had lived in a much smaller place, so this apartment felt like a huge upgrade at the time. It's on the tenth floor, which means we get a lovely view of the mountains, and in autumn the whole hillside turns red and orange. As soon as you walk in, you find yourself in a spacious living room with a floor-to-ceiling window, so the place is always filled with natural light. That's where my family gathers in the evening to chat or watch dramas together. My favorite room, however, is my bedroom. Even though it's fairly small, I've put a lot of thought into it. I added some plants, a warm floor lamp, and a bookshelf, so it feels calm and cozy rather than cramped. My desk sits right by the window, and that's where I study and unwind after a long day. Since I'm planning to move out after graduation, I think I'll really miss this little room."
+    rationale: 과거완료·현재·미래를 정확히 통제하며 서술과 묘사가 응집된 문단을 이루고, 대조(Even though)와 결론(앞으로의 감정)까지 완결됨.
+    upgrade_tip: null
+
+Q002:
+  NL:
+    text: "Park... walk. Friend. Weekend."
+    rationale: 질문과 관련된 단어만 띄엄띄엄 말함.
+    upgrade_tip: '"I go to the park", "I walk" 같은 기본 문장으로 시작하기.'
+  NM:
+    text: "I go to park. I walk. I like park. I go with friend. Park is good."
+    rationale: 기본 문장 틀을 반복하며 확장이 없음.
+    upgrade_tip: 언제·누구와·무엇을 각각 새 문장으로 말하기.
+  NH:
+    text: "I go to park on weekend. I go with my friend or my dog. In park I walk and I sit on bench. Sometimes I eat ice cream. Park is near my house so I go often."
+    rationale: 질문 요소에 짧은 문장으로 답하지만 관사 누락이 반복되고 문장이 단순 나열됨.
+    upgrade_tip: 관사(the park)를 지키고 활동을 순서대로 말하는 연습하기.
+  IL:
+    text: "I usually go to the park on weekends. The park is near my house. I go there with my dog. I walk with my dog for one hour. Sometimes I sit on a bench and listen music. I go there in the evening. It is very relax."
+    rationale: 문장은 유지되지만 짧고 독립적이며 연결어가 거의 없음, 'listen music', 'relax' 같은 기본 오류.
+    upgrade_tip: '"first, then, after that"으로 활동을 연결해 하나의 흐름으로 만들기.'
+  IM1:
+    text: "I usually go to the park on weekends with my dog. The park is about five minutes from my house. First, I walk around the lake with my dog. It takes about one hour. Then I sit on a bench and listen to music. Sometimes I buy a coffee at the convenience store. I usually go there in the evening because it is not hot. That is my routine at the park."
+    rationale: 루틴을 순서대로 끝까지 말하지만 각 단계가 짧은 사실 진술에 그침.
+    upgrade_tip: 그 활동이 왜 좋은지, 공원에서 보는 장면을 예시로 한두 문장 덧붙이기.
+  IM2:
+    text: "Well, I usually go to the park near my house on weekends. I go there with my dog, because he really love walking outside. First, we walk around the lake for about an hour. There are a lot of people who jogging or riding bikes, so it is very lively. After walking, I sit on a bench and listen to music. Sometimes my friend join me and we eat some snacks together. I usually go in the evening because the weather is cooler and the sunset is beautiful. Actually, it is the best way to relieve my stress."
+    rationale: 이유·장면 묘사를 스스로 덧붙이고 흐름이 자연스럽지만, 3인칭 단수·관계절 오류가 남아 있고 문단 조직이 단순함.
+    upgrade_tip: 문법 정확도를 높이고, 공원 루틴이 일상에서 갖는 의미를 결론으로 정리하기.
+  IM3:
+    text: "Okay, so there's a big park about five minutes from my apartment, and I go there almost every weekend. I usually go with my dog, Coco, because she gets really excited whenever she sees the leash. We normally go in the late afternoon, when it's not too hot. First, we walk around the lake, which takes about an hour. Along the way, I see a lot of people jogging, riding bikes, or having picnics with their families. After our walk, I usually sit on a bench under a big tree and listen to some music while Coco rests. Sometimes my friend comes along, and we grab a coffee and chat. It's a simple routine, but it really helps me clear my head after a busy week."
+    rationale: 시간 순서와 장면 묘사가 연결되고 정확도가 높지만, 루틴 변화나 비교 등 다른 시간대로의 확장은 없음.
+    upgrade_tip: 계절별 차이나 예전과 달라진 점을 넣어 여러 시간대를 다루는 문단으로 넓히기.
+  IH:
+    text: "Sure. There's a large park about five minutes from my apartment, and going there has become a weekend ritual for me. I usually go with my dog, Coco, in the late afternoon, when the sun isn't too strong. We start by walking around the lake, which is about three kilometers long, so it takes us almost an hour. The park is always lively on weekends. You can see kids flying kites, couples having picnics, and people jogging with their earphones in. After the walk, I like to sit on a bench under a huge cherry tree and listen to podcasts while Coco takes a nap. In spring, the whole park is covered with cherry blossoms, so it gets really crowded, but I still go. Sometimes my friend joins me, and we grab coffee from a nearby cafe and catch up on each other's week."
+    rationale: 구체적 수치·계절 대비·장면 묘사로 문단을 구성하고 어휘가 다양하지만, 마무리 없이 끝나며 루틴의 의미까지 정리되지 않음.
+    upgrade_tip: 루틴이 생긴 계기나 앞으로의 변화를 결론으로 묶어 응집력 있는 문단으로 완성하기.
+  AL:
+    text: "Sure. There's a large park about five minutes from my apartment, and over the past couple of years, going there has turned into a weekend ritual for me. It actually started when I adopted my dog, Coco, because she needed long walks, and I quickly realized that I needed them just as much. We usually head out in the late afternoon, when the sun has softened a bit. We begin with a loop around the lake, which is roughly three kilometers, so it takes us close to an hour. What I love is how lively the park feels. You'll see kids flying kites, families spreading out picnic mats, and runners weaving through the crowd. Once we finish the loop, I settle on a bench under a huge cherry tree and listen to a podcast while Coco dozes at my feet. Every now and then, a friend joins us, and we grab coffee and catch up. Honestly, even though it's such a simple routine, it's what keeps me sane during a hectic semester, and I'd like to keep it going even after I start working."
+    rationale: 루틴의 계기(과거)·현재 장면·미래 다짐을 응집력 있게 연결하고, 정밀한 어휘와 자연스러운 표현으로 문단을 완결함.
+    upgrade_tip: null
+
+Q003:
+  NL:
+    text: "Jeju. Family. Beach... good."
+    rationale: 장소·동행·감상 단어만 나열하고 서술이 전혀 없음.
+    upgrade_tip: '"I went to ~ with ~" 한 문장을 먼저 완성하기.'
+  NM:
+    text: "I go Jeju. I go with family. Jeju is beautiful. I like Jeju. It is fun."
+    rationale: 외운 감상 표현만 반복하고 과거형을 쓰지 못하며 사건 서술이 없음.
+    upgrade_tip: 과거형 동사(went, saw, ate)로 한 일을 하나씩 말하기.
+  NH:
+    text: "Last year I go to Jeju with my family. We go to beach and we swim. I eat black pork. It is very delicious. The weather is good. I want go again Jeju."
+    rationale: 사건을 짧은 문장으로 말하지만 과거 시점을 현재형으로만 표현하고 원형부정사 오류가 있음.
+    upgrade_tip: 과거 경험은 모든 동사를 과거형으로 바꿔 말하기.
+  IL:
+    text: "Last summer I went to Jeju with my family. We went to the beach. We swim in the sea. And we ate black pork. It was delicious. But it was very hot. I took many picture. It was a good trip."
+    rationale: 과거형을 일부 쓰지만 짧은 문장이 나열될 뿐 무엇이 기억에 남는지(핵심 사건)가 없음.
+    upgrade_tip: 기억에 남는 사건 하나를 정해 처음-중간-끝으로 말하기.
+  IM1:
+    text: "Last summer, I went to Jeju Island with my family. We stayed there for three days. On the first day, we went to the beach and swim. On the second day, we climb Hallasan. It was very hard but the view was beautiful. We also ate black pork. It was very delicious. It was memorable because it was my first family trip in a long time."
+    rationale: 날짜 순으로 끝까지 말하고 기억에 남는 이유를 대지만, 사건이 얇고 과거형이 중간중간 무너짐.
+    upgrade_tip: 가장 인상 깊은 하루를 골라 구체적인 상황과 감정을 덧붙이기.
+  IM2:
+    text: "I want to talk about my trip to Jeju Island last summer. I went there with my family for three days. On the first day, we go to Hyeopjae Beach. The water was really clear and blue, so we swim for a long time. On the second day, we climbed Hallasan. It is very hard because it takes about eight hours, but when we arrive at the top, the view is amazing. Also, we ate black pork for dinner and it was so delicious. Actually, it was our first family trip in five years, so it was very special for me."
+    rationale: 이유·묘사를 덧붙이며 자연스럽게 이어 말하지만, 과거 이야기 중 현재형으로 자주 미끄러지고 사건이 목록처럼 나열됨.
+    upgrade_tip: 처음부터 끝까지 과거형을 유지하고, 여행 중 생긴 문제 하나를 이야기 중심에 두기.
+  IM3:
+    text: "The most memorable trip I've taken in Korea was to Jeju Island last summer. I went there with my parents and my sister, and it was our first family trip in about five years. On the first day, we went to Hyeopjae Beach. The water was so clear that we could see the fish, and we swam all afternoon. The next day, we decided to climb Hallasan. It took almost eight hours, and I was exhausted, but when we finally reached the top, the view was incredible. Then, on the way down, it suddenly started raining, so we got completely wet. We were tired and cold, but we laughed a lot. That night, we had black pork for dinner, and it was the best meal of the trip."
+    rationale: 과거형을 대체로 유지하며 사건이 시간 순서로 연결되고 문제(비)가 등장하지만, 그 문제를 어떻게 대처했는지 설명은 짧음.
+    upgrade_tip: 문제 상황의 원인과 대처 과정을 구체화하고, 경험의 의미를 결론으로 정리하기.
+  IH:
+    text: "The most memorable trip I've taken in Korea was a three-day trip to Jeju Island last summer with my parents and my younger sister. It was special because we hadn't traveled together as a family in about five years, mainly because everyone was so busy. On the first day, we spent the whole afternoon at Hyeopjae Beach, where the water was so clear you could see tiny fish swimming around your feet. The highlight, though, was the second day, when we decided to climb Hallasan. The hike took almost eight hours, and halfway up, my dad's knee started hurting, so we had to slow down and take a lot of breaks. When we finally reached the summit, the view of the crater lake was breathtaking. Unfortunately, on the way down, it started pouring, and we got soaked. But we ended up laughing the whole way, and that night we had black pork, which tasted even better after such a long day."
+    rationale: 배경 설명·문제와 대처·감정을 문단으로 엮어 과거 시제를 잘 통제하지만, 경험이 갖는 의미에 대한 결론이 약함.
+    upgrade_tip: 이 경험이 가족 관계나 자신에게 남긴 의미를 'looking back'으로 결론짓기.
+  AL:
+    text: "The most memorable trip I've taken in Korea was a three-day trip to Jeju Island last summer with my parents and my younger sister. What made it special was that we hadn't traveled together as a family in about five years, since my sister and I had both been busy with school and my parents with work. On the first day, we took it easy at Hyeopjae Beach, where the water was so clear that you could see tiny fish darting around your ankles. The real adventure, though, came on the second day, when we decided to climb Hallasan. About halfway up, my dad's knee started acting up, so instead of turning back, we slowed our pace, shared the snacks we had packed, and took turns carrying his backpack. When we finally made it to the summit, the view of the crater lake was absolutely breathtaking. Of course, on the way down, it began pouring and we got soaked to the bone, but rather than complaining, we couldn't stop laughing. Looking back, it wasn't the scenery that made the trip unforgettable. It was the fact that we worked through a tough day together, and ever since then, we've tried to take a family trip at least once a year."
+    rationale: 배경(과거완료)·사건·문제 해결·교훈·현재까지의 변화를 응집력 있는 문단으로 엮고, 시제와 어휘를 정밀하게 통제함.
+    upgrade_tip: null
+
+Q004:
+  NL:
+    text: "Music... K-pop. Middle school."
+    rationale: 시점과 장르를 단어로만 제시함.
+    upgrade_tip: '"I like K-pop" 같은 문장으로 단어를 완성하기.'
+  NM:
+    text: "I like music. I like K-pop. I listen music every day. Music is good."
+    rationale: 외운 선호 표현 반복, 과거 시점 질문에 대응하지 못함.
+    upgrade_tip: '"When I was ~, I listened to ~"로 과거 시점을 한 문장 말하기.'
+  NH:
+    text: "I like music when I am middle school. I listen K-pop. My favorite is BTS. Now I like pop song too. I listen music in bus every day."
+    rationale: 과거와 현재를 구분하려 하지만 시제와 전치사 오류로 시점이 흐려짐.
+    upgrade_tip: 과거 문장은 과거형, 현재 문장은 현재형으로 분리해 말하기.
+  IL:
+    text: "I became interested in music when I was in middle school. At that time I listened K-pop a lot. My friend like K-pop too. Now I listen to pop songs and jazz. I listen music when I go to school. Music is important for me."
+    rationale: 과거·현재를 문장 단위로 나누어 말하지만 변화의 이유가 없고 문장이 짧게 끊김.
+    upgrade_tip: 취향이 바뀐 계기를 because 문장으로 연결하기.
+  IM1:
+    text: "I first became interested in music when I was in middle school. My friend showed me a K-pop music video, and I really liked it. At that time, I listened to K-pop every day. Now my taste is different. I listen to pop songs and sometimes jazz. I think my taste changed because I got older. I usually listen to music on the subway."
+    rationale: 과거-현재-변화 이유까지 답을 완결하지만 각 내용이 한 문장 사실 진술에 그침.
+    upgrade_tip: 바뀐 계기를 구체적인 일화로, 지금 좋아하는 이유를 예시로 덧붙이기.
+  IM2:
+    text: "I think I first got interested in music when I was in middle school. One day my friend show me a K-pop music video, and I was really surprised because the dance and the song was so cool. After that, I listen to K-pop every day, and I even memorize the dance. But now my taste is quite different. These days I like pop songs and jazz, because they make me feel calm. For example, when I study at a cafe, I always listen to jazz playlists. Actually, I think I changed because I have more stress now."
+    rationale: 계기와 현재 습관을 예시와 함께 이어 말하지만, 과거 서술 중 현재형 미끄러짐과 수 일치 오류가 잦음.
+    upgrade_tip: 과거 부분의 시제를 유지하고, 과거와 현재를 명확히 대비하는 연결어(back then, these days)를 쓰기.
+  IM3:
+    text: "I first became interested in music when I was in middle school. One day, my best friend showed me a K-pop music video, and I was amazed by the dancing and the catchy melody. After that, I listened to K-pop all the time, and my friends and I even practiced the dances after school. Back then, I mostly listened to idol groups. But my taste has changed a lot since then. These days, I'm more into pop and jazz because they help me relax. For example, when I study at a cafe, I always put on a jazz playlist. I think my taste changed because I started to need music that helps me focus, not just music that's exciting."
+    rationale: 과거 시제를 유지하고 back then/these days로 시간 대비가 분명하지만, 변화 과정의 중간 단계와 깊이 있는 설명은 부족함.
+    upgrade_tip: 취향이 바뀐 결정적 순간을 구체적 일화로 넣고, 어휘를 더 정밀하게 다듬기.
+  IH:
+    text: "I'd say I first got into music when I was in middle school. My best friend showed me a K-pop music video during lunch break, and I was completely hooked by the choreography and the catchy hooks. For the next few years, I basically lived on K-pop. I knew every idol group's songs, and my friends and I would practice the dances in the classroom after school. Things started to change when I entered high school, though. I was under a lot of pressure because of exams, and the fast, loud songs started to feel a bit tiring. Around that time, I discovered a lo-fi jazz playlist on YouTube, and it helped me focus while studying. Since then, I've been listening to more jazz, acoustic pop, and indie music. I still enjoy K-pop occasionally, but now I listen to music mostly to relax."
+    rationale: would를 이용한 과거 습관, 전환점, 현재완료로 변화를 연결해 문단을 이루지만, 결말의 성찰이 짧음.
+    upgrade_tip: 음악 취향 변화가 자신에 대해 보여주는 점이나 앞으로의 방향을 결론으로 덧붙이기.
+  AL:
+    text: "I'd say my interest in music really took off in middle school. During lunch break one day, my best friend showed me a K-pop music video, and I was instantly hooked by the sharp choreography and the catchy hooks. For the next few years, K-pop was basically the soundtrack of my life. My friends and I would stay after school to learn the dances, and I could name every member of every major idol group. Things shifted when I got to high school, though. The pressure from exams was intense, and the fast, high-energy songs I used to love started to feel more draining than exciting. Around that time, I stumbled upon a lo-fi jazz playlist on YouTube, and it turned out to be exactly what I needed to concentrate. Since then, my taste has gradually expanded to jazz, acoustic pop, and indie music. I still put on K-pop when I'm working out, but for the most part, I now see music as a way to unwind rather than to get hyped up. Looking back, I think my playlist kind of mirrors how I've grown up."
+    rationale: 과거 습관(would)·전환점·현재완료·현재 습관을 정확히 오가며, 변화의 원인과 성찰까지 응집된 문단으로 완결함.
+    upgrade_tip: null

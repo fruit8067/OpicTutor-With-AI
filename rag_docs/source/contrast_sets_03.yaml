@@ -1,0 +1,153 @@
+# 등급 대조 세트 (source_tier C) — Q009~Q012 (사회 이슈, 롤플레이 11·12·13 유형)
+
+Q009:
+  NL:
+    text: "Phone... smartphone. Bad."
+    rationale: 기기명과 평가 단어만 제시하고 이슈 과제를 수행하지 못함.
+    upgrade_tip: '"People use smartphones" 한 문장으로 시작하기.'
+  NM:
+    text: "Smartphone is good. I use smartphone. Everybody use smartphone. Sometimes bad."
+    rationale: 정형 문장 반복, '우려(concern)'를 설명하지 못함.
+    upgrade_tip: 왜 나쁜지 because로 이유 하나 말하기.
+  NH:
+    text: "Many people use smartphone. Smartphone is very useful. We can search and watch video. But people use smartphone too much. It is bad for eye. And children play game too much."
+    rationale: 장점과 우려를 짧은 문장으로 언급하지만 관사·복수형 오류가 있고 설명이 단편적임.
+    upgrade_tip: 우려 하나를 골라 예시와 함께 두세 문장으로 설명하기.
+  IL:
+    text: "These days, people use smartphones a lot. Smartphones are very useful. We can find information and talk with friends. But there are some problems. People look at their phones all day. It is bad for health. Also kids are addicted to games. I think we should use less."
+    rationale: 장점-문제-의견을 문장 단위로 말하지만 각 문장이 짧고 근거 전개가 없음.
+    upgrade_tip: 문제 하나를 구체적 상황(지하철, 가족 식사)으로 묘사하기.
+  IM1:
+    text: "One technology people use every day is the smartphone. Smartphones are very useful because we can search information, watch videos, and pay for things. But people have some concerns about it. First, many people use their phones too much, so they don't sleep well. Second, children are addicted to games and YouTube. Third, there are privacy problems. I think we need to use smartphones carefully."
+    rationale: 우려 세 가지를 나열해 답을 완결하지만 각 항목이 한 문장으로 끝나고 예시가 없음.
+    upgrade_tip: 우려 하나를 골라 실제 사례나 자신의 경험으로 구체화하기.
+  IM2:
+    text: "I think the most common technology these days is the smartphone. Almost everyone have one, and we use it for everything, like searching, shopping and banking. But people have some worries about it. The biggest concern is addiction. For example, when I take the subway, almost everyone is looking at their phone, and nobody talk to each other. Also, many kids spend too much time on YouTube, so parents are worried. Another problem is privacy, because apps collect a lot of our personal information. Actually, I also use my phone too much, so I am trying to reduce my screen time."
+    rationale: 사례와 개인 경험을 덧붙이며 이어 말하지만 수 일치 오류가 남아 있고, 우려가 나열될 뿐 원인 분석이 얕음.
+    upgrade_tip: 우려의 원인과 사회적 대응(정책, 기능)을 덧붙여 논점을 깊게 만들기.
+  IM3:
+    text: "One technology that almost everyone uses these days is the smartphone. We use it for pretty much everything, from checking the news to banking and shopping. Even though it's incredibly convenient, people have some serious concerns about it. The biggest one is addiction. For example, when I ride the subway, almost everyone is staring at their screen, and people rarely talk to each other anymore. Parents are also worried because kids spend hours watching short videos, which can affect their attention span. Another concern is privacy. Many apps collect our location and personal data, and there have been several cases where that information was leaked. Personally, I've started using a screen time app to limit my usage, because I realized I was on my phone for over six hours a day."
+    rationale: 우려를 사례와 함께 연결하고 개인 대응까지 말하지만, 사회적 해결책이나 양면적 평가 같은 논증 확장은 부족함.
+    upgrade_tip: 사회 차원의 대응(규제, 기업 책임)과 자신의 균형 잡힌 견해를 결론으로 제시하기.
+  IH:
+    text: "I'd say the smartphone is the one piece of technology that has completely changed how people live. These days, we use it for almost everything, from banking and shopping to studying and keeping in touch with friends. But despite how convenient it is, people have a lot of concerns about it. The biggest one is probably addiction. If you look around on the subway, almost everyone is glued to their screen, and it feels like people have stopped interacting with each other. Parents are especially worried because kids are spending hours on short-form videos, which some experts say can shorten their attention span. Privacy is another major issue. A lot of apps track our location and collect personal information, and there have been several big data leaks in Korea recently. Because of that, the government has started to require companies to be more transparent about the data they collect."
+    rationale: 우려와 원인·사회적 대응을 문단으로 엮고 어휘가 정밀하지만, 자신의 견해를 담은 결론 없이 정보 전달로 끝남.
+    upgrade_tip: 기술의 이점과 위험을 저울질하는 자신의 입장으로 논증을 마무리하기.
+  AL:
+    text: "I'd say the smartphone is the one piece of technology that has reshaped daily life more than anything else. Nowadays, we rely on it for nearly everything, whether it's banking, shopping, navigating, or simply staying in touch. However, as convenient as it is, it has also raised some serious concerns. The most obvious one is dependency. If you look around on the subway, almost everyone is glued to a screen, and casual conversations between strangers have nearly disappeared. Parents are particularly worried about children, since kids are spending hours scrolling through short-form videos, which experts say can weaken their ability to concentrate on longer tasks. Privacy is another growing issue. Many apps quietly collect location data and personal information, and after a series of large data breaches in Korea, people have become much more aware of how vulnerable that information is. In response, the government has tightened regulations, and phone makers have added features like screen time limits. Personally, I don't think the problem is the technology itself. It's more about how we choose to use it, so I believe digital literacy education is the most realistic long-term solution."
+    rationale: 이슈 정의·다층적 우려·원인·사회적 대응·자신의 논증을 응집된 문단으로 완결하며 양보·결과 표현을 정밀하게 사용함.
+    upgrade_tip: null
+
+Q010:
+  NL:
+    text: "Gym... price? Time?"
+    rationale: 질문 형식을 갖추지 못하고 단어에 억양만 붙임.
+    upgrade_tip: '"How much is it?" 같은 기본 의문문 하나를 완성하기.'
+  NM:
+    text: "Hello. I want gym. Gym... how much? What time open? Thank you."
+    rationale: 외운 의문 표현 일부만 사용하고 상황 설정(전화)을 하지 못함.
+    upgrade_tip: 인사→목적 말하기→질문 3개 틀로 말하기.
+  NH:
+    text: "Hello, I want join gym. I have question. How much is one month? What time is open? Is there shower room? Parking is okay? Thank you. Bye."
+    rationale: 질문 3개를 하지만 문법 오류가 있고 목적 설명·추가 확인 없이 끝남.
+    upgrade_tip: '"I''m calling because ~"로 목적을 말하고 질문을 정확한 의문문으로 만들기.'
+  IL:
+    text: "Hello, I want to join your gym. I have some questions. How much is it for one month? What time do you open? Do you have a shower room? Do you have a parking lot? Okay, thank you very much."
+    rationale: 상황에 맞는 질문을 네 개 하지만 각각 단발성이며 답에 대한 반응이나 연결이 없음.
+    upgrade_tip: 질문마다 왜 궁금한지 짧은 이유를 덧붙이기.
+  IM1:
+    text: "Hi, I'm calling because I want to join your gym. I have a few questions. First, how much is the monthly membership? Is there a discount if I sign up for three months? Second, what are your opening hours? I usually exercise early in the morning. Third, do you have personal training? And do you have lockers and showers? Okay, thank you for your help."
+    rationale: 목적·질문 순서·간단한 이유를 갖춰 과제를 완결하지만 질문이 정해진 틀대로 나열됨.
+    upgrade_tip: 자신의 상황(일정, 목표)을 질문과 자연스럽게 엮어 대화처럼 만들기.
+  IM2:
+    text: "Hi, how are you? I'm calling because I just moved to this neighborhood and I'm looking for a gym. I saw your gym on the internet, so I have some questions. First, how much is the membership? Actually, I'm a student, so is there any student discount? Second, what time do you open in the morning? Because I have class at nine, I want to work out early. Also, do you have group classes like yoga or pilates? And lastly, can I use a locker and towel for free? Okay, thank you so much. I will visit tomorrow."
+    rationale: 상황 설명과 이유를 스스로 덧붙이며 자연스럽게 질문하지만, Because 단독절 등 오류가 있고 질문 간 전환이 단순함.
+    upgrade_tip: 상대 답변을 가정한 후속 질문(If so, ~?)을 넣어 상호작용을 보여주기.
+  IM3:
+    text: "Hi, I'm calling because I recently moved into the neighborhood, and I'm looking for a gym to join. A friend recommended your place, so I wanted to ask a few questions. First of all, how much is a monthly membership? I'm a university student, so I was wondering if you offer any student discounts. Also, what are your opening hours? I have classes starting at nine, so I'd like to work out around six or seven in the morning. Another thing I'm curious about is group classes. Do you have yoga or spinning classes, and are they included in the membership? Lastly, do you provide lockers and towels, or do I need to bring my own? Thanks a lot. I'll probably stop by this weekend to take a look."
+    rationale: 질문마다 상황과 이유를 자연스럽게 엮고 정중한 간접의문(I was wondering if)을 쓰지만, 답변을 가정한 후속 질문은 없음.
+    upgrade_tip: 조건부 후속 질문과 비교 질문으로 상호작용의 깊이를 더하기.
+  IH:
+    text: "Hi there, I'm calling because I just moved into the area, and I'm looking for a gym that fits my schedule. A friend of mine goes to your place and really likes it, so I thought I'd call and ask a few things. First of all, could you tell me how much the monthly membership is? I'm a university student, so I was wondering if you have any student discounts, or maybe a cheaper rate if I sign up for six months. Also, I'd like to know your opening hours, because I usually have classes from nine, so I'd prefer to work out before that. If you open at six, that would be perfect. Another thing is group classes. Do you offer yoga or spinning, and do I have to pay extra for them? Lastly, is there a parking lot? Sometimes I drive my parents' car. Thank you so much for your help."
+    rationale: 조건문과 후속 확인을 섞어 실제 대화처럼 질문하고 표현이 자연스럽지만, 마무리(다음 행동)가 짧음.
+    upgrade_tip: 답을 들은 뒤의 결정이나 방문 약속까지 연결해 대화를 완결하기.
+  AL:
+    text: "Hi, good afternoon. I'm calling because I recently moved into the neighborhood, and I'm trying to find a gym that works with my schedule. A friend of mine has been going to your place for a while and highly recommended it, so I wanted to ask a few questions before signing up. First of all, could you tell me how much a monthly membership costs? I'm a university student, so I was wondering whether you offer a student discount, or perhaps a lower rate if I commit to six months or more. Secondly, what are your hours on weekdays? My classes start at nine, so ideally I'd like to come in around six thirty. If you don't open that early, I might have to come in the evenings instead, so I'd also like to know how crowded it usually gets after work. Another thing I'm interested in is group classes. Do you run yoga or spinning sessions, and are those included in the membership or charged separately? And finally, is there a free trial day? I'd love to come in and check out the facilities before making a decision. Great, thanks so much. I'll stop by on Saturday then."
+    rationale: 목적·조건부 대안·후속 질문·체험 요청·약속까지 실제 통화처럼 응집력 있게 진행하며 정중한 표현을 정밀하게 통제함.
+    upgrade_tip: null
+
+Q011:
+  NL:
+    text: "Sorry... concert... no."
+    rationale: 사과와 핵심어만 말하고 상황 설명·대안 제시를 못함.
+    upgrade_tip: '"Sorry, I can''t go" 한 문장 완성하기.'
+  NM:
+    text: "Hello. Sorry. I can't go concert. I am busy. Sorry. Next time."
+    rationale: 외운 사과 표현 반복, 이유와 대안이 없음.
+    upgrade_tip: 이유 한 문장과 대안 한 문장을 추가하기.
+  NH:
+    text: "Hi, it's me. I am very sorry. I can't go concert on Saturday. My grandmother is sick. Maybe you go with other friend. Or we go next concert. Sorry."
+    rationale: 이유와 대안 두 개를 짧게 말하지만 문법 오류가 있고 대안이 구체적이지 않음.
+    upgrade_tip: 대안마다 how(어떻게)를 한 문장씩 설명하기.
+  IL:
+    text: "Hi, it's me. I have bad news. I can't go to the concert on Saturday. My family has an event. I'm really sorry. You can take my ticket and go with another friend. Or I can sell the tickets. Or we can go to another concert next month. Please call me."
+    rationale: 상황·사과·대안 세 개를 문장 단위로 말하지만 짧게 끊기고 대안의 구체성이 낮음.
+    upgrade_tip: 대안을 하나씩 연결어로 이어 구체적인 실행 방법까지 말하기.
+  IM1:
+    text: "Hey, it's me. I'm calling because I have some bad news. I'm really sorry, but I can't go to the concert this Saturday. My cousin is getting married on that day, and I forgot about it. I have some ideas. First, you can go with another friend, like Minji. Second, I can sell the tickets online and give you the money. Third, we can buy tickets for the next concert together. Let me know what you think."
+    rationale: 이유와 대안 세 가지를 갖춰 과제를 완결하지만 대안이 틀에 맞춘 나열이며 상대 배려 표현이 얕음.
+    upgrade_tip: 상대의 실망에 공감하는 표현과 각 대안의 장점을 덧붙이기.
+  IM2:
+    text: "Hey, it's me. I'm so sorry, but I have some bad news. I can't go to the concert on Saturday, because my cousin's wedding is that day. I totally forgot about it, and my parents said I have to go. I know you was really excited. So, I have some ideas. First, you can take both tickets and go with Minji, because she likes that singer too. Or I can sell the tickets online and give you the money. Also, the singer has another concert next month, so maybe we can go together then. Call me back, okay?"
+    rationale: 공감·이유·대안을 자연스럽게 이어 말하지만 수 일치 오류가 있고 대안의 실행 세부가 얕음.
+    upgrade_tip: 각 대안의 구체적 실행 방법과 보상(내가 비용 부담 등)을 제시해 문제 해결을 완결하기.
+  IM3:
+    text: "Hey, it's me. I'm really sorry to call you with bad news, but I won't be able to make it to the concert on Saturday. I just found out that my cousin's wedding is on the same day, and I completely forgot about it when I bought the tickets. My parents said I have to be there, so there's nothing I can do. I know how excited you were, so I feel awful. Anyway, I've thought of a few options. First, you could take both tickets and go with Minji, since she's a big fan of that singer too. If that doesn't work, I could resell the tickets online and send you your share right away. Or, I checked, and there's another show next month, so we could go to that one instead."
+    rationale: 사과·이유·대안을 시간 흐름과 조건문으로 연결하고 정확도가 높지만, 대안 간 우선순위나 보상 제시가 없어 해결이 다소 평면적임.
+    upgrade_tip: 가장 좋은 대안을 추천하고 손해를 보상하는 제안으로 문제 해결을 마무리하기.
+  IH:
+    text: "Hey, it's me. I'm really sorry to drop this on you, but I'm not going to be able to make it to the concert on Saturday. I just realized that my cousin's wedding is that same day. When I bought the tickets, I completely forgot to check the date, and my parents are insisting that I be there. I know how much you were looking forward to it, so I feel terrible. Anyway, I've come up with a few ideas. One option is that you take both tickets and go with Minji, since she's been a fan of that singer for years. If she's busy, I could try reselling the tickets on a ticket exchange site, and I'll transfer you your share as soon as they sell. Or, I looked it up, and there's another show in Seoul next month. If you're okay with waiting, we could swap our tickets for that date."
+    rationale: 원인 설명과 조건부 대안을 구체적으로 연결해 문단을 구성하지만, 최종 추천과 관계를 다독이는 마무리가 약함.
+    upgrade_tip: 선호하는 대안을 명확히 추천하고 보상 제안으로 대화를 마무리하기.
+  AL:
+    text: "Hey, it's me. I'm really sorry to have to tell you this, but I'm not going to be able to make it to the concert on Saturday. I just found out that my cousin's wedding is on the same day. When I booked the tickets, I didn't even think to check the family calendar, and now my parents are insisting that I be there, so I really don't have a choice. I know how much you've been looking forward to this, and honestly, I feel awful about letting you down. So I've thought of a few ways to fix it. The easiest option would be for you to take both tickets and go with Minji, since she's been a huge fan of that singer for years. If she can't make it, I could put the tickets up on a resale site tonight and transfer your share the moment they sell. Or, if you'd rather we go together, there's another show in Seoul next month, and I'd be happy to cover the price difference to swap our tickets. Personally, I think the last option is the best, because then we still get to go together. Just let me know what works for you, and I'll take care of everything."
+    rationale: 원인(과거)·현재 상황·조건부 대안·보상·최종 추천까지 응집력 있게 연결해 롤플레이 문제 해결을 완결함.
+    upgrade_tip: null
+
+Q012:
+  NL:
+    text: "Restaurant... cancel. Sad."
+    rationale: 사건 단어만 나열하고 서술이 없음.
+    upgrade_tip: '"My reservation was canceled" 한 문장 완성하기.'
+  NM:
+    text: "I have problem. Restaurant cancel. I am sad. I go other restaurant."
+    rationale: 짧은 정형 문장으로 과거를 현재형으로 말하고 서술 연결이 없음.
+    upgrade_tip: 과거형으로 무슨 일이 있었는지 한 문장씩 말하기.
+  NH:
+    text: "Last year I reserve restaurant for my mom birthday. But restaurant cancel my reservation. I was angry. So we go to other restaurant near. It was okay. My mom is happy."
+    rationale: 사건과 대처를 짧은 문장으로 말하지만 과거형이 대부분 무너지고 소유격 오류가 있음.
+    upgrade_tip: 모든 동사를 과거형으로 바꾸고 문제→대처→결과 순서로 말하기.
+  IL:
+    text: "Last year, I made a reservation at a restaurant for my mom's birthday. But when we arrived, they said there is no reservation. I was very angry. The staff said sorry. We waited for 30 minutes. Then we got a table. The food was good. My mom was happy."
+    rationale: 사건 순서는 있으나 짧은 문장이 분리되어 있고 문제 해결 과정이 수동적임.
+    upgrade_tip: 내가 어떻게 대처했는지를 구체적으로 말하기.
+  IM1:
+    text: "Last year, I booked a restaurant for my mom's birthday. I made the reservation two weeks before. But when we arrived, the staff said there was no reservation under my name. I showed them the confirmation message on my phone. The manager said it was their mistake. We waited about thirty minutes, and they gave us a free dessert. In the end, my mom was happy, so it was okay."
+    rationale: 문제-대처-결과를 끝까지 과거형으로 말하지만 감정과 상황 묘사가 얕고 사실 위주임.
+    upgrade_tip: 그때의 감정과 대화 내용을 한두 문장 덧붙여 이야기를 살리기.
+  IM2:
+    text: "I remember one time last year. It was my mom's birthday, so I booked a nice Italian restaurant two weeks before. But when we arrive at the restaurant, the staff said there was no reservation for us. I was really embarrassed because my whole family was there. So I show them the confirmation text on my phone, and the manager checked it again. He said it was their system's mistake and apologized a lot. We have to wait about thirty minutes, but they gave us free wine and dessert. Actually, in the end, my mom said it was a funny memory."
+    rationale: 감정과 대처를 덧붙이며 이어 말하지만 과거 서술 중 현재형 미끄러짐이 잦고 사건 전개가 나열식임.
+    upgrade_tip: 과거형을 끝까지 유지하고 first/then/finally로 사건 흐름을 드러내기.
+  IM3:
+    text: "Yes, I remember one time last year when something went wrong with a reservation. It was my mom's birthday, so I booked a nice Italian restaurant about two weeks in advance. When we got there, though, the staff told us there was no reservation under my name. I was really embarrassed, because my whole family was standing there waiting. I stayed calm and showed them the confirmation text on my phone. The manager checked their system and found out that it was their mistake. He apologized several times and said we would have to wait about thirty minutes for a table. While we were waiting, they gave us free drinks, and later they also brought out a birthday cake. In the end, my mom said it turned out to be a fun memory."
+    rationale: 과거형을 유지하며 사건을 시간 순서로 연결하고 대처를 설명하지만, 경험에서 얻은 교훈 같은 결론 확장은 없음.
+    upgrade_tip: 그 일 이후 바뀐 습관(예약 재확인 등)을 결론으로 덧붙여 여러 시간대를 연결하기.
+  IH:
+    text: "Yes, actually, something like that happened to me last year. It was my mom's birthday, so I booked a fancy Italian restaurant about two weeks in advance, because it's usually hard to get a table there on weekends. When we showed up, though, the hostess told us she couldn't find our reservation. I was so embarrassed, since my whole family was standing behind me, and my mom was all dressed up. I tried to stay calm and showed her the confirmation text I'd received. After checking with the manager, it turned out that their online booking system had crashed that week, and some reservations had been deleted. The manager apologized over and over and promised to seat us within thirty minutes. While we waited, they brought us complimentary drinks, and they even surprised my mom with a small birthday cake. By the end of the night, everyone was in a great mood."
+    rationale: 과거완료로 원인을 설명하고 대처·결과를 문단으로 엮지만, 경험이 남긴 교훈이나 이후 변화 같은 결론이 없음.
+    upgrade_tip: 이 경험 이후 생긴 습관이나 깨달음을 결론으로 연결해 이야기를 완결하기.
+  AL:
+    text: "Yes, actually, something like that happened to me last year, and it turned out to be quite a story. It was my mom's birthday, so I booked a fancy Italian restaurant about two weeks ahead, since it's notoriously hard to get a table there on weekends. When we arrived, though, the hostess looked through her list and told us she had no record of our reservation. I was mortified, because my whole family was standing right behind me and my mom had dressed up for the occasion. Instead of panicking, I pulled up the confirmation text I'd received and politely asked her to check again with the manager. It turned out that their online booking system had crashed earlier that week and wiped out a number of reservations. The manager apologized repeatedly and promised to seat us within thirty minutes. While we waited, they brought out complimentary drinks, and they even surprised my mom with a little birthday cake, which completely turned the evening around. Looking back, I'm glad I stayed calm, and ever since then, I always call the day before to double-check any important reservation."
+    rationale: 과거·과거완료로 원인과 사건을 정밀하게 서술하고, 대처·반전·교훈·현재 습관까지 응집된 문단으로 완결함.
+    upgrade_tip: null

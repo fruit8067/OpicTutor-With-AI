@@ -1,0 +1,153 @@
+# 등급 대조 세트 (source_tier C) — Q005~Q008
+
+Q005:
+  NL:
+    text: "Cafe... coffee. Now... big."
+    rationale: 비교 과제를 인식하지 못하고 단어만 제시함.
+    upgrade_tip: '"Now cafe is ~" 한 문장으로 현재 모습부터 말하기.'
+  NM:
+    text: "I like cafe. I drink coffee. Cafe is big. Now cafe is many. Good."
+    rationale: 정형 표현과 단어로 현재만 언급하며 과거와의 비교가 없음.
+    upgrade_tip: '"Before ~, now ~" 틀로 두 시점을 한 문장씩 말하기.'
+  NH:
+    text: "Before, cafe is small. Now cafe is big and pretty. Before I drink only americano. Now there is many menu, like dessert and cake. People study in cafe now."
+    rationale: before/now로 비교를 시도하지만 과거를 현재형으로 말하고 수 일치 오류가 많음.
+    upgrade_tip: 과거 문장은 was/were로, 현재 문장은 is/are로 구분하기.
+  IL:
+    text: "A few years ago, cafes were small. There was only coffee. Now cafes are very big. They have many desserts like cake and bread. Also many people study in cafe. In the past people just talk. I like cafes now."
+    rationale: 과거/현재를 문장 단위로 비교하지만 짧고 독립적이며 세 비교 항목(분위기·메뉴·이용 방식) 연결이 약함.
+    upgrade_tip: 분위기→메뉴→이용 방식 순서로 항목마다 과거 vs 현재 두 문장씩 말하기.
+  IM1:
+    text: "Cafes today are very different from a few years ago. In the past, cafes were small and simple. The menu was mostly coffee. Now cafes are bigger and more beautiful. There are many desserts and drinks. Also, in the past people went to cafes to meet friends. Now many people go to cafes to study or work. I think cafes are better now."
+    rationale: 세 항목을 모두 비교해 답을 완결하지만 각 비교가 사실 한 줄에 그치고 예시가 없음.
+    upgrade_tip: 자주 가는 카페를 예로 들어 변화를 구체적으로 보여주기.
+  IM2:
+    text: "Well, cafes today are really different from a few years ago. In the past, most cafes was small and the interior was simple. The menu was mostly coffee, like americano or latte. But these days, cafes are bigger and more stylish, so people take a lot of pictures for Instagram. Also, there are so many desserts, for example, croffles and fancy cakes. Another big change is how people use cafes. Before, people just meet friends and talk, but now many students study there for hours. Actually, I also study at a cafe almost every day."
+    rationale: 예시와 개인 경험을 덧붙이며 비교를 이어가지만, 과거 서술에서 시제·수 일치 오류가 남고 항목 간 전환이 단순함.
+    upgrade_tip: 변화의 원인(SNS, 재택근무 등)을 한 문장씩 넣어 비교에 깊이를 더하기.
+  IM3:
+    text: "I think cafes have changed a lot over the past few years. When I was in high school, most cafes in my neighborhood were small, and they looked pretty similar. The menu was simple, mostly coffee and maybe a few cookies. These days, though, cafes are much bigger, and each one has its own unique concept. Some look like art galleries, and some are full of plants. The menus have also become more diverse, so you can find things like croffles, salad bowls, and seasonal drinks. The biggest change, I think, is how people use cafes. Back then, people went there to chat with friends. Now, a lot of students and office workers go there to study or work on their laptops for hours."
+    rationale: 과거/현재 시제를 대체로 정확히 대비하고 항목별 비교가 조직적이지만, 변화의 원인과 평가는 거의 없음.
+    upgrade_tip: 왜 그렇게 바뀌었는지와 그 변화에 대한 자신의 의견을 덧붙여 문단을 확장하기.
+  IH:
+    text: "Cafes have changed quite a bit over the last few years. When I was in high school, most cafes in my neighborhood were small, franchise places that all looked pretty much the same, and the menu was basically coffee with a few muffins. These days, cafes have become much more about the experience. Many of them have a unique concept, like a greenhouse theme or a minimalist gallery look, and I think that's largely because of social media, since people want to post photos of trendy places. The menus have also become way more diverse. You can find everything from croffles to vegan desserts and seasonal drinks. Another big difference is how people use cafes. Back then, they were mostly places to hang out and chat, but now they've become study spaces and offices for a lot of people. Sometimes it's hard to even find a seat because everyone is working on their laptop."
+    rationale: 비교 항목마다 원인 설명을 덧붙이고 문단 구성이 탄탄하지만, 전체를 아우르는 결론이나 자신의 평가가 약함.
+    upgrade_tip: 변화의 장단점에 대한 자신의 입장을 결론으로 제시해 비교를 완결하기.
+  AL:
+    text: "Cafes have changed quite dramatically over the last few years. When I was in high school, most of the cafes in my neighborhood were small franchise shops that all looked more or less the same, and the menu was pretty much limited to coffee and a couple of muffins. Nowadays, going to a cafe is much more about the experience. A lot of places are built around a distinct concept, whether it's a greenhouse full of plants or a sleek, gallery-like space, and I think social media is largely behind this shift, since people want to visit and post about places that look unique. Menus have also expanded a lot, so you can find anything from croffles to vegan desserts to seasonal specials. The biggest change, though, is in how people actually use cafes. They used to be places where you'd catch up with friends, but now they've practically turned into libraries and shared offices. Personally, I have mixed feelings about it. I love having so many cozy places to study, but at the same time, I sometimes miss the days when a cafe felt like a place to just talk and relax."
+    rationale: 과거 습관(used to, would)과 현재를 정밀하게 대비하고, 원인 분석과 양면적 평가로 응집력 있는 결론까지 완성함.
+    upgrade_tip: null
+
+Q006:
+  NL:
+    text: "Movie... action. Marvel."
+    rationale: 장르명과 고유명사만 말함.
+    upgrade_tip: '"I like action movies" 한 문장으로 시작하기.'
+  NM:
+    text: "I like movie. I like action movie. Action movie is fun. I watch movie weekend."
+    rationale: 같은 정형 문장을 반복하고 이유를 말하지 못함.
+    upgrade_tip: because 뒤에 이유 하나를 붙이기.
+  NH:
+    text: "I like action movie very much. Because it is exciting. My favorite movie is Avengers. I watch movie in theater with my friend. I like Iron Man. He is cool."
+    rationale: 짧은 문장으로 선호와 이유를 말하지만 Because 단독 문장, 복수형 누락 등 오류가 잦음.
+    upgrade_tip: 이유 문장을 앞 문장과 이어 말하고, 장르의 특징을 한 가지 더 설명하기.
+  IL:
+    text: "I like to watch action movies. I think action movies are exciting. There are many fighting and car chase. My favorite action movie is Mission Impossible. Tom Cruise is very cool. I usually watch movies on weekend. I watch at home or theater."
+    rationale: 문장 수준은 유지되지만 짧은 사실 나열이며 '왜 즐기는지'에 대한 설명이 얕음.
+    upgrade_tip: 영화를 볼 때의 느낌이나 특정 장면을 예로 들어 이유를 확장하기.
+  IM1:
+    text: "My favorite genre is action movies. I like them because they are exciting and not boring. There are a lot of fighting scenes and car chases. My favorite action movie is Mission Impossible. Tom Cruise does the stunts himself, so it is very real. I usually watch action movies on weekends. I think action movies help me relax after a busy week."
+    rationale: 선호 장르·이유·대표 작품·습관을 빠짐없이 말하지만 각각이 짧게 끝남.
+    upgrade_tip: 기억에 남는 장면 하나를 묘사하며 그때의 감정을 덧붙이기.
+  IM2:
+    text: "Well, I really like action movies. The main reason is that they are very exciting, so I never feel bored. For example, my favorite movie is Mission Impossible. In that movie, Tom Cruise do a lot of dangerous stunts by himself, like hanging on an airplane. When I watch that scene, my heart beat so fast. Also, action movies help me forget my stress. After a long week at school, I usually go to the theater with my friends and watch a new action movie. Actually, I prefer watching in the theater because the sound is much better."
+    rationale: 이유·예시·습관을 자연스럽게 이어 말하지만 3인칭 단수 오류가 반복되고 구조가 나열식임.
+    upgrade_tip: 장르 특징→대표작 장면→나에게 주는 의미 순으로 문단을 조직하고 어휘를 다양하게 하기.
+  IM3:
+    text: "My favorite genre is definitely action movies. I love them because they're so thrilling that I never get bored, even if the movie is over two hours long. One of my all-time favorites is Mission Impossible. What I like most is that Tom Cruise does most of his own stunts, so the scenes feel really real. For example, there's a scene where he hangs on the side of a flying airplane, and I remember holding my breath the whole time. Another reason I enjoy action movies is that they help me forget about my stress. After a long week, I usually go to the theater with my friends on Friday night, because the big screen and the sound make the experience much more intense."
+    rationale: 이유와 구체적 장면 기억이 연결되고 정확도가 높지만, 장르에 대한 평가나 다른 장르와의 비교 같은 확장은 없음.
+    upgrade_tip: 처음 이 장르를 좋아하게 된 계기나 취향의 변화를 넣어 여러 시간대를 다루기.
+  IH:
+    text: "My go-to genre is definitely action movies. I've loved them since I was a kid, when my dad used to take me to see superhero movies on the weekends. What I enjoy most is the adrenaline rush. Even when a movie runs over two hours, I never get bored, because there's always something happening on screen. One of my all-time favorites is the Mission Impossible series. I really respect that Tom Cruise does most of his own stunts, which makes everything feel much more real and intense. I still remember the scene where he's hanging off the side of a plane during takeoff. I was literally gripping my seat. These days, I usually watch action movies with my friends on Friday nights, because it's the perfect way to blow off steam after a stressful week. I prefer theaters to streaming, since the sound system makes such a big difference."
+    rationale: 계기(과거)·이유·장면·현재 습관을 문단으로 엮고 관용 표현이 자연스럽지만, 장르의 한계나 자신의 시각에 대한 결론이 약함.
+    upgrade_tip: 액션 영화에 대한 비판이나 다른 장르와의 대비를 한두 문장 넣어 균형 잡힌 결론 만들기.
+  AL:
+    text: "My go-to genre has always been action movies. I think it goes back to when I was a kid and my dad would take me to see superhero films on Saturday mornings, which became a kind of father-son tradition. What draws me to action movies is the sheer adrenaline. Even when a film runs well over two hours, I never find myself checking my phone, because the pacing keeps me on the edge of my seat. One of my all-time favorites is the Mission Impossible series. I genuinely respect the fact that Tom Cruise performs most of his own stunts, since it gives the scenes a raw, realistic quality that CGI just can't match. I still remember watching him cling to the side of a plane as it took off and realizing I had been holding my breath the entire time. That said, I know a lot of people find action movies shallow, and to be fair, some of them do have pretty predictable plots. But for me, they're not really about the story. They're about escaping for a couple of hours, and that's exactly why I keep going back to the theater whenever a new one comes out."
+    rationale: 과거 습관·현재 선호·구체적 회상을 정밀하게 연결하고, 반론 인정(That said)과 자신의 입장으로 응집된 결론을 완성함.
+    upgrade_tip: null
+
+Q007:
+  NL:
+    text: "Jogging... river. Morning."
+    rationale: 장소와 시간 단어만 나열함.
+    upgrade_tip: '"I jog in the morning" 한 문장 만들기.'
+  NM:
+    text: "I like jogging. I jog morning. I jog river. Jogging is good. Healthy."
+    rationale: 같은 틀을 반복하며 전치사 없이 단어를 붙임.
+    upgrade_tip: 얼마나 자주, 운동 전후 무엇을 하는지 새 문장으로 추가하기.
+  NH:
+    text: "I jog three time a week. I go to river near my house. Before jogging I do stretching. I run 30 minute. After jogging I drink water and take shower. It is good for health."
+    rationale: 루틴 요소를 짧은 문장으로 말하지만 복수형·관사 오류가 반복되고 단순 나열임.
+    upgrade_tip: 복수형을 정확히 쓰고, 순서 연결어(first, then)로 문장을 잇기.
+  IL:
+    text: "I usually jog three times a week. I jog at the river park near my house. I go in the morning. Before I jog, I stretch for five minutes. I run for 30 minutes. After that I walk slowly. Then I go home and take a shower. Jogging is good for my health."
+    rationale: 순서 표현을 일부 쓰지만 문장이 짧고 개인적 디테일이 없음.
+    upgrade_tip: 루틴 중 느끼는 점이나 보는 풍경을 한두 문장 덧붙이기.
+  IM1:
+    text: "I usually go jogging three times a week, on Monday, Wednesday and Friday. I go to the river park near my apartment early in the morning. First, I stretch for about five minutes. Then I run for 30 minutes along the river. After running, I walk slowly to cool down. When I get home, I take a shower and eat breakfast. I started jogging to stay healthy."
+    rationale: 루틴의 전 과정을 순서대로 끝까지 말하지만 사실 진술의 연속이며 개인적 확장이 적음.
+    upgrade_tip: 조깅 중 사용하는 앱·음악이나 날씨에 따른 변화 등 예시를 덧붙이기.
+  IM2:
+    text: "Well, I go jogging about three times a week. Usually I go to the river park near my apartment early in the morning, because it is not crowded and the air is fresh. First, I do some stretching for five minutes, because if I don't, my knees hurt. Then I run along the river for about 30 minutes. I always listen to music when I run, for example, fast K-pop songs. After running, I walk slowly and drink water. And then I go home, take a shower and eat a simple breakfast. Actually, after jogging I feel very energetic all day."
+    rationale: 이유와 예시를 스스로 덧붙이며 흐름이 자연스럽지만, because 반복 등 연결어가 단조롭고 묘사의 밀도가 낮음.
+    upgrade_tip: 연결어를 다양화하고, 강변의 풍경·계절 변화를 묘사해 장면을 살리기.
+  IM3:
+    text: "I usually go jogging three times a week, mostly on weekday mornings. There's a river park about ten minutes from my apartment, so that's where I go. I like to go early, around six thirty, because the park isn't crowded yet and the air feels fresh. Before I start, I always stretch for about five minutes, since I hurt my knee once when I skipped it. Then I run along the river for around thirty minutes while listening to an upbeat playlist. I use a running app to check my pace and distance, which really motivates me. After the run, I walk for a few minutes to cool down. Once I get home, I take a quick shower and have a light breakfast, like yogurt and a banana."
+    rationale: 이유와 과거 일화를 포함해 순서가 잘 연결되고 정확도가 높지만, 루틴의 변화나 의미 같은 확장은 없음.
+    upgrade_tip: 조깅을 시작한 계기나 계절별로 루틴이 어떻게 달라지는지 덧붙여 문단을 넓히기.
+  IH:
+    text: "I usually go jogging three times a week, mostly on weekday mornings before class. There's a river park about ten minutes from my apartment, and it's honestly the perfect spot because there's a long, flat path along the water. I try to get there around six thirty, when it's still quiet and the air is cool. I always start with a few minutes of stretching, because I strained my knee once when I skipped it, and I learned my lesson. Then I run for about thirty minutes while listening to an upbeat playlist. I also use a running app that tracks my pace and distance, which keeps me motivated, since I can see how much I've improved. In winter, it gets really cold, so I sometimes switch to the treadmill at the gym instead. After the run, I walk for a bit to cool down, and once I get home, I grab a quick shower and a light breakfast before heading to school."
+    rationale: 과거 일화·현재 루틴·계절 변화를 문단으로 엮어 다양한 어휘를 쓰지만, 루틴의 의미나 앞으로의 목표 같은 결론이 없음.
+    upgrade_tip: 이 루틴이 생활에 준 변화나 앞으로의 목표(대회 참가 등)를 결론으로 연결하기.
+  AL:
+    text: "I usually go jogging three times a week, mostly on weekday mornings before my classes start. There's a river park about ten minutes from my apartment, and it's ideal for running because the path is long, flat, and right along the water. I try to get there by six thirty, when it's still quiet and the air is crisp. I never skip my warm-up anymore. Last year, I strained my knee after jumping straight into a run, and it took me almost a month to recover, so now I spend at least five minutes stretching. Once I'm loosened up, I run for about thirty minutes with an upbeat playlist, and I track my pace with a running app, which is surprisingly motivating since I can actually see my progress over time. When winter comes and the temperature drops below zero, I usually move my routine indoors to the treadmill at the gym. After the run, I cool down with a short walk and then head home for a shower and a light breakfast. Even though getting up that early is still tough, what started as a way to stay in shape has really become the anchor of my day, and my goal now is to run a 10K race next spring."
+    rationale: 과거 부상 일화·현재 루틴·계절 변화·미래 목표를 정확한 시제로 연결하고, 정밀한 어휘로 응집된 결론까지 완성함.
+    upgrade_tip: null
+
+Q008:
+  NL:
+    text: "Recycle... plastic. Paper."
+    rationale: 재활용 품목 단어만 나열함.
+    upgrade_tip: '"We recycle plastic" 한 문장 만들기.'
+  NM:
+    text: "Recycling is good. We recycle plastic. We recycle paper. Korea recycle. Good."
+    rationale: 단순 문장을 반복하며 '어떻게' 하는지 말하지 못함.
+    upgrade_tip: 언제·어디에 버리는지 한 문장 추가하기.
+  NH:
+    text: "In Korea people recycle very much. We separate plastic, paper, and can. In my apartment, recycling day is Wednesday. I take recycle to outside. It is good for environment."
+    rationale: 기본 정보를 짧은 문장으로 말하지만 관사·품사 오류가 있고 과정 설명이 단편적임.
+    upgrade_tip: 분리 방법을 단계별로 한 문장씩 설명하기.
+  IL:
+    text: "In Korea, people recycle a lot. We separate plastic, paper, cans and glass. In my apartment, we recycle on Wednesday. There are big boxes for each thing. People put trash in the boxes. Food waste is also separate. I think recycling is important."
+    rationale: 과정 정보를 문장 단위로 말하지만 짧고 독립적이며 구체적 방법(세척 등)이 없음.
+    upgrade_tip: 직접 하는 방식을 순서대로 묘사하고 예시를 넣기.
+  IM1:
+    text: "In Korea, recycling is very common. People usually separate plastic, paper, cans, and glass bottles. In my apartment complex, recycling day is every Wednesday. There are big bins for each type. Food waste is also separated, and we put it in a special bin. If you don't separate trash, you can get a fine. I think Korea is good at recycling."
+    rationale: 품목·방법·규칙을 빠짐없이 말하지만 사실 나열에 그치고 개인 경험이 없음.
+    upgrade_tip: 우리 집에서 재활용하는 실제 장면을 예로 들어 설명하기.
+  IM2:
+    text: "Well, in Korea, recycling is really strict. People separate plastic, paper, cans, glass and also food waste. In my apartment, we have recycling day every Wednesday night. On that day, everyone bring their trash to the parking lot, and there are big bags for each type. For example, I always wash the plastic containers before I throw them away, because if they are dirty, they can't be recycled. Also, we have to buy special bags for normal trash. Actually, when foreigners come to Korea, they are surprised because it is so complicated."
+    rationale: 예시와 이유를 덧붙이며 자연스럽게 이어 말하지만 수 일치 오류가 있고 정보가 나열식으로 배치됨.
+    upgrade_tip: 개인 습관과 사회적 규칙을 구분해 조직하고, 관련 경험을 한 문장 덧붙이기.
+  IM3:
+    text: "In Korea, recycling is taken pretty seriously. Most people separate their trash into plastic, paper, cans, glass, and vinyl, and food waste is collected separately too. In my apartment complex, recycling day is every Wednesday evening. Everyone brings their bags down to a designated area, where there are large bins labeled for each type. Before throwing things away, I always rinse plastic containers and remove the labels, because dirty plastic can't actually be recycled. For general trash, we have to buy special garbage bags from the convenience store, so people try to recycle as much as possible to save money. When my friend from Canada visited, she was really surprised at how detailed the system is."
+    rationale: 과정과 이유가 연결되고 경험 일화로 마무리하지만, 제도의 배경이나 변화 같은 깊이 있는 설명은 없음.
+    upgrade_tip: 제도가 왜 생겼는지, 예전과 무엇이 달라졌는지를 덧붙여 여러 시간대를 다루기.
+  IH:
+    text: "In Korea, recycling is a big part of everyday life, and the rules are pretty strict. Most households separate their trash into plastic, paper, cans, glass, and vinyl, and food waste goes into its own container. In my apartment complex, recycling day is every Wednesday evening, so you'll see residents carrying bags down to the parking lot, where there are huge bins for each category. A security guard usually stands nearby, and if you put something in the wrong bin, he'll politely tell you to fix it. I've gotten into the habit of rinsing plastic containers and peeling off the labels, since contaminated plastic just ends up in the landfill. On top of that, general trash has to go in special bags that you buy, so the more you recycle, the less you pay. When my Canadian friend visited, she couldn't believe how detailed the system was."
+    rationale: 사회 제도와 개인 습관을 문단으로 엮고 어휘가 다양하지만, 제도의 배경·변화나 자신의 평가가 빠져 결론이 약함.
+    upgrade_tip: 예전과 비교한 변화와 제도에 대한 자신의 의견으로 문단을 마무리하기.
+  AL:
+    text: "In Korea, recycling has become a natural part of everyday life, and honestly, the system is a lot more detailed than in many other countries. Most households sort their waste into plastic, paper, cans, glass, and vinyl, while food scraps go into a separate container that's collected by weight. In my apartment complex, recycling day falls on Wednesday evenings, so you'll see neighbors carrying bags down to the parking lot, where there are large bins clearly labeled for each category. There's usually a security guard keeping an eye on things, and if you toss something in the wrong bin, he'll gently remind you to sort it properly. Personally, I've gotten into the habit of rinsing containers and peeling off labels, because I learned that contaminated plastic ends up in a landfill anyway. What really drives this behavior is the pay-as-you-throw system. Since general trash has to go into bags you purchase, recycling literally saves you money. When I was a kid, people were far less careful, but as the rules tightened, recycling gradually became second nature. I think it's a good example of how policy can actually change people's habits."
+    rationale: 제도·개인 습관·원인(종량제)·과거와의 변화·자신의 평가까지 응집된 문단으로 완결하며 시제와 어휘가 정밀함.
+    upgrade_tip: null
