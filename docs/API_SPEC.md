@@ -1,4 +1,4 @@
-# API 명세 v2 — 구현 계약 v5 (API 형식 v3 유지)
+# API 명세 v2 — HTTP 형식 v3
 
 계약 원본은 `agents/contracts.yaml`, 충돌 시 그쪽 우선.
 

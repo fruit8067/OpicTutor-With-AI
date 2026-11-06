@@ -7,7 +7,7 @@ backend/.env를 load_dotenv(override=False)로 읽어 os.getenv 기반 인증에
 평가 기준·API·DB 스키마는 v3 그대로다.
 
 ## 상태
-M0는 PR #1/main afa076e에 병합 완료됐다. 2026-11-07에는 contracts v5에 맞춘 API 문서와 인수인계만 갱신한다. 초기 골격 검증과 이후 A/B 구현 검증을 구분하며 C 기능은 추가하지 않는다.
+M0는 PR #1/main afa076e에 병합 완료됐다. 2026-11-07에는 API 문서와 인수인계만 갱신한다. 현재 계약 v6의 모듈 메타데이터 타입 정리는 HTTP 형식 v3 변경이 아니므로 문서 제목에서 두 버전을 혼동하지 않게 했다. 초기 골격 검증과 이후 A/B 구현 검증을 구분하며 C 기능은 추가하지 않는다.
 
 ## 공개 함수·화면
 contracts v4의 API/내부 타입·함수 골격. tier_of는 nullable 선언이며 C·grader 등의 함수 본문은 담당 역할의 stub으로 유지한다. Pickle LLM 설정은 공백 기본값과 os.getenv 인증을 위한 dotenv 로드를 사용한다.
