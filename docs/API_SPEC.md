@@ -1,7 +1,8 @@
 # OpicTutor — API 명세 v1
 
+> **병합 상태: 이전 API 계약 초안.** 최신 기준은 `REQUIREMENTS_v2.md`와 `FLOWCHART.md`이며, 상세 요구사항 8장의 동기화가 필요합니다. 문항별 실시간 평가·코드 등급 산출·STT 대기 없는 이동 규칙은 더 이상 현재 요구사항이 아닙니다.
 > 기준 문서: `docs/REQUIREMENTS_v2.md`
-> FastAPI가 이 명세의 Pydantic 모델로 `/docs`(Swagger)와 `/openapi.json`을 자동 생성합니다. **코드와 이 문서가 다르면 이 문서를 먼저 고치고 코드를 맞춥니다.**
+> FastAPI가 이 명세의 Pydantic 모델로 `/docs`(Swagger)와 `/openapi.json`을 자동 생성합니다. **최신 요구사항에 맞게 이 API 초안을 갱신한 뒤 구현 계약으로 사용합니다.**
 >
 > AI-assisted: 이 명세는 Claude(Anthropic)의 도움으로 작성했습니다.
 
@@ -525,7 +526,7 @@ MVP에서는 항상 `501`을 돌려줍니다. 프론트엔드 버튼은 "개발 
 
 ### S1·S2. 정적 TTS 파일
 
-`backend/scripts/gen_tts.py`가 서버를 시작하기 전에 미리 만들어 둡니다.
+서버를 시작하기 전에 Google Colab에서 OmniVoice로 미리 만들어 `backend/static/tts/`에 넣어 둡니다(`colab/omnivoice_tts.ipynb`, 과정은 REQUIREMENTS_v2 §4 F6).
 
 | 경로 | 내용 |
 |---|---|

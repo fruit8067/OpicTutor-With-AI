@@ -13,9 +13,9 @@ flowchart TD
     C -->|아니오| C1["문항 부족·지원 불가 안내"]
     C1 --> B
     C -->|예| D["서버: 전체 문제·순서 확정 / DB 저장"]
-    D --> E["서버: 전체 문항 TTS 준비 · 캐시 재사용"]
+    D --> E["서버: 전체 문항의 사전 생성 TTS 검증·연결"]
     E --> F{"모든 문항과 TTS 준비 완료?"}
-    F -->|아니오| G["준비 상태·실패 사유 표시 / 같은 세트로 재시도"]
+    F -->|아니오| G["누락·오래된 음성 안내 / 운영자 반입 후 같은 세트 재시도"]
     G --> E
     F -->|예| H["시험 시작 · 설정과 문제 세트 고정"]
     H --> I["클라이언트: 현재 문항 요청"]
@@ -47,7 +47,7 @@ flowchart TD
 | 접속 | 더미 로그인, 로그인 없이 진입 | React | 없음 | 없음 |
 | 설정 | 마이크 테스트·시나리오 선택 | getUserMedia, Web Audio | 없음 | 지원 시나리오·문항 메타 조회; 테스트 음성 저장 안 함 |
 | 세트 준비 | 준비 중 | FastAPI 출제 규칙 | 출제 LLM 없음 | 설정·세션·전체 문항·순서·버전 저장 |
-| TTS 준비 | 전체 음성 준비 상태 | 서버 TTS·캐시 | 누락 음성만 TTS 호출 | 캐시 조회·자산 연결·ready 저장 |
+| TTS 준비 | 전체 음성 준비 상태 | 사전 생성 음성 캐시 검증 | 세션 준비 중 호출 없음; 운영자가 OmniVoice/Colab에서 사전 생성 | 해시 확인·자산 연결·ready 저장 |
 | 문항 요청 | 현재 문항 확인 | FastAPI·HTML audio | 없음 | 확정 문항·TTS 조회 |
 | 문항 재생 | 캐릭터가 말함 | audio 이벤트·CSS/SVG | 없음 | 재생 횟수 상태 관리 |
 | 녹음 | 같은 버튼으로 시작·종료 | MediaRecorder | 없음 | 제출 전 녹음은 브라우저 메모리 |
@@ -68,20 +68,20 @@ sequenceDiagram
     participant Web as 웹
     participant Server as 서버·워커
     participant DB as PostgreSQL
-    participant TTS as TTS 제공자
+    participant TTS as OmniVoice·Colab
     participant STT as 로컬 STT
     participant LLM as 평가 AI
 
+    Note over Server,TTS: 운영자가 시험 전에 음성을 생성·반입하는 별도 작업
+    TTS-->>Server: 사전 생성 mp3·manifest 반입
+    Server->>DB: 음성 자산 등록
     User->>Web: 마이크 테스트·선택적 시나리오 설정
     Web->>Server: 설정 제출
     Server->>Server: 지원 조건 검증·전체 문제 세트 확정
     Server->>DB: 세션·설정·전체 문항·순서 저장
     Server->>DB: 문항별 TTS 캐시 조회
-    opt 누락 음성이 있는 경우
-        Server->>TTS: 누락 문항 음성 생성
-        TTS-->>Server: 음성 데이터
-        Server->>DB: 음성 파일 메타데이터·문항 연결 저장
-    end
+    Note over Web,Server: 누락·해시 불일치면 prepare_failed; 운영자 반입 후 같은 세트 재시도
+    Server->>DB: 모든 음성이 유효할 때만 문항에 연결
     Server->>DB: 전체 준비 확인·ready
     Server-->>Web: 준비 완료
     User->>Web: 시험 시작
@@ -119,7 +119,7 @@ sequenceDiagram
     Web-->>User: 예상 등급·피드백 표시
 ```
 
-상태 조회는 필요한 동안 반복한다. TTS·STT·평가는 워커 작업이며 요청을 오래 열어 두는 방식이 아니다. STT 처리 중 UI는 현재 문항에 머문다.
+상태 조회는 필요한 동안 반복한다. TTS 캐시 준비·STT·평가는 워커 작업이며 요청을 오래 열어 두는 방식이 아니다. TTS 음성 생성 자체는 운영자의 사전 Colab 작업이다. STT 처리 중 UI는 현재 문항에 머문다.
 
 ## 4. 상태와 진행 조건
 
@@ -154,7 +154,7 @@ stateDiagram-v2
 | 상황 | 돌아갈 위치 | 유지하는 것 |
 | --- | --- | --- |
 | 시나리오 문항 부족 | 설정 변경 | 불완전한 시험은 시작하지 않음 |
-| TTS 준비 실패 | 준비 재시도 | 확정한 전체 문항·순서 |
+| TTS 준비 실패 | 누락·변경 음성을 운영자가 재생성·반입한 후 준비 재시도 | 확정한 전체 문항·순서 |
 | TTS 재생 실패 | 현재 문항 재생 | 현재 문항; 텍스트만으로 진행하지 않음 |
 | 녹음·업로드 실패 | 현재 문항 재녹음·재전송 | 확정 세트 |
 | STT 오류 | 저장 음성 재처리 | 현재 문항·원음 |
@@ -172,3 +172,5 @@ stateDiagram-v2
 6. 채팅·재연습은 모의고사 주 흐름의 필수 단계가 아니다.
 
 기존 [API_SPEC.md](API_SPEC.md)는 아직 이전 방식이다. 상세 요구사항 8장의 동기화 목록에 따라 구현 계약을 갱신해야 한다.
+
+사전 TTS 생성 방식은 원격 OmniVoice 변경을 반영했다. 세션 설정 단계의 전체 문제 세트 확정·음성 준비 완료 조건은 그대로 유지한다.
