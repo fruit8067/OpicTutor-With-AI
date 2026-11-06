@@ -1,5 +1,5 @@
 {
-  "version": "2026-11-06.86127713111320",
+  "version": "2026-11-06.77496797373666",
   "scenarios": [
     {
       "scenario_id": "default",
@@ -25,7 +25,27 @@
           "pool": [
             "Q001",
             "Q006",
-            "Q008"
+            "Q008",
+            "Q013",
+            "Q018",
+            "Q026",
+            "Q041",
+            "Q048",
+            "Q128",
+            "Q129",
+            "Q130",
+            "Q131",
+            "Q132",
+            "Q178",
+            "Q179",
+            "Q180",
+            "Q181",
+            "Q182",
+            "Q228",
+            "Q229",
+            "Q230",
+            "Q231",
+            "Q232"
           ]
         },
         {
@@ -36,7 +56,10 @@
           "is_scored": true,
           "pool": [
             "Q002",
-            "Q007"
+            "Q007",
+            "Q033",
+            "Q073",
+            "Q075"
           ]
         },
         {
@@ -47,7 +70,45 @@
           "is_scored": true,
           "pool": [
             "Q003",
-            "Q004"
+            "Q004",
+            "Q014",
+            "Q022",
+            "Q023",
+            "Q024",
+            "Q025",
+            "Q027",
+            "Q028",
+            "Q031",
+            "Q032",
+            "Q034",
+            "Q038",
+            "Q046",
+            "Q047",
+            "Q049",
+            "Q053",
+            "Q056",
+            "Q057",
+            "Q066",
+            "Q074",
+            "Q083",
+            "Q084",
+            "Q138",
+            "Q139",
+            "Q141",
+            "Q142",
+            "Q143",
+            "Q145",
+            "Q146",
+            "Q147",
+            "Q188",
+            "Q189",
+            "Q190",
+            "Q191",
+            "Q193",
+            "Q194",
+            "Q195",
+            "Q196",
+            "Q197"
           ]
         },
         {
@@ -57,7 +118,49 @@
           ],
           "is_scored": true,
           "pool": [
-            "Q005"
+            "Q005",
+            "Q015",
+            "Q029",
+            "Q039",
+            "Q043",
+            "Q045",
+            "Q050",
+            "Q051",
+            "Q063",
+            "Q064",
+            "Q067",
+            "Q086",
+            "Q087",
+            "Q098",
+            "Q099",
+            "Q100",
+            "Q101",
+            "Q102",
+            "Q103",
+            "Q104",
+            "Q105",
+            "Q106",
+            "Q107",
+            "Q148",
+            "Q149",
+            "Q150",
+            "Q151",
+            "Q152",
+            "Q153",
+            "Q154",
+            "Q155",
+            "Q156",
+            "Q157",
+            "Q198",
+            "Q199",
+            "Q200",
+            "Q201",
+            "Q202",
+            "Q203",
+            "Q204",
+            "Q205",
+            "Q206",
+            "Q207"
           ]
         },
         {
@@ -67,7 +170,44 @@
           ],
           "is_scored": true,
           "pool": [
-            "Q010"
+            "Q010",
+            "Q044",
+            "Q052",
+            "Q054",
+            "Q062",
+            "Q078",
+            "Q079",
+            "Q081",
+            "Q108",
+            "Q109",
+            "Q110",
+            "Q111",
+            "Q112",
+            "Q113",
+            "Q114",
+            "Q115",
+            "Q116",
+            "Q117",
+            "Q158",
+            "Q159",
+            "Q160",
+            "Q161",
+            "Q162",
+            "Q163",
+            "Q164",
+            "Q165",
+            "Q166",
+            "Q167",
+            "Q208",
+            "Q209",
+            "Q210",
+            "Q211",
+            "Q212",
+            "Q213",
+            "Q214",
+            "Q215",
+            "Q216",
+            "Q217"
           ]
         },
         {
@@ -77,7 +217,52 @@
           ],
           "is_scored": true,
           "pool": [
-            "Q011"
+            "Q011",
+            "Q016",
+            "Q020",
+            "Q021",
+            "Q035",
+            "Q036",
+            "Q055",
+            "Q058",
+            "Q059",
+            "Q060",
+            "Q061",
+            "Q065",
+            "Q076",
+            "Q077",
+            "Q080",
+            "Q082",
+            "Q118",
+            "Q119",
+            "Q120",
+            "Q121",
+            "Q122",
+            "Q123",
+            "Q124",
+            "Q125",
+            "Q126",
+            "Q127",
+            "Q168",
+            "Q169",
+            "Q170",
+            "Q171",
+            "Q172",
+            "Q173",
+            "Q174",
+            "Q175",
+            "Q176",
+            "Q177",
+            "Q218",
+            "Q219",
+            "Q220",
+            "Q221",
+            "Q222",
+            "Q223",
+            "Q224",
+            "Q225",
+            "Q226",
+            "Q227"
           ]
         },
         {
@@ -89,7 +274,31 @@
           "is_scored": true,
           "pool": [
             "Q009",
-            "Q012"
+            "Q012",
+            "Q017",
+            "Q030",
+            "Q037",
+            "Q068",
+            "Q069",
+            "Q070",
+            "Q071",
+            "Q072",
+            "Q085",
+            "Q133",
+            "Q134",
+            "Q135",
+            "Q136",
+            "Q137",
+            "Q183",
+            "Q184",
+            "Q185",
+            "Q186",
+            "Q187",
+            "Q233",
+            "Q234",
+            "Q235",
+            "Q236",
+            "Q237"
           ]
         }
       ],
@@ -107,6 +316,279 @@
           "present"
         ],
         "contexts": [
+          "everyday_transaction",
+          "personal_familiar",
+          "unexpected_situation"
+        ],
+        "warnings": [
+          "future 시간대 요구가 모든 추첨에서 보장되지 않음"
+        ]
+      }
+    },
+    {
+      "scenario_id": "leisure",
+      "label": "여가 중심",
+      "description": "여가·문화와 공통 일상 과제",
+      "slots": [
+        {
+          "order_no": 1,
+          "question_types": [
+            "self_intro"
+          ],
+          "is_scored": false,
+          "pool": [
+            "Q000"
+          ]
+        },
+        {
+          "order_no": 2,
+          "question_types": [
+            "description"
+          ],
+          "is_scored": true,
+          "pool": [
+            "Q130",
+            "Q181",
+            "Q228"
+          ]
+        },
+        {
+          "order_no": 3,
+          "question_types": [
+            "routine"
+          ],
+          "is_scored": true,
+          "pool": [
+            "Q033"
+          ]
+        },
+        {
+          "order_no": 4,
+          "question_types": [
+            "past_experience"
+          ],
+          "is_scored": true,
+          "pool": [
+            "Q023",
+            "Q053",
+            "Q141",
+            "Q143"
+          ]
+        },
+        {
+          "order_no": 5,
+          "question_types": [
+            "comparison"
+          ],
+          "is_scored": true,
+          "pool": [
+            "Q029",
+            "Q087",
+            "Q102",
+            "Q150",
+            "Q155",
+            "Q200",
+            "Q203"
+          ]
+        },
+        {
+          "order_no": 6,
+          "question_types": [
+            "roleplay_ask"
+          ],
+          "is_scored": true,
+          "pool": [
+            "Q052",
+            "Q108",
+            "Q111",
+            "Q162",
+            "Q165",
+            "Q166",
+            "Q209",
+            "Q214",
+            "Q215"
+          ]
+        },
+        {
+          "order_no": 7,
+          "question_types": [
+            "roleplay_solve"
+          ],
+          "is_scored": true,
+          "pool": [
+            "Q120",
+            "Q122",
+            "Q126",
+            "Q174",
+            "Q221",
+            "Q226"
+          ]
+        },
+        {
+          "order_no": 8,
+          "question_types": [
+            "issue",
+            "roleplay_experience"
+          ],
+          "is_scored": true,
+          "pool": [
+            "Q234"
+          ]
+        }
+      ],
+      "coverage": {
+        "functions": [
+          "ask_information",
+          "compare",
+          "describe",
+          "explain_issue",
+          "express_opinion",
+          "narrate_past",
+          "report_routine",
+          "solve_problem"
+        ],
+        "time_frames": [
+          "past",
+          "present"
+        ],
+        "contexts": [
+          "community_public",
+          "everyday_transaction",
+          "personal_familiar",
+          "unexpected_situation"
+        ],
+        "warnings": [
+          "future 시간대 요구가 모든 추첨에서 보장되지 않음"
+        ]
+      }
+    },
+    {
+      "scenario_id": "health",
+      "label": "운동·건강",
+      "description": "운동·건강과 일상 서비스 과제",
+      "slots": [
+        {
+          "order_no": 1,
+          "question_types": [
+            "self_intro"
+          ],
+          "is_scored": false,
+          "pool": [
+            "Q000"
+          ]
+        },
+        {
+          "order_no": 2,
+          "question_types": [
+            "description"
+          ],
+          "is_scored": true,
+          "pool": [
+            "Q129",
+            "Q131",
+            "Q132",
+            "Q178",
+            "Q182"
+          ]
+        },
+        {
+          "order_no": 3,
+          "question_types": [
+            "routine"
+          ],
+          "is_scored": true,
+          "pool": [
+            "Q073"
+          ]
+        },
+        {
+          "order_no": 4,
+          "question_types": [
+            "past_experience"
+          ],
+          "is_scored": true,
+          "pool": [
+            "Q032",
+            "Q046",
+            "Q195"
+          ]
+        },
+        {
+          "order_no": 5,
+          "question_types": [
+            "comparison"
+          ],
+          "is_scored": true,
+          "pool": [
+            "Q045",
+            "Q063",
+            "Q201"
+          ]
+        },
+        {
+          "order_no": 6,
+          "question_types": [
+            "roleplay_ask"
+          ],
+          "is_scored": true,
+          "pool": [
+            "Q044",
+            "Q079",
+            "Q113",
+            "Q114",
+            "Q208"
+          ]
+        },
+        {
+          "order_no": 7,
+          "question_types": [
+            "roleplay_solve"
+          ],
+          "is_scored": true,
+          "pool": [
+            "Q060",
+            "Q077",
+            "Q121",
+            "Q125",
+            "Q175",
+            "Q177",
+            "Q219",
+            "Q227"
+          ]
+        },
+        {
+          "order_no": 8,
+          "question_types": [
+            "issue",
+            "roleplay_experience"
+          ],
+          "is_scored": true,
+          "pool": [
+            "Q133",
+            "Q137",
+            "Q183",
+            "Q185",
+            "Q187"
+          ]
+        }
+      ],
+      "coverage": {
+        "functions": [
+          "ask_information",
+          "compare",
+          "describe",
+          "explain_issue",
+          "express_opinion",
+          "narrate_past",
+          "report_routine",
+          "solve_problem"
+        ],
+        "time_frames": [
+          "past",
+          "present"
+        ],
+        "contexts": [
+          "community_public",
           "everyday_transaction",
           "personal_familiar",
           "unexpected_situation"

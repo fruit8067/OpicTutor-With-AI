@@ -47,6 +47,7 @@ Q004:
   - compare
   target_time_frames:
   - past
+  - present
   context_scope:
   - personal_familiar
   review_note: '문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음. 혼합 과제: 대표 유형
@@ -139,4 +140,2563 @@ Q012:
   context_scope:
   - everyday_transaction
   - unexpected_situation
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q013:
+  question_excerpt: Describe a restaurant you visit often. Where is it, what is it
+    like, and why do you go there?
+  target_functions:
+  - describe
+  target_time_frames:
+  - present
+  context_scope:
+  - personal_familiar
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q014:
+  question_excerpt: Tell me about a time you missed a bus or train. What happened,
+    and what did you do next?
+  target_functions:
+  - narrate_past
+  target_time_frames:
+  - past
+  context_scope:
+  - personal_familiar
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q015:
+  question_excerpt: How has your neighborhood changed over the past few years? Describe
+    what it was like before and what it is like now.
+  target_functions:
+  - compare
+  target_time_frames:
+  - present
+  - past
+  context_scope:
+  - personal_familiar
+  review_note: '문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음. 혼합 과제: 대표 유형
+    외의 실제 요구를 추가 태그로 기록.'
+Q016:
+  question_excerpt: You registered for a fitness class, but the center changed the
+    schedule. Call the center, explain the problem, ask questions, and suggest an
+    alternative.
+  target_functions:
+  - solve_problem
+  target_time_frames:
+  - present
+  context_scope:
+  - everyday_transaction
+  - unexpected_situation
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q017:
+  question_excerpt: What is one pedestrian safety problem near a school in your community,
+    and what could people do to improve the situation?
+  target_functions:
+  - explain_issue
+  target_time_frames:
+  - present
+  context_scope:
+  - community_public
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q018:
+  question_excerpt: Describe a mobile app you use frequently. Explain its main features
+    and why it is useful to you.
+  target_functions:
+  - describe
+  target_time_frames:
+  - present
+  context_scope:
+  - personal_familiar
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q019:
+  question_excerpt: Tell me about a new hobby or skill you learned. How did you start,
+    and what was challenging?
+  target_functions:
+  - narrate_past
+  target_time_frames:
+  - past
+  context_scope:
+  - personal_familiar
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음. 단조성 휴리스틱 경고가
+    있어 출제는 todo로 보류.
+Q020:
+  question_excerpt: You bought a jacket, but it is the wrong size. Call the store,
+    explain the problem, and ask about an exchange or refund.
+  target_functions:
+  - solve_problem
+  target_time_frames:
+  - present
+  context_scope:
+  - everyday_transaction
+  - unexpected_situation
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q021:
+  question_excerpt: You made an appointment for a haircut, but your schedule has changed.
+    Call the salon and reschedule it.
+  target_functions:
+  - solve_problem
+  target_time_frames:
+  - present
+  context_scope:
+  - everyday_transaction
+  - unexpected_situation
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q022:
+  question_excerpt: Describe a book you enjoyed. What happened in the story, and why
+    was it memorable?
+  target_functions:
+  - narrate_past
+  target_time_frames:
+  - past
+  context_scope:
+  - personal_familiar
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q023:
+  question_excerpt: Describe a festival or community event you attended. What did
+    you see and do there?
+  target_functions:
+  - narrate_past
+  target_time_frames:
+  - past
+  context_scope:
+  - community_public
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q024:
+  question_excerpt: Tell me about a time bad weather changed your outdoor plans. Explain
+    how you adjusted.
+  target_functions:
+  - narrate_past
+  - compare
+  target_time_frames:
+  - past
+  context_scope:
+  - personal_familiar
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q025:
+  question_excerpt: Tell me about a time you lost something valuable. How did you
+    look for it, and what happened?
+  target_functions:
+  - narrate_past
+  target_time_frames:
+  - past
+  context_scope:
+  - personal_familiar
+  - unexpected_situation
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q026:
+  question_excerpt: Describe a place where you like to study or concentrate. What
+    is it like, and why do you prefer it?
+  target_functions:
+  - describe
+  target_time_frames:
+  - present
+  context_scope:
+  - personal_familiar
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q027:
+  question_excerpt: Describe a volunteer activity you participated in. What did you
+    do, and what did you learn?
+  target_functions:
+  - narrate_past
+  target_time_frames:
+  - past
+  context_scope:
+  - community_public
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q028:
+  question_excerpt: Tell me how you became friends with someone important to you.
+    What happened when you first met?
+  target_functions:
+  - narrate_past
+  target_time_frames:
+  - past
+  context_scope:
+  - personal_familiar
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q029:
+  question_excerpt: How has the way you communicate with family and friends changed
+    since you were younger?
+  target_functions:
+  - compare
+  target_time_frames:
+  - present
+  - past
+  context_scope:
+  - personal_familiar
+  review_note: '문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음. 혼합 과제: 대표 유형
+    외의 실제 요구를 추가 태그로 기록.'
+Q030:
+  question_excerpt: Do you prefer shopping online or in physical stores? Explain your
+    opinion with examples.
+  target_functions:
+  - explain_issue
+  - express_opinion
+  target_time_frames:
+  - present
+  context_scope:
+  - community_public
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q031:
+  question_excerpt: Describe a meal you tried to cook yourself. What went well or
+    wrong, and how did it turn out?
+  target_functions:
+  - narrate_past
+  target_time_frames:
+  - past
+  context_scope:
+  - personal_familiar
+  - unexpected_situation
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q032:
+  question_excerpt: Tell me about a sports event you watched in person. What happened,
+    and why do you remember it?
+  target_functions:
+  - narrate_past
+  target_time_frames:
+  - past
+  context_scope:
+  - personal_familiar
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q033:
+  question_excerpt: Do you enjoy taking photographs? Describe what you usually photograph
+    and one picture you remember.
+  target_functions:
+  - report_routine
+  - describe
+  target_time_frames:
+  - present
+  context_scope:
+  - personal_familiar
+  review_note: '문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음. 혼합 과제: 대표 유형
+    외의 실제 요구를 추가 태그로 기록.'
+Q034:
+  question_excerpt: Describe a problem you had while working on a group project. How
+    did your team resolve it?
+  target_functions:
+  - narrate_past
+  target_time_frames:
+  - past
+  context_scope:
+  - personal_familiar
+  - unexpected_situation
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q035:
+  question_excerpt: There is a water leak in your apartment. Call the property manager,
+    explain the situation, and request assistance.
+  target_functions:
+  - solve_problem
+  target_time_frames:
+  - present
+  context_scope:
+  - everyday_transaction
+  - unexpected_situation
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q036:
+  question_excerpt: A visitor asks how to get from the subway station to the city
+    museum. Give directions and explain an alternative if a street is closed.
+  target_functions:
+  - solve_problem
+  target_time_frames:
+  - present
+  context_scope:
+  - community_public
+  - unexpected_situation
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q037:
+  question_excerpt: Your city is considering building a new cultural center. Do you
+    support the plan? Explain your opinion and address possible concerns.
+  target_functions:
+  - explain_issue
+  - express_opinion
+  target_time_frames:
+  - present
+  context_scope:
+  - community_public
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q038:
+  question_excerpt: Tell me about a time you changed the furniture or layout in your
+    home. What did you change, why did you change it, and how did it turn out?
+  target_functions:
+  - narrate_past
+  - compare
+  target_time_frames:
+  - past
+  context_scope:
+  - personal_familiar
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q039:
+  question_excerpt: How does your family share household chores these days? Compare
+    your responsibilities now with the chores you did when you were younger. What
+    has changed, and why?
+  target_functions:
+  - compare
+  - report_routine
+  target_time_frames:
+  - present
+  - past
+  context_scope:
+  - personal_familiar
+  review_note: '문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음. 혼합 과제: 대표 유형
+    외의 실제 요구를 추가 태그로 기록.'
+Q040:
+  question_excerpt: Tell me about a time you got hurt while hiking. Where were you,
+    what happened on the trail, and what did you and the people with you do afterward?
+  target_functions:
+  - narrate_past
+  target_time_frames:
+  - past
+  context_scope:
+  - personal_familiar
+  - unexpected_situation
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음. 단조성 휴리스틱 경고가
+    있어 출제는 todo로 보류.
+Q041:
+  question_excerpt: Describe a beach you enjoy visiting. Where is it, what do you
+    normally do there, and can you tell me about a visit that you especially remember?
+  target_functions:
+  - describe
+  - report_routine
+  - narrate_past
+  target_time_frames:
+  - present
+  - past
+  context_scope:
+  - personal_familiar
+  review_note: '문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음. 혼합 과제: 대표 유형
+    외의 실제 요구를 추가 태그로 기록.'
+Q042:
+  question_excerpt: How has public transportation in your area changed since you were
+    a child? Compare what taking buses or trains was like then with what it is like
+    today.
+  target_functions:
+  - compare
+  target_time_frames:
+  - present
+  - past
+  context_scope:
+  - personal_familiar
+  review_note: '문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음. 단조성 휴리스틱 경고가
+    있어 출제는 todo로 보류. 혼합 과제: 대표 유형 외의 실제 요구를 추가 태그로 기록.'
+Q043:
+  question_excerpt: Describe the bank you usually use. What is the branch like, how
+    do you use its services, and how has the way you bank changed over time?
+  target_functions:
+  - compare
+  - report_routine
+  - describe
+  target_time_frames:
+  - present
+  - past
+  context_scope:
+  - personal_familiar
+  review_note: '문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음. 혼합 과제: 대표 유형
+    외의 실제 요구를 추가 태그로 기록.'
+Q044:
+  question_excerpt: You need to replace a bank card that you have lost. Call your
+    bank and ask three or four questions about the identification you need, the replacement
+    process, and when you can get the new card.
+  target_functions:
+  - ask_information
+  target_time_frames:
+  - present
+  context_scope:
+  - everyday_transaction
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q045:
+  question_excerpt: Think about the dentist you went to when you were young and the
+    one you visit now. How are they similar or different, and how has your experience
+    of dental visits changed?
+  target_functions:
+  - compare
+  target_time_frames:
+  - present
+  - past
+  context_scope:
+  - personal_familiar
+  review_note: '문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음. 혼합 과제: 대표 유형
+    외의 실제 요구를 추가 태그로 기록.'
+Q046:
+  question_excerpt: Tell me about a memorable visit to a hospital or clinic. Why did
+    you need to go, what problem came up, and how did you handle the situation?
+  target_functions:
+  - narrate_past
+  target_time_frames:
+  - past
+  context_scope:
+  - personal_familiar
+  - unexpected_situation
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q047:
+  question_excerpt: What is your major, and what kind of semester project are you
+    working on? Describe the project, the difficulties you faced, and how you and
+    your team dealt with them.
+  target_functions:
+  - narrate_past
+  - describe
+  target_time_frames:
+  - past
+  - present
+  context_scope:
+  - personal_familiar
+  review_note: '문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음. 혼합 과제: 대표 유형
+    외의 실제 요구를 추가 태그로 기록.'
+Q048:
+  question_excerpt: What is the geography of your country like? Describe its major
+    geographical features and explain which natural landscapes make it special to
+    visitors.
+  target_functions:
+  - describe
+  target_time_frames:
+  - present
+  context_scope:
+  - community_public
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q049:
+  question_excerpt: Tell me about an outdoor activity you did in a place with unusual
+    natural features. Where did you go, what did you do there, and what made the experience
+    memorable?
+  target_functions:
+  - narrate_past
+  target_time_frames:
+  - past
+  context_scope:
+  - personal_familiar
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q050:
+  question_excerpt: How have clothing styles and fashion trends changed from when
+    you were younger to today? Explain what has stayed the same and what is different.
+  target_functions:
+  - compare
+  target_time_frames:
+  - present
+  - past
+  context_scope:
+  - personal_familiar
+  review_note: '문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음. 혼합 과제: 대표 유형
+    외의 실제 요구를 추가 태그로 기록.'
+Q051:
+  question_excerpt: Compare singers and composers. What do they have in common, how
+    are their roles different, and how do they contribute to a song?
+  target_functions:
+  - compare
+  target_time_frames:
+  - present
+  context_scope:
+  - personal_familiar
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q052:
+  question_excerpt: You want to buy two tickets for a concert. Call the concert venue
+    and ask three or four questions about available seats, prices, and how to make
+    the purchase.
+  target_functions:
+  - ask_information
+  target_time_frames:
+  - present
+  context_scope:
+  - everyday_transaction
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q053:
+  question_excerpt: Tell me about the most memorable concert you have attended. When
+    and where was it, who went with you, and what happened that made it stand out?
+  target_functions:
+  - narrate_past
+  target_time_frames:
+  - past
+  context_scope:
+  - personal_familiar
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q054:
+  question_excerpt: A friend tells you that their family has opened a restaurant.
+    Call your friend and ask three or four questions about the food, location, hours,
+    and services before you visit.
+  target_functions:
+  - ask_information
+  target_time_frames:
+  - present
+  context_scope:
+  - everyday_transaction
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q055:
+  question_excerpt: You ordered food for delivery, but the wrong meal arrived. Call
+    the restaurant, explain what happened, and suggest two possible ways to fix the
+    problem.
+  target_functions:
+  - solve_problem
+  target_time_frames:
+  - present
+  context_scope:
+  - everyday_transaction
+  - unexpected_situation
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q056:
+  question_excerpt: Tell me about an especially memorable experience with food delivery.
+    What did you order, who were you with, and what happened that made it memorable?
+  target_functions:
+  - narrate_past
+  target_time_frames:
+  - past
+  context_scope:
+  - personal_familiar
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q057:
+  question_excerpt: Tell me about a time something went wrong while you were using
+    a bank service. Describe the problem, what you did, and how it was resolved.
+  target_functions:
+  - narrate_past
+  target_time_frames:
+  - past
+  context_scope:
+  - personal_familiar
+  - unexpected_situation
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q058:
+  question_excerpt: You rent an apartment, and a window has been damaged. Call your
+    landlord, explain the damage and why it needs attention, and ask for a practical
+    repair arrangement.
+  target_functions:
+  - solve_problem
+  target_time_frames:
+  - present
+  context_scope:
+  - everyday_transaction
+  - unexpected_situation
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q059:
+  question_excerpt: You borrowed an e-book reader from a friend, but you cannot find
+    it now. Call your friend, explain what happened, apologize, and offer ways to
+    make up for the loss.
+  target_functions:
+  - solve_problem
+  target_time_frames:
+  - present
+  context_scope:
+  - everyday_transaction
+  - unexpected_situation
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q060:
+  question_excerpt: You accidentally broke a music player that a friend lent you.
+    Call your friend, explain the damage, and suggest two or three reasonable ways
+    to resolve the problem.
+  target_functions:
+  - solve_problem
+  target_time_frames:
+  - present
+  context_scope:
+  - everyday_transaction
+  - unexpected_situation
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q061:
+  question_excerpt: You are using a computer at the public library, but it has stopped
+    working. Speak to a librarian, explain the problem and why you need the computer,
+    and ask for help or an alternative.
+  target_functions:
+  - solve_problem
+  target_time_frames:
+  - present
+  context_scope:
+  - everyday_transaction
+  - unexpected_situation
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q062:
+  question_excerpt: You are thinking of buying a laptop for school and work. Call
+    an electronics store and ask several questions about the laptop's specifications,
+    price, warranty, and availability.
+  target_functions:
+  - ask_information
+  target_time_frames:
+  - present
+  context_scope:
+  - everyday_transaction
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q063:
+  question_excerpt: Compare how students used technology for learning in the past
+    with how they use it today. What has changed about classes, assignments, and communication
+    with teachers?
+  target_functions:
+  - compare
+  target_time_frames:
+  - present
+  - past
+  context_scope:
+  - personal_familiar
+  review_note: '문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음. 혼합 과제: 대표 유형
+    외의 실제 요구를 추가 태그로 기록.'
+Q064:
+  question_excerpt: Think about the first mobile phone you owned and the smartphone
+    you use now. What could each device do, and how has your daily use of a phone
+    changed?
+  target_functions:
+  - compare
+  target_time_frames:
+  - present
+  - past
+  context_scope:
+  - personal_familiar
+  review_note: '문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음. 혼합 과제: 대표 유형
+    외의 실제 요구를 추가 태그로 기록.'
+Q065:
+  question_excerpt: You cannot sign in to an important website you need for your classes.
+    Contact its support staff, explain the error, and ask for help and a way to proceed
+    if it cannot be fixed immediately.
+  target_functions:
+  - solve_problem
+  target_time_frames:
+  - present
+  context_scope:
+  - everyday_transaction
+  - unexpected_situation
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q066:
+  question_excerpt: Tell me about a time you had difficulty using a new website. What
+    were you trying to do, what went wrong, and how did you finally solve the problem?
+  target_functions:
+  - narrate_past
+  target_time_frames:
+  - past
+  context_scope:
+  - personal_familiar
+  - unexpected_situation
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q067:
+  question_excerpt: How has the use of electronic devices at school changed since
+    you were younger? Compare your earlier study habits with how you study and submit
+    work today.
+  target_functions:
+  - compare
+  target_time_frames:
+  - present
+  - past
+  context_scope:
+  - personal_familiar
+  review_note: '문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음. 혼합 과제: 대표 유형
+    외의 실제 요구를 추가 태그로 기록.'
+Q068:
+  question_excerpt: Some jobs have changed or disappeared because of new technology.
+    Describe a few examples, explain why this is happening, and share your opinion
+    about the changes.
+  target_functions:
+  - explain_issue
+  - compare
+  - express_opinion
+  target_time_frames:
+  - present
+  context_scope:
+  - community_public
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q069:
+  question_excerpt: Tell me about an important industry in your country, such as semiconductors.
+    How has it developed, and what factors have helped it grow?
+  target_functions:
+  - explain_issue
+  target_time_frames:
+  - present
+  context_scope:
+  - community_public
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q070:
+  question_excerpt: Think about a newly released electronic product. What makes a
+    product launch successful or unsuccessful? Explain the factors you would consider
+    and give examples.
+  target_functions:
+  - explain_issue
+  - express_opinion
+  target_time_frames:
+  - present
+  context_scope:
+  - community_public
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q071:
+  question_excerpt: Tell me about a recent development in artificial intelligence
+    or another technology that interests you. What can it be used for, and what effects
+    might it have on people's lives?
+  target_functions:
+  - explain_issue
+  - express_opinion
+  target_time_frames:
+  - present
+  - future
+  context_scope:
+  - community_public
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q072:
+  question_excerpt: Food contamination can cause serious problems. What should people
+    do at home and what should restaurants do to keep food safe? Explain your ideas.
+  target_functions:
+  - explain_issue
+  - express_opinion
+  target_time_frames:
+  - present
+  context_scope:
+  - community_public
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q073:
+  question_excerpt: What do you usually do to stay healthy? Describe your daily habits,
+    why you follow them, and how they affect the way you feel.
+  target_functions:
+  - report_routine
+  target_time_frames:
+  - present
+  context_scope:
+  - personal_familiar
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q074:
+  question_excerpt: Tell me about a particularly memorable vacation you spent at home.
+    How did you spend your time, who was involved, and why do you remember it?
+  target_functions:
+  - narrate_past
+  target_time_frames:
+  - past
+  context_scope:
+  - personal_familiar
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q075:
+  question_excerpt: Describe a major holiday in your country and how your family celebrates
+    it. What do you usually do together, and has the way you celebrate changed?
+  target_functions:
+  - report_routine
+  - compare
+  - describe
+  target_time_frames:
+  - present
+  - past
+  context_scope:
+  - community_public
+  review_note: '문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음. 혼합 과제: 대표 유형
+    외의 실제 요구를 추가 태그로 기록.'
+Q076:
+  question_excerpt: Imagine that your class has an outdoor activity planned, but rain
+    is expected. Talk to your teacher, explain your concerns, and suggest at least
+    two alternative plans.
+  target_functions:
+  - solve_problem
+  target_time_frames:
+  - present
+  context_scope:
+  - everyday_transaction
+  - unexpected_situation
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q077:
+  question_excerpt: A gym class you paid for has been canceled. Contact the gym, explain
+    your situation, and ask for a makeup class, a refund, or another reasonable solution.
+  target_functions:
+  - solve_problem
+  target_time_frames:
+  - present
+  context_scope:
+  - everyday_transaction
+  - unexpected_situation
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q078:
+  question_excerpt: You want to meet a nutrition counselor to discuss your diet. Call
+    the office, ask three or four questions about the appointment, preparation, and
+    services, and arrange a suitable time.
+  target_functions:
+  - ask_information
+  target_time_frames:
+  - present
+  context_scope:
+  - everyday_transaction
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q079:
+  question_excerpt: You need to make a dental appointment. Call the dental clinic
+    and ask about available dates, the appointment process, and what you should prepare.
+  target_functions:
+  - ask_information
+  target_time_frames:
+  - present
+  context_scope:
+  - everyday_transaction
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q080:
+  question_excerpt: Your car is having a problem and you need repairs. Call an auto
+    repair shop, describe the symptoms, and ask about inspection, repair time, and
+    scheduling.
+  target_functions:
+  - solve_problem
+  target_time_frames:
+  - present
+  context_scope:
+  - everyday_transaction
+  - unexpected_situation
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q081:
+  question_excerpt: You have an upcoming job interview. Call the company and ask several
+    questions about the interview format, location, schedule, and what you should
+    bring.
+  target_functions:
+  - ask_information
+  target_time_frames:
+  - present
+  context_scope:
+  - everyday_transaction
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q082:
+  question_excerpt: You have a job interview scheduled, but an unexpected conflict
+    means you cannot attend at that time. Call the company, explain the situation
+    politely, and request a new appointment.
+  target_functions:
+  - solve_problem
+  target_time_frames:
+  - present
+  context_scope:
+  - everyday_transaction
+  - unexpected_situation
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q083:
+  question_excerpt: Tell me about a time you were late for an important appointment
+    or meeting. What caused the delay, how did you let the others know, and what happened
+    afterward?
+  target_functions:
+  - narrate_past
+  target_time_frames:
+  - past
+  context_scope:
+  - personal_familiar
+  - unexpected_situation
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q084:
+  question_excerpt: Tell me about a time you had trouble learning to use a new piece
+    of technology. What made it difficult, how did you learn to use it, and what was
+    the result?
+  target_functions:
+  - narrate_past
+  target_time_frames:
+  - past
+  context_scope:
+  - personal_familiar
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q085:
+  question_excerpt: Housing costs and finding a place to live can be challenging.
+    What are some housing problems people face in your country, and what could be
+    done to improve the situation?
+  target_functions:
+  - explain_issue
+  - express_opinion
+  target_time_frames:
+  - present
+  context_scope:
+  - community_public
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q086:
+  question_excerpt: Choose two parks in your country that you know. Compare their
+    location, facilities, atmosphere, and the activities people can enjoy there.
+  target_functions:
+  - compare
+  target_time_frames:
+  - present
+  context_scope:
+  - personal_familiar
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q087:
+  question_excerpt: Choose two members of your family. Describe their personalities
+    and daily habits, and explain their similarities and differences with examples.
+  target_functions:
+  - compare
+  - report_routine
+  target_time_frames:
+  - present
+  context_scope:
+  - personal_familiar
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q088:
+  question_excerpt: Tell me about a time you invited friends to your home for a meal
+    or gathering. How did you prepare, did anything unexpected happen, and how did
+    you handle it?
+  target_functions:
+  - narrate_past
+  target_time_frames:
+  - past
+  context_scope:
+  - personal_familiar
+  - unexpected_situation
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음. 단조성 휴리스틱 경고가
+    있어 출제는 todo로 보류.
+Q089:
+  question_excerpt: Tell me about the first time you visited a friend's home. What
+    was the house like, what did you do there, and was anything surprising or memorable?
+  target_functions:
+  - narrate_past
+  target_time_frames:
+  - past
+  context_scope:
+  - personal_familiar
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음. 단조성 휴리스틱 경고가
+    있어 출제는 todo로 보류.
+Q090:
+  question_excerpt: Tell me about a time you had a problem with your seat at a movie
+    theater. What went wrong, how did you deal with the other people or staff, and
+    what happened in the end?
+  target_functions:
+  - narrate_past
+  target_time_frames:
+  - past
+  context_scope:
+  - personal_familiar
+  - unexpected_situation
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음. 단조성 휴리스틱 경고가
+    있어 출제는 todo로 보류.
+Q091:
+  question_excerpt: Tell me about a time bad weather interrupted a visit to the beach.
+    What were you planning to do, how did your plans change, and how did the day turn
+    out?
+  target_functions:
+  - narrate_past
+  target_time_frames:
+  - past
+  context_scope:
+  - personal_familiar
+  - unexpected_situation
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음. 단조성 휴리스틱 경고가
+    있어 출제는 todo로 보류.
+Q092:
+  question_excerpt: Tell me about a problem you experienced with your belongings while
+    traveling abroad. What went missing, what steps did you take, and how was it resolved?
+  target_functions:
+  - narrate_past
+  target_time_frames:
+  - past
+  context_scope:
+  - personal_familiar
+  - unexpected_situation
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음. 단조성 휴리스틱 경고가
+    있어 출제는 todo로 보류.
+Q093:
+  question_excerpt: Tell me about a time the schedule changed unexpectedly at a local
+    festival you attended. What had you planned, how did you adjust, and what was
+    the result?
+  target_functions:
+  - narrate_past
+  - compare
+  target_time_frames:
+  - past
+  context_scope:
+  - personal_familiar
+  - unexpected_situation
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음. 단조성 휴리스틱 경고가
+    있어 출제는 todo로 보류.
+Q094:
+  question_excerpt: Tell me about a time you could not verify your identity or log
+    in to a banking app. What caused the problem, what did you try, and how did you
+    solve it?
+  target_functions:
+  - narrate_past
+  target_time_frames:
+  - past
+  context_scope:
+  - personal_familiar
+  - unexpected_situation
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음. 단조성 휴리스틱 경고가
+    있어 출제는 todo로 보류.
+Q095:
+  question_excerpt: Tell me about a time you could not pay for your groceries in the
+    usual way. What happened at the checkout, and how did you complete your purchase?
+  target_functions:
+  - narrate_past
+  target_time_frames:
+  - past
+  context_scope:
+  - personal_familiar
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음. 단조성 휴리스틱 경고가
+    있어 출제는 todo로 보류.
+Q096:
+  question_excerpt: Tell me about a problem your family faced while preparing food
+    for a holiday. What was missing or went wrong, how did you respond, and what happened?
+  target_functions:
+  - narrate_past
+  target_time_frames:
+  - past
+  context_scope:
+  - personal_familiar
+  - unexpected_situation
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음. 단조성 휴리스틱 경고가
+    있어 출제는 todo로 보류.
+Q097:
+  question_excerpt: Tell me about a time an electronic device or accessory failed
+    just before a trip. What did you need it for, and how did you handle the problem?
+  target_functions:
+  - narrate_past
+  target_time_frames:
+  - past
+  context_scope:
+  - personal_familiar
+  - unexpected_situation
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음. 단조성 휴리스틱 경고가
+    있어 출제는 todo로 보류.
+Q098:
+  question_excerpt: Compare visiting a close friend's home with visiting a relative's
+    home. What is similar about the visits, and how are the atmosphere and activities
+    different?
+  target_functions:
+  - compare
+  target_time_frames:
+  - present
+  context_scope:
+  - personal_familiar
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q099:
+  question_excerpt: Compare the home you lived in as a child with the one you live
+    in now. How did your family use the rooms and space then, and how is it different
+    today?
+  target_functions:
+  - compare
+  target_time_frames:
+  - present
+  - past
+  context_scope:
+  - personal_familiar
+  review_note: '문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음. 혼합 과제: 대표 유형
+    외의 실제 요구를 추가 태그로 기록.'
+Q100:
+  question_excerpt: Compare traveling a long distance by train and by express bus.
+    What are the advantages and disadvantages of each, and which do you prefer?
+  target_functions:
+  - compare
+  target_time_frames:
+  - present
+  context_scope:
+  - personal_familiar
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q101:
+  question_excerpt: How is taking public transportation during rush hour different
+    from taking it in the middle of the day? Describe the differences in crowds, comfort,
+    and travel time.
+  target_functions:
+  - compare
+  target_time_frames:
+  - present
+  context_scope:
+  - personal_familiar
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q102:
+  question_excerpt: Compare the ways you listened to music as a child with the way
+    you listen now. What devices and services did you use then, and how are they different
+    today?
+  target_functions:
+  - compare
+  target_time_frames:
+  - present
+  - past
+  context_scope:
+  - personal_familiar
+  review_note: '문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음. 혼합 과제: 대표 유형
+    외의 실제 요구를 추가 태그로 기록.'
+Q103:
+  question_excerpt: Compare finding information in a library with searching for it
+    on the internet. What is useful about each method, and when would you choose one
+    over the other?
+  target_functions:
+  - compare
+  target_time_frames:
+  - present
+  context_scope:
+  - personal_familiar
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q104:
+  question_excerpt: Compare a busy beach near a city with a quieter natural beach.
+    What do they have in common, and how are the facilities, scenery, and experience
+    different?
+  target_functions:
+  - compare
+  target_time_frames:
+  - present
+  context_scope:
+  - personal_familiar
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q105:
+  question_excerpt: Compare studying in an online class with attending a class in
+    person. How are the learning experience and interaction with the teacher different?
+  target_functions:
+  - compare
+  target_time_frames:
+  - present
+  context_scope:
+  - personal_familiar
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q106:
+  question_excerpt: Think about family trips you took as a child and trips you plan
+    yourself today. What has changed about the planning, responsibilities, and experience?
+  target_functions:
+  - compare
+  target_time_frames:
+  - present
+  - past
+  context_scope:
+  - personal_familiar
+  review_note: '문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음. 혼합 과제: 대표 유형
+    외의 실제 요구를 추가 태그로 기록.'
+Q107:
+  question_excerpt: Compare watching a movie alone at home and going to a movie theater
+    with friends. What are the benefits and drawbacks of each experience?
+  target_functions:
+  - compare
+  target_time_frames:
+  - present
+  context_scope:
+  - personal_familiar
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q108:
+  question_excerpt: You want to join a chess gathering with a friend. Call your friend
+    and ask three or four questions about where and when to meet, what to bring, and
+    who will be there.
+  target_functions:
+  - ask_information
+  target_time_frames:
+  - present
+  context_scope:
+  - everyday_transaction
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q109:
+  question_excerpt: A new public library has opened in your neighborhood. Call the
+    library and ask several questions about getting a membership and the rules for
+    using its facilities.
+  target_functions:
+  - ask_information
+  target_time_frames:
+  - present
+  context_scope:
+  - everyday_transaction
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q110:
+  question_excerpt: You want to order groceries online from a supermarket. Call the
+    store and ask three or four questions about delivery areas, fees, times, and ordering
+    procedures.
+  target_functions:
+  - ask_information
+  target_time_frames:
+  - present
+  context_scope:
+  - everyday_transaction
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q111:
+  question_excerpt: You are planning to visit a movie theater with someone who uses
+    a wheelchair. Call the theater and ask about accessible entrances, seats, and
+    other assistance.
+  target_functions:
+  - ask_information
+  target_time_frames:
+  - present
+  context_scope:
+  - everyday_transaction
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q112:
+  question_excerpt: You are flying overseas soon. Call the airline and ask a few questions
+    about baggage allowances, connecting flights, and what you should do during a
+    transfer.
+  target_functions:
+  - ask_information
+  target_time_frames:
+  - present
+  context_scope:
+  - everyday_transaction
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q113:
+  question_excerpt: You want to try a beginner's swimming class. Call a swimming pool
+    and ask about class times, prices, a trial lesson, and what equipment you need.
+  target_functions:
+  - ask_information
+  target_time_frames:
+  - present
+  context_scope:
+  - everyday_transaction
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q114:
+  question_excerpt: You need a copy of your medical records from a hospital. Call
+    the records office and ask how to request the documents, what identification is
+    needed, and when they will be ready.
+  target_functions:
+  - ask_information
+  target_time_frames:
+  - present
+  context_scope:
+  - everyday_transaction
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q115:
+  question_excerpt: You are interested in a robotics workshop at a science and technology
+    center. Call and ask about the schedule, registration requirements, materials,
+    and fees.
+  target_functions:
+  - ask_information
+  target_time_frames:
+  - present
+  context_scope:
+  - everyday_transaction
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q116:
+  question_excerpt: You want to volunteer at a local festival. Call the organizer
+    and ask about available duties, work hours, registration, and any training required.
+  target_functions:
+  - ask_information
+  target_time_frames:
+  - present
+  context_scope:
+  - everyday_transaction
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q117:
+  question_excerpt: You are considering renting a small apartment. Call the landlord
+    or agent and ask about the rent, maintenance fees, and who is responsible for
+    repairs.
+  target_functions:
+  - ask_information
+  target_time_frames:
+  - present
+  context_scope:
+  - everyday_transaction
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q118:
+  question_excerpt: You arranged to meet a friend at a park, but the park has closed
+    for an event. Call your friend, explain what happened, and suggest two alternative
+    places or plans.
+  target_functions:
+  - solve_problem
+  target_time_frames:
+  - present
+  context_scope:
+  - everyday_transaction
+  - unexpected_situation
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q119:
+  question_excerpt: You borrowed your friend's earphones, but one side has stopped
+    working. Call your friend, apologize, explain the situation, and offer a couple
+    of ways to fix it.
+  target_functions:
+  - solve_problem
+  target_time_frames:
+  - present
+  context_scope:
+  - everyday_transaction
+  - unexpected_situation
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q120:
+  question_excerpt: You bought concert tickets online and were charged twice. Call
+    customer service, explain the duplicate payment, and request a refund or another
+    workable solution.
+  target_functions:
+  - solve_problem
+  target_time_frames:
+  - present
+  context_scope:
+  - everyday_transaction
+  - unexpected_situation
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q121:
+  question_excerpt: A yoga class scheduled outdoors was canceled because of rain.
+    Contact the organizer, explain the inconvenience, and ask about a makeup session
+    or refund.
+  target_functions:
+  - solve_problem
+  target_time_frames:
+  - present
+  context_scope:
+  - everyday_transaction
+  - unexpected_situation
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q122:
+  question_excerpt: You planned to visit a friend's family, but the time you agreed
+    on no longer works. Call your friend, explain the change, and suggest an alternative
+    arrangement.
+  target_functions:
+  - solve_problem
+  target_time_frames:
+  - present
+  context_scope:
+  - everyday_transaction
+  - unexpected_situation
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q123:
+  question_excerpt: You are staying at a hotel, but the internet connection in your
+    room does not work and you have an online meeting soon. Call the front desk and
+    ask for a practical solution.
+  target_functions:
+  - solve_problem
+  target_time_frames:
+  - present
+  context_scope:
+  - everyday_transaction
+  - unexpected_situation
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q124:
+  question_excerpt: The train you planned to take to the airport has been canceled.
+    Call your travel companion, explain the situation, and suggest other ways to get
+    to the airport on time.
+  target_functions:
+  - solve_problem
+  target_time_frames:
+  - present
+  context_scope:
+  - everyday_transaction
+  - unexpected_situation
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q125:
+  question_excerpt: You are running late for a hospital appointment. Call the hospital,
+    explain the delay, and ask whether you can arrive late or reschedule.
+  target_functions:
+  - solve_problem
+  target_time_frames:
+  - present
+  context_scope:
+  - everyday_transaction
+  - unexpected_situation
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q126:
+  question_excerpt: You notice that a photo caption in a local festival brochure is
+    incorrect. Contact the organizer, explain the mistake, and suggest how they could
+    correct it.
+  target_functions:
+  - solve_problem
+  target_time_frames:
+  - present
+  context_scope:
+  - everyday_transaction
+  - unexpected_situation
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q127:
+  question_excerpt: You rented a tent at a campsite, but its zipper is broken. Speak
+    to the staff, explain the problem, and request another tent or an acceptable alternative.
+  target_functions:
+  - solve_problem
+  target_time_frames:
+  - present
+  context_scope:
+  - everyday_transaction
+  - unexpected_situation
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q128:
+  question_excerpt: Describe a large supermarket you know in your country. What is
+    the place like, what services does it offer, and how do people usually shop there?
+  target_functions:
+  - describe
+  - report_routine
+  target_time_frames:
+  - present
+  context_scope:
+  - community_public
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q129:
+  question_excerpt: Describe the hospital or clinic you usually visit. What does it
+    look like, and what steps do you follow from checking in to seeing the doctor?
+  target_functions:
+  - describe
+  - report_routine
+  target_time_frames:
+  - present
+  context_scope:
+  - personal_familiar
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q130:
+  question_excerpt: Describe a local festival venue you have visited. What was the
+    atmosphere like, and what kinds of food stalls, performances, and activities could
+    people enjoy?
+  target_functions:
+  - describe
+  target_time_frames:
+  - past
+  context_scope:
+  - community_public
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q131:
+  question_excerpt: Describe a walking trail near a river or the sea. What does the
+    landscape look like, and what do people usually do there?
+  target_functions:
+  - describe
+  - report_routine
+  target_time_frames:
+  - present
+  context_scope:
+  - community_public
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q132:
+  question_excerpt: Describe your university library. How are the study areas and
+    book collections arranged, and how do students use the facilities?
+  target_functions:
+  - describe
+  - report_routine
+  target_time_frames:
+  - present
+  context_scope:
+  - community_public
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q133:
+  question_excerpt: What do you think students should keep in mind when using generative
+    AI for school assignments? Explain what responsible use means to you and give
+    examples.
+  target_functions:
+  - explain_issue
+  - express_opinion
+  target_time_frames:
+  - present
+  context_scope:
+  - community_public
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q134:
+  question_excerpt: What should visitors do to protect natural places such as beaches
+    and mountains? Explain why it matters and what individuals and local authorities
+    can do.
+  target_functions:
+  - explain_issue
+  - express_opinion
+  target_time_frames:
+  - present
+  context_scope:
+  - community_public
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q135:
+  question_excerpt: If your city could improve one part of its public transportation
+    system, what should it focus on? Explain the problem and the changes you would
+    recommend.
+  target_functions:
+  - explain_issue
+  - compare
+  - express_opinion
+  target_time_frames:
+  - present
+  context_scope:
+  - community_public
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q136:
+  question_excerpt: What difficulties do young people face when trying to find a place
+    to live? Describe the main cost and information problems and suggest ways to improve
+    them.
+  target_functions:
+  - explain_issue
+  - express_opinion
+  target_time_frames:
+  - present
+  context_scope:
+  - community_public
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q137:
+  question_excerpt: People often look up health advice on the internet. What are the
+    advantages and risks of doing that, and when should they seek professional advice
+    instead?
+  target_functions:
+  - explain_issue
+  - express_opinion
+  target_time_frames:
+  - present
+  context_scope:
+  - community_public
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q138:
+  question_excerpt: Tell me about a time the electricity suddenly went out while you
+    were preparing dinner or spending the evening at home. What happened, and how
+    did your family manage?
+  target_functions:
+  - narrate_past
+  target_time_frames:
+  - past
+  context_scope:
+  - personal_familiar
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q139:
+  question_excerpt: Tell me about a time your internet connection failed when you
+    needed to submit an assignment. What did you do to finish and submit your work?
+  target_functions:
+  - narrate_past
+  target_time_frames:
+  - past
+  context_scope:
+  - personal_familiar
+  - unexpected_situation
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q140:
+  question_excerpt: Tell me about a time your travel plans changed because you misunderstood
+    a departure time. What happened, and how did you adjust your trip?
+  target_functions:
+  - narrate_past
+  - compare
+  target_time_frames:
+  - past
+  context_scope:
+  - personal_familiar
+  - unexpected_situation
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음. 단조성 휴리스틱 경고가
+    있어 출제는 todo로 보류.
+Q141:
+  question_excerpt: Tell me about a holiday when your family's visiting plans changed
+    unexpectedly. Why did they change, and what did your family do instead?
+  target_functions:
+  - narrate_past
+  - compare
+  target_time_frames:
+  - past
+  context_scope:
+  - personal_familiar
+  - unexpected_situation
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q142:
+  question_excerpt: Tell me about a time you helped a visitor or tourist while volunteering
+    at a local event. What did the person need, and how did you help?
+  target_functions:
+  - narrate_past
+  target_time_frames:
+  - past
+  context_scope:
+  - personal_familiar
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q143:
+  question_excerpt: Tell me about a time a technical problem interrupted a movie at
+    the theater. What happened during the screening, and how did the staff and audience
+    respond?
+  target_functions:
+  - narrate_past
+  target_time_frames:
+  - past
+  context_scope:
+  - personal_familiar
+  - unexpected_situation
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q144:
+  question_excerpt: Tell me about a time a present you had ordered for a family member
+    did not arrive on schedule. How did you deal with the delay?
+  target_functions:
+  - narrate_past
+  target_time_frames:
+  - past
+  context_scope:
+  - personal_familiar
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음. 단조성 휴리스틱 경고가
+    있어 출제는 todo로 보류.
+Q145:
+  question_excerpt: Tell me about a camping trip when something at the campsite made
+    it difficult to sleep or relax. What was the problem, and how did you handle it?
+  target_functions:
+  - narrate_past
+  target_time_frames:
+  - past
+  context_scope:
+  - personal_familiar
+  - unexpected_situation
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q146:
+  question_excerpt: Tell me about a time you lost important data during a school laboratory
+    session or project. What did you lose, and how did you recover or finish your
+    work?
+  target_functions:
+  - narrate_past
+  target_time_frames:
+  - past
+  context_scope:
+  - personal_familiar
+  - unexpected_situation
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q147:
+  question_excerpt: Tell me about a time you misunderstood where you were supposed
+    to meet a friend. Why did the mix-up happen, and how did you resolve it?
+  target_functions:
+  - narrate_past
+  target_time_frames:
+  - past
+  context_scope:
+  - personal_familiar
+  - unexpected_situation
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q148:
+  question_excerpt: Compare going to a bank branch in person with using mobile banking.
+    What services can you get through each, and what are the pros and cons?
+  target_functions:
+  - compare
+  target_time_frames:
+  - present
+  context_scope:
+  - personal_familiar
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q149:
+  question_excerpt: Compare libraries you visited as a child with modern libraries
+    that use digital technology. How have borrowing books and using the facilities
+    changed?
+  target_functions:
+  - compare
+  target_time_frames:
+  - present
+  - past
+  context_scope:
+  - personal_familiar
+  review_note: '문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음. 혼합 과제: 대표 유형
+    외의 실제 요구를 추가 태그로 기록.'
+Q150:
+  question_excerpt: Compare seeing a live performance in a small venue with attending
+    a large concert. How do the atmosphere and audience experience differ?
+  target_functions:
+  - compare
+  target_time_frames:
+  - present
+  context_scope:
+  - personal_familiar
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q151:
+  question_excerpt: Compare studying by yourself with studying in a group. What are
+    the advantages and disadvantages of each approach, and which works better for
+    you?
+  target_functions:
+  - compare
+  target_time_frames:
+  - present
+  context_scope:
+  - personal_familiar
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q152:
+  question_excerpt: Compare cooking a meal at home with ordering food for delivery.
+    What is convenient or difficult about each, and when do you prefer one over the
+    other?
+  target_functions:
+  - compare
+  target_time_frames:
+  - present
+  context_scope:
+  - personal_familiar
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q153:
+  question_excerpt: Compare using a rental car with taking public transportation when
+    traveling. How do they differ in convenience, cost, and the places you can visit?
+  target_functions:
+  - compare
+  target_time_frames:
+  - present
+  context_scope:
+  - personal_familiar
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q154:
+  question_excerpt: Compare the video games you played when you were younger with
+    the mobile games people play today. How are the devices and gaming experiences
+    different?
+  target_functions:
+  - compare
+  target_time_frames:
+  - present
+  - past
+  context_scope:
+  - personal_familiar
+  review_note: '문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음. 혼합 과제: 대표 유형
+    외의 실제 요구를 추가 태그로 기록.'
+Q155:
+  question_excerpt: Compare using a paper ticket and a mobile QR-code ticket at a
+    performance. What is similar about the two, and what are the advantages and problems
+    of each?
+  target_functions:
+  - compare
+  target_time_frames:
+  - present
+  context_scope:
+  - personal_familiar
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q156:
+  question_excerpt: Choose a busy area of your city. Compare what it looks and feels
+    like during the day and at night. What activities take place at each time?
+  target_functions:
+  - compare
+  target_time_frames:
+  - present
+  context_scope:
+  - personal_familiar
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q157:
+  question_excerpt: Compare working or studying at home with using a shared workspace.
+    How do the two environments affect your focus, convenience, and interaction with
+    others?
+  target_functions:
+  - compare
+  target_time_frames:
+  - present
+  context_scope:
+  - personal_familiar
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q158:
+  question_excerpt: You have just moved into an apartment building. Call the management
+    office and ask several questions about recycling days, sorting rules, and where
+    to put different kinds of waste.
+  target_functions:
+  - ask_information
+  target_time_frames:
+  - present
+  context_scope:
+  - everyday_transaction
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q159:
+  question_excerpt: You want to take a beginner's foreign-language class at a community
+    center. Call the center and ask about registration, the schedule, tuition, and
+    class requirements.
+  target_functions:
+  - ask_information
+  target_time_frames:
+  - present
+  context_scope:
+  - everyday_transaction
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q160:
+  question_excerpt: You will arrive at an unfamiliar train station while traveling
+    abroad. Call the station and ask about luggage storage, the last train, and how
+    to get to your destination.
+  target_functions:
+  - ask_information
+  target_time_frames:
+  - present
+  context_scope:
+  - everyday_transaction
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q161:
+  question_excerpt: You have an upcoming flight and need information about special
+    meals and changing your booking. Call the airline and ask three or four relevant
+    questions.
+  target_functions:
+  - ask_information
+  target_time_frames:
+  - present
+  context_scope:
+  - everyday_transaction
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q162:
+  question_excerpt: You are organizing a museum visit with classmates. Call the museum
+    and ask about group admission, audio guides, reservations, and visiting hours.
+  target_functions:
+  - ask_information
+  target_time_frames:
+  - present
+  context_scope:
+  - everyday_transaction
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q163:
+  question_excerpt: You want to use equipment in a university makerspace for a project.
+    Call or speak to the staff and ask about borrowing rules, safety training, and
+    access hours.
+  target_functions:
+  - ask_information
+  target_time_frames:
+  - present
+  context_scope:
+  - everyday_transaction
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q164:
+  question_excerpt: An electronic device you bought recently needs repair. Call the
+    service center and ask about the warranty, the repair procedure, and how long
+    it might take.
+  target_functions:
+  - ask_information
+  target_time_frames:
+  - present
+  context_scope:
+  - everyday_transaction
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q165:
+  question_excerpt: You are thinking about joining a university photography club.
+    Call a club member and ask about recruitment, meeting times, equipment, and activities.
+  target_functions:
+  - ask_information
+  target_time_frames:
+  - present
+  context_scope:
+  - everyday_transaction
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q166:
+  question_excerpt: You want to attend a theater performance with a relative who needs
+    hearing assistance. Call the venue and ask about listening devices, seating, and
+    arrangements for visitors.
+  target_functions:
+  - ask_information
+  target_time_frames:
+  - present
+  context_scope:
+  - everyday_transaction
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q167:
+  question_excerpt: You want to rent a bicycle during a trip. Call the rental shop
+    and ask about fees, rental hours, safety equipment, and what happens if there
+    is an accident.
+  target_functions:
+  - ask_information
+  target_time_frames:
+  - present
+  context_scope:
+  - everyday_transaction
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q168:
+  question_excerpt: You reserved a quiet meeting room for an online interview, but
+    another group is using it when you arrive. Speak to the coworking-space staff,
+    explain the problem, and ask for another quiet room or a workable alternative.
+  target_functions:
+  - solve_problem
+  target_time_frames:
+  - present
+  context_scope:
+  - everyday_transaction
+  - unexpected_situation
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q169:
+  question_excerpt: You are about to give a class presentation, but the projector
+    will not display your slides. Talk to your professor or the classroom staff, explain
+    the problem, and suggest a way to continue.
+  target_functions:
+  - solve_problem
+  target_time_frames:
+  - present
+  context_scope:
+  - everyday_transaction
+  - unexpected_situation
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q170:
+  question_excerpt: You booked a train ticket for the wrong date. Call the rail company,
+    explain your mistake, and ask how to change the ticket or obtain another solution.
+  target_functions:
+  - solve_problem
+  target_time_frames:
+  - present
+  context_scope:
+  - everyday_transaction
+  - unexpected_situation
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q171:
+  question_excerpt: You received an electronic product you ordered, but an accessory
+    that should have been included is missing. Contact the seller, explain what is
+    missing, and request a replacement or another solution.
+  target_functions:
+  - solve_problem
+  target_time_frames:
+  - present
+  context_scope:
+  - everyday_transaction
+  - unexpected_situation
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q172:
+  question_excerpt: Your team is due to give a presentation today, but one member
+    is unexpectedly absent. Talk to your professor, explain the situation, and suggest
+    how the team can proceed.
+  target_functions:
+  - solve_problem
+  target_time_frames:
+  - present
+  context_scope:
+  - everyday_transaction
+  - unexpected_situation
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q173:
+  question_excerpt: A seminar you are helping with has suddenly changed locations,
+    and overseas visitors need updated directions. Contact a visitor, explain the
+    change, and suggest how to reach the new venue.
+  target_functions:
+  - solve_problem
+  target_time_frames:
+  - present
+  context_scope:
+  - everyday_transaction
+  - unexpected_situation
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q174:
+  question_excerpt: You have booked museum tickets on your phone, but the QR code
+    does not work at the entrance. Speak to the staff, explain the problem, and ask
+    for a way to enter.
+  target_functions:
+  - solve_problem
+  target_time_frames:
+  - present
+  context_scope:
+  - everyday_transaction
+  - unexpected_situation
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q175:
+  question_excerpt: You planned to hike with friends, but part of the trail has been
+    closed for safety reasons. Call your friends, explain the closure, and suggest
+    another safe route or activity.
+  target_functions:
+  - solve_problem
+  target_time_frames:
+  - present
+  context_scope:
+  - everyday_transaction
+  - unexpected_situation
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q176:
+  question_excerpt: You have an exam tomorrow, but loud noise from a neighboring apartment
+    is keeping you awake. Call your building's management office, explain the situation
+    politely, and ask for help.
+  target_functions:
+  - solve_problem
+  target_time_frames:
+  - present
+  context_scope:
+  - everyday_transaction
+  - unexpected_situation
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q177:
+  question_excerpt: You are at the gym and cannot open your locker, even though you
+    are using the correct code. Ask the staff for help and explain why you need access
+    to your belongings soon.
+  target_functions:
+  - solve_problem
+  target_time_frames:
+  - present
+  context_scope:
+  - everyday_transaction
+  - unexpected_situation
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q178:
+  question_excerpt: Describe a makerspace or workshop at your university. What areas
+    and equipment does it have, and how do students use the space from check-in to
+    finishing a project?
+  target_functions:
+  - describe
+  - report_routine
+  target_time_frames:
+  - present
+  context_scope:
+  - community_public
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q179:
+  question_excerpt: Describe a large railway station you know. What are the waiting
+    areas, ticket facilities, and transfer signs like, and how do travelers find their
+    way around?
+  target_functions:
+  - describe
+  target_time_frames:
+  - present
+  context_scope:
+  - community_public
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q180:
+  question_excerpt: Describe a traditional market during a major holiday season in
+    your country. What does it look and sound like, and what do you usually see or
+    buy there?
+  target_functions:
+  - describe
+  - report_routine
+  target_time_frames:
+  - present
+  context_scope:
+  - community_public
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q181:
+  question_excerpt: Describe a night market near a river or another public area. What
+    are the food stalls, performances, and places to sit like, and why do people go
+    there?
+  target_functions:
+  - describe
+  target_time_frames:
+  - present
+  context_scope:
+  - community_public
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q182:
+  question_excerpt: Describe a local public health center. What facilities and health
+    programs does it offer, and how do visitors usually use its services?
+  target_functions:
+  - describe
+  - report_routine
+  target_time_frames:
+  - present
+  context_scope:
+  - community_public
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q183:
+  question_excerpt: Popular tourist destinations can benefit from visitors but also
+    create problems for local residents. How should communities balance tourism and
+    residents' daily lives?
+  target_functions:
+  - explain_issue
+  - express_opinion
+  target_time_frames:
+  - present
+  context_scope:
+  - community_public
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q184:
+  question_excerpt: What could cities do to make public facilities more accessible
+    to people with disabilities? Explain the improvements you think are most important
+    and why.
+  target_functions:
+  - explain_issue
+  - express_opinion
+  target_time_frames:
+  - present
+  context_scope:
+  - community_public
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q185:
+  question_excerpt: Online platforms collect a lot of information about students.
+    What privacy problems can this cause, and what should schools and students do
+    to protect that information?
+  target_functions:
+  - explain_issue
+  - express_opinion
+  target_time_frames:
+  - present
+  context_scope:
+  - community_public
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q186:
+  question_excerpt: Some cities are considering more late-night public transportation.
+    Do you think this is a good idea? What benefits and challenges should city planners
+    consider?
+  target_functions:
+  - explain_issue
+  - express_opinion
+  target_time_frames:
+  - present
+  context_scope:
+  - community_public
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q187:
+  question_excerpt: Local events often depend on volunteers. What could organizers
+    do to encourage more residents to volunteer, and why would those methods work?
+  target_functions:
+  - explain_issue
+  - express_opinion
+  target_time_frames:
+  - present
+  context_scope:
+  - community_public
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q188:
+  question_excerpt: Tell me about a memorable time you volunteered at a community
+    event. What were you supposed to do, what unexpected situation came up, and how
+    did you handle it?
+  target_functions:
+  - narrate_past
+  target_time_frames:
+  - past
+  context_scope:
+  - community_public
+  - unexpected_situation
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q189:
+  question_excerpt: Have you ever returned to a neighborhood you knew when you were
+    younger? Describe what happened during your visit, what had changed, and how you
+    felt.
+  target_functions:
+  - narrate_past
+  - compare
+  target_time_frames:
+  - past
+  context_scope:
+  - personal_familiar
+  review_note: '문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음. 혼합 과제: 대표 유형
+    외의 실제 요구를 추가 태그로 기록.'
+Q190:
+  question_excerpt: Describe a time something went wrong while you were preparing
+    a meal for family or friends. What was the problem, what did you do, and how did
+    the event end?
+  target_functions:
+  - narrate_past
+  target_time_frames:
+  - past
+  context_scope:
+  - personal_familiar
+  - unexpected_situation
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q191:
+  question_excerpt: Tell me about a time an important personal item broke right before
+    something you needed to do. What happened, and how did you manage the situation?
+  target_functions:
+  - narrate_past
+  target_time_frames:
+  - past
+  context_scope:
+  - personal_familiar
+  - unexpected_situation
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q192:
+  question_excerpt: Have you ever given away or exchanged something you no longer
+    needed? Tell me where you were, what happened, and what you learned from the experience.
+  target_functions:
+  - narrate_past
+  target_time_frames:
+  - past
+  context_scope:
+  - personal_familiar
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음. 단조성 휴리스틱 경고가
+    있어 출제는 todo로 보류.
+Q193:
+  question_excerpt: Describe a time you misunderstood the schedule of an online meeting
+    or activity. Why did the mistake happen, and what did you do?
+  target_functions:
+  - narrate_past
+  target_time_frames:
+  - past
+  context_scope:
+  - personal_familiar
+  - unexpected_situation
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q194:
+  question_excerpt: Tell me about a problem you experienced at a hotel or guesthouse
+    while traveling. What was wrong, how did you explain it, and what happened afterward?
+  target_functions:
+  - narrate_past
+  target_time_frames:
+  - past
+  context_scope:
+  - personal_familiar
+  - unexpected_situation
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q195:
+  question_excerpt: Tell me about a visit to a hospital or clinic that did not go
+    as planned. Explain what happened and how you handled the unexpected change.
+  target_functions:
+  - narrate_past
+  target_time_frames:
+  - past
+  context_scope:
+  - personal_familiar
+  - unexpected_situation
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q196:
+  question_excerpt: Have you ever helped a visitor or stranger in a place you know
+    well? Describe the situation, what the person needed, and how you helped.
+  target_functions:
+  - narrate_past
+  target_time_frames:
+  - past
+  context_scope:
+  - community_public
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q197:
+  question_excerpt: Tell me about a time something you bought on a trip was damaged
+    or lost. What was it, what did you do, and how did the situation turn out?
+  target_functions:
+  - narrate_past
+  target_time_frames:
+  - past
+  context_scope:
+  - personal_familiar
+  - unexpected_situation
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q198:
+  question_excerpt: Compare how people used to find directions with paper maps and
+    how they use navigation apps today. What do the two methods have in common, and
+    what are the differences?
+  target_functions:
+  - compare
+  target_time_frames:
+  - present
+  - past
+  context_scope:
+  - personal_familiar
+  review_note: '문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음. 혼합 과제: 대표 유형
+    외의 실제 요구를 추가 태그로 기록.'
+Q199:
+  question_excerpt: Compare the shopping streets you remember from the past with large
+    shopping malls today. How are their stores, atmosphere, and shopping habits similar
+    or different?
+  target_functions:
+  - compare
+  target_time_frames:
+  - present
+  - past
+  context_scope:
+  - personal_familiar
+  review_note: '문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음. 혼합 과제: 대표 유형
+    외의 실제 요구를 추가 태그로 기록.'
+Q200:
+  question_excerpt: Think about a holiday your family celebrates and a holiday tradition
+    you have learned about from someone abroad. What is similar about them, and how
+    are they different?
+  target_functions:
+  - compare
+  target_time_frames:
+  - present
+  context_scope:
+  - personal_familiar
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q201:
+  question_excerpt: Compare walking along a mountain trail with walking beside the
+    sea. What do you enjoy about each place, and how do the experiences differ?
+  target_functions:
+  - compare
+  target_time_frames:
+  - present
+  context_scope:
+  - personal_familiar
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q202:
+  question_excerpt: Some people spend vacation time at home, while others travel to
+    another city. Compare these two ways of spending a vacation, including their advantages
+    and disadvantages.
+  target_functions:
+  - compare
+  target_time_frames:
+  - present
+  context_scope:
+  - personal_familiar
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q203:
+  question_excerpt: Compare attending a festival in person with watching the same
+    event online. What can you experience in each situation, and what are the main
+    differences?
+  target_functions:
+  - compare
+  target_time_frames:
+  - present
+  context_scope:
+  - personal_familiar
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q204:
+  question_excerpt: Compare learning about a famous person through a printed magazine
+    interview and through a video interview. How are they alike, and how do they differ?
+  target_functions:
+  - compare
+  target_time_frames:
+  - present
+  context_scope:
+  - personal_familiar
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q205:
+  question_excerpt: Compare living in an apartment building and living in a detached
+    house. What are some similarities and differences in daily life?
+  target_functions:
+  - compare
+  target_time_frames:
+  - present
+  context_scope:
+  - personal_familiar
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q206:
+  question_excerpt: Compare what you normally do in your free time on a weekday evening
+    with what you do on weekends. How do the activities and atmosphere differ?
+  target_functions:
+  - compare
+  - report_routine
+  target_time_frames:
+  - present
+  context_scope:
+  - personal_familiar
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q207:
+  question_excerpt: How do outdoor activities in your area change between summer and
+    winter? Compare the weather, the places people visit, and the activities they
+    do.
+  target_functions:
+  - compare
+  target_time_frames:
+  - present
+  context_scope:
+  - personal_familiar
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q208:
+  question_excerpt: You have heard about a local hiking club and want to join. Call
+    the organizer and ask three or four questions about the routes, meeting times,
+    and what you need to bring.
+  target_functions:
+  - ask_information
+  target_time_frames:
+  - present
+  context_scope:
+  - everyday_transaction
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q209:
+  question_excerpt: You plan to visit a museum while carrying a suitcase. Call the
+    museum and ask about luggage storage, opening hours, and other services you might
+    need.
+  target_functions:
+  - ask_information
+  target_time_frames:
+  - present
+  context_scope:
+  - everyday_transaction
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q210:
+  question_excerpt: You are interested in an overseas internship program. Call the
+    program coordinator and ask about eligibility, application documents, and the
+    program schedule.
+  target_functions:
+  - ask_information
+  target_time_frames:
+  - present
+  context_scope:
+  - everyday_transaction
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q211:
+  question_excerpt: You want to sell or exchange some textbooks at a bookstore. Call
+    and ask about accepted books, payment, and store credit.
+  target_functions:
+  - ask_information
+  target_time_frames:
+  - present
+  context_scope:
+  - everyday_transaction
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q212:
+  question_excerpt: Your apartment building has announced a temporary water shutoff.
+    Call the management office and ask about the schedule and how residents should
+    prepare.
+  target_functions:
+  - ask_information
+  target_time_frames:
+  - present
+  context_scope:
+  - everyday_transaction
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q213:
+  question_excerpt: You want to travel by intercity bus and take your bicycle with
+    you. Call the bus terminal and ask about baggage rules, fees, and available departures.
+  target_functions:
+  - ask_information
+  target_time_frames:
+  - present
+  context_scope:
+  - everyday_transaction
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q214:
+  question_excerpt: You would like to take a beginner photography workshop. Call the
+    instructor and ask what equipment is required, how the class works, and how to
+    register.
+  target_functions:
+  - ask_information
+  target_time_frames:
+  - present
+  context_scope:
+  - everyday_transaction
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q215:
+  question_excerpt: You want to visit a local food festival with friends who have
+    different food preferences. Call the organizer and ask about menu information
+    and services.
+  target_functions:
+  - ask_information
+  target_time_frames:
+  - present
+  context_scope:
+  - everyday_transaction
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q216:
+  question_excerpt: You may arrive at a hotel late at night. Call the front desk and
+    ask about check-in, luggage storage, and transportation from the station.
+  target_functions:
+  - ask_information
+  target_time_frames:
+  - present
+  context_scope:
+  - everyday_transaction
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q217:
+  question_excerpt: You need to replace an old laptop battery. Call a repair shop
+    and ask about cost, repair time, and warranty before making an appointment.
+  target_functions:
+  - ask_information
+  target_time_frames:
+  - present
+  context_scope:
+  - everyday_transaction
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q218:
+  question_excerpt: You have lost your transportation card just before transferring
+    to another train. Explain the problem to station staff and ask for help or an
+    alternative.
+  target_functions:
+  - solve_problem
+  target_time_frames:
+  - present
+  context_scope:
+  - everyday_transaction
+  - unexpected_situation
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q219:
+  question_excerpt: You borrowed a camera from a friend and accidentally scratched
+    the lens. Call your friend, explain what happened, and suggest ways to make things
+    right.
+  target_functions:
+  - solve_problem
+  target_time_frames:
+  - present
+  context_scope:
+  - everyday_transaction
+  - unexpected_situation
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q220:
+  question_excerpt: You registered for a professional event, but your name is misspelled
+    on the entry pass. Speak to the registration staff and ask them to correct the
+    problem.
+  target_functions:
+  - solve_problem
+  target_time_frames:
+  - present
+  context_scope:
+  - everyday_transaction
+  - unexpected_situation
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q221:
+  question_excerpt: Your friend from overseas cannot find the ticket for a performance
+    you planned to see together. Talk to the ticket-office staff and ask for ways
+    to solve the problem.
+  target_functions:
+  - solve_problem
+  target_time_frames:
+  - present
+  context_scope:
+  - everyday_transaction
+  - unexpected_situation
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q222:
+  question_excerpt: You paid for an online language lesson, but the instructor has
+    not joined the meeting. Contact the learning platform, explain what happened,
+    and request a solution.
+  target_functions:
+  - solve_problem
+  target_time_frames:
+  - present
+  context_scope:
+  - everyday_transaction
+  - unexpected_situation
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q223:
+  question_excerpt: Your ferry trip has been canceled because of bad weather. Call
+    your travel companion, explain the situation, and suggest at least two realistic
+    alternatives.
+  target_functions:
+  - solve_problem
+  target_time_frames:
+  - present
+  context_scope:
+  - everyday_transaction
+  - unexpected_situation
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q224:
+  question_excerpt: Your replacement bank card was sent to an old address. Call customer
+    service, explain the problem, and ask for a secure solution.
+  target_functions:
+  - solve_problem
+  target_time_frames:
+  - present
+  context_scope:
+  - everyday_transaction
+  - unexpected_situation
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q225:
+  question_excerpt: A grocery delivery has arrived, but some refrigerated items are
+    no longer cold. Contact the store and request a safe and practical solution.
+  target_functions:
+  - solve_problem
+  target_time_frames:
+  - present
+  context_scope:
+  - everyday_transaction
+  - unexpected_situation
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q226:
+  question_excerpt: You signed up to volunteer at a community festival, but your shift
+    has been changed at the last minute. Call the organizer and discuss an alternative.
+  target_functions:
+  - solve_problem
+  target_time_frames:
+  - present
+  context_scope:
+  - everyday_transaction
+  - unexpected_situation
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q227:
+  question_excerpt: You are hiking with friends and your map app stops working. Call
+    the park information center, explain where you are, and ask for safe directions.
+  target_functions:
+  - solve_problem
+  target_time_frames:
+  - present
+  context_scope:
+  - everyday_transaction
+  - unexpected_situation
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q228:
+  question_excerpt: Describe a community arts center in your area. What does it look
+    like inside, what can visitors do there, and why is it useful?
+  target_functions:
+  - describe
+  target_time_frames:
+  - present
+  context_scope:
+  - community_public
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q229:
+  question_excerpt: Describe a science or engineering exhibition at a university.
+    What do visitors see, how do they explore the exhibits, and what interests you
+    most?
+  target_functions:
+  - describe
+  target_time_frames:
+  - present
+  context_scope:
+  - community_public
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q230:
+  question_excerpt: Describe what your home kitchen is like when your family prepares
+    a holiday meal. What does the space look and sound like, and what does everyone
+    do?
+  target_functions:
+  - describe
+  - report_routine
+  target_time_frames:
+  - present
+  context_scope:
+  - personal_familiar
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q231:
+  question_excerpt: Describe a post office you use and explain what you normally do
+    when you send a package. What is the place like, and what steps do you follow?
+  target_functions:
+  - describe
+  - report_routine
+  target_time_frames:
+  - present
+  context_scope:
+  - community_public
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q232:
+  question_excerpt: Describe an outdoor sports court or field that people use near
+    your home. What facilities are there, what do people do, and what is the atmosphere
+    like?
+  target_functions:
+  - describe
+  - report_routine
+  target_time_frames:
+  - present
+  context_scope:
+  - community_public
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q233:
+  question_excerpt: What changes would make walking to school or work safer in your
+    city? Explain the problems you see and suggest practical improvements.
+  target_functions:
+  - explain_issue
+  - compare
+  - express_opinion
+  target_time_frames:
+  - present
+  context_scope:
+  - community_public
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q234:
+  question_excerpt: Many museums want to attract more teenagers. What could museums
+    do to make visits more interesting and educational for young people?
+  target_functions:
+  - explain_issue
+  - express_opinion
+  target_time_frames:
+  - present
+  context_scope:
+  - community_public
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q235:
+  question_excerpt: More stores are encouraging cashless payments. What are the benefits
+    and potential problems, and how should businesses respond?
+  target_functions:
+  - explain_issue
+  - express_opinion
+  target_time_frames:
+  - present
+  context_scope:
+  - community_public
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q236:
+  question_excerpt: Celebrities often recommend products online or in advertisements.
+    How can these recommendations affect consumers, and how should people decide what
+    to buy?
+  target_functions:
+  - explain_issue
+  - express_opinion
+  target_time_frames:
+  - present
+  context_scope:
+  - community_public
+  review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
+Q237:
+  question_excerpt: Some people think schools should teach more practical life skills,
+    such as budgeting and understanding contracts. Do you agree? Give reasons and
+    examples.
+  target_functions:
+  - explain_issue
+  - express_opinion
+  target_time_frames:
+  - present
+  context_scope:
+  - community_public
   review_note: 문장 전체를 검토한 규칙 기반 초안. 역할극 설정의 미래 시점만으로 future를 붙이지 않음.
