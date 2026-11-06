@@ -1,12 +1,27 @@
 # 로컬 실행 및 검증
 
-계약은 `agents/contracts.yaml` v3다. 브랜치는 bootstrap → data-layer → session-api → corpus → grader → worker-stt → integrator 순으로 쌓였다.
+계약은 `agents/contracts.yaml` v4다(평가 기준·API·DB 형식 v3 유지). 브랜치는 bootstrap → data-layer → session-api → corpus → grader → worker-stt → integrator 순으로 쌓였다.
 B의 corpus·grader·worker-stt는 구현되었다. C의 tts-host·frontend와 각 PR 병합 및 실제 키·음성 검증이 남아 있다.
 
 ## 준비
 
 Python 3.11+, Node 20+, 실행 중인 Docker Desktop과 마이크가 필요하다.
-`backend/.env.example`을 `backend/.env`로 복사하고 LLM_API_KEY, EMBED_API_KEY를 로컬에서 설정한다.
+`backend/.env.example`을 `backend/.env`로 복사하고 아래 제공자 설정을 채운다.
+사용자 요청에 따라 LLM은 Pickle로 연결하며, 임베딩은 기존 OpenAI 설정을 유지한다.
+
+```dotenv
+LLM_BASE_URL=<Pickle의 실제 OpenAI 호환 API base URL>
+LLM_MODEL=<Pickle의 정확한 모델 ID>
+LLM_API_KEY=<Pickle API 키>
+EMBED_BASE_URL=https://api.openai.com/v1
+EMBED_MODEL=text-embedding-3-small
+EMBED_API_KEY=<임베딩용 OpenAI API 키>
+```
+
+LLM 키는 요청 시 `os.getenv("LLM_API_KEY")`로 읽는다. `.env`도 load_dotenv로 지원하며
+이미 설정한 프로세스 환경변수를 덮어쓰지 않는다. `.env` 변경 후에는 API/워커를 재시작한다.
+LLM URL·모델·키가 없으면 외부 요청 전에 실패하며 OpenAI LLM 기본값으로 대체하지 않는다.
+Pickle의 실제 endpoint/model ID와 구조화 출력 지원은 아직 확인이 필요하다.
 키·원음·data/는 커밋하지 않는다. DB와 API는 127.0.0.1에만 바인딩한다.
 `rag_docs/build/`에는 corpus 담당자가 생성한 VERSION, scenarios.json, Q000 및 검토된 v3 태그가 있는 questions.jsonl,
 answers.jsonl, rubrics.jsonl, upgrade_patterns.jsonl이 있어야 한다.

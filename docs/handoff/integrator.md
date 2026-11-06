@@ -1,5 +1,12 @@
 # integrator M3 준비
 
+## 사용자 요청에 따른 Pickle 설정 변경
+orchestrator/pickle-llm 브랜치에서 LLM의 OpenAI 기본 URL·모델을 제거하고 명시적인 Pickle 설정을 요구하도록 변경했다.
+LLM 키는 os.getenv('LLM_API_KEY')로 읽으며 임베딩은 기존 OpenAI 설정을 유지한다.
+전체 테스트 82 passed. 실제 Pickle endpoint/model ID는 사용자 답변 대기 중이며 실제 요청은 보내지 않았다.
+이번 PR은 사용자 요청에 따라 orchestrator(계약), bootstrap(공통 설정), grader(LLM 호출), integrator(실행 문서) 변경을
+역할별 커밋으로 분리하고 각 커밋의 소유권을 검사했다. HTTP·DB·평가 출력 스키마는 변경하지 않았다.
+
 ## 상태
 통합 스크립트와 실행 안내 작성. **M3 완주 미완료** (2026-11-06 KST).
 M2 전원 병합 조건이 충족되지 않아 실제 AI·음성·화면 통합은 보류한다.
