@@ -3,7 +3,7 @@
 ## 상태
 통합 스크립트와 실행 안내 작성. **M3 완주 미완료** (2026-11-06 KST).
 M2 전원 병합 조건이 충족되지 않아 실제 AI·음성·화면 통합은 보류한다.
-브랜치는 agent/session-api 위에 쌓았다. main에 직접 push하지 않았다.
+초기에는 agent/session-api 위에 쌓았고, B 구현 후 agent/worker-stt 위로 갱신했다. main에 직접 push하지 않았다.
 
 ## 완료한 것
 - HTTP 전용 e2e_smoke: 실제 8문항 업로드→STT 폴링→submit→결과 폴링, v3 결과/자기소개 배제 검사.
@@ -21,9 +21,10 @@ bash: `cd backend && .venv/bin/python -m scripts.e2e_smoke --level IL --fail-cas
 | --- | --- |
 | Python 전체 모듈 import / compile | 통과 |
 | frontend npm run build | 통과 |
-| backend 전체 테스트 | **25 passed, skip 0** (실제 PostgreSQL 포함, 추가 회귀 검증 후) |
+| backend 전체 테스트 | **76 passed, skip 0** (A+B 통합, PostgreSQL 포함) |
+| corpus 회귀 테스트 | **3 passed** |
 | 실제 HTTP health/docs/openapi | 200 / 200 / 200 |
-| 실제 코퍼스 scenarios 조회 | 422 SCENARIO_UNAVAILABLE: corpus M1 자료 미준비 |
+| 실제 코퍼스 scenarios 조회 | B 반영 후 default/leisure/health 3개 공개. 초기 미준비 상태는 해소 |
 | 실제 DB 동시성/마이그레이션 | WSL Docker의 PostgreSQL 16/pgvector에서 통과. DDL 직접 적용 2회 성공 |
 | DB/API 8답변 연결 | 세션→준비→8업로드→STT 완료 콜백→중복 제출→결과 조회 10회 통과. TTS URL·STT 계산만 fixture |
 | IM2/IL 실제 AI·음성 완주 | 미실행: 다른 PC 구현·합성 음성·키 필요 |
@@ -59,7 +60,7 @@ bash: `cd backend && .venv/bin/python -m scripts.e2e_smoke --level IL --fail-cas
 - [integrator #4](https://github.com/fruit8067/OpicTutor-With-AI/pull/4): base agent/session-api, Draft.
 실제 AI·음성 M3 완주는 미완료이므로 #4를 완료 또는 Ready로 표시하지 않았다.
 
-## YAML 완료 조건 재점검
+## Core A 작성 시점의 YAML 완료 조건 재점검 (B 반영 후 변경은 아래 참조)
 
 | 단계·요구 항목 | 현재 근거 | 판정 |
 | --- | --- | --- |
@@ -86,3 +87,21 @@ bash: `cd backend && .venv/bin/python -m scripts.e2e_smoke --level IL --fail-cas
 현재 설정의 LLM_API_KEY·EMBED_API_KEY 구성 여부는 둘 다 false이며 키 값은 출력하지 않았다.
 scenarios.json·VERSION·active_voice.json·IM2/IL 합성 음성 디렉터리가 모두 없다.
 이 항목들은 다른 PC 소유 경로 또는 사용자 로컬 설정이므로 Core A에서 임의 구현하거나 준비 완료로 표시하지 않는다.
+
+## 사용자 요청에 따른 B 구현 후 상태
+
+사용자가 B 작업도 요청하여 corpus→grader→worker-stt를 순서대로 구현·push했다.
+현재 integrator는 이 세 브랜치의 변경을 모두 포함한다. PR #4의 비교 기준도 agent/worker-stt로 갱신한다.
+
+- corpus [PR #5](https://github.com/fruit8067/OpicTutor-With-AI/pull/5): Q000~Q237, pilot 222/todo 16, 답변 4,284개,
+  default/leisure/health 시나리오, corpus 회귀 3개와 API 300 seed 선택 검증.
+- grader [PR #6](https://github.com/fruit8067/OpicTutor-With-AI/pull/6): 고정 프롬프트 로드, 엄격한 출력 검증·누출 방지·재시도·평가 작업,
+  32개 회귀 테스트와 40시험/5종 함정 계획. 키가 없어 실제 AI·임베딩 정확도/비용 실험은 미실행, Draft.
+- worker-stt [PR #7](https://github.com/fruit8067/OpicTutor-With-AI/pull/7): 실제 small.en CPU로 30초 합성 음성 처리→DB done/순서 1→2,
+  자신의 워커 자식 프로세스 종료→실제 60초 리스 만료→재시작→attempt 2에서 done/순서 2 확인.
+  실제 사용자 마이크 녹음은 미검증, Draft.
+- 새 병합/검토 순서: bootstrap #1 → data-layer #2 → session-api #3 → corpus #5 → grader #6 → worker-stt #7 → integrator #4.
+- 남은 의존성: C의 TTS·화면 구현과 음성 파일, 로컬 API 키, 실제 외부 평가의 비용 확인·실행,
+  실제 마이크 완주와 단계별 PR 병합. B 코드를 작성했다고 전체 M3 완주를 완료로 표시하지 않는다.
+- 최종 A+B 테스트: backend 76 passed/skip 0, corpus 3 passed, npm run build 통과.
+- 실제 API /scenarios: 200과 default/leisure/health 확인. /health ready=false: DB 코퍼스 외부 임베딩 적재 및 활성 TTS가 아직 필요.
