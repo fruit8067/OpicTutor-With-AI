@@ -1,0 +1,811 @@
+# OPIc 등급 대조 세트 Q018~Q037 (20개 신규 질문 × 9개 등급 = 180개 답변)
+# source_tier C: ACTFL Proficiency Guidelines 2024, Speaking pp. 12~22를 참고한 창작·합성 예시
+# 원본과 동일한 필드: NL/NM/NH/IL/IM1/IM2/IM3/IH/AL 하위 text / rationale / upgrade_tip
+# ACTFL의 말하기 FACT(Functions, Accuracy, Context/Content, Text Type)와
+# Novice/Intermediate/Advanced 기능의 차이를 교육 목적에 맞게 재구성함.
+# 주의: IM1·IM2·IM3은 국내 OPIc IM 구간의 세분 표기이며,
+# ACTFL 2024 문서는 Intermediate Mid를 그 세 단계로 각각 정의하지 않음.
+# 단편 텍스트만으로 발음·억양·실제 즉흥 응답·전체 문항 간 지속성을 평가할 수 없으므로
+# 예시 등급은 ACTFL 또는 OPIc의 공식 채점 결과가 아님.
+# Q010~Q012의 실제 내용은 확인되지 않으므로 이들과의 주제 중복 여부는 검증되지 않음.
+
+# Q018 질문: Describe a mobile app you use frequently. Explain its main features and why it is useful to you.
+# 한국어: 자주 사용하는 모바일 앱의 기능, 사용 방식과 도움이 되는 이유를 설명하시오.
+Q018:
+  NL:
+    text: "App... maps. Phone. Bus. Good."
+    rationale: "주제의 핵심 단어만 제시해 모바일 앱 활용을 암시함. 독립적인 설명은 거의 없음."
+    upgrade_tip: "친숙한 대상의 이름과 특징을 I use / It is 등의 한 문장으로 말하기."
+  NM:
+    text: "I use a map app. I like it. It is good. I use it every day."
+    rationale: "외운 듯한 짧은 표현으로 모바일 앱 활용의 일부만 전달함. 설명의 구체성이 낮음."
+    upgrade_tip: "언제·어디서·무엇을 하는지 서로 다른 짧은 문장으로 추가하기."
+  NH:
+    text: "I use map app on phone. It show bus. I search places. I go school. Very useful."
+    rationale: "익숙한 단문을 조합하여 모바일 앱 활용을 말하려 하지만 문장의 완결성과 확장이 제한됨."
+    upgrade_tip: "단어 나열을 줄이고 주어와 동사가 있는 문장으로 묘사하기."
+  IL:
+    text: "I use a map app on my phone. It shows buses and subway routes. I open it before I leave home. I check the arrival time. Sometimes I save places. It helps me get to unfamiliar locations."
+    rationale: "친숙한 모바일 앱 활용에 관한 정보를 스스로 만든 독립 문장으로 설명함. 문장 간 조직은 아직 단순함."
+    upgrade_tip: "첫 번째 특징에서 다음 특징으로 넘어가는 연결어와 이유를 사용하기."
+  IM1:
+    text: "I use a map app almost every day. Before I leave for campus, I check how long the bus will take. The app shows several routes, so I choose the fastest one. I also save the locations of cafés and stores that I want to visit. It is especially useful when I travel."
+    rationale: "위치·특징·이유 등 정보를 여러 문장으로 연결하여 모바일 앱 활용을 설명함. 구체적 장면은 제한적임."
+    upgrade_tip: "실제로 사용하거나 경험한 장면을 한 가지 구체적으로 덧붙이기."
+  IM2:
+    text: "One app I rely on is a map service. It gives me real-time bus information, walking directions, and estimated travel times. For example, if my usual bus is delayed, I compare it with the subway route. I also use the saved-place feature when friends recommend restaurants. It saves time because I do not have to search for the same place again."
+    rationale: "특징과 활용 예시, 장단점 등을 연결해 모바일 앱 활용에 개인적 의미를 부여함. 주로 문장 연쇄 중심임."
+    upgrade_tip: "장점과 단점 또는 다른 선택지와의 차이를 한 사례로 보여주기."
+  IM3:
+    text: "I probably open my map app more often than any other app. On weekday mornings, it helps me decide whether to catch a bus or walk to the station. The live arrival information is convenient, especially when it is raining and I do not want to stand outside for long. I also organize interesting places into lists, so planning an outing with friends is easier. The directions are usually clear, although I still double-check the exits at large stations."
+    rationale: "익숙한 모바일 앱 활용을 보다 자신 있게 묘사하고 세부 상황을 덧붙임. 이 문항만으로 Advanced의 지속성을 판단할 수 없음."
+    upgrade_tip: "이전 경험과 지금의 모습, 예상 밖의 상황을 하나의 이야기로 확장하기."
+  IH:
+    text: "I began using my map app regularly after moving to a new area. At first, I depended on it for almost every trip because I did not know the bus routes. Now I mainly use it to compare travel times and check delays. Once, the app sent me toward an exit that was closed for construction. I had to stop, ask someone for directions, and take a different route. That experience reminded me that digital tools are helpful but not perfect. Even so, I would find it difficult to manage my daily commute without the app."
+    rationale: "현재의 설명에 과거 경험 또는 복잡해진 상황을 더하여 긴 발화를 시도함. 다른 과제에서의 안정성은 별도 검증이 필요함."
+    upgrade_tip: "다른 친숙하지 않은 주제에서도 같은 문단 구성과 시간대 서술을 유지하기."
+  AL:
+    text: "A navigation app has become an essential part of my routine, but the reason I value it has changed. When I first moved near campus, I used it simply to avoid getting lost. These days, I use its live transit information to make decisions: if a bus is delayed, I compare the train and walking options before leaving home. The saved-place lists are also useful when I organize activities with friends, because I can share several locations rather than sending separate addresses. There was one occasion when the suggested station entrance was closed for repairs. Instead of following the instructions blindly, I checked another exit and confirmed the route with a station employee. I still rely on the app, but I have learned to treat its estimates as guidance rather than guarantees."
+    rationale: "시간대의 변화, 구체적인 묘사, 사건의 맥락 및 결과를 연결된 문단으로 설명하는 Advanced Low 특징을 보여 줌. 실제 공인 등급은 아님."
+    upgrade_tip: null
+
+# Q019 질문: Tell me about a new hobby or skill you learned. How did you start, and what was challenging?
+# 한국어: 새로운 취미 또는 기술을 배우게 된 계기와 어려웠던 점을 설명하시오.
+Q019:
+  NL:
+    text: "Guitar. Friend. Hard. Music."
+    rationale: "사건에 관련된 단어만 나열하여 새로운 취미를 배우는 과정을 단편적으로 암시함."
+    upgrade_tip: "I went / I lost / I tried처럼 사건을 한 문장으로 완성하기."
+  NM:
+    text: "I play guitar. I like music. My friend plays guitar. It is fun."
+    rationale: "짧은 정형 표현을 이어 새로운 취미를 배우는 과정을 언급하지만 사건 순서와 배경을 충분히 말하지 못함."
+    upgrade_tip: "언제·어디서·누구와 있었는지를 익숙한 과거 표현으로 추가하기."
+  NH:
+    text: "I learn guitar last year. My friend teach me. My fingers hurt. I practice at home. Now I play song."
+    rationale: "짧은 문장으로 사건을 전달하려 하나 시제나 인과관계 표현이 제한적임."
+    upgrade_tip: "주요 동사의 과거형과 사건의 순서를 명확히 말하기."
+  IL:
+    text: "I started learning the guitar last year. My friend showed me a few chords. I watched videos at home. My fingers hurt at first. I practiced for twenty minutes each evening. Now I can play a simple song."
+    rationale: "과거에 있었던 새로운 취미를 배우는 과정을 독립 문장으로 전달함. 배경·행동·결과의 연결은 단순함."
+    upgrade_tip: "처음·중간·끝을 연결하고 왜 그런 행동을 했는지 설명하기."
+  IM1:
+    text: "I started playing the guitar because my roommate often played music in our room. He taught me three basic chords, and I practiced them every evening. Changing chords was difficult at first, so I used a slow practice video. After a month, I could play part of my favorite song. That made me want to continue."
+    rationale: "익숙한 사건의 시작·진행·결과를 일련의 문장으로 표현하며 기본적인 이유를 제시함."
+    upgrade_tip: "문제가 발생한 정확한 순간과 자신의 반응을 묘사하기."
+  IM2:
+    text: "I took up the guitar after hearing my roommate play an acoustic song. He lent me an old guitar and taught me the basics. At first, I could not change chords quickly, and my fingertips were sore. Instead of trying to learn a whole song, I practiced short sections for fifteen minutes a day. A few weeks later, I managed to play along with a recording, which felt like a big achievement."
+    rationale: "사건의 원인과 행동, 감정을 추가해 새로운 취미를 배우는 과정을 좀 더 구체적으로 설명함. 문장 연쇄가 주축임."
+    upgrade_tip: "선택한 해결 방법과 선택하지 않은 대안을 구분해 말하기."
+  IM3:
+    text: "Learning the guitar has been one of the most rewarding things I have tried recently. I became interested when a friend played at a small gathering and offered to teach me. The first challenge was coordinating my hands: I could remember the chords, but the rhythm fell apart whenever I changed them. I recorded myself once a week and noticed that even small improvements were easier to hear than to feel. I still make mistakes, but I can now play two songs from beginning to end."
+    rationale: "시간 순서와 세부 상황을 자연스럽게 연결하고 개인적인 평가를 더함. Advanced의 안정적 수행 여부는 미확인임."
+    upgrade_tip: "문제가 더 복잡해졌을 때의 대처 과정을 길게 전개하기."
+  IH:
+    text: "I started learning the guitar about a year ago because I wanted an activity that did not involve a computer. A friend helped me choose a used instrument and showed me how to practice basic chords. For the first month, progress was frustratingly slow, and I almost stopped when I could not keep up with a simple song. My friend suggested slowing the recording down and practicing just the difficult transition. That worked surprisingly well. These days I play for a few minutes after studying, and it helps me relax. I would like to join a casual music group eventually, although I know I still need plenty of practice."
+    rationale: "서술의 배경과 돌발 상황 및 대응을 문단 형태로 설명함. 이런 수행을 다양한 상황에서 지속하는지는 판단할 수 없음."
+    upgrade_tip: "낯선 상황에서도 사건 서술, 시제, 대안 설명을 안정적으로 유지하기."
+  AL:
+    text: "About a year ago, I decided to learn the guitar as a way to unwind after long days at university. I had always enjoyed listening to acoustic music, but I had assumed playing it would come naturally. It did not. When my friend first taught me a few chords, I struggled to change between them without losing the rhythm, and my fingertips were sore for days. I considered giving up until he helped me break one song into smaller sections and practice each transition slowly. I also started recording short clips every weekend so I could hear my progress. Over time, the changes became smoother, and I finally managed to play the entire song for a few friends. I still make mistakes, but now I understand that steady practice matters more than trying to sound impressive immediately."
+    rationale: "상황의 배경, 예상 밖의 변화, 대안과 결과를 응집된 문단으로 서술하고 관련된 시간대를 다룸. Advanced Low 특징을 드러내는 합성 예시임."
+    upgrade_tip: null
+
+# Q020 질문: You bought a jacket, but it is the wrong size. Call the store, explain the problem, and ask about an exchange or refund.
+# 한국어: 옷을 구매했는데 사이즈가 맞지 않는다. 매장에 전화해 교환·환불 조건을 확인하고 해결책을 요청하시오.
+Q020:
+  NL:
+    text: "Jacket... too small. Exchange? Please."
+    rationale: "필수 단어와 짧은 요청만 제시하여 옷 사이즈 문제와 교환·환불 요청의 목적을 충분히 전달하지 못함."
+    upgrade_tip: "Hello, I need help with ... 와 같은 간단한 용건 문장을 연습하기."
+  NM:
+    text: "Hello. I buy jacket. Too small. I want big size. Can I change?"
+    rationale: "암기한 요청 표현을 통해 옷 사이즈 문제와 교환·환불 요청의 기본 의도를 알리지만 구체적 정보가 부족함."
+    upgrade_tip: "예약·구매·위치 등 핵심 정보를 한두 문장으로 정확히 전달하기."
+  NH:
+    text: "Hello. My jacket is small. I buy yesterday. I have receipt. Do you have large? I want change it."
+    rationale: "짧은 문장과 정형 질문으로 상황과 요구를 부분적으로 전달함."
+    upgrade_tip: "완전한 질문 문장으로 원하는 조치를 요청하기."
+  IL:
+    text: "Hello, I bought a jacket yesterday. It is too small for me. I have the receipt and the tag. Can I exchange it for a larger size? Is the large size available? When can I visit the store?"
+    rationale: "필요한 정보와 기본 질문을 독립적인 문장으로 전달해 옷 사이즈 문제와 교환·환불 요청에 대응함."
+    upgrade_tip: "문제의 원인과 원하는 결과를 순서대로 설명하기."
+  IM1:
+    text: "Hello, I bought a medium jacket at your store yesterday, but it is too tight around the shoulders. I have not worn it outside, and I still have the receipt. Could you check whether a large is in stock? If it is, I would like to exchange it this weekend. Please tell me if I need to bring anything else."
+    rationale: "상황을 간단히 설명하고 1~2개의 구체적 요청을 연결된 문장으로 전달함."
+    upgrade_tip: "상대에게 확인할 조건(시간·비용·가능 여부)을 구체적으로 질문하기."
+  IM2:
+    text: "Hi, I purchased a jacket at your downtown store on Saturday, but after trying it on at home, I realized the sleeves were too short. I still have the tags attached. Could you tell me whether an exchange is possible, and whether you have the next size up? If that size is unavailable, I would also like to know your refund policy and the deadline for returning it."
+    rationale: "원인·조건·희망사항을 제시하며 질문과 대안을 추가함. 주로 예측 가능한 상황에서의 문장 연쇄임."
+    upgrade_tip: "첫 해결책이 불가능한 경우를 가정해 두 번째 대안을 제시하기."
+  IM3:
+    text: "Good afternoon. I am calling about a jacket I bought at your store three days ago. Although I tried it on briefly, I noticed at home that the shoulders are uncomfortably tight. It has not been worn outdoors, and I still have both the receipt and the original tags. Would you mind checking whether the next size is available at your branch? If not, could another branch reserve one for me, or would I need to request a refund? I can come in tomorrow afternoon."
+    rationale: "실용적인 질문과 대안을 자연스럽게 연결하고 추가 조건까지 언급함. 한 문항만으로 Advanced 수행 지속성은 미확인임."
+    upgrade_tip: "추가 제약, 상대의 응답, 다음 단계를 자연스럽게 연결하기."
+  IH:
+    text: "Hello, I am calling about an exchange. I purchased a medium jacket on Monday and realized later that it is too small to wear comfortably over a sweater. The jacket is unused, and I have the receipt and all the tags. Could you check whether the large size is available? I understand that your store may not have one, so I would also like to ask whether another branch could hold it for me. If the item is completely sold out, would a refund to my original payment method be possible? I can visit after work tomorrow, and I would appreciate knowing which documents to bring."
+    rationale: "예기치 않은 제약을 고려해 대안을 제시하고 상대방의 조치를 요청하는 긴 발화를 수행함. 일관성은 별도 확인이 필요함."
+    upgrade_tip: "예상치 못한 거절이나 새 제약에도 구체적 해결책을 지속적으로 설명하기."
+  AL:
+    text: "Good afternoon. I am hoping you can help me resolve a sizing problem with a jacket I purchased from your store earlier this week. I bought a medium after trying it on quickly, but when I tried it again over a sweater at home, the shoulders felt too tight. It has not been worn outside, and I have kept the receipt and original tags. My preference would be to exchange it for a large. Would you be able to check stock at your branch or arrange a transfer from another location? If neither option is available, could you explain whether the purchase qualifies for a refund and how the money would be returned? I am leaving town on Friday, so it would be helpful to know whether I could complete the exchange by Thursday. If the process takes longer, I could arrange for someone to collect the replacement on my behalf."
+    rationale: "문제를 명료하게 설명하고 제약·우선순위·여러 가능한 대안·후속 조치를 유기적으로 연결함. Advanced Low 특징을 보이도록 만든 합성 대화 발화임."
+    upgrade_tip: null
+
+# Q021 질문: You made an appointment for a haircut, but your schedule has changed. Call the salon and reschedule it.
+# 한국어: 미용실 예약을 변경해야 한다. 전화로 사유를 설명하고 가능한 날짜와 변경 조건을 확인하시오.
+Q021:
+  NL:
+    text: "Haircut... Friday. Change. Monday?"
+    rationale: "필수 단어와 짧은 요청만 제시하여 미용실 예약 변경의 목적을 충분히 전달하지 못함."
+    upgrade_tip: "Hello, I need help with ... 와 같은 간단한 용건 문장을 연습하기."
+  NM:
+    text: "Hello. I have haircut Friday. I cannot go. Monday okay?"
+    rationale: "암기한 요청 표현을 통해 미용실 예약 변경의 기본 의도를 알리지만 구체적 정보가 부족함."
+    upgrade_tip: "예약·구매·위치 등 핵심 정보를 한두 문장으로 정확히 전달하기."
+  NH:
+    text: "Hello. I booked Friday three. I have class. Can I move appointment? Monday afternoon? Thank you."
+    rationale: "짧은 문장과 정형 질문으로 상황과 요구를 부분적으로 전달함."
+    upgrade_tip: "완전한 질문 문장으로 원하는 조치를 요청하기."
+  IL:
+    text: "Hello, I have a haircut appointment on Friday at three. My class schedule has changed. Can I move the appointment to Monday? Do you have any time after two? My name is Jina Lee. Thank you."
+    rationale: "필요한 정보와 기본 질문을 독립적인 문장으로 전달해 미용실 예약 변경에 대응함."
+    upgrade_tip: "문제의 원인과 원하는 결과를 순서대로 설명하기."
+  IM1:
+    text: "Hello, I booked a haircut for Friday at three, but I just found out that I have an extra class at that time. I am sorry for the change. Could you check whether Monday afternoon is available? I would prefer the same stylist, if possible. Please let me know whether there is a cancellation fee."
+    rationale: "상황을 간단히 설명하고 1~2개의 구체적 요청을 연결된 문장으로 전달함."
+    upgrade_tip: "상대에게 확인할 조건(시간·비용·가능 여부)을 구체적으로 질문하기."
+  IM2:
+    text: "Hi, I am calling to change a haircut appointment I made for this Friday at three. My professor added a required session, so I will not be able to get there on time. Would you have an opening on Monday or Tuesday after two? I would really like to keep the same stylist. Also, could you tell me whether there is a fee for rescheduling with this much notice?"
+    rationale: "원인·조건·희망사항을 제시하며 질문과 대안을 추가함. 주로 예측 가능한 상황에서의 문장 연쇄임."
+    upgrade_tip: "첫 해결책이 불가능한 경우를 가정해 두 번째 대안을 제시하기."
+  IM3:
+    text: "Hello, my name is Jina Lee, and I have a haircut booked for Friday afternoon. Unfortunately, a compulsory seminar has been added to my schedule, so I will have to move the appointment. Could you check whether my stylist has any availability after two on Monday or Tuesday? If those days are full, I could also come early on Wednesday. I am calling several days in advance, so I hope I will not be charged a cancellation fee. Would you mind confirming the new time by text?"
+    rationale: "실용적인 질문과 대안을 자연스럽게 연결하고 추가 조건까지 언급함. 한 문항만으로 Advanced 수행 지속성은 미확인임."
+    upgrade_tip: "추가 제약, 상대의 응답, 다음 단계를 자연스럽게 연결하기."
+  IH:
+    text: "Good afternoon. I booked a haircut with Ms. Park for Friday at three, but my department has just scheduled a compulsory workshop that I cannot miss. I would like to reschedule rather than cancel. Is there any availability with Ms. Park after two on Monday or Tuesday? If she is fully booked, I would be happy to consider Wednesday morning. I understand that there may be a change policy, so could you explain whether any fee applies and when I need to confirm the new slot? It would help if you could send the updated details by text."
+    rationale: "예기치 않은 제약을 고려해 대안을 제시하고 상대방의 조치를 요청하는 긴 발화를 수행함. 일관성은 별도 확인이 필요함."
+    upgrade_tip: "예상치 못한 거절이나 새 제약에도 구체적 해결책을 지속적으로 설명하기."
+  AL:
+    text: "Hello, this is Jina Lee. I am calling about my haircut appointment with Ms. Park, originally scheduled for Friday at three. My university has unexpectedly added a required workshop, and unfortunately it overlaps with the booking. I apologize for the inconvenience, but I would prefer to reschedule rather than cancel. Could you check for an appointment with the same stylist on Monday or Tuesday after two? If those times are unavailable, I could rearrange my Wednesday morning schedule. I would also appreciate clarification about your rescheduling policy, since I am giving several days of notice. Once we agree on a new time, could you send a confirmation text so there is no confusion about the date? If no suitable slot is available this week, please let me know whether I can keep my deposit for a booking next week."
+    rationale: "문제를 명료하게 설명하고 제약·우선순위·여러 가능한 대안·후속 조치를 유기적으로 연결함. Advanced Low 특징을 보이도록 만든 합성 대화 발화임."
+    upgrade_tip: null
+
+# Q022 질문: Talk about a movie you enjoyed. Describe the story and explain what made it memorable.
+# 한국어: 기억에 남는 영화를 소개하고 줄거리와 인상적인 이유를 설명하시오.
+Q022:
+  NL:
+    text: "Movie... space. Family. Sad. Good."
+    rationale: "주제의 핵심 단어만 제시해 기억에 남는 영화을 암시함. 독립적인 설명은 거의 없음."
+    upgrade_tip: "친숙한 대상의 이름과 특징을 I use / It is 등의 한 문장으로 말하기."
+  NM:
+    text: "I like a space movie. It is good. The music is good. I watch it many times."
+    rationale: "외운 듯한 짧은 표현으로 기억에 남는 영화의 일부만 전달함. 설명의 구체성이 낮음."
+    upgrade_tip: "언제·어디서·무엇을 하는지 서로 다른 짧은 문장으로 추가하기."
+  NH:
+    text: "My favorite movie is about astronaut. He go space. He miss family. It is sad. I like the ending."
+    rationale: "익숙한 단문을 조합하여 기억에 남는 영화을 말하려 하지만 문장의 완결성과 확장이 제한됨."
+    upgrade_tip: "단어 나열을 줄이고 주어와 동사가 있는 문장으로 묘사하기."
+  IL:
+    text: "I like a movie about an astronaut. He travels far away from Earth. He wants to return to his daughter. There are many difficult situations. I watched it with my friend. The music was beautiful. The story made me think about my family."
+    rationale: "친숙한 기억에 남는 영화에 관한 정보를 스스로 만든 독립 문장으로 설명함. 문장 간 조직은 아직 단순함."
+    upgrade_tip: "첫 번째 특징에서 다음 특징으로 넘어가는 연결어와 이유를 사용하기."
+  IM1:
+    text: "One movie I remember well is a science-fiction film about an astronaut who leaves Earth to help his family. He faces many problems during the journey, and time passes differently for him and his daughter. I watched it at home with a friend. I liked the story because it was exciting but also emotional, especially near the ending."
+    rationale: "위치·특징·이유 등 정보를 여러 문장으로 연결하여 기억에 남는 영화을 설명함. 구체적 장면은 제한적임."
+    upgrade_tip: "실제로 사용하거나 경험한 장면을 한 가지 구체적으로 덧붙이기."
+  IM2:
+    text: "A science-fiction movie that stayed with me follows an astronaut who travels far from Earth while his daughter grows older at home. The film has impressive space scenes, but what I remember most is the relationship between the two characters. For example, there is a moment when he receives messages from his family after a long delay. That scene made the consequences of his journey feel very real. The music also added to the emotion."
+    rationale: "특징과 활용 예시, 장단점 등을 연결해 기억에 남는 영화에 개인적 의미를 부여함. 주로 문장 연쇄 중심임."
+    upgrade_tip: "장점과 단점 또는 다른 선택지와의 차이를 한 사례로 보여주기."
+  IM3:
+    text: "I usually enjoy science-fiction movies, but one film about a father traveling through space affected me more than I expected. The story begins with his decision to leave his daughter because he believes the mission may help people on Earth. As the journey continues, the distance between them becomes a problem not only in space but also in time. I especially remember the scene in which he watches years of recorded messages. It changed the tone of the movie from an adventure to a personal story about choices and loss."
+    rationale: "익숙한 기억에 남는 영화을 보다 자신 있게 묘사하고 세부 상황을 덧붙임. 이 문항만으로 Advanced의 지속성을 판단할 수 없음."
+    upgrade_tip: "이전 경험과 지금의 모습, 예상 밖의 상황을 하나의 이야기로 확장하기."
+  IH:
+    text: "The most memorable movie I have seen recently was a science-fiction drama about an astronaut who leaves Earth on a mission. At first, I expected the film to focus mainly on technology and dangerous space travel. Instead, the emotional center was his relationship with his daughter, who was growing up while he was away. One sequence, in which he receives years of video messages at once, made the cost of the mission feel much more personal. I had watched plenty of action films before, but this one stayed with me because the scientific ideas and the family story supported each other. I would recommend it even to someone who does not normally like science fiction."
+    rationale: "현재의 설명에 과거 경험 또는 복잡해진 상황을 더하여 긴 발화를 시도함. 다른 과제에서의 안정성은 별도 검증이 필요함."
+    upgrade_tip: "다른 친숙하지 않은 주제에서도 같은 문단 구성과 시간대 서술을 유지하기."
+  AL:
+    text: "One film that has stayed with me is a science-fiction drama about an astronaut who leaves Earth to search for a possible future for humanity. What initially drew me in was the extraordinary setting, but the story gradually became less about spectacular space travel and more about the cost of leaving people behind. Early in the film, the main character promises his daughter that he will return. Later, circumstances beyond his control cause years to pass while he is away, and the recorded messages he receives make that lost time painfully visible. I was struck by how the film used a complicated scientific idea to explore a very familiar emotion: the fear of missing important moments with family. When I first watched it, I concentrated on the visuals, but after seeing it again, I paid much more attention to the characters decisions. That combination of an imaginative premise and an emotionally convincing story is why I continue to recommend it."
+    rationale: "시간대의 변화, 구체적인 묘사, 사건의 맥락 및 결과를 연결된 문단으로 설명하는 Advanced Low 특징을 보여 줌. 실제 공인 등급은 아님."
+    upgrade_tip: null
+
+# Q023 질문: Describe a festival or community event you attended. What did you see and do there?
+# 한국어: 참석했던 축제 또는 지역 행사에서 보고 경험한 일을 설명하시오.
+Q023:
+  NL:
+    text: "Festival. Music. Lights. Friends."
+    rationale: "사건에 관련된 단어만 나열하여 지역 축제 방문 경험을 단편적으로 암시함."
+    upgrade_tip: "I went / I lost / I tried처럼 사건을 한 문장으로 완성하기."
+  NM:
+    text: "I go festival. Many people. I eat food. I like music."
+    rationale: "짧은 정형 표현을 이어 지역 축제 방문 경험을 언급하지만 사건 순서와 배경을 충분히 말하지 못함."
+    upgrade_tip: "언제·어디서·누구와 있었는지를 익숙한 과거 표현으로 추가하기."
+  NH:
+    text: "Last weekend I go festival with friends. There is music and food. We take pictures. Very crowded, but fun."
+    rationale: "짧은 문장으로 사건을 전달하려 하나 시제나 인과관계 표현이 제한적임."
+    upgrade_tip: "주요 동사의 과거형과 사건의 순서를 명확히 말하기."
+  IL:
+    text: "Last autumn, I went to a local lantern festival with my friends. There were colorful lights along the river. We walked around and bought some snacks. I took many photos. It was crowded. I liked the lights reflected in the water."
+    rationale: "과거에 있었던 지역 축제 방문 경험을 독립 문장으로 전달함. 배경·행동·결과의 연결은 단순함."
+    upgrade_tip: "처음·중간·끝을 연결하고 왜 그런 행동을 했는지 설명하기."
+  IM1:
+    text: "I visited a lantern festival by the river last fall. My friends and I arrived after sunset because the lights looked better at night. First, we walked along the river and took pictures. Then we tried food from a small stall. There were a lot of visitors, but the atmosphere was exciting. I would like to go again."
+    rationale: "익숙한 사건의 시작·진행·결과를 일련의 문장으로 표현하며 기본적인 이유를 제시함."
+    upgrade_tip: "문제가 발생한 정확한 순간과 자신의 반응을 묘사하기."
+  IM2:
+    text: "Last October, I went to a lantern festival with two friends. The path beside the river was decorated with large lanterns shaped like animals and traditional buildings. We arrived around seven, so everything was already lit up. After taking photos, we tried some street food and watched a short performance. The crowd moved slowly, which was a little inconvenient, but the reflections on the river made the trip worthwhile."
+    rationale: "사건의 원인과 행동, 감정을 추가해 지역 축제 방문 경험을 좀 더 구체적으로 설명함. 문장 연쇄가 주축임."
+    upgrade_tip: "선택한 해결 방법과 선택하지 않은 대안을 구분해 말하기."
+  IM3:
+    text: "One event I particularly enjoyed was a lantern festival held beside a river last autumn. My friends and I went after sunset, when the lantern displays were at their brightest. Some of them represented traditional stories, and volunteers explained their meaning to visitors. We took our time looking at the displays, then stopped for hot snacks because the evening was colder than we expected. Although the main walkway was packed, we found a quieter section on the opposite bank with an excellent view."
+    rationale: "시간 순서와 세부 상황을 자연스럽게 연결하고 개인적인 평가를 더함. Advanced의 안정적 수행 여부는 미확인임."
+    upgrade_tip: "문제가 더 복잡해졌을 때의 대처 과정을 길게 전개하기."
+  IH:
+    text: "Last autumn, I visited a lantern festival that was being held along the river in my city. I had seen advertisements for it before, but this was the first year I went. The displays were arranged around several themes, including local history, so the event felt like more than a place to take pictures. Halfway through our visit, the main walkway became so crowded that we could barely move. Instead of leaving, we asked a volunteer for another route and crossed to the opposite bank, where we could see the lanterns reflected in the water. It turned out to be my favorite part of the evening. I have recommended that route to friends who plan to visit this year."
+    rationale: "서술의 배경과 돌발 상황 및 대응을 문단 형태로 설명함. 이런 수행을 다양한 상황에서 지속하는지는 판단할 수 없음."
+    upgrade_tip: "낯선 상황에서도 사건 서술, 시제, 대안 설명을 안정적으로 유지하기."
+  AL:
+    text: "I attended a lantern festival beside the river last autumn, and it turned into a much more memorable evening than I had anticipated. My friends and I originally planned to spend an hour taking pictures, but we discovered that many of the displays illustrated stories from the area’s history. A volunteer explained how one installation represented the old port, which made me appreciate the event differently. The main path became extremely crowded after sunset, and at one point we could not get close enough to see a performance. Rather than waiting in the crowd, we asked for directions to a quieter viewing area across the river. From there, we could see the entire display reflected in the water. We stayed until the closing announcement, then took a less crowded bus home. I would attend again, although next time I would arrive earlier and allow enough time to explore the historical exhibits."
+    rationale: "상황의 배경, 예상 밖의 변화, 대안과 결과를 응집된 문단으로 서술하고 관련된 시간대를 다룸. Advanced Low 특징을 드러내는 합성 예시임."
+    upgrade_tip: null
+
+# Q024 질문: Tell me about a time bad weather changed your outdoor plans. Explain how you adjusted.
+# 한국어: 날씨로 인해 야외 일정이 바뀐 경험과 대처 과정을 설명하시오.
+Q024:
+  NL:
+    text: "Rain. Picnic. Home. Sad."
+    rationale: "사건에 관련된 단어만 나열하여 악천후로 바뀐 야외 계획을 단편적으로 암시함."
+    upgrade_tip: "I went / I lost / I tried처럼 사건을 한 문장으로 완성하기."
+  NM:
+    text: "I like picnic. It rains. We stay home. I am sad."
+    rationale: "짧은 정형 표현을 이어 악천후로 바뀐 야외 계획을 언급하지만 사건 순서와 배경을 충분히 말하지 못함."
+    upgrade_tip: "언제·어디서·누구와 있었는지를 익숙한 과거 표현으로 추가하기."
+  NH:
+    text: "Last Sunday we plan picnic. It rain a lot. We cannot go park. We eat at home. It was okay."
+    rationale: "짧은 문장으로 사건을 전달하려 하나 시제나 인과관계 표현이 제한적임."
+    upgrade_tip: "주요 동사의 과거형과 사건의 순서를 명확히 말하기."
+  IL:
+    text: "Last Sunday, my friends and I planned a picnic. We prepared sandwiches in the morning. Then it started raining. We could not go to the park. We went to a friend’s apartment instead. We ate together and watched a movie. It was still fun."
+    rationale: "과거에 있었던 악천후로 바뀐 야외 계획을 독립 문장으로 전달함. 배경·행동·결과의 연결은 단순함."
+    upgrade_tip: "처음·중간·끝을 연결하고 왜 그런 행동을 했는지 설명하기."
+  IM1:
+    text: "My friends and I planned a picnic near the river last weekend. We made sandwiches and bought drinks, but heavy rain started just before we left. We checked the forecast and decided not to go outside. Instead, we met at my friend’s place, had lunch, and played board games. It was different from our plan, but everyone enjoyed it."
+    rationale: "익숙한 사건의 시작·진행·결과를 일련의 문장으로 표현하며 기본적인 이유를 제시함."
+    upgrade_tip: "문제가 발생한 정확한 순간과 자신의 반응을 묘사하기."
+  IM2:
+    text: "A few weeks ago, three friends and I had planned an outdoor picnic. We had already prepared food when dark clouds appeared, and soon it started pouring. At first, we hoped the rain would stop, but the forecast showed bad weather all afternoon. Since we had everything ready, we moved the gathering to a friend’s apartment. We spread a blanket on the floor and made it an indoor picnic. It was surprisingly enjoyable, even without the view."
+    rationale: "사건의 원인과 행동, 감정을 추가해 악천후로 바뀐 야외 계획을 좀 더 구체적으로 설명함. 문장 연쇄가 주축임."
+    upgrade_tip: "선택한 해결 방법과 선택하지 않은 대안을 구분해 말하기."
+  IM3:
+    text: "One Saturday, my friends and I had arranged to have a picnic by the river. We had checked the weather the previous evening, and it looked fine, so everyone brought food. Just as we were about to leave, the sky suddenly darkened and heavy rain began. We waited for about half an hour before checking the updated forecast. Since it showed storms for the rest of the day, we agreed to change locations. We ended up having our picnic on a friend’s living-room floor. Although we were disappointed at first, the unexpected change gave us a funny story to remember."
+    rationale: "시간 순서와 세부 상황을 자연스럽게 연결하고 개인적인 평가를 더함. Advanced의 안정적 수행 여부는 미확인임."
+    upgrade_tip: "문제가 더 복잡해졌을 때의 대처 과정을 길게 전개하기."
+  IH:
+    text: "I remember organizing a riverside picnic for a few friends last spring. The forecast had looked clear all week, so we bought ingredients and prepared food in advance. On the morning of the event, however, a sudden storm warning appeared. I called everyone before they left home and suggested delaying the gathering, but one friend had already prepared a large amount of food. We decided to move indoors instead. I contacted another friend who lived nearby, and she kindly offered her apartment. Once we rearranged the furniture, we had enough space to eat and play games. It was not the afternoon we had imagined, but everyone was relieved that the food and preparation had not gone to waste."
+    rationale: "서술의 배경과 돌발 상황 및 대응을 문단 형태로 설명함. 이런 수행을 다양한 상황에서 지속하는지는 판단할 수 없음."
+    upgrade_tip: "낯선 상황에서도 사건 서술, 시제, 대안 설명을 안정적으로 유지하기."
+  AL:
+    text: "Last spring, I organized a riverside picnic for five friends, and a sudden storm forced us to change our plans at the last minute. We had chosen the location a week earlier, divided up the food, and checked the forecast the night before. Unfortunately, a weather warning was issued just as people were preparing to leave. Because the river path can become slippery in heavy rain, I decided it would be irresponsible to continue with the outdoor plan. I called everyone, explained the situation, and suggested two alternatives: postponing the picnic or meeting indoors. One friend offered her apartment, which was large enough for the group, so we chose that option. I rearranged the food pickup and sent everyone the new address. We spent the afternoon eating and playing games, and the event was a success despite the inconvenience. Since then, whenever I organize something outdoors, I prepare a backup location in advance."
+    rationale: "상황의 배경, 예상 밖의 변화, 대안과 결과를 응집된 문단으로 서술하고 관련된 시간대를 다룸. Advanced Low 특징을 드러내는 합성 예시임."
+    upgrade_tip: null
+
+# Q025 질문: Tell me about a time you lost something valuable. How did you look for it, and what happened?
+# 한국어: 중요한 물건을 잃어버린 경험과 찾기 위해 했던 행동을 설명하시오.
+Q025:
+  NL:
+    text: "Wallet... missing. Bus. Help."
+    rationale: "사건에 관련된 단어만 나열하여 분실물 탐색과 대처을 단편적으로 암시함."
+    upgrade_tip: "I went / I lost / I tried처럼 사건을 한 문장으로 완성하기."
+  NM:
+    text: "My wallet is gone. I am sad. I call bus. I need wallet."
+    rationale: "짧은 정형 표현을 이어 분실물 탐색과 대처을 언급하지만 사건 순서와 배경을 충분히 말하지 못함."
+    upgrade_tip: "언제·어디서·누구와 있었는지를 익숙한 과거 표현으로 추가하기."
+  NH:
+    text: "Yesterday I lost wallet on bus. I look bag. No wallet. I call bus office. They find it. I am happy."
+    rationale: "짧은 문장으로 사건을 전달하려 하나 시제나 인과관계 표현이 제한적임."
+    upgrade_tip: "주요 동사의 과거형과 사건의 순서를 명확히 말하기."
+  IL:
+    text: "Last month, I lost my wallet on the bus. I noticed it after I got home. I checked my bag and pockets. Then I called the bus company. An employee asked about the bus number. The next day, I went to the office and got my wallet back."
+    rationale: "과거에 있었던 분실물 탐색과 대처을 독립 문장으로 전달함. 배경·행동·결과의 연결은 단순함."
+    upgrade_tip: "처음·중간·끝을 연결하고 왜 그런 행동을 했는지 설명하기."
+  IM1:
+    text: "I lost my wallet on a city bus last month. I realized it was missing when I tried to pay at a convenience store. First, I searched my backpack, but it was not there. Then I remembered taking out my bus card. I called the transport office and described the wallet. Fortunately, someone had turned it in, so I collected it the next morning."
+    rationale: "익숙한 사건의 시작·진행·결과를 일련의 문장으로 표현하며 기본적인 이유를 제시함."
+    upgrade_tip: "문제가 발생한 정확한 순간과 자신의 반응을 묘사하기."
+  IM2:
+    text: "About a month ago, I misplaced my wallet during my commute. I noticed it when I reached a store and could not find my card. After checking my pockets, I retraced my steps and realized I had probably left it on the bus. I contacted the bus company, gave them the route number and approximate time, and described the wallet. They called back that evening to say a driver had found it. I was relieved because my student ID was inside."
+    rationale: "사건의 원인과 행동, 감정을 추가해 분실물 탐색과 대처을 좀 더 구체적으로 설명함. 문장 연쇄가 주축임."
+    upgrade_tip: "선택한 해결 방법과 선택하지 않은 대안을 구분해 말하기."
+  IM3:
+    text: "I had a stressful experience when I lost my wallet after taking the bus home. At first, I searched my room because I assumed it had slipped out of my bag. When I checked my payment history, I realized the last time I had used my transit card was on the bus. I looked up the lost-and-found number, explained where I had been sitting, and provided the route and time. The staff could not locate it immediately, so I temporarily locked my bank card. The next day, they called to say it had been handed in, and I picked it up after class."
+    rationale: "시간 순서와 세부 상황을 자연스럽게 연결하고 개인적인 평가를 더함. Advanced의 안정적 수행 여부는 미확인임."
+    upgrade_tip: "문제가 더 복잡해졌을 때의 대처 과정을 길게 전개하기."
+  IH:
+    text: "Last semester, I discovered that my wallet was missing when I tried to buy groceries after getting off a bus. I searched my backpack and called a friend I had met earlier, but neither of us could find it. I then contacted the bus company and gave the staff the route, approximate time, and a description of the wallet. They had not received it yet, so I froze my bank card as a precaution. Later that evening, a driver reported finding it between two seats. I collected it from the terminal the following morning. The experience was stressful, but I was impressed by how carefully the staff handled the report."
+    rationale: "서술의 배경과 돌발 상황 및 대응을 문단 형태로 설명함. 이런 수행을 다양한 상황에서 지속하는지는 판단할 수 없음."
+    upgrade_tip: "낯선 상황에서도 사건 서술, 시제, 대안 설명을 안정적으로 유지하기."
+  AL:
+    text: "A few months ago, I lost my wallet during a busy commute, and the experience taught me how important it is to respond calmly. I first noticed it was missing when I tried to pay for groceries. After checking my pockets and retracing my steps, I realized I had taken my transit card out on the bus and might have dropped the wallet beside my seat. I called the bus operator and provided the route number, boarding time, direction of travel, and a description of the contents. Because the wallet also held my bank card, I temporarily blocked the card while I waited. The office initially had no record of it, so I asked them to contact me if the driver found anything during the final inspection. Thankfully, I received a call that evening and collected the wallet the next day. Since then, I have kept my most important cards in a separate holder and regularly checked that my bag is closed."
+    rationale: "상황의 배경, 예상 밖의 변화, 대안과 결과를 응집된 문단으로 서술하고 관련된 시간대를 다룸. Advanced Low 특징을 드러내는 합성 예시임."
+    upgrade_tip: null
+
+# Q026 질문: Describe a place where you like to study or concentrate. What is it like, and why do you prefer it?
+# 한국어: 집이나 학교 밖에서 집중하기 좋은 장소와 그 이유를 설명하시오.
+Q026:
+  NL:
+    text: "Study room. Quiet. Desk. Light."
+    rationale: "주제의 핵심 단어만 제시해 조용한 독서실과 집중 환경을 암시함. 독립적인 설명은 거의 없음."
+    upgrade_tip: "친숙한 대상의 이름과 특징을 I use / It is 등의 한 문장으로 말하기."
+  NM:
+    text: "I study in a reading room. It is quiet. I like the desk. I study every day."
+    rationale: "외운 듯한 짧은 표현으로 조용한 독서실과 집중 환경의 일부만 전달함. 설명의 구체성이 낮음."
+    upgrade_tip: "언제·어디서·무엇을 하는지 서로 다른 짧은 문장으로 추가하기."
+  NH:
+    text: "There is study room near my house. It have big desk. I go in evening. People quiet. I can focus."
+    rationale: "익숙한 단문을 조합하여 조용한 독서실과 집중 환경을 말하려 하지만 문장의 완결성과 확장이 제한됨."
+    upgrade_tip: "단어 나열을 줄이고 주어와 동사가 있는 문장으로 묘사하기."
+  IL:
+    text: "I usually study in a reading room near my apartment. It has long desks and bright lights. There are no loud conversations. I bring my notebook and a bottle of water. I go there in the evening. I like it because I can concentrate."
+    rationale: "친숙한 조용한 독서실과 집중 환경에 관한 정보를 스스로 만든 독립 문장으로 설명함. 문장 간 조직은 아직 단순함."
+    upgrade_tip: "첫 번째 특징에서 다음 특징으로 넘어가는 연결어와 이유를 사용하기."
+  IM1:
+    text: "There is a small reading room about ten minutes from my home. Each seat has a desk lamp and a divider, so it feels private. I normally go there after dinner and study for two hours. I turn off my phone while I work. The room is quiet, and seeing other people study helps me stay focused."
+    rationale: "위치·특징·이유 등 정보를 여러 문장으로 연결하여 조용한 독서실과 집중 환경을 설명함. 구체적 장면은 제한적임."
+    upgrade_tip: "실제로 사용하거나 경험한 장면을 한 가지 구체적으로 덧붙이기."
+  IM2:
+    text: "My favorite place to concentrate is a private reading room close to my apartment. The desks are fairly large, and each seat has a lamp and a power outlet. I prefer it to a café because nobody talks on the phone there. For example, when I have a difficult assignment, I reserve a seat for the evening and work in fifty-minute sessions. The only drawback is that the room can feel stuffy when it is crowded."
+    rationale: "특징과 활용 예시, 장단점 등을 연결해 조용한 독서실과 집중 환경에 개인적 의미를 부여함. 주로 문장 연쇄 중심임."
+    upgrade_tip: "장점과 단점 또는 다른 선택지와의 차이를 한 사례로 보여주기."
+  IM3:
+    text: "I usually go to a quiet reading room on the second floor of a building near my home. It is designed for independent study, with individual desks, adjustable lamps, and lockers for textbooks. What I like most is the routine it creates: once I sit down and put my phone away, I know it is time to focus. I have tried studying in cafés, but the conversations and music often interrupt my concentration. In the reading room, I can work for longer without constantly checking the time."
+    rationale: "익숙한 조용한 독서실과 집중 환경을 보다 자신 있게 묘사하고 세부 상황을 덧붙임. 이 문항만으로 Advanced의 지속성을 판단할 수 없음."
+    upgrade_tip: "이전 경험과 지금의 모습, 예상 밖의 상황을 하나의 이야기로 확장하기."
+  IH:
+    text: "I began using a private reading room last semester when I was struggling to concentrate at home. My apartment is comfortable, but I kept getting distracted by my phone and household noise. The reading room has separate desks, good lighting, and a strict rule against phone calls. At first, I found the atmosphere a little too serious, but after a few visits I realized it helped me develop a routine. Once, the air conditioning broke during a particularly hot afternoon, and everyone had to move to another floor. The staff arranged alternative seats quickly, so I was still able to finish my assignment. I now use that room whenever I have a deadline."
+    rationale: "현재의 설명에 과거 경험 또는 복잡해진 상황을 더하여 긴 발화를 시도함. 다른 과제에서의 안정성은 별도 검증이 필요함."
+    upgrade_tip: "다른 친숙하지 않은 주제에서도 같은 문단 구성과 시간대 서술을 유지하기."
+  AL:
+    text: "The place where I concentrate best is a small reading room near my apartment. I started going there last semester because my usual study routine at home had become ineffective: I was constantly distracted, and even short tasks took far too long. The reading room has individual desks with adjustable lights, reliable internet access, and a separate area for breaks. I usually reserve a seat for two hours and divide my work into focused sessions. One afternoon, the air conditioning failed just as several students were preparing for exams. Instead of leaving immediately, I asked the staff whether we could use a quieter room upstairs. They moved us there and extended our reservations to compensate for the disruption. That incident actually strengthened my impression of the place. I still study at home when I need to speak aloud or work with a group, but for independent problem-solving, the reading room remains my first choice."
+    rationale: "시간대의 변화, 구체적인 묘사, 사건의 맥락 및 결과를 연결된 문단으로 설명하는 Advanced Low 특징을 보여 줌. 실제 공인 등급은 아님."
+    upgrade_tip: null
+
+# Q027 질문: Describe a volunteer activity you participated in. What did you do, and what did you learn?
+# 한국어: 참여했던 봉사활동의 역할과 기억에 남는 경험을 설명하시오.
+Q027:
+  NL:
+    text: "Volunteer. Children. Books. Happy."
+    rationale: "사건에 관련된 단어만 나열하여 지역 아동 독서 봉사 경험을 단편적으로 암시함."
+    upgrade_tip: "I went / I lost / I tried처럼 사건을 한 문장으로 완성하기."
+  NM:
+    text: "I help children. We read books. I like it. It is good."
+    rationale: "짧은 정형 표현을 이어 지역 아동 독서 봉사 경험을 언급하지만 사건 순서와 배경을 충분히 말하지 못함."
+    upgrade_tip: "언제·어디서·누구와 있었는지를 익숙한 과거 표현으로 추가하기."
+  NH:
+    text: "I go community center. I help kids read. They ask question. I explain words. It is fun."
+    rationale: "짧은 문장으로 사건을 전달하려 하나 시제나 인과관계 표현이 제한적임."
+    upgrade_tip: "주요 동사의 과거형과 사건의 순서를 명확히 말하기."
+  IL:
+    text: "Last summer, I volunteered at a community center. I helped children read short books. Sometimes I explained difficult words. We also drew pictures about the stories. The children were friendly. I enjoyed helping them."
+    rationale: "과거에 있었던 지역 아동 독서 봉사 경험을 독립 문장으로 전달함. 배경·행동·결과의 연결은 단순함."
+    upgrade_tip: "처음·중간·끝을 연결하고 왜 그런 행동을 했는지 설명하기."
+  IM1:
+    text: "I volunteered at a community center during summer vacation. My main job was helping elementary school students read English storybooks. At first, some children were shy, so I asked them easy questions about the pictures. After reading, we talked about the stories and drew our favorite characters. I liked seeing them become more confident."
+    rationale: "익숙한 사건의 시작·진행·결과를 일련의 문장으로 표현하며 기본적인 이유를 제시함."
+    upgrade_tip: "문제가 발생한 정확한 순간과 자신의 반응을 묘사하기."
+  IM2:
+    text: "Last summer, I spent several afternoons volunteering at a community center. I worked with children who needed help reading short English stories. Rather than correcting every mistake, I encouraged them to describe the pictures and guess what would happen next. One student was very quiet at first, but after a few sessions she started asking questions on her own. That small change made the experience especially rewarding."
+    rationale: "사건의 원인과 행동, 감정을 추가해 지역 아동 독서 봉사 경험을 좀 더 구체적으로 설명함. 문장 연쇄가 주축임."
+    upgrade_tip: "선택한 해결 방법과 선택하지 않은 대안을 구분해 말하기."
+  IM3:
+    text: "I joined a reading-support program at a local community center last summer. My role was to help younger students feel more comfortable reading aloud. During the first session, I realized that repeating difficult words was not enough, because some students were afraid of making mistakes in front of others. I began using pictures and short games to make the activity less intimidating. By the end of the program, several children volunteered to read first. It made me appreciate how much a relaxed atmosphere can influence learning."
+    rationale: "시간 순서와 세부 상황을 자연스럽게 연결하고 개인적인 평가를 더함. Advanced의 안정적 수행 여부는 미확인임."
+    upgrade_tip: "문제가 더 복잡해졌을 때의 대처 과정을 길게 전개하기."
+  IH:
+    text: "Last summer, I volunteered at an after-school community center, where I helped children practice reading. I originally expected to spend most of my time explaining vocabulary, but I soon noticed that confidence was a bigger problem than comprehension for some students. One child refused to read aloud because he was worried about making mistakes. Instead of insisting, I suggested that we read alternate lines and choose a funny voice for each character. After a few sessions, he began volunteering to read short passages. I learned that helping someone learn often means adjusting the approach, not simply giving clearer explanations."
+    rationale: "서술의 배경과 돌발 상황 및 대응을 문단 형태로 설명함. 이런 수행을 다양한 상황에서 지속하는지는 판단할 수 없음."
+    upgrade_tip: "낯선 상황에서도 사건 서술, 시제, 대안 설명을 안정적으로 유지하기."
+  AL:
+    text: "During summer vacation, I volunteered at a community center that offered reading activities for elementary school students. My main responsibility was to support small groups as they worked through short English stories. I had assumed that explaining unfamiliar words would be the hardest part, but I quickly realized that several children understood the material and were simply reluctant to speak in front of others. When one student repeatedly refused to read aloud, I changed the activity: we took turns reading individual lines, acted out the characters, and gradually increased the length of each turn. By the end of the program, he was volunteering to read entire paragraphs. I also discussed the change with the program coordinator so we could use a similar approach with other students. The experience showed me that patience and flexibility are often more effective than correcting every error immediately."
+    rationale: "상황의 배경, 예상 밖의 변화, 대안과 결과를 응집된 문단으로 서술하고 관련된 시간대를 다룸. Advanced Low 특징을 드러내는 합성 예시임."
+    upgrade_tip: null
+
+# Q028 질문: Tell me how you became friends with someone important to you. What happened when you first met?
+# 한국어: 친한 친구를 처음 만난 과정과 관계가 가까워진 계기를 설명하시오.
+Q028:
+  NL:
+    text: "Friend. Class. Lunch. Nice."
+    rationale: "사건에 관련된 단어만 나열하여 친구와 처음 만난 경험을 단편적으로 암시함."
+    upgrade_tip: "I went / I lost / I tried처럼 사건을 한 문장으로 완성하기."
+  NM:
+    text: "I have a good friend. We go school. We eat lunch. He is nice."
+    rationale: "짧은 정형 표현을 이어 친구와 처음 만난 경험을 언급하지만 사건 순서와 배경을 충분히 말하지 못함."
+    upgrade_tip: "언제·어디서·누구와 있었는지를 익숙한 과거 표현으로 추가하기."
+  NH:
+    text: "I meet my friend in class. We do project. He help me. Now we eat lunch. I like him."
+    rationale: "짧은 문장으로 사건을 전달하려 하나 시제나 인과관계 표현이 제한적임."
+    upgrade_tip: "주요 동사의 과거형과 사건의 순서를 명확히 말하기."
+  IL:
+    text: "I met one of my best friends in a university class. We sat next to each other. One day, the teacher gave us a group assignment. We worked together in the library. After the project, we had lunch. Now we talk often."
+    rationale: "과거에 있었던 친구와 처음 만난 경험을 독립 문장으로 전달함. 배경·행동·결과의 연결은 단순함."
+    upgrade_tip: "처음·중간·끝을 연결하고 왜 그런 행동을 했는지 설명하기."
+  IM1:
+    text: "I met my close friend during my first week at university. We were in the same class and ended up working together on a project. He helped me understand an assignment, and I bought him coffee afterward. We started having lunch together, and we discovered that we liked the same sports. We have been friends since then."
+    rationale: "익숙한 사건의 시작·진행·결과를 일련의 문장으로 표현하며 기본적인 이유를 제시함."
+    upgrade_tip: "문제가 발생한 정확한 순간과 자신의 반응을 묘사하기."
+  IM2:
+    text: "One of my closest friends is someone I met during an introductory university class. We were assigned to the same group, and he was the first person to invite me to lunch. At first, we mainly talked about assignments, but we soon learned that we both enjoyed basketball. We started playing after class once a week. I think working together and sharing a hobby made it easy for us to become friends."
+    rationale: "사건의 원인과 행동, 감정을 추가해 친구와 처음 만난 경험을 좀 더 구체적으로 설명함. 문장 연쇄가 주축임."
+    upgrade_tip: "선택한 해결 방법과 선택하지 않은 대안을 구분해 말하기."
+  IM3:
+    text: "I met one of my best friends during the first week of university. I was still trying to find my way around campus when we were assigned to the same project group. He noticed that I was having trouble with the online course system and offered to show me how it worked. Later, I asked whether he wanted to grab lunch, and we discovered that we were both interested in basketball. We started meeting for games after class, and our conversations gradually expanded beyond school. He is still the person I call when I need a second opinion."
+    rationale: "시간 순서와 세부 상황을 자연스럽게 연결하고 개인적인 평가를 더함. Advanced의 안정적 수행 여부는 미확인임."
+    upgrade_tip: "문제가 더 복잡해졌을 때의 대처 과정을 길게 전개하기."
+  IH:
+    text: "I first met a close friend during an orientation class at university. I did not know many people, and when we were assigned to work in pairs, I was relieved that he started the conversation. We became friendly while preparing a presentation, but the turning point came when I was worried about a difficult exam. He offered to study with me, and we ended up helping each other with different subjects. After the exam, we went out for lunch and realized we had a lot in common outside school. We now live in different neighborhoods, so we do not meet every day, but we make an effort to play basketball together when our schedules allow."
+    rationale: "서술의 배경과 돌발 상황 및 대응을 문단 형태로 설명함. 이런 수행을 다양한 상황에서 지속하는지는 판단할 수 없음."
+    upgrade_tip: "낯선 상황에서도 사건 서술, 시제, 대안 설명을 안정적으로 유지하기."
+  AL:
+    text: "One of my closest friendships began rather unexpectedly during my first semester at university. I was new to the campus and felt uncomfortable approaching people, so I was grateful when a student in my class invited me to join his project group. We initially talked only about assignments, but while preparing for a presentation, we discovered that we shared an interest in basketball. A few weeks later, I was struggling with an exam topic and he offered to review the material with me, even though he had his own work to finish. That small gesture made a strong impression on me. After the exam, I invited him to a weekend game, and our friendship gradually developed beyond university. Although our schedules are much busier now, we still try to meet regularly and support each other when problems come up. Looking back, it was not a dramatic event that made us friends, but the fact that we consistently made time to help one another."
+    rationale: "상황의 배경, 예상 밖의 변화, 대안과 결과를 응집된 문단으로 서술하고 관련된 시간대를 다룸. Advanced Low 특징을 드러내는 합성 예시임."
+    upgrade_tip: null
+
+# Q029 질문: How has the way you communicate with family and friends changed since you were younger?
+# 한국어: 어릴 때와 지금의 가족·친구 소통 방식이 어떻게 달라졌는지 비교하시오.
+Q029:
+  NL:
+    text: "Before... phone. Now messages. Video."
+    rationale: "과거와 현재를 단어로만 암시하여 과거와 현재의 소통 방식의 변화를 설명하지 못함."
+    upgrade_tip: "Before와 now를 사용한 두 문장을 먼저 만들기."
+  NM:
+    text: "I call my friends. I use messages now. It is easy. I like it."
+    rationale: "주로 암기한 표현을 반복하고 두 시기의 구별이 부족함."
+    upgrade_tip: "과거·현재의 대표적인 차이를 한 가지 더 말하기."
+  NH:
+    text: "When I was kid I call friends. Now I send message. My parents use video call. It is fast and good."
+    rationale: "전후 차이를 짧은 문장으로 제시하지만 시제와 맥락의 연결이 제한됨."
+    upgrade_tip: "시제와 시간 표현을 구분하여 문장을 완성하기."
+  IL:
+    text: "When I was younger, I often called my friends on the phone. I also met them after school. Now I usually send messages. Sometimes I make video calls with my family. Messages are convenient because people can answer later. I still prefer calling for important news."
+    rationale: "과거와 현재의 소통 방식을 과거와 현재의 독립 문장으로 구분하여 전달함."
+    upgrade_tip: "변화의 원인을 because와 so로 연결하기."
+  IM1:
+    text: "When I was in middle school, I usually called friends to make plans. We often talked for a long time after dinner. These days, I send short messages throughout the day. I also use group chats when several friends are planning something. However, if I need to discuss a personal problem, I still prefer a phone call."
+    rationale: "두 시기의 상황을 일련의 문장으로 비교하고 간단한 선호나 이유를 덧붙임."
+    upgrade_tip: "하나의 실제 경험을 예로 들어 변화가 미친 영향을 보여주기."
+  IM2:
+    text: "The biggest difference is that I used to have longer phone conversations, but now most communication happens through messages. When I was younger, I would call a friend after school to ask about homework. Today, our class group chat is much faster for sharing information. On the other hand, messages sometimes cause misunderstandings because people cannot hear your tone. For that reason, I usually call when a topic is sensitive."
+    rationale: "비교의 구체적 사례와 장단점을 연결해 설명하나 대부분 익숙한 범위의 문장 연쇄임."
+    upgrade_tip: "장점과 단점을 대비해 설명하기."
+  IM3:
+    text: "The way I keep in touch with people has changed a lot since I was younger. In middle school, I often phoned friends in the evening or simply arranged to meet them the next day. Now most conversations happen in group chats, where we share photos, announcements, and short updates. This is convenient when everyone has different schedules, but I sometimes feel that we exchange more messages without having deeper conversations. Whenever something important happens, I try to call rather than rely on a few lines of text."
+    rationale: "과거와 현재를 보다 조직적으로 비교하고 생활에 미친 영향을 설명함. Advanced의 지속성은 판단 불가."
+    upgrade_tip: "변화의 계기와 이를 경험한 특정 사건을 상세히 전개하기."
+  IH:
+    text: "When I was younger, contacting a friend usually meant making a phone call or meeting after school. These days, messages and group chats have become the default, especially because my friends study or work in different places. I appreciate how easy it is to share information and make plans, but I have also experienced misunderstandings when a short message sounded colder than I intended. Last year, a friend thought I was upset with him because I replied very briefly during an exam week. We talked by phone and cleared things up immediately. Since then, I have tried to choose the method of communication based on the situation rather than simply using what is fastest."
+    rationale: "변화가 발생한 맥락과 하나의 구체적 사건을 덧붙이며 긴 설명을 시도함. 다양한 과제에서의 안정성은 미확인임."
+    upgrade_tip: "시간대의 이동과 예상치 못한 문제가 포함되어도 연결된 설명 유지하기."
+  AL:
+    text: "My communication habits have changed significantly since middle school. Back then, I would often call friends after dinner, and we sometimes talked for an hour without needing a particular reason. Now our schedules rarely match, so group chats and short messages are far more practical. They help us organize events quickly, but their convenience has a disadvantage: a message can be misinterpreted when the reader cannot hear the speaker’s tone. I experienced that last year when a brief reply I sent during exams made a friend think I was annoyed. Once I noticed the misunderstanding, I called him, explained why I had been distracted, and apologized for sounding abrupt. Since then, I have become more deliberate about how I communicate. I still use messages for routine information, but I prefer a call or an in-person conversation when a matter is emotional or complicated."
+    rationale: "과거와 현재의 변화, 관련 사건의 문제 해결, 변화된 판단 또는 습관을 응집된 문단으로 설명함. Advanced Low 특징을 보여주는 합성 예시임."
+    upgrade_tip: null
+
+# Q030 질문: Do you prefer shopping online or in physical stores? Explain your opinion with examples.
+# 한국어: 온라인 쇼핑과 오프라인 쇼핑 중 어떤 것을 선호하는지 이유와 예시를 들어 설명하시오.
+Q030:
+  NL:
+    text: "Online. Easy. Cheap. Phone."
+    rationale: "주제와 관련된 단어만 말하며 온라인과 오프라인 쇼핑 선호에 대한 주장을 완성하지 못함."
+    upgrade_tip: "I prefer / I support / I think 등을 사용해 입장을 한 문장으로 말하기."
+  NM:
+    text: "I like online shopping. It is easy. I buy shoes. It is good."
+    rationale: "익숙한 찬반 표현은 제시하지만 주장을 뒷받침할 내용이 부족함."
+    upgrade_tip: "주장의 이유를 because 문장으로 하나 제시하기."
+  NH:
+    text: "I shop online because it cheap. I look pictures. I buy clothes. But sometimes size wrong."
+    rationale: "기본적인 선호와 짧은 이유를 제시하나 표현 범위가 좁음."
+    upgrade_tip: "반대되는 선택지와의 차이를 간단히 덧붙이기."
+  IL:
+    text: "I prefer online shopping. I can compare prices on my phone. I usually buy books and small items online. I do not need to travel to a store. Sometimes the delivery is slow. I buy shoes at a physical store because I want to try them on."
+    rationale: "온라인과 오프라인 쇼핑 선호에 대한 의견과 이유를 독립 문장으로 설명함."
+    upgrade_tip: "자신의 생각을 뒷받침할 실제 사례를 한 가지 말하기."
+  IM1:
+    text: "I prefer shopping online for most things because I can compare products at home. For example, when I need a new backpack, I check several websites and read reviews. The main problem is that photos can be misleading. That is why I still visit a store when I buy shoes or expensive clothes."
+    rationale: "명확한 선호나 주장을 제시하고 이유 또는 사례를 여러 문장으로 연결함."
+    upgrade_tip: "장점뿐 아니라 불편하거나 걱정되는 부분을 덧붙이기."
+  IM2:
+    text: "Online shopping is generally my first choice because it saves time and makes price comparisons easy. I often buy books or computer accessories after checking reviews from other customers. However, I do not trust photos completely, especially for clothing. I once ordered shoes that looked comfortable but did not fit at all, so I had to return them. Since then, I have preferred physical stores for items where size and comfort matter."
+    rationale: "의견을 구체적인 경험과 장단점에 연결함. 익숙한 내용의 문장 연쇄가 중심임."
+    upgrade_tip: "입장이 성립하는 조건과 구체적인 선택 기준을 설명하기."
+  IM3:
+    text: "I prefer online shopping for everyday purchases, mainly because it lets me compare many options without spending an afternoon visiting stores. I check product specifications and read several reviews before ordering. Still, I think physical stores are better for things that need to be tried on. For instance, after returning a pair of uncomfortable shoes I bought online, I started visiting a store to check the fit before making a decision. In my view, the best choice depends on what I am buying rather than on the shopping method itself."
+    rationale: "자신의 입장을 조직적으로 밝히고 반대 측면이나 조건까지 고려함. 단일 답변만으로 상위 등급을 단정할 수 없음."
+    upgrade_tip: "실제 발생할 수 있는 문제에 대한 대응책을 제안하기."
+  IH:
+    text: "Overall, I prefer shopping online because I can compare prices, check detailed information, and order things without leaving home. It is especially useful when I need a specific electronic accessory that local stores may not carry. However, my preference has limits. I once ordered a jacket that looked perfect in the photographs but fit badly when it arrived. The return process took longer than expected, and I wished I had tried it on first. Since then, I have become more selective: I buy routine items online, but I visit physical stores for clothing and products that are expensive or difficult to return. That balance works better for me than choosing one method all the time."
+    rationale: "개인적인 경험과 우려를 연결하며 더 긴 의견 설명을 시도함. 추상적인 논증까지 요구하지 않으며 일관성은 별도 검증 대상임."
+    upgrade_tip: "낯선 후속 질문에서도 근거, 현실적 제약, 대안을 일관되게 제시하기."
+  AL:
+    text: "I generally prefer online shopping because it gives me access to a wider range of products and makes it easy to compare prices, specifications, and customer feedback. When I needed a replacement accessory for my laptop, for example, I found several compatible options online that were not available in nearby stores. However, I would not say that shopping online is always better. Last winter, I ordered a jacket after reading positive reviews, only to discover that the fit was completely wrong. Returning it required additional packaging and several days of waiting. As a result, I changed the way I make purchases: I order standardized products online, while I try on clothing and examine expensive items in person whenever possible. I also check the return policy before placing an order, rather than treating it as an afterthought. For me, convenience matters, but being able to make an informed decision matters even more."
+    rationale: "의견의 근거와 예상되는 현실적 문제, 조건부 대안 및 실행 가능성을 문단 수준으로 설명함. Advanced Low 특성을 보여주는 합성 예시임."
+    upgrade_tip: null
+
+# Q031 질문: Describe a meal you tried to cook yourself. What went well or wrong, and how did it turn out?
+# 한국어: 직접 요리했던 경험과 성공 또는 실패한 과정, 결과를 설명하시오.
+Q031:
+  NL:
+    text: "Pasta. Kitchen. Salt. Too much."
+    rationale: "사건에 관련된 단어만 나열하여 첫 요리 도전과 문제 해결을 단편적으로 암시함."
+    upgrade_tip: "I went / I lost / I tried처럼 사건을 한 문장으로 완성하기."
+  NM:
+    text: "I cook pasta. I like pasta. It is salty. My friend laughs."
+    rationale: "짧은 정형 표현을 이어 첫 요리 도전과 문제 해결을 언급하지만 사건 순서와 배경을 충분히 말하지 못함."
+    upgrade_tip: "언제·어디서·누구와 있었는지를 익숙한 과거 표현으로 추가하기."
+  NH:
+    text: "Last week I cook pasta. I put much salt. Taste bad. I add water. My friend eat some. It is funny."
+    rationale: "짧은 문장으로 사건을 전달하려 하나 시제나 인과관계 표현이 제한적임."
+    upgrade_tip: "주요 동사의 과거형과 사건의 순서를 명확히 말하기."
+  IL:
+    text: "Last weekend, I cooked pasta for dinner. I boiled the noodles and made a tomato sauce. I added too much salt. The sauce tasted strange. I put in more tomatoes and some water. It tasted better. My roommate ate it with me."
+    rationale: "과거에 있었던 첫 요리 도전과 문제 해결을 독립 문장으로 전달함. 배경·행동·결과의 연결은 단순함."
+    upgrade_tip: "처음·중간·끝을 연결하고 왜 그런 행동을 했는지 설명하기."
+  IM1:
+    text: "I tried to cook pasta for my roommate last Saturday. I followed a recipe on my phone and made a simple tomato sauce. Unfortunately, I added too much salt, so it tasted terrible at first. I mixed in more tomatoes to balance the flavor. The final dish was not perfect, but we finished it and had a good laugh."
+    rationale: "익숙한 사건의 시작·진행·결과를 일련의 문장으로 표현하며 기본적인 이유를 제시함."
+    upgrade_tip: "문제가 발생한 정확한 순간과 자신의 반응을 묘사하기."
+  IM2:
+    text: "A few weeks ago, I decided to make pasta instead of ordering food. Everything was going smoothly until I accidentally added twice as much salt as the recipe required. I tasted the sauce and realized something was wrong. Rather than starting over, I added more tomatoes and a little water, then cooked it for several more minutes. The flavor improved enough that my roommate agreed to eat it. I learned to taste food before adding more seasoning."
+    rationale: "사건의 원인과 행동, 감정을 추가해 첫 요리 도전과 문제 해결을 좀 더 구체적으로 설명함. 문장 연쇄가 주축임."
+    upgrade_tip: "선택한 해결 방법과 선택하지 않은 대안을 구분해 말하기."
+  IM3:
+    text: "I have been trying to cook more meals at home, and one of my first attempts was homemade pasta. I found a simple recipe and prepared all the ingredients before starting. The noodles turned out well, but I misread the sauce instructions and used far too much salt. When I tasted it, I thought the meal was ruined. I looked up a few suggestions and decided to increase the amount of tomato sauce rather than add more seasoning. It was still slightly salty, but my roommate and I managed to enjoy dinner. Since then, I have been more careful about measuring ingredients."
+    rationale: "시간 순서와 세부 상황을 자연스럽게 연결하고 개인적인 평가를 더함. Advanced의 안정적 수행 여부는 미확인임."
+    upgrade_tip: "문제가 더 복잡해졌을 때의 대처 과정을 길게 전개하기."
+  IH:
+    text: "Last semester, I decided to cook dinner for my roommate instead of ordering delivery. I had made pasta a few times before, so I felt fairly confident, but I was distracted while checking a recipe and accidentally added too much salt to the sauce. The first taste was almost impossible to eat. I considered throwing it away, but my roommate suggested adding more tomatoes and letting the sauce simmer. We tried that, adjusted the seasonings, and eventually ended up with a meal that was quite good. The incident was funny afterward, although I was worried at the time because I had invited him to dinner. It taught me that cooking requires attention and that mistakes are sometimes fixable."
+    rationale: "서술의 배경과 돌발 상황 및 대응을 문단 형태로 설명함. 이런 수행을 다양한 상황에서 지속하는지는 판단할 수 없음."
+    upgrade_tip: "낯선 상황에서도 사건 서술, 시제, 대안 설명을 안정적으로 유지하기."
+  AL:
+    text: "One of my most memorable cooking attempts happened last semester, when I offered to prepare pasta for my roommate. I had watched a recipe video and assumed the dish would be straightforward, so I was embarrassed when I tasted the sauce and realized I had added far too much salt. At first, I thought I would have to throw everything away and order food instead. My roommate suggested that we try increasing the amount of tomato rather than simply diluting the sauce with water. We discussed the options, added more ingredients in stages, and tasted the sauce after each adjustment. By the time the pasta was ready, the balance had improved considerably, although it still was not restaurant quality. We ended up laughing about the mistake over dinner. Since then, I have started measuring seasonings beforehand and tasting small amounts throughout the cooking process, which has made me much more confident in the kitchen."
+    rationale: "상황의 배경, 예상 밖의 변화, 대안과 결과를 응집된 문단으로 서술하고 관련된 시간대를 다룸. Advanced Low 특징을 드러내는 합성 예시임."
+    upgrade_tip: null
+
+# Q032 질문: Tell me about a sports event you watched in person. What happened, and why do you remember it?
+# 한국어: 직접 관람했던 스포츠 경기의 분위기와 기억에 남는 장면을 설명하시오.
+Q032:
+  NL:
+    text: "Basketball. Stadium. Loud. Win."
+    rationale: "사건에 관련된 단어만 나열하여 현장 스포츠 경기 관람을 단편적으로 암시함."
+    upgrade_tip: "I went / I lost / I tried처럼 사건을 한 문장으로 완성하기."
+  NM:
+    text: "I watch basketball. Many people. I cheer. My team wins. It is fun."
+    rationale: "짧은 정형 표현을 이어 현장 스포츠 경기 관람을 언급하지만 사건 순서와 배경을 충분히 말하지 못함."
+    upgrade_tip: "언제·어디서·누구와 있었는지를 익숙한 과거 표현으로 추가하기."
+  NH:
+    text: "Last month I go basketball game. My friend come. Our team score many point. People shout. Very exciting."
+    rationale: "짧은 문장으로 사건을 전달하려 하나 시제나 인과관계 표현이 제한적임."
+    upgrade_tip: "주요 동사의 과거형과 사건의 순서를 명확히 말하기."
+  IL:
+    text: "Last month, I watched a basketball game with my friend. We sat near the court. The crowd was loud. Our team was behind in the first half. In the final minutes, they scored several points and won. I took pictures after the game."
+    rationale: "과거에 있었던 현장 스포츠 경기 관람을 독립 문장으로 전달함. 배경·행동·결과의 연결은 단순함."
+    upgrade_tip: "처음·중간·끝을 연결하고 왜 그런 행동을 했는지 설명하기."
+  IM1:
+    text: "I went to a basketball game with two friends last month. Our team started badly, so the fans were quiet at first. In the second half, the players caught up, and everyone began cheering. The score was close until the final minute. Our team won with a late shot, and the whole stadium stood up. It was very exciting."
+    rationale: "익숙한 사건의 시작·진행·결과를 일련의 문장으로 표현하며 기본적인 이유를 제시함."
+    upgrade_tip: "문제가 발생한 정확한 순간과 자신의 반응을 묘사하기."
+  IM2:
+    text: "A basketball game I attended recently was much more dramatic than I expected. I went with friends who support the same team. They were losing by more than ten points at halftime, and we were disappointed. During the last quarter, their defense improved and they slowly closed the gap. With only a few seconds left, one player made a difficult shot that gave them the lead. The noise from the crowd was incredible, and we talked about that moment all the way home."
+    rationale: "사건의 원인과 행동, 감정을 추가해 현장 스포츠 경기 관람을 좀 더 구체적으로 설명함. 문장 연쇄가 주축임."
+    upgrade_tip: "선택한 해결 방법과 선택하지 않은 대안을 구분해 말하기."
+  IM3:
+    text: "One of the most exciting sports events I have attended was a basketball game last winter. My friends and I arrived early enough to watch the players warm up, and the atmosphere was already lively. Our team fell behind in the first half, but they gradually recovered after halftime. The turning point came when a substitute player made two important defensive plays in a row. With seconds remaining, our team scored the winning basket. I had watched close games on television before, but hearing the crowd react together made the experience completely different."
+    rationale: "시간 순서와 세부 상황을 자연스럽게 연결하고 개인적인 평가를 더함. Advanced의 안정적 수행 여부는 미확인임."
+    upgrade_tip: "문제가 더 복잡해졌을 때의 대처 과정을 길게 전개하기."
+  IH:
+    text: "Last winter, I watched a professional basketball game with two friends. We expected a fairly easy win for our team, but they played poorly in the first half and were losing by double digits. I remember the crowd getting restless while the coach called a timeout. After the break, the players defended much more aggressively and began to reduce the gap. With only a few seconds remaining, our guard made a shot from near the three-point line, and the stadium erupted. I almost missed the moment because I had been looking at the scoreboard. The game reminded me why I enjoy watching sports in person: the uncertainty and shared excitement are difficult to reproduce on a screen."
+    rationale: "서술의 배경과 돌발 상황 및 대응을 문단 형태로 설명함. 이런 수행을 다양한 상황에서 지속하는지는 판단할 수 없음."
+    upgrade_tip: "낯선 상황에서도 사건 서술, 시제, 대안 설명을 안정적으로 유지하기."
+  AL:
+    text: "A basketball game I attended last winter stands out because it completely overturned my expectations. My friends and I had bought tickets weeks in advance, assuming our team would have a comfortable victory. Instead, the players struggled in the first half, and by halftime the atmosphere had become tense. During the third quarter, the coach changed the defensive strategy, which forced several turnovers and gave the team a chance to recover. The score remained close until the final possession, when a guard made a difficult shot just before the buzzer. For a moment, everyone seemed to hold their breath, and then the whole arena erupted. We had planned to leave quickly to avoid traffic, but we stayed to watch the players celebrate and eventually took a later train home. Since then, I have tried to attend at least one game each season, because even a disappointing match can turn into an unforgettable experience."
+    rationale: "상황의 배경, 예상 밖의 변화, 대안과 결과를 응집된 문단으로 서술하고 관련된 시간대를 다룸. Advanced Low 특징을 드러내는 합성 예시임."
+    upgrade_tip: null
+
+# Q033 질문: Do you enjoy taking photographs? Describe what you usually photograph and one picture you remember.
+# 한국어: 사진 찍는 습관과 특별히 기억나는 사진 한 장을 설명하시오.
+Q033:
+  NL:
+    text: "Photos. Phone. Sunset. Nice."
+    rationale: "주제의 핵심 단어만 제시해 사진 촬영 습관과 기억나는 사진을 암시함. 독립적인 설명은 거의 없음."
+    upgrade_tip: "친숙한 대상의 이름과 특징을 I use / It is 등의 한 문장으로 말하기."
+  NM:
+    text: "I take pictures. I like sunset. My phone camera is good. I take many photos."
+    rationale: "외운 듯한 짧은 표현으로 사진 촬영 습관과 기억나는 사진의 일부만 전달함. 설명의 구체성이 낮음."
+    upgrade_tip: "언제·어디서·무엇을 하는지 서로 다른 짧은 문장으로 추가하기."
+  NH:
+    text: "I take pictures with phone. I like sky and street. Last week I take sunset picture. It is beautiful. I send friend."
+    rationale: "익숙한 단문을 조합하여 사진 촬영 습관과 기억나는 사진을 말하려 하지만 문장의 완결성과 확장이 제한됨."
+    upgrade_tip: "단어 나열을 줄이고 주어와 동사가 있는 문장으로 묘사하기."
+  IL:
+    text: "I often take pictures with my phone. I usually photograph the sky and buildings. Last week, I saw a colorful sunset near campus. I stopped and took a photo. I sent it to my friend. I like the photo because the colors are bright."
+    rationale: "친숙한 사진 촬영 습관과 기억나는 사진에 관한 정보를 스스로 만든 독립 문장으로 설명함. 문장 간 조직은 아직 단순함."
+    upgrade_tip: "첫 번째 특징에서 다음 특징으로 넘어가는 연결어와 이유를 사용하기."
+  IM1:
+    text: "I enjoy taking photos when I walk around the city. I mostly take pictures of streets, cafés, and sunsets. One evening, I noticed the sky turning orange behind the university buildings. I took several pictures and chose the clearest one. Whenever I see it, I remember how peaceful that evening felt."
+    rationale: "위치·특징·이유 등 정보를 여러 문장으로 연결하여 사진 촬영 습관과 기억나는 사진을 설명함. 구체적 장면은 제한적임."
+    upgrade_tip: "실제로 사용하거나 경험한 장면을 한 가지 구체적으로 덧붙이기."
+  IM2:
+    text: "I usually take photographs with my phone rather than a special camera. I like capturing ordinary scenes, such as quiet streets after rain or sunlight on buildings. A photo I particularly remember shows a sunset behind my campus. I had been studying all afternoon and stepped outside for a short break when I noticed the colors. I took the picture without planning it, and it still reminds me to look around instead of rushing everywhere."
+    rationale: "특징과 활용 예시, 장단점 등을 연결해 사진 촬영 습관과 기억나는 사진에 개인적 의미를 부여함. 주로 문장 연쇄 중심임."
+    upgrade_tip: "장점과 단점 또는 다른 선택지와의 차이를 한 사례로 보여주기."
+  IM3:
+    text: "Photography is a small habit that helps me notice details in everyday life. I tend to photograph city streets, changing light, and unexpected scenes rather than posed portraits. One picture I am especially fond of was taken after a long afternoon of studying. The sun was setting behind the buildings, and the windows reflected orange light onto the street. I stayed for a few minutes to find an angle without too many cars. The photo itself is simple, but it reminds me of a moment when I stopped worrying about my assignments and enjoyed the evening."
+    rationale: "익숙한 사진 촬영 습관과 기억나는 사진을 보다 자신 있게 묘사하고 세부 상황을 덧붙임. 이 문항만으로 Advanced의 지속성을 판단할 수 없음."
+    upgrade_tip: "이전 경험과 지금의 모습, 예상 밖의 상황을 하나의 이야기로 확장하기."
+  IH:
+    text: "I started taking photos more often after moving to a new neighborhood. At first, I photographed landmarks so I could remember places, but I gradually became interested in ordinary scenes that most people walk past. One of my favorite pictures was taken near campus after a difficult exam. I had been frustrated all day, and when I stepped outside, I noticed the sun setting behind a row of buildings. I waited until the light reached the windows and took a few shots. The picture is not technically perfect, but I kept it because it reminds me how much a small change of scenery improved my mood. I still use my phone, although I have been learning how to adjust exposure more carefully."
+    rationale: "현재의 설명에 과거 경험 또는 복잡해진 상황을 더하여 긴 발화를 시도함. 다른 과제에서의 안정성은 별도 검증이 필요함."
+    upgrade_tip: "다른 친숙하지 않은 주제에서도 같은 문단 구성과 시간대 서술을 유지하기."
+  AL:
+    text: "I enjoy taking photographs because they help me pay attention to moments I might otherwise overlook. When I first moved near campus, I mainly used my phone to document unfamiliar streets and places I wanted to revisit. Over time, however, I became more interested in the light and atmosphere of ordinary scenes. One photograph I particularly treasure shows the sunset reflected in the windows of a building near the university. I had just finished a difficult exam and was heading home when I noticed the unusual colors. Instead of taking a quick picture while walking, I stopped, moved to a quieter corner, and waited for the light to change. Several people passed in front of the camera, so I tried a different angle and eventually captured the scene I wanted. Whenever I look at the photograph now, I remember not only the sunset but also the feeling of relief after that exam. That is why I prefer personal photographs to technically perfect ones."
+    rationale: "시간대의 변화, 구체적인 묘사, 사건의 맥락 및 결과를 연결된 문단으로 설명하는 Advanced Low 특징을 보여 줌. 실제 공인 등급은 아님."
+    upgrade_tip: null
+
+# Q034 질문: Describe a problem you had while working on a group project. How did your team resolve it?
+# 한국어: 조별 과제에서 생긴 문제와 팀원들과 해결한 과정을 설명하시오.
+Q034:
+  NL:
+    text: "Project. Team. Late. Meeting."
+    rationale: "사건에 관련된 단어만 나열하여 조별 과제 역할 분담 갈등을 단편적으로 암시함."
+    upgrade_tip: "I went / I lost / I tried처럼 사건을 한 문장으로 완성하기."
+  NM:
+    text: "We do a project. It is hard. One friend is late. We talk. We finish."
+    rationale: "짧은 정형 표현을 이어 조별 과제 역할 분담 갈등을 언급하지만 사건 순서와 배경을 충분히 말하지 못함."
+    upgrade_tip: "언제·어디서·누구와 있었는지를 익숙한 과거 표현으로 추가하기."
+  NH:
+    text: "Last semester team project. One member not finish work. We have meeting. I do more work. We submit on time."
+    rationale: "짧은 문장으로 사건을 전달하려 하나 시제나 인과관계 표현이 제한적임."
+    upgrade_tip: "주요 동사의 과거형과 사건의 순서를 명확히 말하기."
+  IL:
+    text: "Last semester, I worked on a group presentation. One teammate did not finish his part on time. We were worried. I called a group meeting. We divided the remaining slides among us. We finished the presentation before the deadline."
+    rationale: "과거에 있었던 조별 과제 역할 분담 갈등을 독립 문장으로 전달함. 배경·행동·결과의 연결은 단순함."
+    upgrade_tip: "처음·중간·끝을 연결하고 왜 그런 행동을 했는지 설명하기."
+  IM1:
+    text: "In a group assignment last semester, one member fell behind on his part of the presentation. Our deadline was only two days away, so everyone was stressed. We had a short meeting and asked what he needed help with. Then we divided the unfinished slides into smaller tasks. We managed to submit the presentation on time."
+    rationale: "익숙한 사건의 시작·진행·결과를 일련의 문장으로 표현하며 기본적인 이유를 제시함."
+    upgrade_tip: "문제가 발생한 정확한 순간과 자신의 반응을 묘사하기."
+  IM2:
+    text: "I had a problem during a group project when one teammate could not finish his section by the agreed date. At first, we assumed he was not taking the work seriously, but during our meeting he explained that he was having trouble with the data analysis. We decided to pair him with another member and adjust the task list. I took responsibility for checking the final slides. We finished on time, and the experience taught me not to jump to conclusions."
+    rationale: "사건의 원인과 행동, 감정을 추가해 조별 과제 역할 분담 갈등을 좀 더 구체적으로 설명함. 문장 연쇄가 주축임."
+    upgrade_tip: "선택한 해결 방법과 선택하지 않은 대안을 구분해 말하기."
+  IM3:
+    text: "One group project became stressful because our tasks were not clearly divided at the beginning. Two people prepared similar slides while an important analysis was left unfinished. We discovered the mistake during our final meeting, only two days before the presentation. Instead of arguing about whose fault it was, we listed what still needed to be done and assigned one person to each task. I volunteered to combine the slides and check that they followed the same format. We submitted everything on time, but afterward we agreed that a shared checklist would have prevented the confusion."
+    rationale: "시간 순서와 세부 상황을 자연스럽게 연결하고 개인적인 평가를 더함. Advanced의 안정적 수행 여부는 미확인임."
+    upgrade_tip: "문제가 더 복잡해졌을 때의 대처 과정을 길게 전개하기."
+  IH:
+    text: "During a group presentation last semester, we discovered that two teammates had been working on almost identical material while nobody had completed the results section. The deadline was approaching, and the atmosphere became tense because people thought others were avoiding work. I suggested that we stop discussing blame and first identify which tasks were still missing. We set up a shared document, redistributed the work, and agreed on a short check-in that evening. I combined the final slides and made sure the sections connected logically. The presentation went well, but the experience showed me how easily unclear responsibilities can create conflict even among hardworking people."
+    rationale: "서술의 배경과 돌발 상황 및 대응을 문단 형태로 설명함. 이런 수행을 다양한 상황에서 지속하는지는 판단할 수 없음."
+    upgrade_tip: "낯선 상황에서도 사건 서술, 시제, 대안 설명을 안정적으로 유지하기."
+  AL:
+    text: "Last semester, I worked on a group presentation that nearly missed its deadline because we had not defined responsibilities clearly enough. Two teammates prepared overlapping background slides, while the section explaining our findings had barely been started. When we discovered the problem two days before the presentation, several members became frustrated, and the discussion began to focus on who was responsible. I suggested that we first list every unfinished task and estimate how long each one would take. We then reassigned responsibilities according to each person’s strengths, set a shared deadline for drafts, and scheduled a final review meeting. I took charge of integrating the slides and checking that our explanations followed a consistent argument. We finished on time and received positive feedback, although the last two days were unnecessarily stressful. For our next project, we created a task board and agreed to flag delays early, which helped us avoid the same problem."
+    rationale: "상황의 배경, 예상 밖의 변화, 대안과 결과를 응집된 문단으로 서술하고 관련된 시간대를 다룸. Advanced Low 특징을 드러내는 합성 예시임."
+    upgrade_tip: null
+
+# Q035 질문: There is a water leak in your apartment. Call the property manager, explain the situation, and request assistance.
+# 한국어: 집에 누수가 발생했다. 관리인에게 문제를 설명하고 긴급 조치를 요청하시오.
+Q035:
+  NL:
+    text: "Water... ceiling. Leak. Help. Now."
+    rationale: "필수 단어와 짧은 요청만 제시하여 집 누수 신고와 수리 조율의 목적을 충분히 전달하지 못함."
+    upgrade_tip: "Hello, I need help with ... 와 같은 간단한 용건 문장을 연습하기."
+  NM:
+    text: "Hello. Water in my room. It is bad. Please help. Come now."
+    rationale: "암기한 요청 표현을 통해 집 누수 신고와 수리 조율의 기본 의도를 알리지만 구체적 정보가 부족함."
+    upgrade_tip: "예약·구매·위치 등 핵심 정보를 한두 문장으로 정확히 전달하기."
+  NH:
+    text: "Hello. My ceiling has water. Floor wet. I live room five. Can you send repair person? Please call me."
+    rationale: "짧은 문장과 정형 질문으로 상황과 요구를 부분적으로 전달함."
+    upgrade_tip: "완전한 질문 문장으로 원하는 조치를 요청하기."
+  IL:
+    text: "Hello, I live in apartment 504. Water is dripping from the bathroom ceiling. The floor is wet. Can you send someone to check it today? I put a bucket under the leak. Please tell me when the repair person can come."
+    rationale: "필요한 정보와 기본 질문을 독립적인 문장으로 전달해 집 누수 신고와 수리 조율에 대응함."
+    upgrade_tip: "문제의 원인과 원하는 결과를 순서대로 설명하기."
+  IM1:
+    text: "Hello, I am calling from apartment 504. There is water leaking from the bathroom ceiling, and it started about an hour ago. I placed a bucket underneath, but the floor is getting wet. Could someone come to inspect it as soon as possible? Please let me know whether I should shut off the water while I wait."
+    rationale: "상황을 간단히 설명하고 1~2개의 구체적 요청을 연결된 문장으로 전달함."
+    upgrade_tip: "상대에게 확인할 조건(시간·비용·가능 여부)을 구체적으로 질문하기."
+  IM2:
+    text: "Good morning. I live in apartment 504, and I need to report a leak in the bathroom ceiling. It began dripping about an hour ago, and the water is spreading across the floor. I have moved my belongings away and placed towels nearby. Could you arrange an urgent inspection and tell me when maintenance can arrive? I am also concerned that the water may reach the hallway, so please advise me on any immediate precautions."
+    rationale: "원인·조건·희망사항을 제시하며 질문과 대안을 추가함. 주로 예측 가능한 상황에서의 문장 연쇄임."
+    upgrade_tip: "첫 해결책이 불가능한 경우를 가정해 두 번째 대안을 제시하기."
+  IM3:
+    text: "Hello, this is the tenant in apartment 504. I noticed water dripping from the bathroom ceiling this morning, and the leak has become stronger over the past hour. I have put a container under it and moved nearby belongings, but the floor is still getting wet. Would it be possible to send a maintenance worker today? If someone cannot arrive soon, could you tell me whom to contact for emergency assistance and whether I should turn off the water supply? I can stay home until the inspection is finished."
+    rationale: "실용적인 질문과 대안을 자연스럽게 연결하고 추가 조건까지 언급함. 한 문항만으로 Advanced 수행 지속성은 미확인임."
+    upgrade_tip: "추가 제약, 상대의 응답, 다음 단계를 자연스럽게 연결하기."
+  IH:
+    text: "Hello, I am calling from apartment 504 about a water leak that appears to be getting worse. It started as a few drops from the bathroom ceiling this morning, but there is now enough water to cover part of the floor. I have moved my belongings, put down towels, and kept the area clear. I am worried because the leak is near a light fixture, so I have avoided touching the switch in that area. Could you arrange for someone to inspect it urgently? If your regular maintenance team is unavailable, is there an emergency contractor you can contact? Please tell me what I should do safely while I wait and whether someone can check the apartment above mine."
+    rationale: "예기치 않은 제약을 고려해 대안을 제시하고 상대방의 조치를 요청하는 긴 발화를 수행함. 일관성은 별도 확인이 필요함."
+    upgrade_tip: "예상치 못한 거절이나 새 제약에도 구체적 해결책을 지속적으로 설명하기."
+  AL:
+    text: "Hello, I am a tenant in apartment 504, and I need urgent assistance with a leak in the bathroom ceiling. I first noticed a few drops this morning, but the flow has increased steadily, and water is now spreading across the floor. I have moved everything away from the affected area, placed containers underneath, and avoided the nearby electrical fixtures because I am concerned about safety. Could you arrange an urgent inspection and give me an estimated arrival time? If the building’s maintenance team cannot come soon, I would appreciate the contact details for an emergency contractor. I also need to know whether the water supply should be isolated by a qualified person and whether the upstairs apartment needs to be inspected. I can remain at home to provide access, but if repairs cannot begin today, please explain how the building will prevent further damage and when I can expect an update."
+    rationale: "문제를 명료하게 설명하고 제약·우선순위·여러 가능한 대안·후속 조치를 유기적으로 연결함. Advanced Low 특징을 보이도록 만든 합성 대화 발화임."
+    upgrade_tip: null
+
+# Q036 질문: A visitor asks how to get from the subway station to the city museum. Give directions and explain an alternative if a street is closed.
+# 한국어: 지하철역에서 시립박물관까지 길을 안내하고 도로가 막혔을 때의 대안도 설명하시오.
+Q036:
+  NL:
+    text: "Museum... left. Bus. There."
+    rationale: "필수 단어와 짧은 요청만 제시하여 박물관 길 안내와 우회로 설명의 목적을 충분히 전달하지 못함."
+    upgrade_tip: "Hello, I need help with ... 와 같은 간단한 용건 문장을 연습하기."
+  NM:
+    text: "Go straight. Turn left. Museum there. Okay?"
+    rationale: "암기한 요청 표현을 통해 박물관 길 안내와 우회로 설명의 기본 의도를 알리지만 구체적 정보가 부족함."
+    upgrade_tip: "예약·구매·위치 등 핵심 정보를 한두 문장으로 정확히 전달하기."
+  NH:
+    text: "Go outside station. Walk straight. Turn right at bank. Museum near park. Maybe bus."
+    rationale: "짧은 문장과 정형 질문으로 상황과 요구를 부분적으로 전달함."
+    upgrade_tip: "완전한 질문 문장으로 원하는 조치를 요청하기."
+  IL:
+    text: "Take exit two from the station. Walk straight for five minutes. Turn right at the bank. The museum is next to a small park. If the road is closed, walk around the block. There are signs near the crossing."
+    rationale: "필요한 정보와 기본 질문을 독립적인 문장으로 전달해 박물관 길 안내와 우회로 설명에 대응함."
+    upgrade_tip: "문제의 원인과 원하는 결과를 순서대로 설명하기."
+  IM1:
+    text: "From the subway station, use exit two and walk straight until you see a bank. Turn right there, and the city museum will be on your left beside the park. It takes about ten minutes. If the main street is closed, you can use the next crossing and walk along the park instead. Do you need me to show you the route on a map?"
+    rationale: "상황을 간단히 설명하고 1~2개의 구체적 요청을 연결된 문장으로 전달함."
+    upgrade_tip: "상대에게 확인할 조건(시간·비용·가능 여부)을 구체적으로 질문하기."
+  IM2:
+    text: "The easiest way to reach the city museum is to leave the subway through exit two and continue straight for about five minutes. When you reach the bank, turn right and follow the road until you see the park. The museum entrance is across from the playground. If construction blocks that street, you can keep walking to the next intersection and turn right there instead. It is slightly longer, but the path is well signposted."
+    rationale: "원인·조건·희망사항을 제시하며 질문과 대안을 추가함. 주로 예측 가능한 상황에서의 문장 연쇄임."
+    upgrade_tip: "첫 해결책이 불가능한 경우를 가정해 두 번째 대안을 제시하기."
+  IM3:
+    text: "If you are coming from the station, I would recommend exit two because it has an escalator and leads directly toward the museum. Walk straight past the bank and turn right at the next set of lights. You will see a small park on your left, and the museum is immediately beyond it. The walk normally takes around ten minutes. There has been construction on the main street recently, though, so if that section is closed, continue to the following intersection and follow the signs along the park. The detour adds only a few minutes."
+    rationale: "실용적인 질문과 대안을 자연스럽게 연결하고 추가 조건까지 언급함. 한 문항만으로 Advanced 수행 지속성은 미확인임."
+    upgrade_tip: "추가 제약, 상대의 응답, 다음 단계를 자연스럽게 연결하기."
+  IH:
+    text: "The museum is about a ten-minute walk from this station. I would normally suggest using exit two, walking straight to the bank, and turning right toward the park. The museum is just past the playground. However, part of that street was closed for construction earlier this week, so I would check the signs before turning. If it is still blocked, continue to the next intersection and approach from the opposite side of the park. That route is a little longer but does not involve crossing any restricted area. If you have luggage or difficulty walking, there is also a bus from the station that stops close to the museum entrance."
+    rationale: "예기치 않은 제약을 고려해 대안을 제시하고 상대방의 조치를 요청하는 긴 발화를 수행함. 일관성은 별도 확인이 필요함."
+    upgrade_tip: "예상치 못한 거절이나 새 제약에도 구체적 해결책을 지속적으로 설명하기."
+  AL:
+    text: "The city museum is normally about ten minutes away on foot. From the subway, take exit two, continue straight until you reach the bank, and turn right toward the park. You should see the museum entrance just beyond the playground. I should mention that construction has recently affected the main road, so the usual route may be blocked. If you encounter a barrier, do not try to pass through the work area; continue to the next signalized intersection, turn toward the park, and follow the pedestrian signs around its eastern side. The detour adds roughly five minutes. If you would prefer to avoid walking, you can also take a local bus from the stop outside the station, although you should check the current service information before boarding. Are you planning to visit the main exhibition or a special event? I can help you identify the most convenient entrance."
+    rationale: "문제를 명료하게 설명하고 제약·우선순위·여러 가능한 대안·후속 조치를 유기적으로 연결함. Advanced Low 특징을 보이도록 만든 합성 대화 발화임."
+    upgrade_tip: null
+
+# Q037 질문: Your city is considering building a new cultural center. Do you support the plan? Explain your opinion and address possible concerns.
+# 한국어: 시에서 새로운 문화센터 건립을 추진한다. 찬반 의견과 예상되는 문제, 개선 방안을 설명하시오.
+Q037:
+  NL:
+    text: "Culture center. Music. Good. People."
+    rationale: "주제와 관련된 단어만 말하며 새 문화센터 건립에 대한 의견과 조건에 대한 주장을 완성하지 못함."
+    upgrade_tip: "I prefer / I support / I think 등을 사용해 입장을 한 문장으로 말하기."
+  NM:
+    text: "I like culture center. We need music class. It is good for students."
+    rationale: "익숙한 찬반 표현은 제시하지만 주장을 뒷받침할 내용이 부족함."
+    upgrade_tip: "주장의 이유를 because 문장으로 하나 제시하기."
+  NH:
+    text: "I want new culture center. Children can learn art. Adults can exercise. But maybe expensive. I think good."
+    rationale: "기본적인 선호와 짧은 이유를 제시하나 표현 범위가 좁음."
+    upgrade_tip: "반대되는 선택지와의 차이를 간단히 덧붙이기."
+  IL:
+    text: "I support a new cultural center. It can offer music and art classes. Families can use it on weekends. Students may have a place to study. It will cost money, but I think it can help people in the neighborhood."
+    rationale: "새 문화센터 건립에 대한 의견과 조건에 대한 의견과 이유를 독립 문장으로 설명함."
+    upgrade_tip: "자신의 생각을 뒷받침할 실제 사례를 한 가지 말하기."
+  IM1:
+    text: "I think building a cultural center is a good idea because there are not many affordable activities in my area. It could offer art classes, small performances, and rooms for community groups. I would like the city to keep the fees low so that students and older residents can use it. It should also be close to public transportation."
+    rationale: "명확한 선호나 주장을 제시하고 이유 또는 사례를 여러 문장으로 연결함."
+    upgrade_tip: "장점뿐 아니라 불편하거나 걱정되는 부분을 덧붙이기."
+  IM2:
+    text: "I would support a new cultural center if it provided affordable programs for different age groups. For example, children could join art classes while adults could attend evening workshops. It could also give local musicians a small performance space. However, I worry about the construction cost and parking problems. I think the city should survey residents first and make sure the building is accessible by bus."
+    rationale: "의견을 구체적인 경험과 장단점에 연결함. 익숙한 내용의 문장 연쇄가 중심임."
+    upgrade_tip: "입장이 성립하는 조건과 구체적인 선택 기준을 설명하기."
+  IM3:
+    text: "In general, I support the proposal to build a cultural center because our neighborhood lacks spaces where people of different ages can meet. A well-planned center could offer inexpensive music lessons, exhibitions, and community workshops. Nevertheless, I would want the city to explain how the center will be funded and maintained. If the fees become too high, the residents who need it most may not benefit. I also think the city should prioritize public transport access rather than creating a large parking lot."
+    rationale: "자신의 입장을 조직적으로 밝히고 반대 측면이나 조건까지 고려함. 단일 답변만으로 상위 등급을 단정할 수 없음."
+    upgrade_tip: "실제 발생할 수 있는 문제에 대한 대응책을 제안하기."
+  IH:
+    text: "I would support a new cultural center, but only if the city involved residents in planning it. My neighborhood has a library and several sports facilities, yet there are few affordable places for performances or creative classes. A cultural center could fill that gap, particularly for teenagers and older adults. At the same time, I understand why some neighbors are concerned about construction noise and public spending. Before approving the project, I would like the city to publish a realistic operating budget, hold public meetings, and reserve space for local groups rather than focusing only on large events. Those conditions would make the investment more useful in the long run."
+    rationale: "개인적인 경험과 우려를 연결하며 더 긴 의견 설명을 시도함. 추상적인 논증까지 요구하지 않으며 일관성은 별도 검증 대상임."
+    upgrade_tip: "낯선 후속 질문에서도 근거, 현실적 제약, 대안을 일관되게 제시하기."
+  AL:
+    text: "I am broadly in favor of building a cultural center, provided that the city treats it as a long-term community service rather than a prestigious construction project. At present, many residents have to travel across town to attend inexpensive art classes or small performances, so a local facility could make cultural activities more accessible. However, I share concerns about the initial cost, ongoing maintenance, and the possibility that a large new building could remain underused. I would therefore recommend starting with a public consultation and publishing a clear operating plan that explains who will use the facility, how programs will be funded, and what fees residents would pay. If the budget proves too restrictive, the city could renovate an existing building and expand it gradually instead. I would also prioritize public transportation access and spaces that local organizations can reserve. With those safeguards, the project could become a genuine community resource rather than an expensive symbol."
+    rationale: "의견의 근거와 예상되는 현실적 문제, 조건부 대안 및 실행 가능성을 문단 수준으로 설명함. Advanced Low 특성을 보여주는 합성 예시임."
+    upgrade_tip: null
+
