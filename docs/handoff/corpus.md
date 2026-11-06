@@ -36,7 +36,7 @@ tts-host: Q000과 M2 신규 pilot의 음성 생성. grader: rubrics.jsonl을 기
 실제 외부 임베딩·비용은 미측정. 최종 문서/임베딩 대상 수와 시나리오 목록은 M2 빌드 후 기록한다.
 
 ## M2 최종 결과
-- corpus_version: 2026-11-06.77496797373666
+- corpus_version: 2026-11-06.188333975604103
 - Q000~Q237 238문항, pilot 222, todo 16; 자기소개 채점 제외 1개.
 - pilot 유형별 수와 모든 슬롯 pool 크기: rag_docs/build/report.md.
 - default/leisure/health를 공개. travel은 routine 슬롯 부족으로 제외했고 임의 대체하지 않음.
@@ -49,3 +49,5 @@ tts-host: Q000과 M2 신규 pilot의 음성 생성. grader: rubrics.jsonl을 기
 - IM 프로필 검토: 길이를 공식 경계처럼 사용하는 것은 금지. 명시적인 길이 근거는 없었으나 연결어 역전 Q019/Q040/Q042 및 문장 길이 경고 문항은 사람 검토 대기.
 - M1 자료는 724dc11에서 먼저 push했고 M2를 같은 corpus 브랜치에 누적했다.
 - 빌드 exit 0, 코퍼스 회귀 테스트 3개 통과, API에서 공개 시나리오별 100 seed 선택 성공.
+
+- 추가 문장 검토: Q069 산업 발전 과정의 past/narrate_past, Q138 갑작스러운 정전의 unexpected_situation을 실제 요구에 맞춰 보완.
