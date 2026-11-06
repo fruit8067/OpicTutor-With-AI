@@ -120,6 +120,12 @@ def test_submit_regrade_and_grade_constraints(session):
     assert db.finish_evaluation(new,**kwargs)
     assert not db.fail_evaluation(new,'LATE',None)
     assert db.get_session(session)['result_id']==new
+    without_optional_meta=db.create_regrade(session)
+    kwargs.update(base_level='IL',estimated_level='IL',im_estimation_status='not_applicable',
+                  im_rubric_version=None,corpus_version=None)
+    assert db.finish_evaluation(without_optional_meta,**kwargs)
+    stored=db.get_evaluation(without_optional_meta)
+    assert stored['im_rubric_version'] is None and stored['corpus_version'] is None
 
 
 def test_pending_retry_and_order(session):
