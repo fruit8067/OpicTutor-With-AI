@@ -95,6 +95,8 @@ bash: `python -m venv backend/.venv && backend/.venv/bin/pip install -r backend/
 
 
 ## 최종 검증 추가
+
+- contracts v7 / CR orchestrator-04 기본 설정: Pickle `https://llm.pcl.kr/v1`, `pickle-general`, PICKLE_API_KEY 별칭; 임베딩 large/3072. .env.example은 비밀값 없는 안내만 제공한다. 실제 backend/.env를 덮어쓰지 않았다. grader 키 별칭 및 data-layer 전진 마이그레이션은 각 역할 PR에서 검증한다.
 - 감사 후 재검증: 전체 모듈 import, health/docs/openapi 각 200, 실제 PostgreSQL에 DDL 연속 2회 적용 성공.
 - 새 worktree에서 npm ci --ignore-scripts 및 npm run build 통과. 지정한 코퍼스·frontend lib 경로는 gitignore 대상이 아니다(출력 없음, git check-ignore의 정상 non-match exit 1).
 - nullable tier 골격과 SQL 첫 줄 출처를 수정했다. main의 정식 CR v4 및 trusted ownership 검사기를 사용한다.
