@@ -44,6 +44,7 @@ def _track_requests(limit: int):
 
 
 def _error_status(exc):
+    if _quota_error(exc): return 'error','EVAL_INTERNAL'
     if isinstance(exc,(LLMRefusalError,ContentFilterFinishReasonError)):
         return 'refused','LLM_REFUSED'
     if isinstance(exc,(LLMOutputError,LengthFinishReasonError,ValidationError,json.JSONDecodeError)):
@@ -52,6 +53,10 @@ def _error_status(exc):
             isinstance(exc,APIStatusError) and (exc.status_code in (408,429) or exc.status_code>=500)):
         return 'error','LLM_TRANSIENT'
     return 'error','EVAL_INTERNAL'
+
+
+def _quota_error(exc):
+    return getattr(exc,'code',None) in ('insufficient_quota','quota_exceeded','credit_limit_exceeded','quota_exhausted')
 
 
 def _send(call, model: str):
@@ -163,7 +168,12 @@ def chat_structured(messages: list[dict], schema: type[BaseModel], *, timeout: f
         meta={'model':response.model,'input_tokens':getattr(usage,'prompt_tokens',None),
               'output_tokens':getattr(usage,'completion_tokens',None),'latency_ms':int((time.monotonic()-started)*1000)}
         return parsed,meta
-    except (APIConnectionError,APITimeoutError,RateLimitError,InternalServerError) as exc:
+    except RateLimitError as exc:
+        # Allocated quota is not a temporary per-minute throttle. Preserve the
+        # provider code for the batch controller, without automatic retries.
+        if _quota_error(exc): raise
+        raise LLMTransientError('LLM 일시적 요청 제한') from exc
+    except (APIConnectionError,APITimeoutError,InternalServerError) as exc:
         raise LLMTransientError('LLM 일시적 연결/서비스 오류') from exc
     except APIStatusError as exc:
         if exc.status_code==408:

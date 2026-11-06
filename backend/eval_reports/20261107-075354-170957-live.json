@@ -1,0 +1,203 @@
+{
+  "metadata": {
+    "rubric_version": "performance-feedback-actfl-speaking-v3",
+    "prompt_version": "opic-evaluation-system-v3",
+    "sha1": "c2a7e9fe97b3d76083006d2a76c97c56ad3ef7ad",
+    "system_prompt_sha1": "c2a7e9fe97b3d76083006d2a76c97c56ad3ef7ad",
+    "im_rubric_version": "project-im-v1",
+    "corpus_version": "2026-11-06.112940456345857",
+    "model": "pickle-general",
+    "planned_exams": 1,
+    "max_llm_calls": 3,
+    "upper_cost_usd": null,
+    "input_rate": null,
+    "output_rate": null,
+    "synthetic_metrics": true,
+    "mode": "live",
+    "user_template_version": "evaluate_exam.v5",
+    "school_credit_usd": 10.0,
+    "cost_basis": "user_declared_school_credit_no_usd_estimate",
+    "user_template_sha256": "c8106e57972e4f520f08e35991a337edf58be940f42779dca198467bf6db6e36",
+    "implementation_commit": "d9663879db714136f9bb19aea0c1a8d3837544e5",
+    "fixed_warmup_fallback": {
+      "version": "synthetic-fixed-warmup:v1",
+      "samples": {
+        "IL": "My name is Alex. I live in a small town and work in an office. In my free time, I enjoy walking with my friends.",
+        "AL": "I am Alex, a community project coordinator. Although I used to prefer working independently, organizing local events has taught me to adapt my plans and collaborate with people whose priorities differ from mine."
+      },
+      "case_ids": []
+    },
+    "embedding_input_tokens_estimate": 86,
+    "embedding_max_calls": 21,
+    "embedding_upper_cost_usd": 3.354e-05,
+    "embedding_rate": 0.13,
+    "actual_cost_metric_scope": "LLM usage only; embedding usage is separately logged in ai_requests",
+    "run_status": "completed",
+    "completed_exams": 1
+  },
+  "metrics": {
+    "evaluated": 1,
+    "required_comparisons": 1,
+    "graded_comparisons": 1,
+    "exact": 1.0,
+    "within_one": 1.0,
+    "mean_grade_error": 0,
+    "base_agreement": 1.0,
+    "confusion_matrix": [
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    ],
+    "bias": {
+      "NM": 0
+    },
+    "boundary_accuracy": {
+      "NL/NM": 1.0,
+      "NM/NH": 1.0,
+      "NH/IL": null,
+      "IL/IM1": null,
+      "IM1/IM2": null,
+      "IM2/IM3": null,
+      "IM3/IH": null,
+      "IH/AL": null
+    },
+    "im_withheld_rate": null,
+    "insufficient_rate": 0.0,
+    "validation_failure_rate": 0.0,
+    "repeat_variation": null,
+    "avg_input_tokens": 31027,
+    "avg_output_tokens": 7090,
+    "avg_latency_ms": 61046,
+    "avg_estimated_cost_usd": null,
+    "total_observed_llm_calls": 1,
+    "unknown_usage_requests": 0,
+    "total_observed_input_tokens": 31027,
+    "total_observed_output_tokens": 7090
+  },
+  "records": [
+    {
+      "id": "single-NM-1",
+      "repeat": 1,
+      "expected": "NM",
+      "trap": null,
+      "excluded_contrast_set_ids": [
+        "Q000",
+        "Q232",
+        "Q075",
+        "Q027",
+        "Q103",
+        "Q108",
+        "Q177",
+        "Q072"
+      ],
+      "status": "done",
+      "estimated_level": "NM",
+      "base_level": "NM",
+      "assessment_status": "assessed",
+      "im_estimation_status": "not_applicable",
+      "trap_passed": null,
+      "input_tokens": 31027,
+      "output_tokens": 7090,
+      "llm_calls": 1,
+      "unknown_usage_requests": 0,
+      "latency_ms": 61046,
+      "estimated_cost_usd": null
+    }
+  ]
+}

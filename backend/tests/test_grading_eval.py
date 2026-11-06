@@ -67,3 +67,25 @@ def test_school_credit_mode_checkpoints_unknown_cost_and_stops_provider_limits(m
     assert latest['metadata']['upper_cost_usd'] is None and latest['metadata']['school_credit_usd']==10
     assert 'arbitrary provider text' not in json.dumps(latest)
     assert len(reports)>=3
+
+
+def test_resume_keeps_model_failures_and_provider_pause_history_without_reusing_incompatible_results(tmp_path):
+    metadata={'system_prompt_sha1':'same','user_template_sha256':'same','user_template_version':'v5',
+              'corpus_version':'corpus','model':'pickle-general','planned_exams':3}
+    prepared=[({'id':name,'expected':'IL','trap':None},[],['Q000',name]) for name in ['a','b','c']]
+    records=[{'id':name,'repeat':1,'expected':'IL','trap':None,'excluded_contrast_set_ids':['Q000',name],
+              'status':'error' if name=='a' else 'done','llm_calls':2} for name in ['a','b']]
+    paused={'id':'c','repeat':1,'status':'error','llm_calls':1}
+    path=tmp_path/'stopped.json'
+    original={'metadata':{**metadata,'run_status':'stopped_provider_limit'},'records':records+[paused]}
+    path.write_text(json.dumps(original),encoding='utf-8')
+    current=metadata.copy()
+    recovered=eval_exam.resume_records(path,current,prepared,1)
+    assert recovered==records and recovered[0]['status']=='error'
+    assert current['provider_pause_records']==[paused]
+    assert json.loads(path.read_text(encoding='utf-8'))==original
+    with pytest.raises(ValueError,match='corpus_version'):
+        eval_exam.resume_records(path,{**metadata,'corpus_version':'changed'},prepared,1)
+    changed=[prepared[1],prepared[0],prepared[2]]
+    with pytest.raises(ValueError,match='시험 순서'):
+        eval_exam.resume_records(path,metadata.copy(),changed,1)

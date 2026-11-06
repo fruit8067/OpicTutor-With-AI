@@ -89,3 +89,12 @@ def test_sdk_schema_failure_retains_usage_and_only_schema_field_labels(provider)
     correction=requests[1]['messages'][-1]['content']
     assert 'schema.items.0.evidence.too_long' in correction and '최대3개' in correction
     assert 'private marker' not in correction and 'private marker' not in str(logs)
+
+
+def test_exhausted_quota_is_not_retried_as_a_temporary_rate_limit(provider):
+    requests,logs,waits=provider(lambda n:httpx.Response(429,json={'error':{
+        'code':'quota_exhausted','type':'rate_limit_error','message':'provider allocated quota exhausted'}}))
+    with pytest.raises(Exception) as caught: service.evaluate_exam(snapshot())
+    assert getattr(caught.value,'code',None)=='quota_exhausted'
+    assert len(requests)==len(logs)==1 and not waits
+    assert logs[0]['error_code']=='EVAL_INTERNAL'
