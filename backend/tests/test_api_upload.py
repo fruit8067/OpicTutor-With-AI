@@ -138,3 +138,20 @@ def test_same_request_repairs_missing_file_after_publication_failure(client,monk
     assert len(answers)==1 and not list(path.rglob('.tmp/*'))
     assert Path(original['audio_path']).is_file() is same_blob
     assert retried==(['temporary DB failure',original['id']] if retry_failure else ([original['id']] if same_blob else []))
+
+
+@pytest.mark.parametrize('status,order',[('in_progress',2),('grading',9)])
+def test_old_failed_upload_replay_after_advancement_does_not_restart_stt(client,monkeypatch,status,order):
+    from pathlib import Path
+    c,sid,session,answers,path=client
+    def fail(aid,code): answers[aid].update(stt_status='failed',error_code=code)
+    monkeypatch.setattr(db,'fail_stt',fail)
+    monkeypatch.setattr(db,'retry_stt',lambda aid:pytest.fail('과거 문항의 STT를 재시작하면 안 됨'))
+    with monkeypatch.context() as patch:
+        def cannot_publish(*args,**kwargs): raise PermissionError('publication fixture')
+        patch.setattr(Path,'replace',cannot_publish)
+        assert send(c,sid).status_code==500
+    session.update(status=status,current_order_no=order)
+    response=send(c,sid)
+    assert response.status_code==200 and response.json()['stt_status']=='failed'
+    assert session['current_order_no']==order and not list(path.rglob('*.webm'))
