@@ -1,7 +1,7 @@
 # worker-stt M2
 
 ## 상태
-로컬 워커·STT 구현, 검증 진행 중 (2026-11-06 KST). agent/grader 위에 쌓은 브랜치.
+로컬 워커·STT 구현 및 합성 음성/실제 리스 복구 검증 완료, 마이크 검증 대기 (2026-11-06 KST). agent/grader 위에 쌓은 브랜치.
 
 ## 완료한 것
 jobs claim·30초 복구·20초 heartbeat·취소 플래그·유형별 핸들러 지연 로드, 로컬 PyAV/faster-whisper,
@@ -61,3 +61,10 @@ Windows SAPI Zira로 만든 합성 영어 음성을 10/30/60초로 잘랐다. �
 - API DB 접수→파일 rename 경합은 STT_DECODE_ERROR로 재시도하며 손상 녹음으로 즉시 거부하지 않음.
 - tts_prepare 순수 stub은 작업을 확보하지 않고 queued 상태로 유지. 실제 C의 TTS 구현 후 재시작 필요.
 - 실제 마이크 녹음과 사용자의 읽기 발화 지표는 미검증. 합성 음성으로 대체 완료했다고 표시하지 않음.
+
+## 실제 프로세스 중단/재시작 결과
+자신이 생성한 STT 워커 자식 프로세스만 processing 중에 종료했다. 실제 60초 리스 만료를 기다린 후 새 워커를 시작했다.
+- 재시작 returncode=0, answer=done, job=done, attempts=2, current_order_no=2.
+- 종료 직후 processing/순서 1을 확인했고 재처리 후 done/순서 2를 확인했다. 리스 시각을 SQL로 앞당기지 않은 실제 복구 실험이다.
+- 원음은 합성 60초 파일이며 실제 사용자 마이크 발화는 아니다.
+- 공개 PR: https://github.com/fruit8067/OpicTutor-With-AI/pull/7 (Draft).
