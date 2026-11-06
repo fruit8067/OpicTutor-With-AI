@@ -1,5 +1,11 @@
 # bootstrap M0
 
+## 사용자 요청에 따른 LLM 설정 변경
+계약 v4에서 LLM의 OpenAI 기본 URL/모델을 제거했다. Pickle의 실제 URL과 모델 ID를 명시적으로 설정한다.
+backend/.env를 load_dotenv(override=False)로 읽어 os.getenv 기반 인증에 적용한다.
+이미 설정한 프로세스 환경변수가 .env보다 우선하며 임베딩 기본값은 유지한다.
+평가 기준·API·DB 스키마는 v3 그대로다.
+
 ## 상태
 골격 구현 완료, 검증 진행 중 (2026-11-06 KST).
 
