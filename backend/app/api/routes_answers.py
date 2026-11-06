@@ -12,8 +12,9 @@ from app.errors import AppError
 from app.schemas.api import AnswerOut
 from .deps import (preflight_upload,require_answer,answer_out,MIME_EXT,
     RECORD_MIN_MS,RECORD_MAX_MS,UPLOAD_TOLERANCE_MS,UPLOAD_MAX_BYTES)
+from .upload_route import UploadRoute
 
-router=APIRouter()
+router=APIRouter(route_class=UploadRoute)
 
 @router.post('/sessions/{session_id}/answers',response_model=AnswerOut,status_code=202)
 async def upload(session_id: UUID,response: Response,order_no: Annotated[int,Form()],
