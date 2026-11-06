@@ -1,0 +1,7 @@
+-r requirements/bootstrap.txt
+-r requirements/data-layer.txt
+-r requirements/worker-stt.txt
+-r requirements/grader.txt
+-r requirements/tts-host.txt
+-r requirements/session-api.txt
+-r requirements/corpus.txt
