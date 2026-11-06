@@ -1,0 +1,202 @@
+# 등급 대조 세트 (source_tier C: ACTFL Proficiency Guidelines 2024를 참고한 직접 작성 합성 예시) — Q013~Q017
+# 형식: Q번호 > NL/NM/NH/IL/IM1/IM2/IM3/IH/AL > text, rationale, upgrade_tip
+# 하위 단계의 일부 오류는 교육용으로 의도한 예시이며 실제 등급 판정 답안이 아님.
+# 참고: ACTFL 2024 Speaking pp. 15~21 (Novice / Intermediate / Advanced).
+# 중요: IM1~IM3의 구체적 답변 차이는 공식 독립 루브릭이 아니라 학습용 설계임. 단어 수와 결론 유무는 공식 채점 공식이 아님.
+
+# Q013 질문: Describe a restaurant you visit often. Where is it, what is it like, and why do you go there?
+Q013:
+  NL:
+    text: "Restaurant... near school. Noodles. Good."
+    rationale: "식당 위치와 메뉴에 관한 낱말이나 끊긴 구절을 제시하지만 요청된 말하기 과제를 문장으로 수행하지 못함."
+    upgrade_tip: "I eat noodles. 같은 익숙한 정형 문장 하나로 정보를 전달하기."
+  NM:
+    text: "I like this restaurant. It is good. I eat noodles. The noodles are good. I go there."
+    rationale: "식당 위치와 메뉴를 외운 단문 중심으로 표현하지만 정보의 확장이나 질문에 필요한 전개가 부족함."
+    upgrade_tip: "It is near my school.처럼 위치와 특징을 각각 짧은 문장으로 추가하기."
+  NH:
+    text: "There is a noodle restaurant near my school. It is small. I go with friends. I eat spicy noodles. Very good. My friend likes this place too. We eat there after class. I go there on Friday."
+    rationale: "식당 위치와 메뉴를 짧은 문장으로 전하려 하나 관사·시제·수 일치 또는 문장 완결성에서 흔들림이 있고 연결이 제한됨."
+    upgrade_tip: "식당 위치와 메뉴를 주어와 동사가 있는 완전한 문장으로 표현하고 필요한 시제나 복수형을 맞추기."
+  IL:
+    text: "My favorite restaurant is near my university. It is a small noodle shop. The tables are close together. I usually order spicy noodles. The food is cheap. I go there with my classmates after class. Sometimes it is crowded, so we wait outside."
+    rationale: "식당 위치와 메뉴의 필수 정보를 자신의 문장으로 말하지만 문장 사이 연결과 구체적 상황 확장이 적음."
+    upgrade_tip: "방문 목적과 식당 장면에 필요한 정보 두세 개를 순서 있게 연결해 작은 장면으로 설명하기."
+  IM1:
+    text: "There is a noodle shop about five minutes from my university. I go there with my friends after class, usually on Fridays. The restaurant is small, and there are only a few tables. I always order spicy noodles because the soup is rich and filling. Sometimes we have to wait for a table because students come at the same time. When we finish eating, we sometimes stop at a café nearby."
+    rationale: "방문 목적과 식당 장면의 주요 정보를 순서 있게 전달하나 각 설명이 짧고 인과관계나 장면 묘사가 충분히 확장되지 않음."
+    upgrade_tip: "방문 목적과 식당 장면의 이유나 실제 예시를 한 가지 골라 두세 문장으로 더 말하기."
+  IM2:
+    text: "I often go to a small noodle restaurant near my university. It is not fancy, but it feels comfortable because the owner is friendly and remembers regular customers. I usually order spicy noodles, while my friend prefer the mild version. We go there after our afternoon classes because the portions are generous and the prices are reasonable. There is a small window by the entrance, and you can watch the cook prepare the noodles. It feels more personal than a large chain restaurant. The only downside is that it gets crowded around lunchtime, so we try to arrive a little later."
+    rationale: "방문 목적과 식당 장면에 이유·예시·개인 경험을 추가해 발화를 이어감. 일부 문법이나 연결 표현의 안정성은 더 다듬을 수 있음."
+    upgrade_tip: "추천을 받았던 경위와 대기 상황에서 누가 무엇을 했는지 구체화하고 문법·연결어를 정리하기."
+  IM3:
+    text: "One place I keep going back to is a little noodle shop tucked away behind my campus. From the outside, it looks ordinary, but inside it is warm and lively, especially after classes end. The owner usually greets us, and I tend to order the same spicy noodles because the broth has a deep flavor. My friends and I often sit near the window and talk about assignments while we eat. It can be difficult to find a seat at noon, so we normally go after two. The menu is written on a board above the counter, and you can smell the soup as soon as you enter. On rainy days, the little shop feels especially welcoming. I like the restaurant as much for those conversations as for the food."
+    rationale: "방문 목적과 식당 장면을 구체적인 세부사항과 함께 비교적 유연하게 설명함. 다만 이 한 답변으로 Advanced 과제 수행의 일관성을 확인할 수는 없음."
+    upgrade_tip: "추천을 받았던 경위와 대기 상황을 단순 소개에서 벗어나 원인·대응·결과까지 이어 서술하기."
+  IH:
+    text: "My favorite place to eat near campus is a small noodle shop that I found during my first semester. I was looking for somewhere inexpensive between classes, and a classmate recommended it. At first, I went mainly for the food, but over time it became our regular meeting place. The owner remembers what we usually order, and the atmosphere is relaxed even when the restaurant is busy. Last week, we arrived just before closing and learned that the noodles had sold out, so we chose another dish instead. It was surprisingly good, and now I have something else to recommend to friends. One afternoon, the owner suggested a seasonal dish that was not on the regular menu, and we decided to try it. We ended up talking about how the neighborhood had changed since the shop opened. That conversation made the place feel less like an ordinary restaurant. I probably go there as much to catch up with people as to eat."
+    rationale: "추천을 받았던 경위와 대기 상황을 배경·행동·결과로 연결한 긴 발화에서 Advanced형 수행이 일부 나타남. 더 넓은 상황에서 이를 지속할 수 있는지는 확인되지 않음."
+    upgrade_tip: "혼잡 시 대체 가게를 택한 조치 관련 후속 질문이나 돌발 조건이 주어져도 시간대와 문단 흐름을 안정적으로 유지하기."
+  AL:
+    text: "There is a small noodle shop behind my university that has become something of a gathering place for my friends. I discovered it during my first semester, when I had only half an hour between two classes and needed an inexpensive meal. Although the shop looked unremarkable, the food was excellent, and the owner patiently explained the menu when I could not decide what to order. Since then, we have gone back regularly. The restaurant has only six tables, so when we arrive at peak time, we sometimes have to change our plans. A few weeks ago, for example, a large group had reserved most of the seats. Rather than waiting and risking being late for class, I called a nearby branch that the owner recommended and arranged for everyone to meet there. What keeps me returning is not just the noodles; it is the sense of familiarity and the way the staff handle even inconvenient situations. Before the owner introduced the branch, we had almost no alternatives when the main shop was full. The staff explained our options clearly rather than leaving us to wait outside. Because of that experience, I now make reservations when I bring a larger group, and I try to visit outside the lunch rush. I expect I will still visit whenever I come back to campus after graduation."
+    rationale: "혼잡 시 대체 가게를 택한 조치를 시간대·상황 제약·의사소통 목적에 맞춰 조직적인 문단 수준으로 전달함. Advanced Low의 주요 기능을 보여주는 합성 예시임."
+    upgrade_tip: null
+
+# Q014 질문: Tell me about a time you missed a bus or train. What happened, and what did you do next?
+Q014:
+  NL:
+    text: "Train... late. Station. Taxi."
+    rationale: "차량을 놓친 사실에 관한 낱말이나 끊긴 구절을 제시하지만 요청된 말하기 과제를 문장으로 수행하지 못함."
+    upgrade_tip: "I missed the train. 같은 익숙한 문장 하나부터 완성하기."
+  NM:
+    text: "I go to the station. Train gone. I am late. I take taxi. It is bad."
+    rationale: "차량을 놓친 사실을 외운 단문 중심으로 표현하지만 정보의 확장이나 질문에 필요한 전개가 부족함."
+    upgrade_tip: "Yesterday와 missed 같은 표현으로 언제 무슨 일이 있었는지 말하기."
+  NH:
+    text: "Yesterday I miss the bus. I run to bus stop. Bus is gone. I am late for school. I take taxi. I call my teacher. Teacher say okay. Taxi come fast. Very expensive."
+    rationale: "차량을 놓친 사실을 짧은 문장으로 전하려 하나 관사·시제·수 일치 또는 문장 완결성에서 흔들림이 있고 연결이 제한됨."
+    upgrade_tip: "차량을 놓친 사실을 주어와 동사가 있는 완전한 문장으로 표현하고 필요한 시제나 복수형을 맞추기."
+  IL:
+    text: "Last month, I missed the bus to school. I arrived at the stop too late. I checked the next bus on my phone. It was twenty minutes away. I was worried because I had a class. I took a taxi. I arrived just before class started."
+    rationale: "차량을 놓친 사실의 필수 정보를 자신의 문장으로 말하지만 문장 사이 연결과 구체적 상황 확장이 적음."
+    upgrade_tip: "교통편을 바꾼 이유에 필요한 정보 두세 개를 순서 있게 연결해 작은 장면으로 설명하기."
+  IM1:
+    text: "Last month, I missed my bus to university because I left home too late. I ran to the bus stop, but the bus was already gone. I checked the schedule, and the next bus was coming in twenty minutes. I was worried about being late for class, so I took a taxi. The driver took a quieter road, so I did not have to miss the first part of the lecture. Luckily, I arrived just in time."
+    rationale: "교통편을 바꾼 이유의 주요 정보를 순서 있게 전달하나 각 설명이 짧고 인과관계나 장면 묘사가 충분히 확장되지 않음."
+    upgrade_tip: "교통편을 바꾼 이유의 이유나 실제 예시를 한 가지 골라 두세 문장으로 더 말하기."
+  IM2:
+    text: "I once missed the bus on the morning of an important presentation. I had stayed up late the night before, so I woke up later than usual. When I reached the bus stop, I saw my bus pulling away. I checked the route on my phone, but the next one would arrive too late. In the end, I called a taxi and explained the situation to my teammate. I kept checking the time because my teammates were waiting for me. When I finally entered the classroom, I apologized and went straight to the presentation room. I made it to campus with a few minutes to spare, although the taxi cost much more than I expected."
+    rationale: "교통편을 바꾼 이유에 이유·예시·개인 경험을 추가해 발화를 이어감. 일부 문법이나 연결 표현의 안정성은 더 다듬을 수 있음."
+    upgrade_tip: "다른 환승편을 찾은 과정에서 누가 무엇을 했는지 구체화하고 문법·연결어를 정리하기."
+  IM3:
+    text: "I remember missing an early train when I was traveling to another city for a concert. I had left my hotel on time, but I went to the wrong entrance of the station and lost several minutes looking for the platform. By the time I found it, the doors had closed. I was upset, but I asked a station employee whether I could change my ticket. She showed me the next departure, and I paid a small fee to rebook. I also sent a message to my friend so she would know I would arrive later. The employee told me to keep the old ticket until the change was complete. I took a photo of the new departure board so I would not make another mistake, and I checked the platform number twice. It was stressful, but everything worked out."
+    rationale: "교통편을 바꾼 이유를 구체적인 세부사항과 함께 비교적 유연하게 설명함. 다만 이 한 답변으로 Advanced 과제 수행의 일관성을 확인할 수는 없음."
+    upgrade_tip: "다른 환승편을 찾은 과정을 단순 소개에서 벗어나 원인·대응·결과까지 이어 서술하기."
+  IH:
+    text: "A few months ago, I missed a train while traveling to another city for an interview. I had checked the departure time carefully, but I underestimated how long it would take to get through the station during rush hour. When I reached the platform, the doors were already closed. I was frustrated because the interview was scheduled for that afternoon. I spoke to a staff member, found out that the next direct train was full, and then asked about a route with one transfer. It took longer, but it would still get me there before the interview. I booked the alternative ticket and called the company to explain that I might arrive slightly later than planned. The transfer station was unfamiliar, so I wrote down the platform and departure time instead of relying only on my phone. I had packed my documents separately, which helped when I needed to change trains quickly. Afterward, I realized that I had allowed almost no extra time for an important trip. In the end, I arrived on time, although the whole experience was exhausting."
+    rationale: "다른 환승편을 찾은 과정을 배경·행동·결과로 연결한 긴 발화에서 Advanced형 수행이 일부 나타남. 더 넓은 상황에서 이를 지속할 수 있는지는 확인되지 않음."
+    upgrade_tip: "직원·면접 담당자와의 조율 관련 후속 질문이나 돌발 조건이 주어져도 시간대와 문단 흐름을 안정적으로 유지하기."
+  AL:
+    text: "Last spring, I nearly missed an important job interview after missing the first train of the morning. I had planned my route the night before, but the station entrance I normally used was closed for construction, and I lost time finding another way in. When I reached the platform, I watched the train pull away. The next direct service was fully booked, so simply waiting was not an option. I went to the information desk, explained that I needed to reach the city by noon, and asked the employee to compare the available routes. She found a connection through a smaller station that I would never have considered on my own. I bought the replacement ticket, notified the interviewer that my arrival time might change, and followed the connection carefully. Fortunately, I reached the building with enough time to prepare. At the transfer station, I still had to find the correct platform in a building I had never visited. I asked a staff member to confirm the connection and kept the interviewer's phone number ready in case another delay occurred. The interviewer appreciated the advance notice, even though I ultimately reached the office on time. Since that experience, I have made a habit of checking not only departure times but also station notices and alternative routes before important trips."
+    rationale: "직원·면접 담당자와의 조율을 시간대·상황 제약·의사소통 목적에 맞춰 조직적인 문단 수준으로 전달함. Advanced Low의 주요 기능을 보여주는 합성 예시임."
+    upgrade_tip: null
+
+# Q015 질문: How has your neighborhood changed over the past few years? Describe what it was like before and what it is like now.
+Q015:
+  NL:
+    text: "Neighborhood... shops. New buildings. Busy."
+    rationale: "가게와 교통량의 변화에 관한 낱말이나 끊긴 구절을 제시하지만 요청된 말하기 과제를 문장으로 수행하지 못함."
+    upgrade_tip: "There is a new shop.처럼 현재의 변화 하나를 문장으로 만들기."
+  NM:
+    text: "My town is good. There is a park. There are shops. I like my town."
+    rationale: "가게와 교통량의 변화를 외운 단문 중심으로 표현하지만 정보의 확장이나 질문에 필요한 전개가 부족함."
+    upgrade_tip: "Before, there was one shop. Now there are three. 같은 정형 비교 표현 익히기."
+  NH:
+    text: "My neighborhood has new store. Before, small. Now, big. There are many people. I like new café. Before, one small shop. Now I see big supermarket. Many car on road. But street busy."
+    rationale: "가게와 교통량의 변화를 짧은 문장으로 전하려 하나 관사·시제·수 일치 또는 문장 완결성에서 흔들림이 있고 연결이 제한됨."
+    upgrade_tip: "가게와 교통량의 변화를 주어와 동사가 있는 완전한 문장으로 표현하고 필요한 시제나 복수형을 맞추기."
+  IL:
+    text: "I have lived in this neighborhood for a long time. Before, there were only a few stores. Now there is a supermarket and a large café. Many people visit the area. There are more cars, too. The streets are sometimes noisy. I like the new stores, but I miss the quiet streets."
+    rationale: "가게와 교통량의 변화의 필수 정보를 자신의 문장으로 말하지만 문장 사이 연결과 구체적 상황 확장이 적음."
+    upgrade_tip: "편리함과 소음의 비교에 필요한 정보 두세 개를 순서 있게 연결해 작은 장면으로 설명하기."
+  IM1:
+    text: "My neighborhood has changed a lot since I was in high school. It used to be quiet, with a few small shops and houses. Now there are several cafés and a new supermarket. I like having more places to meet friends, but traffic is heavier than before. For example, my family now walks to the supermarket instead of taking a bus to another area. I think the area is more convenient, although it is not as peaceful as it used to be."
+    rationale: "편리함과 소음의 비교의 주요 정보를 순서 있게 전달하나 각 설명이 짧고 인과관계나 장면 묘사가 충분히 확장되지 않음."
+    upgrade_tip: "편리함과 소음의 비교의 이유나 실제 예시를 한 가지 골라 두세 문장으로 더 말하기."
+  IM2:
+    text: "When I first moved into my neighborhood, most of the buildings were low, and there were only a couple of cafés. Over the past few years, several apartment buildings has gone up, and many new shops have opened near the station. It is much easier to buy groceries or meet friends now. However, the roads are more crowded, especially in the evening. For example, a trip that used to take ten minutes by bus sometimes takes almost twenty. A small bakery that I liked also closed when a new building went up. That made me realize that a convenient neighborhood can still lose familiar places. So I appreciate the convenience, but I also miss how quiet the area was."
+    rationale: "편리함과 소음의 비교에 이유·예시·개인 경험을 추가해 발화를 이어감. 일부 문법이나 연결 표현의 안정성은 더 다듬을 수 있음."
+    upgrade_tip: "오래된 가게 폐업의 경험에서 누가 무엇을 했는지 구체화하고 문법·연결어를 정리하기."
+  IM3:
+    text: "The neighborhood where I grew up looks quite different now. Ten years ago, it was mostly residential, with a small grocery store and a playground. Recently, new apartments and restaurants have opened near the subway station, and the main street stays busy even at night. One positive change is that I no longer have to travel far to buy everyday things. On the other hand, it has become harder to find parking, and some older shops have disappeared. My family still goes to one of the remaining bakeries because we have known the owner for years. Even the bus stop has been moved closer to the new shops, which helps older residents. However, some neighbors complain about the noise from late-night deliveries and buses. The area is more convenient, but it feels less personal than it did before."
+    rationale: "편리함과 소음의 비교를 구체적인 세부사항과 함께 비교적 유연하게 설명함. 다만 이 한 답변으로 Advanced 과제 수행의 일관성을 확인할 수는 없음."
+    upgrade_tip: "오래된 가게 폐업의 경험을 단순 소개에서 벗어나 원인·대응·결과까지 이어 서술하기."
+  IH:
+    text: "I have lived in the same neighborhood since middle school, so I have watched it change quite a bit. It used to be a quiet residential area with family-owned stores, but a new subway exit opened a few years ago, and that brought more visitors and businesses. The change has been convenient for me. I can now get groceries on my way home and meet friends without traveling downtown. At the same time, some long-standing shops have closed because rents went up, and the streets feel less familiar. Last year, a bakery that my family used to visit closed suddenly, and many neighbors were disappointed. When the bakery announced it was closing, several residents left messages thanking the owner for years of friendly service. That moment made the changes feel personal rather than just economic. My parents are pleased about the new transport links, but they also miss knowing every shopkeeper by name. I understand why the area is developing, but I hope it can keep some of its local character."
+    rationale: "오래된 가게 폐업의 경험을 배경·행동·결과로 연결한 긴 발화에서 Advanced형 수행이 일부 나타남. 더 넓은 상황에서 이를 지속할 수 있는지는 확인되지 않음."
+    upgrade_tip: "주민 협의와 교통 대응 관련 후속 질문이나 돌발 조건이 주어져도 시간대와 문단 흐름을 안정적으로 유지하기."
+  AL:
+    text: "The biggest change in my neighborhood has been the area around the subway station. When I was younger, it was mostly quiet streets lined with small family-run shops. About four years ago, the city opened a new exit and improved the sidewalks, which made the area much easier to reach. New cafés, restaurants, and apartment buildings soon followed. Those changes have made everyday life more convenient, but they have also created problems that residents did not anticipate. For instance, when a popular restaurant opened beside an old residential street, delivery motorcycles began blocking the sidewalk. Several neighbors contacted the district office, and the restaurant eventually agreed to create a separate pickup area. The situation improved, though the neighborhood is still busier than it once was. Looking ahead, I hope future development will include practical measures to protect pedestrians and support long-established businesses. The district organized a meeting after complaints about deliveries and parking began to increase. Residents asked for clearer loading zones, and a few businesses agreed to adjust their delivery times. The changes were small, but they showed that new development and neighborhood needs do not always have to be treated as opposites. I welcome the new facilities, but I would rather see the area become more livable than simply more crowded."
+    rationale: "주민 협의와 교통 대응을 시간대·상황 제약·의사소통 목적에 맞춰 조직적인 문단 수준으로 전달함. Advanced Low의 주요 기능을 보여주는 합성 예시임."
+    upgrade_tip: null
+
+# Q016 질문: You registered for a fitness class, but the center changed the schedule. Call the center, explain the problem, ask questions, and suggest an alternative.
+Q016:
+  NL:
+    text: "Class... time changed. When? Refund?"
+    rationale: "변경된 수업 시간에 관한 낱말이나 끊긴 구절을 제시하지만 요청된 말하기 과제를 문장으로 수행하지 못함."
+    upgrade_tip: "My class changed. Can I change it? 같은 정형 문장으로 요청하기."
+  NM:
+    text: "Hello. My class changed. I cannot go. What time? Please help."
+    rationale: "변경된 수업 시간을 외운 단문 중심으로 표현하지만 정보의 확장이나 질문에 필요한 전개가 부족함."
+    upgrade_tip: "I have a class on Tuesday.처럼 기존 예약 정보를 한 문장으로 제시하기."
+  NH:
+    text: "Hello. I have yoga class Tuesday. Now class is Thursday. I cannot Thursday. Other class? Saturday class? I have class at same time. Can I go Monday? Please call me. Please."
+    rationale: "변경된 수업 시간을 짧은 문장으로 전하려 하나 관사·시제·수 일치 또는 문장 완결성에서 흔들림이 있고 연결이 제한됨."
+    upgrade_tip: "변경된 수업 시간을 주어와 동사가 있는 완전한 문장으로 표현하고 필요한 시제나 복수형을 맞추기."
+  IL:
+    text: "Hello, I signed up for a yoga class on Tuesday evening. I got a message that the class moved to Thursday. I work on Thursday, so I cannot attend. Do you have another evening class? Is there a class on Saturday? Can I change my registration?"
+    rationale: "변경된 수업 시간의 필수 정보를 자신의 문장으로 말하지만 문장 사이 연결과 구체적 상황 확장이 적음."
+    upgrade_tip: "가능한 대체 수업 문의에 필요한 정보 두세 개를 순서 있게 연결해 작은 장면으로 설명하기."
+  IM1:
+    text: "Hello, I registered for the Tuesday evening yoga class, but I received a message saying it was moved to Thursday. Unfortunately, I work on Thursday nights. Could you tell me whether there is another class this week? I am free on Saturday morning. I work on Tuesday evenings, so I need another class before the end of the week. If there is a Saturday class, I would like to switch to that one."
+    rationale: "가능한 대체 수업 문의의 주요 정보를 순서 있게 전달하나 각 설명이 짧고 인과관계나 장면 묘사가 충분히 확장되지 않음."
+    upgrade_tip: "가능한 대체 수업 문의의 이유나 실제 예시를 한 가지 골라 두세 문장으로 더 말하기."
+  IM2:
+    text: "Hi, I am calling about the yoga class I booked for Tuesday at seven. I just got a notice that it has been moved to Thursday, but I have work that evening. Is there a similar class on Saturday or Sunday? I would prefer to move my booking instead of canceling it. I signed up with a friend, and we would prefer to stay in the same group. If we cannot do that, please tell us how to transfer the payment to a later course. If both weekend classes are full, could you put me on a waiting list or give me credit for another week?"
+    rationale: "가능한 대체 수업 문의에 이유·예시·개인 경험을 추가해 발화를 이어감. 일부 문법이나 연결 표현의 안정성은 더 다듬을 수 있음."
+    upgrade_tip: "시간 충돌과 대기 명단 확인에서 누가 무엇을 했는지 구체화하고 문법·연결어를 정리하기."
+  IM3:
+    text: "Hello, I am calling because the yoga class I registered for has been rescheduled without much notice. I had signed up for Tuesday evening, but the message I received says it will now take place on Thursday. Unfortunately, I cannot attend on Thursdays because of my job. I wanted to ask whether I could transfer to the Saturday session instead. If that is fully booked, is there another class of the same level next week? The original schedule was important because it fit between my lectures and part-time work. Could you also confirm whether changing groups would affect the number of lessons I have already paid for? I would also appreciate knowing whether there is any fee for changing the reservation, since the schedule change came from the center."
+    rationale: "가능한 대체 수업 문의를 구체적인 세부사항과 함께 비교적 유연하게 설명함. 다만 이 한 답변으로 Advanced 과제 수행의 일관성을 확인할 수는 없음."
+    upgrade_tip: "시간 충돌과 대기 명단 확인을 단순 소개에서 벗어나 원인·대응·결과까지 이어 서술하기."
+  IH:
+    text: "Hello, I am calling about a beginner yoga course that I registered for last week. When I signed up, it was scheduled for Tuesday evenings, but I received an email this morning saying it had been moved to Thursday. I work late on Thursdays, so that change makes it impossible for me to attend. I understand that schedules sometimes change, but I had arranged my other commitments around the original time. Could you check whether the Saturday session has space? If not, I would like to know whether I could transfer to next month without paying an additional fee. I understand that the instructor may have a scheduling conflict, but the new time overlaps with an obligation that I cannot move. If the alternative session has a waiting list, could you tell me when a place is likely to become available? I would rather make a decision before the course starts. I would prefer to keep the registration, but I may need to cancel if neither option is available."
+    rationale: "시간 충돌과 대기 명단 확인을 배경·행동·결과로 연결한 긴 발화에서 Advanced형 수행이 일부 나타남. 더 넓은 상황에서 이를 지속할 수 있는지는 확인되지 않음."
+    upgrade_tip: "환불·반 변경의 조건 조율 관련 후속 질문이나 돌발 조건이 주어져도 시간대와 문단 흐름을 안정적으로 유지하기."
+  AL:
+    text: "Hello, I am calling about the six-week beginner yoga course that was originally scheduled for Tuesdays at seven. I enrolled last week and rearranged my work schedule so I could attend every session. This morning, however, I was notified that the class would start on Thursday evenings instead, which conflicts with a standing work commitment. I realize the instructor may have needed to change the schedule, but I hope we can find an alternative that does not require me to lose the fee I have already paid. Would you first check whether there is space in the Saturday morning course at the same level? If that course is full, I would be happy to join the next available Tuesday group or receive credit toward a future session. If neither option is permitted under your policy, could you explain the cancellation procedure and whether an exception is possible because the center initiated the change? I chose this course partly because the original time was advertised as fixed, so I would appreciate a written confirmation of any changes. I am willing to attend another session if the content and number of lessons are equivalent. If none of the available groups fits my schedule, please explain the refund process before the first class begins. I would appreciate an email confirming whichever arrangement we agree on, so there is no confusion later."
+    rationale: "환불·반 변경의 조건 조율을 시간대·상황 제약·의사소통 목적에 맞춰 조직적인 문단 수준으로 전달함. Advanced Low의 주요 기능을 보여주는 합성 예시임."
+    upgrade_tip: null
+
+# Q017 질문: What is one pedestrian safety problem near a school in your community, and what could people do to improve the situation?
+# 한국어: 동네 학교 앞 보행자 안전 문제를 설명하고 주민·행정기관이 할 수 있는 개선책을 제시하시오.
+Q017:
+  NL:
+    text: "Street... cars. Dangerous. Children."
+    rationale: "차량과 위험을 나타내는 단어만 말하고 지역 문제를 설명하지 못함."
+    upgrade_tip: "\"Cars are fast.\"처럼 문제를 나타내는 정형 문장부터 말하기."
+  NM:
+    text: "Many cars. Cars are bad. I walk. Road is scary. People need help."
+    rationale: "암기한 짧은 표현으로 교통 문제에 대한 느낌만 반복하며 이유·대안은 제시하지 못함."
+    upgrade_tip: "어디에서 위험한지와 원하는 조치를 각각 한 문장으로 말하기."
+  NH:
+    text: "Near my school cars go fast. Many student cross road. There is no light. It is dangerous. I want new crossing. People walk every day. Car not stop sometimes."
+    rationale: "지역의 위험과 희망 사항을 짧은 문장으로 말하지만 수 일치와 문장 완결성이 불안정함."
+    upgrade_tip: "위험한 장소, 누구에게 문제인지, 필요한 조치를 순서대로 설명하기."
+  IL:
+    text: "There is a busy road near my neighborhood school. Many children cross it every morning. Cars sometimes drive too fast. There is only one traffic light. Parents are worried. I think the city needs another crosswalk. It would help students walk safely."
+    rationale: "위험한 장소와 원인·개선안을 짧은 독립 문장으로 전달함. 해결 과정 설명은 아직 제한됨."
+    upgrade_tip: "위험한 상황 하나를 실제 장면으로 설명하고 제안의 이유를 추가하기."
+  IM1:
+    text: "A serious problem in my neighborhood is traffic near the elementary school. There is a narrow road, but a lot of cars use it in the morning. Students cross the street to get to class, and some drivers do not slow down. I think the city should put a speed bump and a crosswalk near the gate. Parents could also ask the local office to check the road. It would make the area safer."
+    rationale: "문제가 발생하는 장소·이유·개선 조치를 여러 문장으로 연결하지만 개별 사례는 짧음."
+    upgrade_tip: "위험했던 장면이나 주민이 실제로 건의한 사례를 덧붙이기."
+  IM2:
+    text: "One problem in my area is the road next to a local school. Every morning, parents drop their children off, and the traffic becomes very crowded. Some drivers turn the corner quickly, even though many students are crossing. Last week, I saw a child stop suddenly because a car did not slow down. Nobody was hurt, but it was frightening. I think we need clearer road markings and a speed bump. The city should also send someone to check the traffic during school hours, not just late at night."
+    rationale: "혼잡한 시간대와 목격한 장면을 예시로 들어 문제와 대응 방안을 연결함. 문장 연쇄가 중심임."
+    upgrade_tip: "주민·학교·행정기관의 역할을 구분해서 더 조직적으로 설명하기."
+  IM3:
+    text: "The biggest safety concern in my neighborhood is a narrow street beside an elementary school. During the morning rush, cars stop to drop off students, while other drivers try to get through as quickly as possible. That combination makes the crossing dangerous. I once saw a child step forward and then jump back when a car turned without slowing down. Fortunately, nothing happened, but several parents looked upset. The local parents have also asked for clearer road markings. I think the first step should be to install a raised crosswalk and put clearer signs before the corner. The school could also work with parents to keep the entrance free of parked cars."
+    rationale: "교통 혼잡의 원인, 구체적 목격 경험, 두 가지 대책을 논리적으로 연결하지만 대응의 실행 과정은 짧음."
+    upgrade_tip: "제안이 받아들여지지 않거나 예산이 부족할 때의 대안도 설명하기."
+  IH:
+    text: "A safety issue that worries me is the narrow street beside our local elementary school. It used to be relatively quiet, but traffic has increased since a new apartment complex opened nearby. During the morning rush, several parents stop their cars right by the gate, and drivers behind them sometimes attempt risky turns. I witnessed a close call last month when a student began crossing and had to step back suddenly. The school warned parents afterward, but the traffic pattern has not changed much. I think the district office should first observe the road during school hours and consider a raised crosswalk. Parents could also organize a safe drop-off point farther from the entrance. If the city cannot make physical changes immediately, temporary crossing guards would at least reduce the danger. The school could update parents on what has been requested and when the district expects to respond."
+    rationale: "과거부터의 변화와 목격 사건을 연결하고 행정기관·학부모가 취할 수 있는 조건부 대안을 제시함. 다만 한 답변만으로 Advanced 능력의 지속성은 판단할 수 없음."
+    upgrade_tip: "추가적인 사고나 예산 제약에도 구체적인 대처를 문단 수준으로 계속 설명하기."
+  AL:
+    text: "One problem my neighborhood needs to address is pedestrian safety around the elementary school. The street was designed when the area was much quieter, but several apartment buildings have opened nearby, and morning traffic has increased significantly. Parents often stop beside the school gate to let their children out, leaving little space for other drivers to pass. Last month, I witnessed a child step onto the crossing just as a car turned the corner without slowing down. Fortunately, the child moved back in time, but the incident showed how risky the layout had become. Several residents contacted the district office, which promised to review the road, although no construction date has been announced. In the short term, I would suggest setting up a designated drop-off area and using crossing guards during arrival hours. If a new crossing cannot be funded immediately, temporary signs and stricter parking enforcement would still help. Over the longer term, a raised crosswalk and a redesigned corner could protect pedestrians without closing the road. I support practical changes that make the street safer before a more serious accident occurs."
+    rationale: "변화의 배경, 구체적 돌발 상황, 주민 대응 및 단기·장기 해결안을 응집된 문단으로 서술함. 특정 고급 문법이나 결론 유무를 채점 공식으로 간주하지 않음."
+    upgrade_tip: null
+
