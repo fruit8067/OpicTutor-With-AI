@@ -8,6 +8,7 @@ import json
 import random
 import statistics
 import time
+import tiktoken
 from pathlib import Path
 from app.config import settings
 from app.exam import build_question_set
@@ -126,16 +127,17 @@ def main():
     p.add_argument('--limit',type=int);p.add_argument('--traps',action='store_true');p.add_argument('--repeat',type=int,default=1)
     p.add_argument('--yes',action='store_true');p.add_argument('--plan',action='store_true')
     p.add_argument('--input-usd-per-million',type=float);p.add_argument('--output-usd-per-million',type=float)
+    p.add_argument('--embedding-usd-per-million',type=float)
     args=p.parse_args()
     if args.repeat<1 or args.limit is not None and args.limit<1: p.error('repeat/limit는 양수여야 합니다.')
-    if any(rate is not None and rate<0 for rate in [args.input_usd_per_million,args.output_usd_per_million]): p.error('단가는 음수일 수 없습니다.')
+    if any(rate is not None and rate<0 for rate in [args.input_usd_per_million,args.output_usd_per_million,args.embedding_usd_per_million]): p.error('단가는 음수일 수 없습니다.')
     selected=cases(args.traps)
     if args.limit: selected=selected[:args.limit]
     planned=len(selected)*args.repeat
     rates=args.input_usd_per_million,args.output_usd_per_million
     upper=planned*3*(60000*rates[0]+8000*rates[1])/1_000_000 if None not in rates else None
     print(f'시험 {planned}회, 정상 평가 {planned}호출, 재시도 포함 최대 {planned*3}호출')
-    print('입력 60k/출력 8k 상한 가정 비용 USD:',upper if upper is not None else '미설정: 제공자 단가를 옵션으로 입력하세요.')
+    print('LLM 입력 60k/출력 8k 상한 가정 비용 USD:',upper if upper is not None else '미설정: 제공자 단가를 옵션으로 입력하세요.')
     system,prompt_meta=load_system_prompt()
     answers={(d['question_id'],d['level']):d for d in (json.loads(line) for line in (settings.RAG_BUILD_DIR/'answers.jsonl').read_text(encoding='utf-8').splitlines()) if d['text_style']=='stt'}
     metadata={**prompt_meta,'system_prompt_sha1':prompt_meta['sha1'],'im_rubric_version':'project-im-v1',
@@ -143,12 +145,23 @@ def main():
         'planned_exams':planned,'max_llm_calls':planned*3,'upper_cost_usd':upper,'input_rate':rates[0],'output_rate':rates[1],
         'synthetic_metrics':True,'mode':'plan' if args.plan else 'live'}
     prepared=[(case,*make_snapshot(case,answers)) for case in selected]
+    try: embed_encoding=tiktoken.encoding_for_model(settings.EMBED_MODEL)
+    except KeyError: embed_encoding=tiktoken.get_encoding('cl100k_base')
+    embed_texts=[row['stt_text'] for _,snapshot,_ in prepared for row in snapshot
+                 if row['is_scored'] and row['stt_status']=='done' and row.get('stt_text')]
+    embed_tokens=sum(len(embed_encoding.encode(text,disallowed_special=())) for text in embed_texts)*args.repeat
+    embed_upper=embed_tokens*3*args.embedding_usd_per_million/1_000_000 if args.embedding_usd_per_million is not None else None
+    metadata.update(embedding_input_tokens_estimate=embed_tokens,embedding_max_calls=len(embed_texts)*args.repeat*3,
+                    embedding_upper_cost_usd=embed_upper,embedding_rate=args.embedding_usd_per_million,
+                    actual_cost_metric_scope='LLM usage only; embedding usage is separately logged in ai_requests')
+    print(f'검색 임베딩 최대 {metadata["embedding_max_calls"]}호출, 보수적 예상 비용 USD:',embed_upper if embed_upper is not None else '단가 미설정')
+    if upper is not None and embed_upper is not None: print('LLM+검색 임베딩 합산 예상 상한 USD:',upper+embed_upper)
     if args.plan:
         records=[{**case,'status':'not_run','excluded_contrast_set_ids':excluded} for case,snapshot,excluded in prepared]
         write_report(dict(metadata=metadata,metrics={'accuracy':'미측정: 실제 LLM 호출 없음'},records=records),'plan')
         return 0
     if not settings.LLM_API_KEY or not settings.EMBED_API_KEY: p.error('실제 실행에는 backend/.env의 LLM_API_KEY·EMBED_API_KEY가 필요합니다.')
-    if upper is None: p.error('실행 전 두 제공자 단가 옵션을 입력하세요. 실제 과금 단가는 사용자가 확인해야 합니다.')
+    if upper is None or embed_upper is None: p.error('실행 전 LLM 입력/출력 및 검색 임베딩 단가 옵션을 입력하세요.')
     if not args.yes and input('위 호출 수와 비용 상한으로 실행할까요? [yes/N] ').strip().lower()!='yes':
         p.exit(1,'실행 취소\n')
     records=[]
