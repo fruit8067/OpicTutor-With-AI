@@ -38,7 +38,7 @@ bash: `cd backend && .venv/bin/python -m scripts.e2e_smoke --level IL --fail-cas
 - 로컬 환경: Docker Desktop 시작 오류. Windows 프로세스 종료/소켓 정리 시도는 자동 승인 검토에서 정책 차단.
 - 대체 검증 DB: WSL 독립 Docker 엔진, `opic-core-a-check-db` 컨테이너와 같은 이름의 전용 볼륨.
   Windows의 127.0.0.1:5432에서 접속. Docker Desktop 소켓이나 기존 볼륨은 정리하지 않았다.
-- GitHub 연결: PR 생성 권한 403. 각 단계 브랜치 push는 성공.
+- GitHub 연결 도구의 PR 생성은 403이었으나, 기존 로컬 Git 인증으로 PR 생성까지 완료했다.
 - 병합 순서: agent/bootstrap → agent/data-layer → agent/session-api → agent/integrator.
   쌓인 브랜치이므로 비교 기준은 직전 단계. 각 단계의 검증 제한은 개별 handoff에 기록.
 
@@ -51,3 +51,10 @@ bash: `cd backend && .venv/bin/python -m scripts.e2e_smoke --level IL --fail-cas
 - API 모델 필드 30개 모델, 오류 코드 전체, 17개 method/path가 계약 v3와 일치함을 대조했다.
 - npm run build 통과. npm run lint는 exit 0, frontend 소유 client stub의 미사용 매개변수 경고만 있음.
 - 코드 비교의 공백 오류 없음. .env·data·원음 파일은 커밋하지 않았다.
+
+## 공개 브랜치 및 PR
+- [bootstrap #1](https://github.com/fruit8067/OpicTutor-With-AI/pull/1): base main, 검토 가능.
+- [data-layer #2](https://github.com/fruit8067/OpicTutor-With-AI/pull/2): base agent/bootstrap, 검토 가능.
+- [session-api #3](https://github.com/fruit8067/OpicTutor-With-AI/pull/3): base agent/data-layer, 검토 가능.
+- [integrator #4](https://github.com/fruit8067/OpicTutor-With-AI/pull/4): base agent/session-api, Draft.
+실제 AI·음성 M3 완주는 미완료이므로 #4를 완료 또는 Ready로 표시하지 않았다.
