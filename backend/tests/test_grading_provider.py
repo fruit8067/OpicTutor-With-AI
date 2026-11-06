@@ -34,7 +34,8 @@ def test_pickle_options_and_getenv_key_are_used_at_request_time(monkeypatch,capl
             requests.append(options)
             return NS(choices=[NS(finish_reason='stop',message=NS(parsed=Sample(value=1),refusal=None))],
                 usage=NS(prompt_tokens=3,completion_tokens=2),model=options['model'])
-        return NS(beta=NS(chat=NS(completions=NS(parse=parse))))
+        # Older SDKs can expose the raw wrapper without a raw parse helper.
+        return NS(beta=NS(chat=NS(completions=NS(parse=parse,with_raw_response=NS()))))
     monkeypatch.setattr(chat,'OpenAI',client)
     chat.chat_structured([],Sample,timeout=3)
     monkeypatch.setenv('LLM_API_KEY','rotated-pickle-fixture-key')
