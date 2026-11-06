@@ -2,9 +2,11 @@
 
 ## 상태
 API와 출제 빌더 구현, M1 의존성 및 실제 서비스 검증 대기 (2026-11-07 KST).
-CR session-api-01/contracts v5 main 90e7835 기준 자기 증분만 있는 독립 브랜치다. 소유권은 기본 origin/main 기준이다.
+contracts v7/main 68f2de2 기준 자기 증분만 있는 독립 브랜치다. 소유권은 기본 origin/main 기준이다.
 
 ## 측정값
+
+2026-11-07 스트리밍 수정: 기존 20MiB multipart를 전부 받은 뒤 413을 반환하는 결함을 재현(22개 수신 chunk). multipart 파서가 파일 part의 10MiB 초과 즉시 중단하도록 수정했다. 동일 ASGI 스트림은 header+11개 file chunk까지만 소비하고 413, 정확히10MiB는202다. 잘못된 multipart는 계약 VALIDATION_ERROR/422, 중도 연결 종료는 partial spool 정리·답변 생성0을 확인했다. 실제 loopback Uvicorn HTTP에서 약20MiB Content-Length 중10MiB+64KiB만 보내고 종료 boundary 없이413/PAYLOAD_TOO_LARGE를 받았다. DB/lifespan/provider/C를 실행한 제품 e2e는 아니다. A/B 전체117 passed / skip0 /13.01초. HTTP 스키마·함수·상태 전이는 유지했다.
 이번 독립 API 경계 검증 21 passed(0.54초). 생성 재전송의 원본 변경 내성 및 DB 접수 후 파일 rename 실패/재전송 복구를 추가했다. 과거 실패 답변의 재전송이 문항 전진/제출 후 STT를 재시작하지 않는지도 확인했다. 초기 A/B 메모리 조합은 임시 전용 DB에서 101 passed였으며 실제 C·provider·마이크 완주와 구분한다. 최신 고정 결과는 docs/compliance/verification-2026-11-07.json을 확인한다.
 아래 12/21/25개 테스트 결과는 과거 A 조합의 기록이다. 새 독립 브랜치에서는 data-layer M1 구현 main 반영 전까지 실제 DB 연결 검사를 완료로 세지 않는다. 실제 TTS/STT 업로드 지연·LLM 비용은 미측정이다.
 
@@ -40,8 +42,7 @@ coverage는 실제 선택된 채점 문항의 태그 합집합과 시나리오 �
 - tts-host가 stub을 구현해야 문항 재생 URL과 준비 완료가 동작한다.
 - 실제 PostgreSQL/API 연결은 검증했으나 실제 음성 STT·AI 완주는 다른 PC 구현이 필요하다.
 - 모든 DB 함수가 계약에 존재하므로 추가 DB 함수 CR은 필요 없음.
-- 업로드의 크기 제한은 UploadFile 스트림을 64KB씩 읽어 적용한다. ASGI 서버가 multipart를 파싱할 때의
-  임시 스풀은 Starlette가 담당하며 인터넷 배포용 프록시 제한은 범위 밖이다.
+- 업로드는 multipart 수신 중 파일 part 크기를 제한하고, 운영 저장 단계에서도64KiB 읽기/크기 검사를 유지한다. 파싱 실패·연결 종료의 임시 spool을 닫는다.
 
 ## 실행 확인
 - pytest tests/test_exam_builder.py tests/test_api_upload.py: 12 passed.
