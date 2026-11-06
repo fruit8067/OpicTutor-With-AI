@@ -21,7 +21,7 @@ bash: `cd backend && .venv/bin/python -m scripts.e2e_smoke --level IL --fail-cas
 | --- | --- |
 | Python 전체 모듈 import / compile | 통과 |
 | frontend npm run build | 통과 |
-| backend 전체 테스트 | **21 passed, skip 0** (실제 PostgreSQL 포함) |
+| backend 전체 테스트 | **25 passed, skip 0** (실제 PostgreSQL 포함, 추가 회귀 검증 후) |
 | 실제 HTTP health/docs/openapi | 200 / 200 / 200 |
 | 실제 코퍼스 scenarios 조회 | 422 SCENARIO_UNAVAILABLE: corpus M1 자료 미준비 |
 | 실제 DB 동시성/마이그레이션 | WSL Docker의 PostgreSQL 16/pgvector에서 통과. DDL 직접 적용 2회 성공 |
@@ -58,3 +58,31 @@ bash: `cd backend && .venv/bin/python -m scripts.e2e_smoke --level IL --fail-cas
 - [session-api #3](https://github.com/fruit8067/OpicTutor-With-AI/pull/3): base agent/data-layer, 검토 가능.
 - [integrator #4](https://github.com/fruit8067/OpicTutor-With-AI/pull/4): base agent/session-api, Draft.
 실제 AI·음성 M3 완주는 미완료이므로 #4를 완료 또는 Ready로 표시하지 않았다.
+
+## YAML 완료 조건 재점검
+
+| 단계·요구 항목 | 현재 근거 | 판정 |
+| --- | --- | --- |
+| bootstrap 1: ignore·Compose 구성 | 두 출제/프런트 경로 ignore 제외, localhost DB·볼륨·healthcheck 선언 | 코드 완료. Windows Compose 엔진 기동은 로컬 환경 문제로 미검증 |
+| bootstrap 2: 설정·오류·스키마·DDL·모듈 골격 | 전체 import, 30개 모델 필드/오류 코드 대조, PostgreSQL 16 DDL 반복 적용 | 검증 완료 |
+| bootstrap 3: React/TS·Tailwind v3·타입·호스트 골격 | npm run build 통과, 다른 PC 함수는 명시적인 stub | 골격 완료 |
+| bootstrap 4~6: ownership 검사·API_SPEC·이전 안내·handoff | 스크립트와 문서 존재, 단계별 변경 소유권 검사 통과 | 완료 |
+| bootstrap done_when | PR #1 open, merged=false | **미완료: orchestrator 병합 필요** |
+| data-layer M1 1~3: 풀·이력·트랜잭션·큐 | 실제 DB 동시성·상태·멱등성·오래된 결과 거부 검증 | 코드/로컬 DB 검증 완료 |
+| data-layer M1 4~5: 임베딩·재개 가능한 ingest | 배치·차원·메타데이터·재적재 검증. 실제 VERSION·키 없음 | 코드 검증 완료, **실제 코퍼스 적재/비용 미검증** |
+| data-layer M1 6~7: reset·개발 seed | reset 실제 실행, seed 함수/CLI 구현. 검토된 Q000/태그 필요 | 코드 완료, **실제 코퍼스 seed 실행 미검증** |
+| data-layer M2 8~9: 동시성·인덱스·테스트 | 동시 5요청 단일 행, 10회 완료 단일 전진, 큐 확보/리스 복구, 9개 테스트 통과 | 로컬 검증 완료 |
+| data-layer done_when | PR #2 open, 실제 ingest 대기 | **미완료** |
+| session-api 1: 시나리오·태그·세트 고정 | 결정적 선택·중복 방지·누락 태그 거부·커버리지 fixture 검증 | 코드 검증 완료. **실제 corpus M1 미반영** |
+| session-api 2~3: 전체 API·업로드·앱 실행 | 17개 method/path 대조, 실제 DB 8답변 연결, HTTP 서버·문서 응답 확인 | 코드 검증 완료. **실제 TTS·STT 음성 연결 미검증** |
+| session-api done_when | PR #3 open, merged=false | **미완료: 병합 필요** |
+| integrator 1: 실행 안내 | RUNBOOK에 PowerShell/bash·TTS 반입·복구 절차 | 작성 완료 |
+| integrator 2: HTTP smoke·실제 IM2/IL 결과 | smoke 구현. 두 실행은 ready=false로 exit 1 | **실제 완주 미완료** |
+| integrator 3: 실제 실패/복구 및 마이크 증거 | DB/API 범위의 실패 검증만 통과. 실제 TTS 누락/음성/STT/LLM 키/워커/마이크 검증 대기 | **미완료** |
+| integrator 4: 지연·토큰·비용 | 실제 평가 실행 없음 | **미측정** |
+| integrator 진입/완료 게이트 | 원격 main에 Phase 1 구현 없음, PR #4 Draft | **M2 진입 조건·M3 완료 조건 미충족** |
+
+외부 의존성 재확인: 원격에는 main과 Core A 네 브랜치만 있고 corpus/tts-host/worker-stt/grader/frontend 구현 브랜치가 없다.
+현재 설정의 LLM_API_KEY·EMBED_API_KEY 구성 여부는 둘 다 false이며 키 값은 출력하지 않았다.
+scenarios.json·VERSION·active_voice.json·IM2/IL 합성 음성 디렉터리가 모두 없다.
+이 항목들은 다른 PC 소유 경로 또는 사용자 로컬 설정이므로 Core A에서 임의 구현하거나 준비 완료로 표시하지 않는다.
