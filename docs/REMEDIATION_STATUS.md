@@ -25,6 +25,8 @@
 
 ## 외부 입력·선행 구현이 필요한 조건
 
+업데이트: 사용자가 .env 저장을 완료했고 실제 Pickle 구조화 ping/large3072 응답 및 M1 ingest264문서/247벡터/중복0요청을 확인했다. 연결·적재 증거는 docs/compliance/live-*-2026-11-07.json에 있다. 아래 키 부재는 이전 시점의 이력이며 실제 채점 정확도·확대 적재 검증은 계속 필요하다. 경로 설정은 상대 경로를 강제하며 다른 checkout/cwd 검증도 통과했다.
+
 Pickle 주소 `https://llm.pcl.kr/v1`와 모델 `pickle-general`은 사용자가 제공했고 CR v7 및 bootstrap 기본 설정이 main에 병합됐다. LLM_API_KEY 또는 PICKLE_API_KEY, EMBED_API_KEY를 저장해야 실제 연결·적재가 가능하다. 현재 primary backend/.env는 디스크 기준 0바이트다. C의 TTS·캐릭터·화면 구현과 실제 마이크 완주는 아직 완료되지 않았다. 이 조건들이 필요한 M1/M2/M3/M4 검증을 면제하거나 가짜 성공값으로 대신하지 않는다.
 
 이 파일의 진행 항목은 실행 결과 확인 후 갱신한다. 보고서의 원래 결함 재현 코드는 수정 후 회귀 검증을 대신하는 것이 아니다.

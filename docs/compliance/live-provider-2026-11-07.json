@@ -1,0 +1,10 @@
+{
+  "date_kst": "2026-11-07",
+  "configuration_file": "backend/.env",
+  "keys_present": true,
+  "llm": {"requested_model": "pickle-general", "structured_ping": true, "requests": 1, "input_tokens": 48, "output_tokens": 12, "latency_ms": 3532},
+  "embedding": {"model": "text-embedding-3-large", "observed_dimensions": 3072, "input": "one small connectivity input"},
+  "scope": "provider connectivity and structured schema only, not grading accuracy",
+  "credentials_or_response_bodies_recorded": false,
+  "c_implementation_added": false
+}

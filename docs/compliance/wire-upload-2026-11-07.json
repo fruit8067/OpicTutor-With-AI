@@ -1,0 +1,11 @@
+{
+  "transport": "real loopback socket + uvicorn HTTP/1.1",
+  "scope": "upload/parser boundary only; lifespan off; no DB or inference",
+  "declared_body_bytes": 20971638,
+  "sent_file_bytes": 10551296,
+  "multipart_terminator_sent": false,
+  "status": 413,
+  "error_code": "PAYLOAD_TOO_LARGE",
+  "external_provider_calls": 0,
+  "c_implementation_added": false
+}

@@ -35,7 +35,7 @@
 
 M2 코퍼스 dry-run은 945,183토큰/4,522개 임베딩, [공식 large 단가 $0.13/1M](https://developers.openai.com/api/docs/models/text-embedding-3-large)로 약 $0.122874, 모든 요청 3회 상한 약 $0.368621다. 실제 요금·채점 정확도는 아직 측정하지 않았다.
 
-키를 저장한 뒤 기존 Python으로 `docs/compliance/verify_live_providers.py --workspace <worktree parent> --run`을 실행하면 작은 입력 임베딩과 Pickle 구조화 ping을 검사한다. 기본 실행은 공개 설정/키 존재 여부만 출력한다. 실제 키나 응답 본문은 출력하지 않는다. 현재 primary `.env`는 디스크 기준 0바이트여서 실행이 키 누락(exit 2)/요청 0으로 종료됐다. 이 점검은 채점 정확도·전체 ingest·M1/M2 완료를 대신하지 않는다.
+`docs/compliance/verify_live_providers.py --workspace <worktree parent> --run`은 작은 입력 임베딩과 Pickle 구조화 ping을 검사한다. 기본 실행은 공개 설정/키 존재 여부만 출력한다. 실제 키나 응답 본문은 출력하지 않는다. 사용자가 backend/.env를 저장한 뒤 실제 Pickle ping은1요청(48입력/12출력토큰), 임베딩은3072차원으로 성공했다. [연결 증거](compliance/live-provider-2026-11-07.json). 실제 M1 ingest264문서/247벡터/3요청, 동일 명령 추가요청0, 검색질의 포함46,376토큰/4요청도 확인했다([적재 증거](compliance/live-ingest-m1-2026-11-07.json)). 실제 채점 정확도·M2 전체 완료를 의미하지 않는다.
 
 ## 요구사항과 검증 근거
 
@@ -83,14 +83,20 @@ A/B 기능 PR은 각자 최신 기준의 자기 증분으로 재구성하고 기
 ## 실행
 
 ```powershell
-& 'C:/Users/fruit/Documents/OpicTutor/OpicTutor-With-AI/backend/.venv/Scripts/python.exe' `
-  'C:/Users/fruit/Documents/OpicTutor/OpicTutor-audit/docs/compliance/verify_core.py' `
-  --workspace 'C:/Users/fruit/Documents/OpicTutor'
+# 가상환경을 활성화하고 저장소 루트에서 실행. --workspace . 는 단일 checkout,
+# --workspace .. 는 명시적인 A/B worktree 배치를 검사한다.
+python docs/compliance/verify_core.py --workspace ..
 ```
 
 이 명령은 `OpicTutor-session`, `OpicTutor-data`, `OpicTutor-grader`, `OpicTutor-worker` worktree와 해당 의존 패키지를 사용한다. PostgreSQL 테스트 계정은 임시 DB 생성/삭제 권한이 필요하다. `core_flow_cases.py`가 실제 HTTP/DB/작업/결과 복구를 검증한다.
 같은 명령 끝에 `--interfaces-only`를 붙이면 DB를 변경하지 않고 공개 함수 선언/API 필드·경로·기본 status를 대조한다.
 
+## 스트리밍·경로 이식성 추가 검증
+
+기존 multipart 업로드는20MiB 전체를 임시 spool에 받은 뒤에야413으로 거부했다(재현에서22개 chunk 모두 소비). 수신 파서에서 파일당10MiB 초과 즉시 중단하도록 session-api 소유 경로에서 수정했다. 종료 boundary 없이도 실제 Uvicorn HTTP가413/PAYLOAD_TOO_LARGE를 반환한다([HTTP 증거](compliance/wire-upload-2026-11-07.json)). 정확히10MiB는 허용하고, 파싱 오류는422 계약 응답, 연결 종료는 부분 spool 정리/답변 생성0을 검증했다. A/B 전체117 passed /skip0/13.01초(변경된 session-api 작업 트리 기준).
+
+사용자 요청에 따라 고정 PC 경로를 실행 예제에서 제거했다. .env의 DATA_DIR/TTS_DIR/RAG_BUILD_DIR/EVAL_SYSTEM_PROMPT_PATH는 backend/ 기준 상대 경로만 허용하며 Windows drive/UNC·POSIX 절대 경로를 거부한다. 실제 실행 위치는 해당 checkout에서 계산하므로 cwd에 의존하지 않는다. `python agents/tools/test_portable_config.py`는 다른 Unicode checkout에 가짜 .env만 복사하고 별개 cwd의 새 프로세스에서4경로·dotenv·상대 구분자·절대 경로 거부를 검증했다. 외부 키/실제 .env는 복사하지 않았다. 단일 통합 checkout에서는 검증 도구에 --workspace . 를 사용할 수 있다(미병합 모듈이 stub인 동안은 역할 worktree 조합 필요).
+
 ## 아직 검증할 조건
 
-Pickle 실제 base URL·모델 ID·로컬 LLM_API_KEY, EMBED_API_KEY가 제공되면 실제 ingest와 서비스 회귀/함정/반복·비용을 검증해야 한다. 현재 키·주소는 미설정이다. 이 조건 없이 실제 채점 정확도·서비스 호환성·모든 YAML done_when 완료를 선언할 수 없다. C의 화면/음성 제작을 새로 구현해서 이 조건을 대신하지 않는다.
+Pickle/large3072 연결과 실제 M1 ingest는 통과했다. 전체 평가 회귀/함정/반복·비용, M2 확대 적재 및 실제 마이크 검증은 남아 있다. 모든 YAML done_when 완료를 아직 선언할 수 없다. C의 화면/음성 제작을 새로 구현해서 이 조건을 대신하지 않는다.

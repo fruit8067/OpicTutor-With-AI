@@ -2,6 +2,8 @@
 
 ## 상태
 
+최신: 사용자가 .env를 저장하여 Pickle 구조화 ping1요청/large3072 실제 연결과 M1 실제 적재247벡터/중복 재실행0요청을 확인했다. session-api의 늦은 파일 크기 검사를 수신 단계로 옮기고 실제HTTP413을 검증했다. 사용자 경로 이식성 요청에 따라 문서 고정 경로를 제거하고 bootstrap이 상대 경로 강제/별도 checkout·cwd 검증을 수행했다. 아래 0바이트 기록은 저장 전 이력이다.
+
 CR orchestrator-04는 PR #21/main, 기본 설정은 PR #22/main에 반영됐다. 사용자 제공 Pickle URL/model·키 별칭, large/3072와 모델별 재임베딩 구현은 역할 PR #2/#6에 push했다. 기존 DB를 reset 없이 vector(3072)로 전환했고 기존 코퍼스는 0행이다. 키 파일은 디스크 기준 아직 0바이트라 실제 요청/유료 ingest는 대기다. native ASR 증거는 PR #20/main에 보존했다.
 
 진행 중, 2026-11-07 KST. CR orchestrator-01/session-api-01, M0, corpus M1, trusted ownership이 main에 반영됐다. C는 추가하지 않고 A/B 요구사항·API·flowchart 연결을 심화 검증한다. 과거 위반은 감사 이력으로 보존한다.
@@ -27,6 +29,8 @@ CR은 tier nullable 선언·TTS hash 정규화·provider 요청 기록/예산을
 순차적으로 원래 소유 역할에서 수정하고 default origin/main ownership을 사용한다. M0 이후 역할 브랜치를 재구성하고 미충족 local_checks를 기록한다.
 
 ## 측정값
+
+후속 A/B117 passed/skip0/13.01초. 실제HTTP는 약20MiB Content-Length 중10MiB+64KiB만 보내고 종료 boundary 없이413. 이식성 unittest1개 통과(0.298초). M1 실제 적재13.921초, 질의 포함4요청/46,376토큰, 검색47.0ms/top5. LLM ping48/12토큰·3.532초. 채점 품질은 미측정.
 
 v7 최신 실행: clean 역할 커밋 조합 114 passed / skip 0 / 12.20초. 공개 함수 64/API 모델 29/경로 17 차이 0. 이전 v6 기록은 별도 보존. M2 임베딩 dry-run 945,183토큰, 약 $0.122874/3회 상한 $0.368621(large $0.13/1M 표준 단가). 실제 provider 점검은 키 파일 0바이트로 exit 2, 외부 요청 0. docs/compliance/large-embedding-2026-11-07.json 참조.
 
