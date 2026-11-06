@@ -1,8 +1,11 @@
 # session-api M2
 
 ## 상태
-API와 출제 빌더 구현, 검증 진행 중 (2026-11-06 KST).
-브랜치는 agent/data-layer 위에 쌓음. 소유권 비교 기준은 agent/data-layer.
+API와 출제 빌더 구현, M1 의존성 및 실제 서비스 검증 대기 (2026-11-06 KST).
+M0 main 기반으로 자기 증분만 재구성한 뒤 corpus M1 main 3f2d3c9에 rebase했다. 소유권은 기본 origin/main 기준이다.
+
+## 측정값
+아래 12/21/25개 테스트 결과는 과거 A 조합의 기록이다. 새 독립 브랜치에서는 data-layer M1 구현 main 반영 전까지 실제 DB 연결 검사를 완료로 세지 않는다. 실제 TTS/STT 업로드 지연·LLM 비용은 미측정이다.
 
 ## 완료한 것
 | 엔드포인트 | 구현 |
