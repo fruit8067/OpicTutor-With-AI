@@ -1,12 +1,12 @@
 # A/B 코어 요구사항·흐름 검증
 
-2026-11-07 KST. 사용자의 최신 목표에 따라 C를 새로 만들지 않고 A/B를 프로젝트 전체 흐름에 대조했다. 기준은 REQUIREMENTS_v2, PROJECT_REQUIREMENTS, FLOWCHART, API_SPEC 및 contracts v6다. 요구사항을 현재 구현에 맞춰 낮추지 않았다.
+2026-11-07 KST. 사용자의 최신 목표에 따라 C를 새로 만들지 않고 A/B를 프로젝트 전체 흐름에 대조했다. 기준은 REQUIREMENTS_v2, PROJECT_REQUIREMENTS, FLOWCHART, API_SPEC 및 contracts v7다. 요구사항을 현재 구현에 맞춰 낮추지 않았다.
 
 ## 판정
 
 **A/B 핵심 흐름은 명시적인 외부 경계 대역을 사용한 실제 HTTP 계층·PostgreSQL·작업·검증·결과 저장 조합에서 통과했다. 실제 Pickle·임베딩 서비스 연결, 실제 마이크 품질, 제품/브라우저 완주까지 완료한 상태는 아니다.**
 
-- 기존 모듈 검증과 신규 회귀/흐름 검증 합계 **110 passed, skip 0, 5.83초**.
+- v7 large/3072·Pickle 별칭 후 최신 회귀/흐름 검증 합계 **114 passed, skip 0, 12.20초**. [v7 증거](compliance/large-embedding-2026-11-07.json). 이전 v6 실행은 110 passed, 5.83초로 별도 보존한다.
 - 별도 선언 대조: **공개 함수 64개, API 모델 29개 필드 집합, 경로/기본 성공 status 17개 차이 0**. 이 대조만으로 모든 데이터 제약·모델 품질을 검증했다고 주장하지 않으며 동작 제약은 위 테스트로 확인한다.
 - 별도 `opic_ab_check_<무작위 ID>` DB를 생성해 검증하고 연결을 닫은 후 삭제했다. 기존 개발 DB를 reset하지 않았다.
 - 각 역할 worktree 모듈을 메모리에 명시적으로 조합했다. 다른 역할 코드를 자기 브랜치에 상속하거나 운영 소스의 stub을 가짜 구현으로 바꾸지 않았다.
@@ -26,6 +26,16 @@
 - 모델 다운로드를 비활성화하고 기존 캐시만 읽었다. 검증용 DB 및 임시 업로드 파일은 실행 후 제거했으며 원본 합성 음성·모델 캐시는 보존했다.
 
 재현: 기존 명령의 Python으로 `docs/compliance/verify_native_stt.py --workspace <worktree parent> --audio <기존 합성 wav> --answers 8 --report <결과.json>`을 실행한다. 기본 `--answers 1`은 단일 실제 STT/DB 경로를 검사한다. 실제 서비스 검증 시 사용할 설정은 primary `OpicTutor-With-AI/backend/.env`에 두고 서비스 검증 프로세스에서 명시적으로 로드한다. 이 ASR 검증은 외부 LLM/임베딩을 호출하지 않는다.
+
+## Pickle·large 3072 전환
+
+사용자 실습의 Pickle URL `https://llm.pcl.kr/v1`·모델 `pickle-general`을 기본값으로 설정했다. 키는 호출 시점의 `os.getenv('LLM_API_KEY')` 우선, 비어 있으면 `os.getenv('PICKLE_API_KEY')`다. `.env`는 override=False로 로드하므로 같은 변수의 프로세스 환경값이 우선한다. 채점 temperature=0·고정 평가 원문을 유지한다.
+
+사용자 요청 large/3072를 전체 float32 벡터로 저장하고 exact cosine으로 검색한다. [pgvector HNSW](https://github.com/pgvector/pgvector#hnsw)의 vector 2000차원 제한 때문에 ANN 인덱스를 제거했다. 기존 DB는 reset 없이 전진 마이그레이션했다(기존 코퍼스 0행). 별도 레거시 fixture에서 원문/메타데이터 보존·새 벡터 재실행 보존도 확인했다. 모델/제공자가 바뀌면 같은 텍스트라도 재임베딩하고 검색에 과거 프로필을 섞지 않는다. 101문서 중 두 번째 배치 실패 후 미커밋 1문서만 재개하는 검증도 통과했다.
+
+M2 코퍼스 dry-run은 945,183토큰/4,522개 임베딩, [공식 large 단가 $0.13/1M](https://developers.openai.com/api/docs/models/text-embedding-3-large)로 약 $0.122874, 모든 요청 3회 상한 약 $0.368621다. 실제 요금·채점 정확도는 아직 측정하지 않았다.
+
+키를 저장한 뒤 기존 Python으로 `docs/compliance/verify_live_providers.py --workspace <worktree parent> --run`을 실행하면 작은 입력 임베딩과 Pickle 구조화 ping을 검사한다. 기본 실행은 공개 설정/키 존재 여부만 출력한다. 실제 키나 응답 본문은 출력하지 않는다. 현재 primary `.env`는 디스크 기준 0바이트여서 실행이 키 누락(exit 2)/요청 0으로 종료됐다. 이 점검은 채점 정확도·전체 ingest·M1/M2 완료를 대신하지 않는다.
 
 ## 요구사항과 검증 근거
 
