@@ -58,9 +58,22 @@ def test_json_fallback_counts_both_requests_and_keeps_bodies_out_of_log(provider
 
 
 def test_fallback_and_invalid_output_share_three_http_request_budget(provider):
-    requests,logs,_=provider(lambda n:httpx.Response(400,json={'error':{'message':'response_format json_schema unsupported'}}) if n%2 else response('{'))
-    with pytest.raises(chat.LLMOutputError,match='예산 소진'):
+    requests,logs,_=provider(lambda n:httpx.Response(400,json={'error':{'message':'response_format json_schema unsupported'}}) if n==1 else response('{'))
+    with pytest.raises(chat.LLMOutputError):
         service.evaluate_exam(snapshot())
     assert len(requests)==len(logs)==3
     assert logs[1]['status']=='invalid_output' and logs[1]['error_code']=='LLM_INVALID_OUTPUT'
+    assert chat._requests.get() is None
+
+
+def test_json_only_provider_can_correct_invalid_output_within_three_requests(provider):
+    def handler(n):
+        if n==1: return httpx.Response(400,json={'error':{'message':'response_format json_schema unsupported'}})
+        return response('{') if n==2 else response()
+    requests,logs,_=provider(handler)
+    result,meta=service.evaluate_exam(snapshot())
+    assert result.estimated_level=='IL' and len(requests)==meta['llm_calls']==len(logs)==3
+    assert [r['response_format']['type'] for r in requests]==['json_schema','json_object','json_object']
+    assert logs[1]['status']=='invalid_output' and logs[2]['status']=='ok'
+    assert meta['total_input_tokens']==200 and meta['total_output_tokens']==100
     assert chat._requests.get() is None

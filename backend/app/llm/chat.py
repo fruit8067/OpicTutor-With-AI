@@ -26,6 +26,7 @@ class LLMConfigurationError(ValueError): pass
 class _Requests:
     limit: int
     records: list[dict] = field(default_factory=list)
+    json_only: set[tuple[str,str]] = field(default_factory=set)
 
     @property
     def remaining(self): return self.limit-len(self.records)
@@ -95,18 +96,22 @@ def chat_structured(messages: list[dict], schema: type[BaseModel], *, timeout: f
     client=OpenAI(base_url=options['base_url'],api_key=options['api_key'],timeout=timeout,max_retries=0)
     started=time.monotonic()
     common=dict(model=options['model'],messages=messages,temperature=0,max_tokens=8000)
+    trace=_requests.get()
+    provider=(options['base_url'],options['model'])
     try:
+        response=None
         try:
             # 속성 접근 자체가 미지원이면 HTTP 요청이 없으므로 차감/기록하지 않는다.
-            parse=client.beta.chat.completions.parse
-            response=_send(lambda:parse(**common,response_format=schema),options['model'])
+            if trace is None or provider not in trace.json_only:
+                parse=client.beta.chat.completions.parse
+                response=_send(lambda:parse(**common,response_format=schema),options['model'])
         except (AttributeError,NotImplementedError):
-            response=None
+            if trace is not None: trace.json_only.add(provider)
         except BadRequestError as exc:
             message=str(exc).lower()
             if not any(word in message for word in ('response_format','json_schema','structured output')):
                 raise
-            response=None
+            if trace is not None: trace.json_only.add(provider)
         if response is None:
             # JSON 모드 제공자에도 전체 출력 계약을 전달한다.
             fallback=[*messages,{'role':'user','content':'Return JSON matching this schema: '+json.dumps(schema.model_json_schema(),ensure_ascii=False)}]
