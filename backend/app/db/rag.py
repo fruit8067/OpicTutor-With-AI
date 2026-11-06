@@ -3,6 +3,8 @@
 from psycopg import sql
 from psycopg.types.json import Jsonb
 from .pool import tx
+from .embedding_profile import current_profile, PROFILE_KEY
+from app.config import settings
 
 def get_rag_docs(doc_type: str, *, corpus_version: str | None = None, **filters) -> list[dict]:
     clauses=[sql.SQL('doc_type=%s')];params=[doc_type]
@@ -20,10 +22,14 @@ def get_contrast_set(contrast_set_id: str, text_style: str = 'stt') -> list[dict
 
 def search_similar_answers(embedding: list[float], *, question_type: str | None, text_style: str = 'stt',
                            exclude_contrast_set_ids: list[str] = (), k: int = 5) -> list[dict]:
+    if len(embedding)!=settings.EMBED_DIM:
+        raise ValueError('검색 벡터 차원이 EMBED_DIM과 다릅니다.')
     with tx() as cur:
         cur.execute("""SELECT * FROM rag_docs WHERE doc_type='answer' AND embedding IS NOT NULL AND text_style=%s
+            AND metadata @> %s
             AND (%s::text IS NULL OR question_type=%s) AND (contrast_set_id IS NULL OR NOT (contrast_set_id=ANY(%s::text[])))
-            ORDER BY embedding <=> %s::vector LIMIT %s""",(text_style,question_type,question_type,list(exclude_contrast_set_ids),str(embedding),k))
+            ORDER BY embedding <=> %s::vector, id LIMIT %s""",(text_style,Jsonb({PROFILE_KEY:current_profile()}),
+                question_type,question_type,list(exclude_contrast_set_ids),str(embedding),k))
         return cur.fetchall()
 
 def current_corpus_version() -> str | None:

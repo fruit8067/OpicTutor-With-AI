@@ -130,11 +130,11 @@ CREATE TABLE IF NOT EXISTS rag_docs (
   text            TEXT NOT NULL,
   metadata        JSONB NOT NULL DEFAULT '{}'::jsonb,
   corpus_version  TEXT NOT NULL,
-  embedding       VECTOR(1536) NULL,
+  embedding       VECTOR(3072) NULL,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 CREATE INDEX IF NOT EXISTS rag_docs_lookup ON rag_docs (doc_type, contrast_set_id, text_style);
-CREATE INDEX IF NOT EXISTS rag_docs_embedding ON rag_docs USING hnsw (embedding vector_cosine_ops);
+-- Full precision 3072-dimensional exact cosine search (contract v7).
 
 CREATE TABLE IF NOT EXISTS jobs (
   id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
