@@ -8,8 +8,10 @@
 #
 # AI-assisted: this contract was written with help from Claude (Anthropic).
 
-contract_version: 4
+contract_version: 5
 changelog:
+  - "5 (2026-11-07, CR session-api-01): app.db.get_session_id_by_request_id 조회 함수를 추가.
+     생성 재전송은 저장 세션을 우선 반환하여 코퍼스 변경에 영향을 받지 않음. API·도메인 DB·평가 기준은 유지."
   - "4 (2026-11-06, CR orchestrator-01): 사용자 요청 Pickle LLM 환경설정/os.getenv 키, nullable tier 선언,
      TTS strip UTF-8 SHA1 정규화, 실제 provider 요청 기준 기록·3회 예산을 명확히 함. 평가 원문·API·도메인 DB 스키마는 v3 유지."
   - "3 (2026-11-06, commit d5ec5bb 반영): 평가 기준 v3(performance-feedback-actfl-speaking-v3, opic-evaluation-system-v3),
@@ -526,6 +528,8 @@ module_interfaces:
         # 한 트랜잭션: replaces_session_id가 preparing/ready/prepare_failed면 cancelled로 → 세션·문항 INSERT
         #              → tts_prepare 작업 등록(dedupe_key 규칙)
     def get_session(session_id: UUID) -> SessionRow | None
+    def get_session_id_by_request_id(client_request_id: str) -> UUID | None
+        # 이미 생성한 세션은 코퍼스를 다시 읽지 않고 동일 키 재전송에 반환한다. 없으면 None.
     def list_session_questions(session_id: UUID) -> list[dict]       # order_no 순, tts asset(url용 file_path) 포함
     def get_session_question(session_id: UUID, order_no: int) -> dict | None
     def retry_prepare(session_id: UUID) -> int               # prepare_failed→preparing, prepare_attempt+1, 작업 등록. 새 attempt 반환
