@@ -1,5 +1,3 @@
-# 이 파일은 더 이상 쓰지 않습니다 (이전 설계: 문항별 채점·업로드 즉시 이동·선택적 TTS).
-# 최신 에이전트 프롬프트와 오케스트레이션은 agents/ 폴더에 있습니다:
-#   agents/orchestration.yaml, agents/contracts.yaml, agents/PC-A_core/, agents/PC-B_ai/, agents/PC-C_media-ui/ (각 폴더 README.md부터)
-deprecated: true
-moved_to: agents/
+# 에이전트 실행 안내는 agents/ 폴더로 이동했습니다.
+# 시작: agents/HANDOFF.md
+# 계약: agents/contracts.yaml
