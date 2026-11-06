@@ -37,5 +37,6 @@ def handle(job: dict) -> None:
         elif isinstance(exc,PermanentJobError) and str(exc) in ('EVAL_INPUT_INVALID','EVAL_INPUT_TOO_LARGE'):
             code=str(exc)
         else: code='EVAL_INTERNAL'
-        db.fail_evaluation(eid,code,None)
+        labels=getattr(exc,'validation_errors',None) if isinstance(exc,LLMOutputError) else None
+        db.fail_evaluation(eid,code,{'validation_errors':labels} if labels else None)
         raise PermanentJobError(code) from exc

@@ -1,16 +1,12 @@
 # grader M2
 
 ## 사용자 요청: Pickle LLM 설정
-LLM의 OpenAI 기본 URL·모델을 제거하고 실제 Pickle의 LLM_BASE_URL·LLM_MODEL을 명시적으로 설정하도록 변경했다.
-키는 chat.llm_options에서 호출마다 os.getenv('LLM_API_KEY')로 읽는다. URL·모델·키 중 하나라도 없으면
-검색 임베딩이나 LLM 요청 전에 실패한다. OPENAI_API_KEY 또는 settings에 남은 키를 인증 fallback으로 사용하지 않는다.
-임베딩의 OpenAI base URL·text-embedding-3-small·EMBED_API_KEY는 그대로 유지한다.
-현재 Pickle의 정확한 endpoint/model ID를 사용자에게 요청한 상태이며 호환 SDK 인자 전달만 fixture로 검증했다.
-실제 Pickle 서비스의 구조화 출력/JSON 모드 지원이나 응답 품질은 아직 확인하지 않았다.
-임베딩 키와 Pickle 키는 각각 해당 서비스의 키를 별도 환경변수에 설정한다.
+contracts v7 기본값은 Pickle `https://llm.pcl.kr/v1` / `pickle-general`이다. 호출 시 os.getenv('LLM_API_KEY') 우선, 비어 있으면 PICKLE_API_KEY를 읽는다. OpenAI 키로 LLM 인증을 대체하지 않는다. 검색 임베딩은 별도 EMBED_API_KEY / large3072다. 실제 구조화 ping1요청과 실제 M1 ingest는 성공했다.
+
+실제 합성 IL 전체 시험은 초기 v1에서 범위/coverage/인용 검증 실패, v2/v3에서 인용 검증 실패를 관측했다. 실패를 성공 결과로 저장하지 않는다. 고정 system 원문·엄격한 인용 검증은 유지하고 user v2에 서버 계산 범위/태그 제약, v3에 실제 전사 인용 후보, v4에 JSON/전사 본문 따옴표 보존(속성만 quote escape)을 적용했다. v4 실제 점검 중이며 전체 정확도 검증은 미완료다. 검증 실패 상세에는 코드로 정의된 오류 이름만 저장하고 임의 예외/답변 본문은 저장하지 않는다.
 
 ## 상태
-감사 결함 수정·로컬 규칙 검증 통과, 실제 외부 평가/local_checks 대기 (2026-11-06 KST). M0 main afa076e 기준 독립 agent/grader 브랜치다.
+감사 결함 수정·로컬 규칙 검증 통과, 실제 외부 평가의 출력 안정성 보강 중 (2026-11-07 KST). main 기반 독립 agent/grader 브랜치다. 아래 키 미구성/계획만 존재 기록은 당시 이력이다.
 
 ## 공개 함수·화면
 contracts v4의 app.grading/app.llm.chat. evaluate_exam의 job_id와 반환 타입 주석을 계약대로 복원했다. nullable tier 선언은 정식 CR orchestrator-01에 반영됐다. provider 추적은 내부 ContextVar이며 공개 함수 시그니처를 변경하지 않는다.

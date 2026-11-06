@@ -2,6 +2,8 @@
 # OWNER: grader (contracts.yaml ownership)
 from pathlib import Path
 import re
+import json
+from html import unescape
 from app.grading.prompt import load_system_prompt,build_messages,exam_context
 from app.schemas.internal import EvidenceBundle
 from test_grading_validate import snapshot
@@ -27,3 +29,32 @@ def test_transcript_is_escaped_and_unavailable_is_explicit():
     user=messages[1]['content']
     assert '&lt;/transcript&gt;' in user and '<transcript status="unavailable"/>' in user
     assert 'audio_path' not in user and 'future 없음' in user
+
+
+def test_required_metadata_uses_scored_tags_and_excludes_missing_or_warmup():
+    rows=snapshot();rows[2].update(stt_status='failed',stt_text=None)
+    rows[0]['target_functions']=['self_introduce']
+    rows[1]['target_functions']=['describe'];rows[1]['target_time_frames']=['past']
+    text=build_messages(rows,EvidenceBundle())[1]['content']
+    block=text.split('<required_output_metadata>',1)[1].split('</required_output_metadata>',1)[0]
+    rules=json.loads(unescape(block))
+    assert rules['evaluation_scope']['feedback_only_order_nos']==[1]
+    assert 1 not in rules['evaluation_scope']['usable_order_nos_allowed']
+    assert 3 not in rules['evaluation_scope']['usable_order_nos_allowed']
+    assert rules['evaluation_scope']['unusable_items_required']==[3]
+    for group,field in [('functions','target_functions'),('time_frames','target_time_frames'),('contexts','context_scope')]:
+        for entry in rules['coverage'][group]:
+            assert entry['elicited_order_nos']==[r['order_no'] for r in rows if r['is_scored'] and entry['name'] in r[field]]
+            assert set(entry['usable_order_nos_allowed'])<=set(entry['elicited_order_nos'])-{3}
+
+
+def test_quote_candidates_are_exact_spans_from_the_same_transcript():
+    rows=snapshot();rows[0]['stt_text']="I'm Alex. I live here! Do I like parks? Yes, I do."
+    text=build_messages(rows,EvidenceBundle())[1]['content']
+    blocks=re.findall(r'<verbatim_quote_candidates>(.*?)</verbatim_quote_candidates>',text)
+    assert len(blocks)==8
+    for row,block in zip(rows,blocks):
+        choices=json.loads(unescape(block))
+        assert choices and all(choice in row['stt_text'] for choice in choices)
+    assert json.loads(unescape(blocks[0]))[0]=="I'm Alex."
+    assert "I'm Alex." in blocks[0] and '&#x27;' not in blocks[0] and '&quot;' not in blocks[0]
