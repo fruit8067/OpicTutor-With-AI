@@ -1,10 +1,12 @@
 # session-api M2
 
 ## 상태
-API와 출제 빌더 구현, M1 의존성 및 실제 서비스 검증 대기 (2026-11-07 KST).
+API·출제 빌더 및 독립 HTTP/DB 검증 통과, C의 실제 자산 연결/전체 M2 병합 게이트 대기 (2026-11-07 KST). M1 DB 의존성은 해소됐다.
 contracts v7/main 68f2de2 기준 자기 증분만 있는 독립 브랜치다. 소유권은 기본 origin/main 기준이다.
 
 ## 측정값
+
+M1 이후 standalone uvicorn CLI를 session checkout에서 실제 실행했다. 모듈 조합/TTS override 없이 loopback HTTP에서17 API operation, DB ok, default/leisure/health, 미확인 마이크422, 생성202·중복200, preparing 시작409, 취소200을 확인했다. DB는1세션/8문항/1작업, answers/AI요청0. 상대 DATA_DIR, 임시 DB/프로세스 정리 통과. 실제 TTS가 없으므로 ready=false를 유지했고 제품 완주로 세지 않는다. 증거: 오케스트레이터 PR#26의 docs/compliance/standalone-api-2026-11-07.json.
 
 2026-11-07 스트리밍 수정: 기존 20MiB multipart를 전부 받은 뒤 413을 반환하는 결함을 재현(22개 수신 chunk). multipart 파서가 파일 part의 10MiB 초과 즉시 중단하도록 수정했다. 동일 ASGI 스트림은 header+11개 file chunk까지만 소비하고 413, 정확히10MiB는202다. 잘못된 multipart는 계약 VALIDATION_ERROR/422, 중도 연결 종료는 partial spool 정리·답변 생성0을 확인했다. 실제 loopback Uvicorn HTTP에서 약20MiB Content-Length 중10MiB+64KiB만 보내고 종료 boundary 없이413/PAYLOAD_TOO_LARGE를 받았다. DB/lifespan/provider/C를 실행한 제품 e2e는 아니다. A/B 전체117 passed / skip0 /13.01초. HTTP 스키마·함수·상태 전이는 유지했다.
 이번 독립 API 경계 검증 21 passed(0.54초). 생성 재전송의 원본 변경 내성 및 DB 접수 후 파일 rename 실패/재전송 복구를 추가했다. 과거 실패 답변의 재전송이 문항 전진/제출 후 STT를 재시작하지 않는지도 확인했다. 초기 A/B 메모리 조합은 임시 전용 DB에서 101 passed였으며 실제 C·provider·마이크 완주와 구분한다. 최신 고정 결과는 docs/compliance/verification-2026-11-07.json을 확인한다.
