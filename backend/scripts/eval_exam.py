@@ -10,6 +10,8 @@ import statistics
 import time
 import os
 import math
+import subprocess
+import hashlib
 import tiktoken
 from pathlib import Path
 from app.config import settings
@@ -126,13 +128,18 @@ def write_report(payload,label,*,stem=None):
     folder=Path(__file__).resolve().parents[1]/'eval_reports';folder.mkdir(exist_ok=True)
     stamp=stem or datetime.now(timezone(timedelta(hours=9))).strftime('%Y%m%d-%H%M%S-%f')
     target=folder/(stamp+'-'+label)
-    target.with_suffix('.json').write_text(json.dumps(payload,ensure_ascii=False,indent=2,default=str)+'\n',encoding='utf-8')
+    encoded=json.dumps(payload,ensure_ascii=False,indent=2,default=str)+'\n'
     lines=[NOTICE,'',f'# {label}', '', '```json',json.dumps(payload['metadata'],ensure_ascii=False,indent=2,default=str),'```',
         '', '## 지표','```json',json.dumps(payload.get('metrics',{}),ensure_ascii=False,indent=2),'```',
         '', '| 시험 | 반복 | 기대 | 예상 | 상태 | 함정 |','| --- | --- | --- | --- | --- | --- |']
     for r in payload['records']:
         lines.append('| '+' | '.join(str(r.get(k,'미실행')) for k in ['id','repeat','expected','estimated_level','status','trap_passed'])+' |')
-    target.with_suffix('.md').write_text('\n'.join(lines)+'\n',encoding='utf-8')
+    # Publish complete checkpoints; a crash must leave the previous JSON readable.
+    for suffix,content in [('.md','\n'.join(lines)+'\n'),('.json',encoded)]:
+        output=target.with_suffix(suffix);temporary=output.with_name(output.name+'.tmp')
+        try:
+            temporary.write_text(content,encoding='utf-8');temporary.replace(output)
+        finally: temporary.unlink(missing_ok=True)
     print('report:',target.with_suffix('.md').relative_to(folder.parent.parent).as_posix(),flush=True)
 
 
@@ -175,6 +182,12 @@ def main():
         'synthetic_metrics':True,'mode':'plan' if args.plan else 'live',
         'user_template_version':TEMPLATE_VERSION,'school_credit_usd':args.school_credit_usd,
         'cost_basis':'published_token_rates' if upper is not None else 'user_declared_school_credit_no_usd_estimate'}
+    template=Path(__file__).resolve().parents[1]/'prompts'/f'{TEMPLATE_VERSION}.md'
+    metadata['user_template_sha256']=hashlib.sha256(template.read_bytes()).hexdigest()
+    try:
+        metadata['implementation_commit']=subprocess.check_output(['git','rev-parse','HEAD'],
+            cwd=Path(__file__).resolve().parents[2],text=True,stderr=subprocess.DEVNULL).strip()
+    except (OSError,subprocess.CalledProcessError): metadata['implementation_commit']=None
     prepared=[(case,*make_snapshot(case,answers)) for case in selected]
     metadata['fixed_warmup_fallback']={'version':'synthetic-fixed-warmup:v1',
         'samples':WARMUP_FALLBACK,'case_ids':[case['id'] for case,snapshot,_ in prepared

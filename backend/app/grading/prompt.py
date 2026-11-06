@@ -13,7 +13,7 @@ from .rules import contract
 from .validate import usable
 
 _exam_meta=ContextVar('grading_exam_meta',default={})
-TEMPLATE_VERSION='evaluate_exam.v4'
+TEMPLATE_VERSION='evaluate_exam.v5'
 
 @contextmanager
 def exam_context(meta):
