@@ -8,6 +8,8 @@ from app.grading.validate import precheck_snapshot
 from types import SimpleNamespace
 from scripts import eval_exam
 import sys
+import hashlib
+from pathlib import Path
 
 
 def test_full_eval_plan_has_five_traps_and_excludes_every_used_set():
@@ -89,3 +91,35 @@ def test_resume_keeps_model_failures_and_provider_pause_history_without_reusing_
     changed=[prepared[1],prepared[0],prepared[2]]
     with pytest.raises(ValueError,match='시험 순서'):
         eval_exam.resume_records(path,metadata.copy(),changed,1)
+
+
+def test_main_resume_executes_only_the_remaining_case_and_counts_previous_quota_attempt(monkeypatch,tmp_path):
+    answers={(row['question_id'],row['level']):row for row in
+        (json.loads(line) for line in (settings.RAG_BUILD_DIR/'answers.jsonl').read_text(encoding='utf-8').splitlines()) if row['text_style']=='stt'}
+    plan=[(case,*make_snapshot(case,answers)) for case in cases()[:2]]
+    _,prompt=eval_exam.load_system_prompt()
+    template=Path(eval_exam.__file__).resolve().parents[1]/'prompts'/f'{eval_exam.TEMPLATE_VERSION}.md'
+    first={'id':plan[0][0]['id'],'repeat':1,'expected':'NL','trap':None,'excluded_contrast_set_ids':plan[0][2],
+           'status':'done','estimated_level':'NL','base_level':'NL','assessment_status':'assessed',
+           'latency_ms':1,'llm_calls':1,'input_tokens':10,'output_tokens':5,'estimated_cost_usd':None}
+    paused={'id':plan[1][0]['id'],'repeat':1,'status':'error','llm_calls':1}
+    prior={'metadata':{'system_prompt_sha1':prompt['sha1'],'user_template_sha256':hashlib.sha256(template.read_bytes()).hexdigest(),
+        'user_template_version':eval_exam.TEMPLATE_VERSION,'corpus_version':(settings.RAG_BUILD_DIR/'VERSION').read_text().strip(),
+        'model':settings.LLM_MODEL,'planned_exams':2,'run_status':'stopped_provider_limit'},'records':[first,paused]}
+    path=tmp_path/'prior.json';path.write_text(json.dumps(prior),encoding='utf-8')
+    calls=[];reports=[]
+    monkeypatch.setenv('LLM_MODEL',settings.LLM_MODEL)
+    monkeypatch.setattr(settings,'EMBED_API_KEY','fixture-no-network')
+    monkeypatch.setattr(sys,'argv',['eval_exam','--limit','2','--school-credit-usd','10','--embedding-usd-per-million','.13','--resume-report',str(path),'--yes'])
+    monkeypatch.setattr(eval_exam,'llm_options',lambda:{'model':settings.LLM_MODEL})
+    monkeypatch.setattr(eval_exam,'write_report',lambda payload,label,**kw:reports.append(json.loads(json.dumps(payload))))
+    def evaluate(snapshot,**kwargs):
+        calls.append(kwargs['exclude_contrast_set_ids'])
+        return SimpleNamespace(estimated_level='NL',base_level='NL',assessment_status='assessed',im_estimation_status='not_applicable'),dict(
+            total_input_tokens=20,total_output_tokens=5,llm_calls=1)
+    monkeypatch.setattr(eval_exam,'evaluate_exam',evaluate)
+    assert eval_exam.main()==0 and calls==[plan[1][2]]
+    final=reports[-1]
+    assert final['records'][0]==first and final['metadata']['benchmark_complete'] is True
+    assert final['metadata']['provider_pause_records']==[paused]
+    assert final['metrics']['llm_calls_including_provider_pauses']==3
