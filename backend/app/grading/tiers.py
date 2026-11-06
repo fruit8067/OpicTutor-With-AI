@@ -1,12 +1,9 @@
-# AI-assisted: 이 코드는 OpenAI Codex의 도움으로 작성되었습니다.
+# AI-assisted: 이 코드는 OpenAI Codex의 도움으로 작성했습니다.
 # OWNER: grader (contracts.yaml ownership)
-from __future__ import annotations
-from pathlib import Path
-from uuid import UUID
-from datetime import datetime
-from app.schemas.api import *
-from app.schemas.internal import *
+from .rules import contract
 
 def tier_of(level: str | None) -> dict | None:
-    """계약에 정의된 tier_of 호출. 구현 담당: grader."""
-    raise NotImplementedError("grader: tier_of")
+    if level is None: return None
+    for name,info in contract()['tiers'].items():
+        if level in info['levels']: return {'name':name,'color':info['color']}
+    raise ValueError('허용되지 않은 등급')
