@@ -5,6 +5,9 @@ import pytest
 from scripts.eval_exam import cases,make_snapshot,metrics
 from app.config import settings
 from app.grading.validate import precheck_snapshot
+from types import SimpleNamespace
+from scripts import eval_exam
+import sys
 
 
 def test_full_eval_plan_has_five_traps_and_excludes_every_used_set():
@@ -40,3 +43,27 @@ def test_optional_warmup_examples_have_documented_fallback_but_scored_answers_do
     missing=rows[1]['question_id']
     answers.pop((missing,case['levels'][0]))
     with pytest.raises(ValueError,match=missing): make_snapshot(case,answers)
+
+
+@pytest.mark.parametrize('quota',[False,True])
+def test_school_credit_mode_checkpoints_unknown_cost_and_stops_provider_limits(monkeypatch,quota):
+    reports=[];calls=[]
+    monkeypatch.setattr(sys,'argv',['eval_exam','--limit','2','--school-credit-usd','10','--embedding-usd-per-million','.13','--yes'])
+    monkeypatch.setattr(eval_exam,'llm_options',lambda:{'model':'pickle-general'})
+    monkeypatch.setattr(settings,'EMBED_API_KEY','fixture-no-network')
+    monkeypatch.setattr(eval_exam,'write_report',lambda payload,label,**kw:reports.append(json.loads(json.dumps(payload))))
+    class LimitError(Exception): code='insufficient_quota'
+    def evaluate(*args,**kwargs):
+        calls.append(1)
+        if quota: raise LimitError('must not store arbitrary provider text')
+        return SimpleNamespace(estimated_level='NL',base_level='NL',assessment_status='assessed',im_estimation_status='not_applicable'),dict(
+            total_input_tokens=10,total_output_tokens=5,llm_calls=1)
+    monkeypatch.setattr(eval_exam,'evaluate_exam',evaluate)
+    assert eval_exam.main()==int(quota)
+    latest=reports[-1]
+    assert len(calls)==(1 if quota else 2)
+    assert latest['metadata']['run_status']==('stopped_provider_limit' if quota else 'completed')
+    assert latest['metrics']['avg_estimated_cost_usd'] is None
+    assert latest['metadata']['upper_cost_usd'] is None and latest['metadata']['school_credit_usd']==10
+    assert 'arbitrary provider text' not in json.dumps(latest)
+    assert len(reports)>=3

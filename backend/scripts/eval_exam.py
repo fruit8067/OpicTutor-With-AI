@@ -9,12 +9,13 @@ import random
 import statistics
 import time
 import os
+import math
 import tiktoken
 from pathlib import Path
 from app.config import settings
 from app.exam import build_question_set
 from app.grading.service import evaluate_exam
-from app.grading.prompt import load_system_prompt,exam_context
+from app.grading.prompt import load_system_prompt,exam_context,TEMPLATE_VERSION
 from app.grading.rules import contract
 from app.llm.chat import LLMOutputError,LLMConfigurationError,llm_options
 
@@ -52,7 +53,7 @@ def make_snapshot(case,answers):
     for index,q in enumerate(selected):
         level=('AL' if case['trap']=='warmup_only_al' else 'IL') if index==0 else case['levels'][index-1]
         source=answers.get((q.question_id,level))
-        version='synthetic-corpus:m1'
+        version='synthetic-corpus:'+(settings.RAG_BUILD_DIR/'VERSION').read_text(encoding='utf-8').strip()
         if source is None and index==0 and not q.is_scored and q.question_type=='self_intro':
             source={'answer_text':WARMUP_FALLBACK[level],'est_seconds':30}
             version='synthetic-fixed-warmup:v1'
@@ -114,12 +115,16 @@ def metrics(records):
         avg_input_tokens=statistics.mean(r.get('input_tokens',0) for r in assessed) if assessed else None,
         avg_output_tokens=statistics.mean(r.get('output_tokens',0) for r in assessed) if assessed else None,
         avg_latency_ms=statistics.mean(r['latency_ms'] for r in assessed) if assessed else None,
-        avg_estimated_cost_usd=statistics.mean(r['estimated_cost_usd'] for r in assessed) if assessed else None)
+        avg_estimated_cost_usd=statistics.mean(r['estimated_cost_usd'] for r in assessed if r.get('estimated_cost_usd') is not None)
+            if any(r.get('estimated_cost_usd') is not None for r in assessed) else None,
+        total_observed_llm_calls=sum(r.get('llm_calls',0) for r in records),
+        total_observed_input_tokens=sum(r.get('input_tokens',0) for r in records),
+        total_observed_output_tokens=sum(r.get('output_tokens',0) for r in records))
 
 
-def write_report(payload,label):
+def write_report(payload,label,*,stem=None):
     folder=Path(__file__).resolve().parents[1]/'eval_reports';folder.mkdir(exist_ok=True)
-    stamp=datetime.now(timezone(timedelta(hours=9))).strftime('%Y%m%d-%H%M%S-%f')
+    stamp=stem or datetime.now(timezone(timedelta(hours=9))).strftime('%Y%m%d-%H%M%S-%f')
     target=folder/(stamp+'-'+label)
     target.with_suffix('.json').write_text(json.dumps(payload,ensure_ascii=False,indent=2,default=str)+'\n',encoding='utf-8')
     lines=[NOTICE,'',f'# {label}', '', '```json',json.dumps(payload['metadata'],ensure_ascii=False,indent=2,default=str),'```',
@@ -128,7 +133,18 @@ def write_report(payload,label):
     for r in payload['records']:
         lines.append('| '+' | '.join(str(r.get(k,'미실행')) for k in ['id','repeat','expected','estimated_level','status','trap_passed'])+' |')
     target.with_suffix('.md').write_text('\n'.join(lines)+'\n',encoding='utf-8')
-    print('report:',target.with_suffix('.md'))
+    print('report:',target.with_suffix('.md').relative_to(folder.parent.parent).as_posix(),flush=True)
+
+
+def provider_limit(error):
+    seen=set()
+    while error is not None and id(error) not in seen:
+        seen.add(id(error))
+        if getattr(error,'status_code',None) in (401,402,403) or getattr(error,'code',None) in (
+                'insufficient_quota','quota_exceeded','credit_limit_exceeded','quota_exhausted'):
+            return True
+        error=error.__cause__
+    return False
 
 
 def main():
@@ -137,9 +153,11 @@ def main():
     p.add_argument('--yes',action='store_true');p.add_argument('--plan',action='store_true')
     p.add_argument('--input-usd-per-million',type=float);p.add_argument('--output-usd-per-million',type=float)
     p.add_argument('--embedding-usd-per-million',type=float)
+    p.add_argument('--school-credit-usd',type=float,help='User-declared school credit budget when no public LLM token tariff exists; actual USD cost remains unknown.')
     args=p.parse_args()
     if args.repeat<1 or args.limit is not None and args.limit<1: p.error('repeat/limit는 양수여야 합니다.')
-    if any(rate is not None and rate<0 for rate in [args.input_usd_per_million,args.output_usd_per_million,args.embedding_usd_per_million]): p.error('단가는 음수일 수 없습니다.')
+    if any(rate is not None and (not math.isfinite(rate) or rate<0) for rate in [args.input_usd_per_million,args.output_usd_per_million,args.embedding_usd_per_million]): p.error('단가는 유한한 음수 아닌 값이어야 합니다.')
+    if args.school_credit_usd is not None and (not math.isfinite(args.school_credit_usd) or args.school_credit_usd<=0): p.error('학교 크레딧은 유한한 양수여야 합니다.')
     selected=cases(args.traps)
     if args.limit: selected=selected[:args.limit]
     planned=len(selected)*args.repeat
@@ -147,12 +165,16 @@ def main():
     upper=planned*3*(60000*rates[0]+8000*rates[1])/1_000_000 if None not in rates else None
     print(f'시험 {planned}회, 정상 평가 {planned}호출, 재시도 포함 최대 {planned*3}호출')
     print('LLM 입력 60k/출력 8k 상한 가정 비용 USD:',upper if upper is not None else '미설정: 제공자 단가를 옵션으로 입력하세요.')
+    if args.school_credit_usd is not None:
+        print(f'사용자 제공 학교 크레딧 USD {args.school_credit_usd:g}; LLM 단가 미공개 시 실제 USD 비용은 미산정. 공급자 한도/인증 오류 시 중단.')
     system,prompt_meta=load_system_prompt()
     answers={(d['question_id'],d['level']):d for d in (json.loads(line) for line in (settings.RAG_BUILD_DIR/'answers.jsonl').read_text(encoding='utf-8').splitlines()) if d['text_style']=='stt'}
     metadata={**prompt_meta,'system_prompt_sha1':prompt_meta['sha1'],'im_rubric_version':'project-im-v1',
         'corpus_version':(settings.RAG_BUILD_DIR/'VERSION').read_text().strip(),'model':os.getenv('LLM_MODEL') or settings.LLM_MODEL or '미설정',
         'planned_exams':planned,'max_llm_calls':planned*3,'upper_cost_usd':upper,'input_rate':rates[0],'output_rate':rates[1],
-        'synthetic_metrics':True,'mode':'plan' if args.plan else 'live'}
+        'synthetic_metrics':True,'mode':'plan' if args.plan else 'live',
+        'user_template_version':TEMPLATE_VERSION,'school_credit_usd':args.school_credit_usd,
+        'cost_basis':'published_token_rates' if upper is not None else 'user_declared_school_credit_no_usd_estimate'}
     prepared=[(case,*make_snapshot(case,answers)) for case in selected]
     metadata['fixed_warmup_fallback']={'version':'synthetic-fixed-warmup:v1',
         'samples':WARMUP_FALLBACK,'case_ids':[case['id'] for case,snapshot,_ in prepared
@@ -175,10 +197,16 @@ def main():
     try: llm_options()
     except LLMConfigurationError as exc: p.error(str(exc))
     if not settings.EMBED_API_KEY: p.error('실제 실행에는 EMBED_API_KEY가 필요합니다.')
-    if upper is None or embed_upper is None: p.error('실행 전 LLM 입력/출력 및 검색 임베딩 단가 옵션을 입력하세요.')
+    if (upper is None and args.school_credit_usd is None) or embed_upper is None:
+        p.error('실행 전 LLM 단가 또는 사용자 학교 크레딧, 검색 임베딩 단가를 입력하세요.')
     if not args.yes and input('위 호출 수와 비용 상한으로 실행할까요? [yes/N] ').strip().lower()!='yes':
         p.exit(1,'실행 취소\n')
-    records=[]
+    records=[];stopped=False
+    stem=datetime.now(timezone(timedelta(hours=9))).strftime('%Y%m%d-%H%M%S-%f')
+    def checkpoint(status):
+        metadata.update(run_status=status,completed_exams=len(records))
+        write_report(dict(metadata=metadata,metrics=metrics(records),records=records),'live',stem=stem)
+    checkpoint('running')
     for repeat in range(args.repeat):
         for case,snapshot,excluded in prepared:
             started=time.monotonic()
@@ -190,11 +218,20 @@ def main():
                 record.update(status='done',estimated_level=result.estimated_level,base_level=result.base_level,
                     assessment_status=result.assessment_status,im_estimation_status=result.im_estimation_status,
                     trap_passed=trap_passed(case['trap'],result),input_tokens=i,output_tokens=o,llm_calls=meta['llm_calls'],
-                    latency_ms=int((time.monotonic()-started)*1000),estimated_cost_usd=(i*rates[0]+o*rates[1])/1_000_000)
-            except Exception as exc: record.update(status='error',error=type(exc).__name__)
+                    latency_ms=int((time.monotonic()-started)*1000),
+                    estimated_cost_usd=(i*rates[0]+o*rates[1])/1_000_000 if None not in rates else None)
+            except Exception as exc:
+                usage=getattr(exc,'evaluation_usage',{})
+                record.update(status='error',error=type(exc).__name__,validation_errors=getattr(exc,'validation_errors',None),
+                    input_tokens=usage.get('total_input_tokens',0),output_tokens=usage.get('total_output_tokens',0),
+                    llm_calls=usage.get('llm_calls',0),latency_ms=int((time.monotonic()-started)*1000))
+                stopped=provider_limit(exc)
             records.append(record)
-            print(case['id'],record['status'],record.get('estimated_level'))
-    write_report(dict(metadata=metadata,metrics=metrics(records),records=records),'live')
+            print(case['id'],record['status'],record.get('estimated_level'),flush=True)
+            checkpoint('stopped_provider_limit' if stopped else 'running')
+            if stopped: break
+        if stopped: break
+    checkpoint('stopped_provider_limit' if stopped else 'completed')
     return int(any(r['status']=='error' or r.get('trap_passed') is False for r in records))
 
 
