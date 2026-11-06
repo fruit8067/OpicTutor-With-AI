@@ -106,7 +106,8 @@ git push -u origin orchestrator/gitattributes   # → PR → Rebase and merge
 - [ ] PR 본문에 `local_checks` 실행 결과가 붙어 있음
 - [ ] `docs/handoff/<id>.md`가 갱신됨 (상태·실행 방법·알려진 문제)
 - [ ] `.env`, `data/`, 녹음 파일, API 키가 diff에 없음
-- [ ] 해당 에이전트 YAML의 `done_when` 충족
+- [ ] 해당 YAML의 구현 조건·local_checks 충족. 아직 못 한 검증은 대기/실패로 적고 병합하지 않음
+- [ ] `done_when` 중 PR 병합 조건은 위 검증 후 병합 시 충족 여부를 확인 (병합 전 체크에 순환 조건으로 요구하지 않음)
 
 ### 1.5 소유권 검사 자동화 (선택이지만 권장)
 
@@ -261,7 +262,7 @@ PC-C  (Colab 준비)──[tts-host                  ][frontend              ]·
 
 ```bash
 git add <내 소유 파일들>                     # git add . 금지 (실수로 .env·data가 들어갈 수 있음)
-git commit -m "[<agent_id>] <요약>" -m "AI-assisted (Claude)"
+git commit -m "[<agent_id>] <요약>" -m "AI-assisted (OpenAI Codex)" # 실제 사용 도구·제공자를 기록
 python agents/tools/check_ownership.py <agent_id>
 git push -u origin agent/<agent_id>         # 처음 한 번 -u, 이후 git push
 ```
