@@ -2,10 +2,14 @@
 # OWNER: grader (contracts.yaml ownership)
 import time
 import json
+import logging
 from openai import (OpenAI, APIConnectionError, APITimeoutError, RateLimitError, InternalServerError, BadRequestError,
                     LengthFinishReasonError,ContentFilterFinishReasonError)
 from pydantic import BaseModel, ValidationError
 from app.config import settings
+
+# SDK의 요청 본문 DEBUG 로그에 사용자 전사가 남지 않도록 한다.
+logging.getLogger('openai').setLevel(logging.WARNING)
 
 class LLMTransientError(Exception): pass
 class LLMRefusalError(Exception): pass
