@@ -1,7 +1,7 @@
 # data-layer M1/M2
 
 ## 상태
-트랜잭션 구현 완료, 실제 DB 검증 진행 중 (2026-11-06 KST).
+M1/M2 코드와 실제 로컬 DB 검증 완료, 병합 대기 (2026-11-06 KST).
 브랜치는 agent/bootstrap 위에 쌓음. main 병합 대기 중이므로 비교 기준은 agent/bootstrap.
 
 ## 완료한 것
@@ -30,13 +30,22 @@ get_session_question은 latest_answer를 함께 반환한다. SQL은 API에서 �
 - 외부 AI 호출은 실제 키로 실행하지 않음. 답변/프롬프트 원문을 AI 요청 로그에 저장하지 않음.
 
 ## 측정값
-실제 DB 테스트와 소유권 검사 결과를 검증 후 추가한다.
+WSL Docker의 전용 PostgreSQL 16/pgvector 컨테이너에서 검증. 검증용 합성 자료만 사용.
+실제 코퍼스의 임베딩 수·소요 시간·비용은 VERSION과 키 미준비로 미측정.
 
 ## 실행 확인 (2026-11-06 KST)
 - 전체 모듈 compile/import 통과.
 - 임베딩 배치·응답 순서·차원 거부·본문 미기록 테스트 통과.
-- 실제 PostgreSQL 불변 조건 테스트 5개는 DB 미기동으로 skip. 통과로 간주하지 않음.
+- 초기 PostgreSQL 테스트 5개 skip 후 WSL의 독립 Docker 엔진으로 DB를 시작하여 재검증.
 - Docker 로그: dockerInference 소켓 접근 실패로 엔진 시작 중단. 프로세스 종료/소켓 정리는 자동 승인 검토에서 정책 차단되어 실행하지 않음.
 - ingest --dry-run: VERSION 파일 누락으로 명시적 실패. 실제 적재·임베딩 수·시간 미측정.
-- DB 동시성/마이그레이션 실제 검증 및 M1/M2 병합은 보류.
+- PostgreSQL 16: db_reset --yes, init_db 2회, 001_init.sql 직접 적용 2회 모두 성공.
+- 실제 DB+임베딩 경계 테스트: 8 passed (2026-11-06 KST).
+- 세션/답변 같은 키 동시 5회 → 각각 1행·created 1회. complete_stt 동시 10회 → 순서 +1만.
+- 워커 2개 claim → 서로 다른 작업, 잘못된/만료된 리스 거부 및 복구 확인.
+- 준비 링크 원자성, 워밍업 최대 1개 DB 제약, 조기 제출 차단, submit 멱등성,
+  2단 등급 CHECK, 재평가 이전 run 완료·실패 무시, ingest 재개·메타데이터·벡터 검색 확인.
+- ingest는 임베딩만 가짜 벡터로 대체한 로컬 fixture 4건으로 적재·재적재 확인.
+  실제 외부 임베딩 호출과 실제 코퍼스 적재는 아직 실행하지 않음. M1/M2 PR 병합은 대기.
+- 로컬 검증 컨테이너: WSL `opic-core-a-check-db`, 볼륨도 같은 이름, 127.0.0.1:5432.
 

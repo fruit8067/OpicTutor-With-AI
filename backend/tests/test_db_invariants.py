@@ -111,6 +111,7 @@ def test_submit_regrade_and_grade_constraints(session):
         im_rubric_version='project-im-v1',corpus_version='fixture',retrieved_doc_ids=[])
     with pytest.raises(CheckViolation): db.finish_evaluation(new,**kwargs)
     kwargs['estimated_level']='IM2'
+    assert not db.finish_evaluation(eid,**kwargs)
     assert db.finish_evaluation(new,**kwargs)
     assert not db.fail_evaluation(new,'LATE',None)
     assert db.get_session(session)['result_id']==new
@@ -145,3 +146,30 @@ def test_job_claims_and_lease(session):
             cur.execute("UPDATE jobs SET locked_until=now()-interval '1 second' WHERE id=%s",(j['id'],))
         assert not db.heartbeat_job(j['id'],j['locked_by'],60)
     assert db.recover_expired_jobs()>=2
+
+
+def test_prepare_links_are_atomic(session):
+    question_links={};host_links={};asset_ids=[]
+    for q in questions():
+        asset=db.upsert_tts_asset(kind='question',ref_id=q.question_id,
+            text_hash=hashlib.sha1(q.question_text.encode()).hexdigest(),voice_id=str(session),settings_version='fixture',
+            file_path=f'fixture/{q.question_id}.mp3',duration_sec=3)
+        question_links[q.order_no]=asset;asset_ids.append(asset)
+    for key in ['greeting','say_again','next','finish']:
+        asset=db.upsert_tts_asset(kind='host',ref_id=key,text_hash='fixture',voice_id=str(session),
+            settings_version='fixture',file_path=f'fixture/{key}.mp3',duration_sec=3)
+        host_links[key]=asset;asset_ids.append(asset)
+    try:
+        with pytest.raises(AppError): db.complete_prepare(session,1,{1:question_links[1]},host_links)
+        assert db.get_session(session)['status']=='preparing'
+        assert db.complete_prepare(session,1,question_links,host_links)
+        assert db.get_session(session)['status']=='ready'
+        assert len(db.get_session(session)['host_lines'])==4
+        assert all(q['file_path'] for q in db.list_session_questions(session))
+        assert not db.complete_prepare(session,1,question_links,host_links)
+    finally:
+        # 세션 FK를 먼저 제거하고 테스트가 만든 자산만 정리한다.
+        with tx() as cur:
+            cur.execute('DELETE FROM session_host_lines WHERE session_id=%s',(session,))
+            cur.execute('UPDATE session_questions SET tts_asset_id=NULL WHERE session_id=%s',(session,))
+            cur.execute('DELETE FROM tts_assets WHERE id=ANY(%s)',(asset_ids,))

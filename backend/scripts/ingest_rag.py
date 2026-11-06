@@ -27,6 +27,8 @@ def load_documents():
     return version,docs
 
 def ingest(dry_run=False):
+    if settings.EMBED_DIM != 1536:
+        raise ValueError('계약 v3 DB 벡터 차원은 1536입니다. EMBED_DIM을 확인하세요.')
     version,docs=load_documents()
     with tx() as cur:
         cur.execute('SELECT id,text,corpus_version,embedding IS NOT NULL AS embedded FROM rag_docs')
