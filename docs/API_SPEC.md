@@ -525,7 +525,7 @@ MVP에서는 항상 `501`을 돌려줍니다. 프론트엔드 버튼은 "개발 
 
 ### S1·S2. 정적 TTS 파일
 
-`backend/scripts/gen_tts.py`가 서버를 시작하기 전에 미리 만들어 둡니다.
+서버를 시작하기 전에 Google Colab에서 OmniVoice로 미리 만들어 `backend/static/tts/`에 넣어 둡니다(`colab/omnivoice_tts.ipynb`, 과정은 REQUIREMENTS_v2 §4 F6).
 
 | 경로 | 내용 |
 |---|---|

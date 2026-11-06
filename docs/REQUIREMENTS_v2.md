@@ -202,10 +202,29 @@ class ItemScore(BaseModel):
 
 ### F6. 진행자 음성 (TTS)
 
-- 문항은 고정 텍스트이므로 **시작 전에 한 번만 생성해서 mp3로 캐싱**합니다(`static/tts/Q001.mp3`).
-- 1순위는 Azure TTS 영어 Neural 음성(무료 할당량 안에서 처리 가능), 대체 수단은 브라우저 Web Speech API입니다.
-- 진행자 대사(인사, "Could you say that again?", 종료 멘트)도 같은 방식으로 캐싱합니다.
+- 엔진: **OmniVoice** ([k2-fsa/OmniVoice](https://github.com/k2-fsa/OmniVoice), Apache-2.0, 출력 24kHz)
+- 문항과 진행자 대사는 고정 텍스트이므로 **Google Colab GPU에서 한 번만 생성해 mp3로 캐싱**합니다. 로컬 서버는 mp3를 재생만 합니다.
+  - 로컬 PC에 GPU나 PyTorch를 설치할 필요가 없습니다.
+  - API 키, 계정, 사용량 한도도 없습니다.
+- 대체 수단: mp3가 없으면 브라우저 Web Speech API로 읽습니다.
 - 한국어 TTS는 필요 없습니다(피드백은 텍스트로 제공).
+
+**생성 과정**
+
+```
+[로컬] python -m scripts.export_tts_jobs  → backend/static/tts/jobs.jsonl
+   ↓ 업로드
+[Colab · T4 GPU] colab/omnivoice_tts.ipynb
+   ① 음성 설계(Voice Design): instruct="female, young adult, moderate pitch, american accent"로 기준 음성 1개 생성 → 들어 보고 마음에 들 때까지 SEED 변경
+   ② 그 기준 음성으로 Voice Clone Prompt 생성 → 모든 문장을 같은 목소리로 생성
+   ③ wav → mp3(모노 64kbps) 변환, manifest.json 작성 → tts_mp3.zip 다운로드
+   ↓ 다운로드
+[로컬] backend/static/tts/ 에 압축 해제 → questions/*.mp3, host/*.mp3, manifest.json
+```
+
+- **목소리 고정이 핵심입니다.** Voice Design만으로 문장을 하나씩 만들면 문장마다 목소리가 조금씩 달라집니다. 그래서 기준 음성 1개를 만든 뒤 Voice Clone 방식으로 나머지를 생성합니다.
+- 실존 인물의 목소리를 복제하지 않습니다. 기준 음성은 Voice Design으로 새로 만든 목소리만 씁니다.
+- 문장을 고치면 `export_tts_jobs --stale`로 바뀐 문장만 다시 생성합니다(`text_sha1` 비교).
 
 ### F7. 진행자 캐릭터 애니메이션
 
@@ -315,7 +334,7 @@ rag_docs (
 | 임베딩 | `text-embedding-3-small` (1536차원) | 저렴함. 적재와 검색에 **같은 모델** 사용 | 확정 |
 | DB | PostgreSQL 16 + pgvector (Docker) | 한 곳에서 관계형 데이터와 벡터 검색 | 확정 |
 | STT | **faster-whisper (로컬)** `small.en` | 음성을 외부로 보내지 않음, 단어 타임스탬프 제공 | 확정 |
-| TTS | Azure TTS (사전 생성) / Web Speech API (대체) | | 확정 |
+| TTS | **OmniVoice** (Google Colab GPU에서 사전 생성) / Web Speech API (대체) | 무료, 계정·키 불필요, 로컬 서버는 mp3만 재생 | 확정 |
 | 프론트엔드 | React + Vite + TypeScript | | 확정 |
 | 스타일 | Tailwind CSS (+ 필요하면 shadcn/ui) | Material의 기본 룩은 frontend-design 가이드의 "generic 디자인 버리기"와 충돌 | 미정 |
 | 디자인 가이드 | vercel `web-design-guidelines`, anthropic `frontend-design` skill | | 확정 |
@@ -359,12 +378,14 @@ OpicTutor-With-AI/
 │  │  └─ feedback.py         # 시험 단위 피드백 카드
 │  ├─ scripts/
 │  │  ├─ ingest_rag.py       # jsonl → pgvector 적재
-│  │  ├─ gen_tts.py          # 문항 mp3 사전 생성
+│  │  ├─ export_tts_jobs.py  # TTS 작업 목록(jobs.jsonl) 생성 → Colab에 업로드
 │  │  └─ eval_grader.py      # F5 검증 (leave-one-out)
 │  ├─ static/tts/
 │  └─ requirements.txt
 ├─ frontend/                 # React + Vite
 │  └─ src/{pages,components,lib}/
+├─ colab/
+│  └─ omnivoice_tts.ipynb    # OmniVoice로 mp3 일괄 생성 (Google Colab GPU)
 ├─ data/                     # (gitignore) 녹음 파일, DB 볼륨
 ├─ docker-compose.yml        # postgres + pgvector
 ├─ .env.example
@@ -421,3 +442,4 @@ OpicTutor-With-AI/
 | Postgres + Supabase | **Postgres + pgvector (Docker)만** | 같은 역할을 하는 도구가 중복됨 |
 | AI 온도로 말투 조절 | **페르소나 프롬프트** (나중에) | temperature는 무작위성 정도이지 말투가 아님 |
 | Eva 같은 캐릭터 | **오리지널 캐릭터** | 기존 시험 캐릭터를 따라 하지 않음 |
+| Azure TTS 또는 OmniVoice | **OmniVoice + Google Colab에서 사전 생성** | 계정·키·사용량 한도 없이 무료, 로컬에 GPU가 필요 없음 |

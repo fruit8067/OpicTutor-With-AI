@@ -88,7 +88,7 @@
 - **화면에 보여 줄 결과:** 말하는 진행자 캐릭터 (**오리지널 디자인**, 실제 OPIc 진행자 외형을 따라 하지 않음)
 - **저장할 내용:** 캐릭터 파일(SVG/CSS/JS), 문항·대사 mp3 캐시
 - **예외 상황에서 원하는 동작:** mp3가 없으면 Web Speech API로 읽기 / 음성 재생 실패 시 텍스트만 표시하고 기본 자세 유지
-- **참고 서비스 또는 링크:** Azure TTS 영어 Neural 음성
+- **참고 서비스 또는 링크:** [OmniVoice](https://github.com/k2-fsa/OmniVoice) — Google Colab에서 `colab/omnivoice_tts.ipynb`로 mp3를 미리 생성 (과정은 `docs/REQUIREMENTS_v2.md` F6)
 
 ## 4. 대표적인 사용 흐름
 
@@ -113,7 +113,7 @@
 | AI 모델 / API | Pickle(OpenAI 호환) / OpenAI, mini급 모델 | Structured Output 지원 필요 | 확정 |
 | 임베딩 | `text-embedding-3-small` | 저렴함. 적재와 검색에 같은 모델 사용 | 확정 |
 | 음성 인식 | **faster-whisper (로컬)** `small.en` | 음성을 외부로 보내지 않음, 단어 타임스탬프 제공 (`openai` 라이브러리는 클라우드 API라 제외) | 확정 |
-| 음성 합성 | Azure TTS (사전 생성 캐싱) / Web Speech API (대체) | 영어 음성 품질이 괜찮았음. 한국어 TTS는 필요 없음 | 확정 |
+| 음성 합성 | **OmniVoice** (오픈소스, Google Colab GPU에서 사전 생성) / Web Speech API (대체) | 무료, 계정·키 불필요, 로컬 PC에 GPU 필요 없음. 한국어 TTS는 필요 없음 | 확정 |
 | 파일 / 음성 저장소 | 로컬 디스크 `data/` (gitignore) | Supabase 사용 안 함 | 확정 |
 | 배포 / 호스팅 | 사용 안 함 (localhost, `127.0.0.1` 바인딩) | | 확정 |
 | 테스트 도구 | 코드 QA 생략, **평가 정확도 검증 스크립트만** | 평가 정확도가 곧 제품 품질 | 확정 |
