@@ -1,8 +1,8 @@
 # corpus M1/M2
 
 ## 상태
-M1/M2 코드·빌드 검증 완료, PR 병합 대기 (2026-11-06 KST).
-Core A 구현을 사용하는 쌓인 브랜치: agent/session-api → agent/corpus.
+M1은 PR #5로 main 3f2d3c9에 병합됐다. M2 코드·빌드 검증 통과, M2 PR 대기 (2026-11-06 KST).
+같은 agent/corpus 브랜치를 main에 rebase하고 M2 자기 증분만 이어갔다. 과거 stacked/늦은 공개 위반은 감사 이력으로 보존한다.
 
 ## 완료한 것
 Q000과 pilot 13개 v3 태그, 문장 전체를 담은 태그 근거, default 8슬롯, coverage/warnings,
@@ -21,7 +21,7 @@ M1 pilot 13개, 자기소개 채점 제외 1개. default slots: 1/3/2/2/1/1/1/2.
 rubrics.jsonl은 참고 자료이며 채점 기본 기준은 performance-feedback-actfl-speaking-v3다.
 
 ## 알려진 문제
-원격 contrast_sets_09에 Q188~Q237이 추가되어 YAML 지시의 Q187보다 범위가 늘었다. M2에 함께 반영한다.
+원격 contrast_sets_09의 Q188~Q237도 M2에 반영했다. YAML 지시의 Q187보다 늘어난 범위를 보고서에 기록했다.
 길이·연결어·문장 길이 휴리스틱은 공식 등급 경계가 아니다. 경고가 있는 새 문항은 todo로 보류하며 원문을 억지로 늘리지 않는다.
 실제 수험생 등급과의 정확도·독립 사람 검토는 아직 수행하지 않았다.
 
@@ -33,10 +33,10 @@ M2의 기존 Q013~Q030 변경은 source/question_text_changes.yaml에 기록한�
 tts-host: Q000과 M2 신규 pilot의 음성 생성. grader: rubrics.jsonl을 기본 기준에 넣지 말 것.
 
 ## 측정값
-실제 외부 임베딩·비용은 미측정. 최종 문서/임베딩 대상 수와 시나리오 목록은 M2 빌드 후 기록한다.
+실제 외부 임베딩·비용은 미측정. 감사 후 M2 재빌드 VERSION은 2026-11-06.112940456345857이다. 헤더 출처 추가로 내용 기반 버전이 바뀌었으며 질문 문장·대조 답변 내용은 이 변경으로 바뀌지 않았다. 빌드 exit 0, unittest 3개 통과(1.87초). 단조성 경고 16건은 todo로 보류하고 report에 기록했다.
 
 ## M2 최종 결과
-- corpus_version: 2026-11-06.188333975604103
+- corpus_version: 2026-11-06.112940456345857 (감사 후 재빌드)
 - Q000~Q237 238문항, pilot 222, todo 16; 자기소개 채점 제외 1개.
 - pilot 유형별 수와 모든 슬롯 pool 크기: rag_docs/build/report.md.
 - default/leisure/health를 공개. travel은 routine 슬롯 부족으로 제외했고 임의 대체하지 않음.
