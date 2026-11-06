@@ -151,7 +151,10 @@ def validate_output(raw: EvaluationLLMOutput, snapshot: list[dict]) -> Evaluatio
     for text in narratives:
         require(not any(re.search(pattern,text,re.I) for pattern in FORBIDDEN_PATTERNS),'forbidden_narrative')
     if errors:
-        raise LLMOutputError('; '.join(dict.fromkeys(errors)))
+        failure=LLMOutputError('; '.join(dict.fromkeys(errors)))
+        # These are code-defined labels only, never quotes or provider bodies.
+        failure.validation_errors=list(dict.fromkeys(errors))
+        raise failure
     payload=raw.model_dump()
     payload['assessment_status']=payload.pop('status')
     payload['tier']=tier_of(level)
