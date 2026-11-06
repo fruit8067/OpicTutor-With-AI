@@ -1,6 +1,7 @@
 # AI-assisted: 이 코드는 OpenAI Codex의 도움으로 작성되었습니다.
 # OWNER: session-api (contracts.yaml ownership)
 import hashlib
+from pathlib import Path
 from uuid import UUID,uuid4
 from typing import Annotated
 from fastapi import APIRouter,UploadFile,File,Form,Response
@@ -42,6 +43,18 @@ async def upload(session_id: UUID,response: Response,order_no: Annotated[int,For
                 # DB 접수와 파일 이동은 원자적이지 않다. 재전송이 성공처럼 보이지 않도록 실패 상태를 남긴다.
                 await run_in_threadpool(db.fail_stt,aid,'STT_DECODE_ERROR')
                 raise AppError('INTERNAL_ERROR')
+        elif (row['stt_status']=='failed' and row.get('error_code')=='STT_DECODE_ERROR'
+              and row['audio_hash']==digest.hexdigest() and row['audio_bytes']==size
+              and row['audio_mime']==mime and row['client_duration_ms']==duration_ms):
+            # DB 접수 후 rename 실패는 같은 Blob/키 재전송으로 원래 답변을 복구한다.
+            # 다른 내용이나 이미 저장된 원음을 덮어쓰지 않고 STT retry의 멱등 가드를 사용한다.
+            stored=Path(row['audio_path'])
+            if stored.resolve().parent!=folder.resolve(): raise AppError('INTERNAL_ERROR')
+            if not stored.is_file():
+                try: temp.replace(stored)
+                except OSError: raise AppError('INTERNAL_ERROR')
+            await run_in_threadpool(db.retry_stt,row['id'])
+            row=await run_in_threadpool(db.get_answer,row['id'])
         response.status_code=202 if created else 200
         return await run_in_threadpool(answer_out,row)
     finally:

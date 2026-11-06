@@ -108,3 +108,33 @@ def test_preflight_preserves_old_attempt_retransmission(client):
     session['status']='grading';session['current_order_no']=9
     duplicate=send(c,sid,key='original')
     assert duplicate.status_code==200 and duplicate.json()['answer_id']==first
+
+
+@pytest.mark.parametrize('same_blob,retry_failure',[(True,False),(False,False),(True,True)])
+def test_same_request_repairs_missing_file_after_publication_failure(client,monkeypatch,same_blob,retry_failure):
+    from pathlib import Path
+    c,sid,session,answers,path=client
+    retried=[]
+    def fail(aid,code): answers[aid].update(stt_status='failed',error_code=code)
+    def retry(aid):
+        if retry_failure and not retried:
+            retried.append('temporary DB failure')
+            raise AppError('INTERNAL_ERROR')
+        retried.append(aid);answers[aid].update(stt_status='queued',error_code=None)
+    monkeypatch.setattr(db,'fail_stt',fail)
+    monkeypatch.setattr(db,'retry_stt',retry)
+    with monkeypatch.context() as patch:
+        def cannot_publish(*args,**kwargs): raise PermissionError('local fixture publication failure')
+        patch.setattr(Path,'replace',cannot_publish)
+        assert send(c,sid).status_code==500
+    original=next(iter(answers.values()))
+    assert original['stt_status']=='failed' and session['current_order_no']==1
+    result=send(c,sid,data=b'voice' if same_blob else b'different blob')
+    if retry_failure:
+        assert result.status_code==500 and Path(original['audio_path']).is_file()
+        result=send(c,sid)
+    assert result.status_code==200 and result.json()['answer_id']==str(original['id'])
+    assert result.json()['stt_status']==('queued' if same_blob else 'failed')
+    assert len(answers)==1 and not list(path.rglob('.tmp/*'))
+    assert Path(original['audio_path']).is_file() is same_blob
+    assert retried==(['temporary DB failure',original['id']] if retry_failure else ([original['id']] if same_blob else []))
