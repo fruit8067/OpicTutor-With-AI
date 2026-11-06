@@ -96,6 +96,8 @@ bash: `python -m venv backend/.venv && backend/.venv/bin/pip install -r backend/
 
 ## 최종 검증 추가
 
+- 사용자 이식성 요청: .env의 네 파일 경로는 backend/ 기준 상대 경로만 허용하고 Windows drive/UNC·POSIX 절대 경로는 거부한다. Windows 상대 구분자도 정규화한다. 런타임 파일 접근 위치는 이 checkout의 config.py에서 계산하므로 실행 cwd나 사용자 홈에 의존하지 않는다. API URL/DB URL은 파일 경로가 아니며 유지한다.
+
 - contracts v7 / CR orchestrator-04 기본 설정: Pickle `https://llm.pcl.kr/v1`, `pickle-general`, PICKLE_API_KEY 별칭; 임베딩 large/3072. .env.example은 비밀값 없는 안내만 제공한다. 실제 backend/.env를 덮어쓰지 않았다. grader 키 별칭 및 data-layer 전진 마이그레이션은 각 역할 PR에서 검증한다.
 - 감사 후 재검증: 전체 모듈 import, health/docs/openapi 각 200, 실제 PostgreSQL에 DDL 연속 2회 적용 성공.
 - 새 worktree에서 npm ci --ignore-scripts 및 npm run build 통과. 지정한 코퍼스·frontend lib 경로는 gitignore 대상이 아니다(출력 없음, git check-ignore의 정상 non-match exit 1).
