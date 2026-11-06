@@ -4,7 +4,7 @@ import time
 from app import db
 from app.config import settings
 from app.schemas.internal import EvaluationLLMOutput
-from app.llm.chat import chat_structured,LLMTransientError,LLMRefusalError,LLMOutputError
+from app.llm.chat import chat_structured,llm_options,LLMConfigurationError,LLMTransientError,LLMRefusalError,LLMOutputError
 from app.worker.errors import PermanentJobError
 from .validate import precheck_snapshot,validate_output
 from .prompt import load_system_prompt,build_messages,TEMPLATE_VERSION
@@ -14,8 +14,8 @@ from .rules import contract,token_count
 def evaluate_exam(snapshot: list[dict], *, exclude_contrast_set_ids: list[str] = (), job_id=None):
     precheck_snapshot(snapshot)
     system,system_meta=load_system_prompt()
-    if not settings.LLM_API_KEY:
-        raise PermanentJobError('EVAL_INTERNAL')
+    try: options=llm_options()
+    except LLMConfigurationError as exc: raise PermanentJobError('EVAL_INTERNAL') from exc
     evidence=build_evidence(snapshot,exclude_contrast_set_ids=exclude_contrast_set_ids)
     messages=build_messages(snapshot,evidence)
     invalid_retry=False
@@ -33,7 +33,7 @@ def evaluate_exam(snapshot: list[dict], *, exclude_contrast_set_ids: list[str] =
         except LLMOutputError as exc: failure=exc;status='invalid_output';code='LLM_INVALID_OUTPUT'
         except LLMTransientError as exc: failure=exc;code='LLM_TRANSIENT'
         except Exception as exc: failure=exc;code='EVAL_INTERNAL'
-        db.log_ai_request(job_id=job_id,purpose='evaluate',model=usage.get('model',settings.LLM_MODEL),
+        db.log_ai_request(job_id=job_id,purpose='evaluate',model=usage.get('model',options['model']),
             input_tokens=usage.get('input_tokens'),output_tokens=usage.get('output_tokens'),
             latency_ms=usage.get('latency_ms',int((time.monotonic()-started)*1000)),status=status,
             error_code=code if failure else None)

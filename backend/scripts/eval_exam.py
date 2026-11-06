@@ -8,6 +8,7 @@ import json
 import random
 import statistics
 import time
+import os
 import tiktoken
 from pathlib import Path
 from app.config import settings
@@ -15,7 +16,7 @@ from app.exam import build_question_set
 from app.grading.service import evaluate_exam
 from app.grading.prompt import load_system_prompt,exam_context
 from app.grading.rules import contract
-from app.llm.chat import LLMOutputError
+from app.llm.chat import LLMOutputError,LLMConfigurationError,llm_options
 
 NOTICE='합성 데이터 기반 형식·규칙 회귀 검증이며 실제 수험생 채점 정확도가 아님. IM1~IM3는 내부 잠정 기준(project-im-v1)'
 LEVELS=contract()['levels']
@@ -141,7 +142,7 @@ def main():
     system,prompt_meta=load_system_prompt()
     answers={(d['question_id'],d['level']):d for d in (json.loads(line) for line in (settings.RAG_BUILD_DIR/'answers.jsonl').read_text(encoding='utf-8').splitlines()) if d['text_style']=='stt'}
     metadata={**prompt_meta,'system_prompt_sha1':prompt_meta['sha1'],'im_rubric_version':'project-im-v1',
-        'corpus_version':(settings.RAG_BUILD_DIR/'VERSION').read_text().strip(),'model':settings.LLM_MODEL,
+        'corpus_version':(settings.RAG_BUILD_DIR/'VERSION').read_text().strip(),'model':os.getenv('LLM_MODEL') or settings.LLM_MODEL or '미설정',
         'planned_exams':planned,'max_llm_calls':planned*3,'upper_cost_usd':upper,'input_rate':rates[0],'output_rate':rates[1],
         'synthetic_metrics':True,'mode':'plan' if args.plan else 'live'}
     prepared=[(case,*make_snapshot(case,answers)) for case in selected]
@@ -160,7 +161,9 @@ def main():
         records=[{**case,'status':'not_run','excluded_contrast_set_ids':excluded} for case,snapshot,excluded in prepared]
         write_report(dict(metadata=metadata,metrics={'accuracy':'미측정: 실제 LLM 호출 없음'},records=records),'plan')
         return 0
-    if not settings.LLM_API_KEY or not settings.EMBED_API_KEY: p.error('실제 실행에는 backend/.env의 LLM_API_KEY·EMBED_API_KEY가 필요합니다.')
+    try: llm_options()
+    except LLMConfigurationError as exc: p.error(str(exc))
+    if not settings.EMBED_API_KEY: p.error('실제 실행에는 EMBED_API_KEY가 필요합니다.')
     if upper is None or embed_upper is None: p.error('실행 전 LLM 입력/출력 및 검색 임베딩 단가 옵션을 입력하세요.')
     if not args.yes and input('위 호출 수와 비용 상한으로 실행할까요? [yes/N] ').strip().lower()!='yes':
         p.exit(1,'실행 취소\n')

@@ -1,5 +1,14 @@
 # grader M2
 
+## 사용자 요청: Pickle LLM 설정
+LLM의 OpenAI 기본 URL·모델을 제거하고 실제 Pickle의 LLM_BASE_URL·LLM_MODEL을 명시적으로 설정하도록 변경했다.
+키는 chat.llm_options에서 호출마다 os.getenv('LLM_API_KEY')로 읽는다. URL·모델·키 중 하나라도 없으면
+검색 임베딩이나 LLM 요청 전에 실패한다. OPENAI_API_KEY 또는 settings에 남은 키를 인증 fallback으로 사용하지 않는다.
+임베딩의 OpenAI base URL·text-embedding-3-small·EMBED_API_KEY는 그대로 유지한다.
+현재 Pickle의 정확한 endpoint/model ID를 사용자에게 요청한 상태이며 호환 SDK 인자 전달만 fixture로 검증했다.
+실제 Pickle 서비스의 구조화 출력/JSON 모드 지원이나 응답 품질은 아직 확인하지 않았다.
+임베딩 키와 Pickle 키는 각각 해당 서비스의 키를 별도 환경변수에 설정한다.
+
 ## 상태
 구현·로컬 규칙 검증 완료, 실제 외부 평가 대기 (2026-11-06 KST). agent/corpus 위에 쌓인 브랜치.
 
