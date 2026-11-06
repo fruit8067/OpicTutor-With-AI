@@ -55,3 +55,20 @@ WSL Docker의 전용 PostgreSQL 16/pgvector 컨테이너에서 검증. 검증용
   max_attempts 판정은 fail_job에서 유지해 워커가 최종 실패를 답변/세션에 반영할 수 있다.
 - PostgreSQL 재검증: data-layer 테스트 9 passed, 리스 마지막 시도 복구 및 모든 시도의 멱등 키 조회 포함.
 
+
+## M1 공개 기록과 함수 목록
+
+PR #2 생성: **2026-11-06 17:28:34 KST**. M1/M2 코드는 같은 PR에 누적했으며 아직 병합 전이다.
+
+| 모듈 | 공개 함수 |
+| --- | --- |
+| pool | `init_db`, `ping` |
+| sessions | `create_session`, `get_session`, `list_session_questions`, `get_session_question`, `retry_prepare`, `cancel_session`, `start_session`, `increment_replay` |
+| tts | `upsert_tts_asset`, `find_tts_asset`, `complete_prepare`, `fail_prepare` |
+| answers | `create_answer`, `get_answer`, `mark_stt_processing`, `complete_stt`, `reject_stt`, `fail_stt`, `retry_stt` |
+| evaluations | `submit_session`, `create_regrade`, `get_evaluation`, `get_latest_evaluation`, `load_exam_snapshot`, `mark_evaluation_running`, `finish_evaluation`, `fail_evaluation` |
+| rag | `get_rag_docs`, `get_contrast_set`, `search_similar_answers`, `current_corpus_version` |
+| jobs | `claim_job`, `heartbeat_job`, `complete_job`, `fail_job`, `recover_expired_jobs`, `last_job_activity` |
+| ai_requests | `log_ai_request`, `count_ai_requests` |
+| dev | `seed_session`, `seed_queued_answer`, `seed_grading_session` |
+| llm.embeddings | `embed_texts` |
