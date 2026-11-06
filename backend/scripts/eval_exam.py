@@ -120,6 +120,7 @@ def metrics(records):
         avg_estimated_cost_usd=statistics.mean(r['estimated_cost_usd'] for r in assessed if r.get('estimated_cost_usd') is not None)
             if any(r.get('estimated_cost_usd') is not None for r in assessed) else None,
         total_observed_llm_calls=sum(r.get('llm_calls',0) for r in records),
+        unknown_usage_requests=sum(r.get('unknown_usage_requests',0) for r in records),
         total_observed_input_tokens=sum(r.get('input_tokens',0) for r in records),
         total_observed_output_tokens=sum(r.get('output_tokens',0) for r in records))
 
@@ -161,11 +162,17 @@ def main():
     p.add_argument('--input-usd-per-million',type=float);p.add_argument('--output-usd-per-million',type=float)
     p.add_argument('--embedding-usd-per-million',type=float)
     p.add_argument('--school-credit-usd',type=float,help='User-declared school credit budget when no public LLM token tariff exists; actual USD cost remains unknown.')
+    p.add_argument('--case-id',action='append',help='Run only named cases for a targeted regression; repeat to select several.')
     args=p.parse_args()
     if args.repeat<1 or args.limit is not None and args.limit<1: p.error('repeat/limit는 양수여야 합니다.')
     if any(rate is not None and (not math.isfinite(rate) or rate<0) for rate in [args.input_usd_per_million,args.output_usd_per_million,args.embedding_usd_per_million]): p.error('단가는 유한한 음수 아닌 값이어야 합니다.')
     if args.school_credit_usd is not None and (not math.isfinite(args.school_credit_usd) or args.school_credit_usd<=0): p.error('학교 크레딧은 유한한 양수여야 합니다.')
     selected=cases(args.traps)
+    if args.case_id:
+        requested=set(args.case_id)
+        unknown=requested-{case['id'] for case in selected}
+        if unknown: p.error('존재하지 않는 시험 ID: '+', '.join(sorted(unknown)))
+        selected=[case for case in selected if case['id'] in requested]
     if args.limit: selected=selected[:args.limit]
     planned=len(selected)*args.repeat
     rates=args.input_usd_per_million,args.output_usd_per_million
@@ -231,13 +238,15 @@ def main():
                 record.update(status='done',estimated_level=result.estimated_level,base_level=result.base_level,
                     assessment_status=result.assessment_status,im_estimation_status=result.im_estimation_status,
                     trap_passed=trap_passed(case['trap'],result),input_tokens=i,output_tokens=o,llm_calls=meta['llm_calls'],
+                    unknown_usage_requests=meta.get('unknown_usage_requests',0),
                     latency_ms=int((time.monotonic()-started)*1000),
                     estimated_cost_usd=(i*rates[0]+o*rates[1])/1_000_000 if None not in rates else None)
             except Exception as exc:
                 usage=getattr(exc,'evaluation_usage',{})
                 record.update(status='error',error=type(exc).__name__,validation_errors=getattr(exc,'validation_errors',None),
                     input_tokens=usage.get('total_input_tokens',0),output_tokens=usage.get('total_output_tokens',0),
-                    llm_calls=usage.get('llm_calls',0),latency_ms=int((time.monotonic()-started)*1000))
+                    llm_calls=usage.get('llm_calls',0),unknown_usage_requests=usage.get('unknown_usage_requests',0),
+                    latency_ms=int((time.monotonic()-started)*1000))
                 stopped=provider_limit(exc)
             records.append(record)
             print(case['id'],record['status'],record.get('estimated_level'),flush=True)

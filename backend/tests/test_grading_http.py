@@ -77,3 +77,15 @@ def test_json_only_provider_can_correct_invalid_output_within_three_requests(pro
     assert logs[1]['status']=='invalid_output' and logs[2]['status']=='ok'
     assert meta['total_input_tokens']==200 and meta['total_output_tokens']==100
     assert chat._requests.get() is None
+
+
+def test_sdk_schema_failure_retains_usage_and_only_schema_field_labels(provider):
+    bad=output();bad['items'][0]['evidence']=['private marker']*4
+    requests,logs,_=provider(lambda n:response(json.dumps(bad)) if n==1 else response())
+    result,meta=service.evaluate_exam(snapshot())
+    assert result.estimated_level=='IL' and len(requests)==2
+    assert meta['total_input_tokens']==200 and meta['total_output_tokens']==100
+    assert logs[0]['input_tokens']==100 and logs[0]['status']=='invalid_output'
+    correction=requests[1]['messages'][-1]['content']
+    assert 'schema.items.0.evidence.too_long' in correction and '최대3개' in correction
+    assert 'private marker' not in correction and 'private marker' not in str(logs)

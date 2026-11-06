@@ -61,21 +61,50 @@ def _send(call, model: str):
         raise LLMOutputError('LLM provider 요청 예산 소진')
     record=dict(model=model,input_tokens=None,output_tokens=None,latency_ms=0,status='error',error_code=None)
     if trace is not None: trace.records.append(record)
-    started=time.monotonic()
+    started=time.monotonic();received=False
     try:
         response=call()
+        received=True
+        if getattr(response,'http_response',None) is not None and callable(getattr(response,'parse',None)):
+            # Read only usage before the SDK's local structured parser can fail.
+            # The payload is never logged or attached to the resulting error.
+            payload=response.http_response.json()
+            usage=payload.get('usage') or {}
+            record.update(model=payload.get('model') or model,input_tokens=usage.get('prompt_tokens'),
+                          output_tokens=usage.get('completion_tokens'))
+            response=response.parse()
         usage=getattr(response,'usage',None)
         record.update(model=getattr(response,'model',model),input_tokens=getattr(usage,'prompt_tokens',None),
                       output_tokens=getattr(usage,'completion_tokens',None),status='ok')
         return response
     except Exception as exc:
-        if isinstance(exc,(AttributeError,NotImplementedError)) and trace is not None:
+        if isinstance(exc,(AttributeError,NotImplementedError)) and not received and trace is not None:
             # 로컬 SDK 메서드 미지원: 네트워크 요청 전 실패는 예산/로그에서 제외한다.
             trace.records.pop()
         record['status'],record['error_code']=_error_status(exc)
         raise
     finally:
         record['latency_ms']=int((time.monotonic()-started)*1000)
+
+
+def _schema_error(exc,schema):
+    names=set()
+    def collect(node):
+        if isinstance(node,dict):
+            names.update(node.get('properties',{}))
+            for value in node.values(): collect(value)
+        elif isinstance(node,list):
+            for value in node: collect(value)
+    collect(schema.model_json_schema())
+    labels=[]
+    if isinstance(exc,ValidationError):
+        for error in exc.errors(include_input=False,include_url=False):
+            path='.'.join(str(part) if isinstance(part,int) or part in names else 'field' for part in error['loc']) or 'output'
+            labels.append('schema.'+path+'.'+error['type'])
+    else: labels=['schema.invalid_json']
+    failure=LLMOutputError('LLM 응답 스키마 불일치: '+'; '.join(dict.fromkeys(labels)))
+    failure.validation_errors=list(dict.fromkeys(labels))[:20]
+    return failure
 
 def llm_options() -> dict:
     """Pickle 인증 키는 호출 시점의 프로세스 환경변수에서 읽는다."""
@@ -103,7 +132,9 @@ def chat_structured(messages: list[dict], schema: type[BaseModel], *, timeout: f
         try:
             # 속성 접근 자체가 미지원이면 HTTP 요청이 없으므로 차감/기록하지 않는다.
             if trace is None or provider not in trace.json_only:
-                parse=client.beta.chat.completions.parse
+                endpoint=client.beta.chat.completions
+                raw=getattr(endpoint,'with_raw_response',None)
+                parse=raw.parse if raw is not None else endpoint.parse
                 response=_send(lambda:parse(**common,response_format=schema),options['model'])
         except (AttributeError,NotImplementedError):
             if trace is not None: trace.json_only.add(provider)
@@ -127,7 +158,7 @@ def chat_structured(messages: list[dict], schema: type[BaseModel], *, timeout: f
         if parsed is None:
             try: parsed=schema.model_validate_json(message.content or '')
             except (ValidationError,ValueError,TypeError) as exc:
-                raise LLMOutputError('LLM 응답 스키마 불일치') from exc
+                raise _schema_error(exc,schema) from exc
         usage=response.usage
         meta={'model':response.model,'input_tokens':getattr(usage,'prompt_tokens',None),
               'output_tokens':getattr(usage,'completion_tokens',None),'latency_ms':int((time.monotonic()-started)*1000)}
@@ -143,4 +174,7 @@ def chat_structured(messages: list[dict], schema: type[BaseModel], *, timeout: f
     except ContentFilterFinishReasonError as exc:
         raise LLMRefusalError('LLM 콘텐츠 필터 거절') from exc
     except (ValidationError,json.JSONDecodeError) as exc:
-        raise LLMOutputError('LLM 응답 스키마 불일치') from exc
+        raise _schema_error(exc,schema) from exc
+    finally:
+        close=getattr(client,'close',None)
+        if close is not None: close()
