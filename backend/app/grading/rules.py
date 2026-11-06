@@ -3,6 +3,7 @@
 from functools import lru_cache
 from pathlib import Path
 import json
+import os
 import yaml
 import tiktoken
 
@@ -14,9 +15,9 @@ def contract():
 
 @lru_cache(maxsize=1)
 def encoding():
-    # OpenAI 호환 제공자의 알려지지 않은 모델에도 같은 보수적 회귀 토크나이저를 사용한다.
+    # 미등록 제공자 모델은 cl100k_base로 근사한다. 실제 Pickle 토큰 수/한도는 제공자 사용량으로 확인해야 한다.
     from app.config import settings
-    try: return tiktoken.encoding_for_model(settings.LLM_MODEL)
+    try: return tiktoken.encoding_for_model(os.getenv('LLM_MODEL') or settings.LLM_MODEL)
     except KeyError: return tiktoken.get_encoding('cl100k_base')
 
 
