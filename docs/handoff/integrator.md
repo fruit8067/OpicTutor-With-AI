@@ -1,16 +1,16 @@
 # integrator M3 준비
 
 ## 사용자 요청에 따른 Pickle 설정 변경
-orchestrator/pickle-llm 브랜치에서 LLM의 OpenAI 기본 URL·모델을 제거하고 명시적인 Pickle 설정을 요구하도록 변경했다.
+정식 CR orchestrator-01/v4가 PR #10으로 main에 반영되어 명시적인 Pickle 설정을 요구한다. 기존 혼합 PR #8은 역할별 PR로 이관하고 닫았다.
 LLM 키는 os.getenv('LLM_API_KEY')로 읽으며 임베딩은 기존 OpenAI 설정을 유지한다.
-전체 테스트 82 passed. 실제 Pickle endpoint/model ID는 사용자 답변 대기 중이며 실제 요청은 보내지 않았다.
-이번 PR은 사용자 요청에 따라 orchestrator(계약), bootstrap(공통 설정), grader(LLM 호출), integrator(실행 문서) 변경을
-역할별 커밋으로 분리하고 각 커밋의 소유권을 검사했다. HTTP·DB·평가 출력 스키마는 변경하지 않았다.
+과거 조합의 전체 테스트는 82 passed였다. 2026-11-07 A/B 코어 검증은 별도 orchestrator 도구로 101 passed이며 M3 완주가 아니다. 실제 Pickle endpoint/model ID는 사용자 답변 대기 중이며 실제 요청은 보내지 않았다.
+이번 브랜치에는 integrator의 자기 소유 파일만 있다. 과거 역할별 커밋/HEAD~1 검사는 기본 ownership을 충족하지 못했으며 그 위반을 감사 기록에 보존했다. HTTP·DB·평가 출력 스키마는 변경하지 않았다.
 
 ## 상태
-통합 스크립트와 실행 안내 작성. **M3 완주 미완료** (2026-11-06 KST).
+통합 스크립트와 실행 안내를 보존. **M3 완주 미완료** (2026-11-07 KST).
 M2 전원 병합 조건이 충족되지 않아 실제 AI·음성·화면 통합은 보류한다.
-초기에는 agent/session-api 위에 쌓았고, B 구현 후 agent/worker-stt 위로 갱신했다. main에 직접 push하지 않았다.
+기존 통합 코드를 보존해 M0 main 기준의 독립 증분으로 재구성했다. 이는 과거 산출물 보존이며 Phase 2 착수/M3 완료가 아니다. M2 충족 전 실제 통합 실행은 진행하지 않는다.
+사용자 최신 목표에 따라 C는 새로 만들지 않는다. A/B 요구사항·API·flowchart 검증은 docs/compliance/verify_core.py와 명시적인 경계 대역으로 수행하며 제품/브라우저 완주와 구분한다.
 
 ## 완료한 것
 - HTTP 전용 e2e_smoke: 실제 8문항 업로드→STT 폴링→submit→결과 폴링, v3 결과/자기소개 배제 검사.
