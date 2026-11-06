@@ -8,16 +8,36 @@
 #
 # AI-assisted: this contract was written with help from Claude (Anthropic).
 
-contract_version: 1
+contract_version: 2
 changelog:
   - "1 (2026-11-06): REQUIREMENTS_v2(설정 단계 전체 세트·TTS 준비 → STT 저장 후 이동 → 종료 후 종합 평가) 기준 최초 작성"
+  - "2 (2026-11-06, commit 09af0ef 반영): 고정 시스템 프롬프트(performance-feedback-actfl-speaking-v2) + 내부 IM 세분화(project-im-v1),
+     base_level/estimated_level 2단 등급, FACT 차원·fact_evidence·경계 근거 필드, rubrics.jsonl 기본 기준 주입 중단,
+     evaluations에 base_level·im_rubric_version 컬럼, 대조 세트 Q013~Q187(contrast_sets_04~08)"
 
 # ===========================================================================
 # 1. 고정 값
 # ===========================================================================
-levels: [NL, NM, NH, IL, IM1, IM2, IM3, IH, AL]   # 이 밖의 등급은 어디에서도 출력하지 않는다(AH 없음)
+levels: [NL, NM, NH, IL, IM1, IM2, IM3, IH, AL]   # estimated_level(세분 예상값). 이 밖의 값은 출력하지 않는다(AH 없음)
+base_levels: [NL, NM, NH, IL, IM, IH, AL]          # base_level(고정 표의 7단계 큰 범주)
+level_rules:
+  - "base_level != IM 이면 estimated_level == base_level (또는 둘 다 null)"
+  - "base_level == IM 이면 estimated_level ∈ {IM1, IM2, IM3} 또는 null(세분화 보류)"
+  - "IM 세분값은 항상 '내부 기준에 따른 잠정 진단'(im_estimation_status=provisional)이다. 공식·검증 완료로 표현하지 않는다"
+
+evaluation_criteria:
+  rubric_version: performance-feedback-actfl-speaking-v2
+  im_rubric_version: project-im-v1
+  system_prompt_source: "docs/REQUIREMENTS_v2.md F3의 '**시스템 프롬프트 본문 시작**'과 '**시스템 프롬프트 본문 끝**' 사이 전체(표 포함)"
+  system_prompt_file: backend/prompts/system/performance-feedback-actfl-speaking-v2.md   # grader가 원문 그대로 추출
+  rules:
+    - 시스템 프롬프트 본문은 한 글자도 바꾸지 않는다. 바꾸려면 문서를 먼저 고치고 rubric_version을 올린다
+    - 런타임에 ACTFL PDF를 다운로드·파싱·임베딩하지 않는다
+    - rag_docs의 rubrics.jsonl(단어 수 경계·전형 길이)을 기본 채점 기준으로 프롬프트에 넣지 않는다
+    - RAG는 문항별 대조 답변·승급 패턴의 보조 근거로만 쓴다
 
 tiers:            # 서버가 estimated_level → tier로 매핑한다. LLM은 tier를 만들지 않는다.
+                  # estimated_level이 null이면(IM 세분화 보류, insufficient_evidence) tier도 null
   bronze:   {levels: [NL, NM, NH], color: "#B0794A"}
   silver:   {levels: [IL, IM1],    color: "#A8B3BD"}
   gold:     {levels: [IM2, IM3],   color: "#E3B341"}
@@ -27,11 +47,14 @@ tiers:            # 서버가 estimated_level → tier로 매핑한다. LLM은 t
 question_types: [self_intro, description, routine, past_experience, comparison, issue,
                  roleplay_ask, roleplay_solve, roleplay_experience]
 
-dimensions:       # 내부 1~5 정수
-  task_completion: 과제 수행
-  text_type: 문장 구성
-  accuracy: 정확성
-  observed_fluency: 관측 유창성
+dimensions:       # FACT. 내부 1~5 정수, 관찰 기회가 없으면 null
+  functions_tasks: "F — 과제 수행"
+  accuracy: "A — 의미 전달의 정확성"
+  context_content: "C — 상황·내용 범위"
+  text_type: "T — 발화 구성"
+fact_status: [demonstrated, not_demonstrated, not_observed]   # not_observed는 낮은 점수의 근거가 아님
+im_estimation_status: [provisional, insufficient_evidence, not_applicable]
+level_boundaries_to_measure: ["NH/IL", "IL/IM1", "IM1/IM2", "IM2/IM3", "IM3/IH", "IH/AL"]
 
 policies:
   question_count: 8
@@ -49,6 +72,8 @@ policies:
   evidence_token_budget: 24000    # 근거 자료(루브릭 제외 대조 예시)의 토큰 상한
   input_token_hard_limit: 60000   # 전체 입력이 넘으면 EVAL_INPUT_TOO_LARGE로 실패(조용히 자르지 않음)
   disclaimer: "합성 예시로 구성한 기준을 참고한 AI 예상 등급입니다. 공식 OPIc 결과가 아닙니다."
+  im_provisional_label: "내부 세분화 기준에 따른 잠정 진단"
+  im_min_evidence: "서로 다른 문항 유형 2개 이상에서 인용 근거 2개 이상 (project-im-v1 내부 규칙, ACTFL 공식 조건 아님)"
   metrics_version: "m1"
   stt_version_format: "faster-whisper:{model}:{metrics_version}"
 
@@ -354,15 +379,25 @@ db_schema_sql: |
     selected_answer_ids UUID[] NOT NULL,
     status              TEXT NOT NULL CHECK (status IN ('queued','running','done','failed')),
     assessment_status   TEXT NULL CHECK (assessment_status IN ('assessed','insufficient_evidence')),
+    base_level          TEXT NULL CHECK (base_level IN ('NL','NM','NH','IL','IM','IH','AL')),
     estimated_level     TEXT NULL CHECK (estimated_level IN ('NL','NM','NH','IL','IM1','IM2','IM3','IH','AL')),
+    im_estimation_status TEXT NULL CHECK (im_estimation_status IN ('provisional','insufficient_evidence','not_applicable')),
     result_json         JSONB NULL,                    -- schemas.EvaluationResult (검증 통과본)
-    model TEXT NULL, prompt_version TEXT NULL, rubric_version TEXT NULL, corpus_version TEXT NULL,
+    model TEXT NULL, prompt_version TEXT NULL, rubric_version TEXT NULL, im_rubric_version TEXT NULL,
+    corpus_version TEXT NULL,
     retrieved_doc_ids   TEXT[] NULL,
     error_code          TEXT NULL,
     error_detail        JSONB NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(), updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     UNIQUE (session_id, run_no),
-    CHECK ((assessment_status = 'assessed') = (estimated_level IS NOT NULL) OR status <> 'done')
+    -- done이면: assessed ⇔ base_level 있음 / insufficient_evidence ⇔ 두 등급 모두 없음
+    CHECK (status <> 'done' OR (
+      (assessment_status = 'assessed' AND base_level IS NOT NULL) OR
+      (assessment_status = 'insufficient_evidence' AND base_level IS NULL AND estimated_level IS NULL))),
+    -- 2단 등급 일관성
+    CHECK (estimated_level IS NULL OR base_level IS NOT NULL),
+    CHECK (base_level IS NULL OR base_level = 'IM' OR estimated_level IS NULL OR estimated_level = base_level),
+    CHECK (base_level IS DISTINCT FROM 'IM' OR estimated_level IS NULL OR estimated_level IN ('IM1','IM2','IM3'))
   );
   ALTER TABLE sessions DROP CONSTRAINT IF EXISTS sessions_result_fk;
   ALTER TABLE sessions ADD CONSTRAINT sessions_result_fk FOREIGN KEY (result_id) REFERENCES evaluations(id);
@@ -486,9 +521,10 @@ module_interfaces:
     def load_exam_snapshot(session_id: UUID, selected_answer_ids: list[UUID]) -> list[dict]
         # order_no 순 [{order_no, question_id, question_type, question_text, answer_id, stt_text, metrics}]
     def mark_evaluation_running(evaluation_id: UUID) -> bool
-    def finish_evaluation(evaluation_id: UUID, *, result: dict, assessment_status: str, estimated_level: str | None,
-                          model: str, prompt_version: str, rubric_version: str, corpus_version: str,
-                          retrieved_doc_ids: list[str]) -> bool
+    def finish_evaluation(evaluation_id: UUID, *, result: dict, assessment_status: str,
+                          base_level: str | None, estimated_level: str | None, im_estimation_status: str,
+                          model: str, prompt_version: str, rubric_version: str, im_rubric_version: str,
+                          corpus_version: str, retrieved_doc_ids: list[str]) -> bool
         # 해당 run이 세션의 최신 run이고 세션이 grading일 때만: evaluation done + session done + result_id 갱신
     def fail_evaluation(evaluation_id: UUID, error_code: str, error_detail: dict | None) -> bool  # 같은 가드, grading_failed
     # 근거(RAG)
@@ -556,11 +592,14 @@ module_interfaces:
     # 핸들러는 이 둘 중 하나를 던져 재시도 여부를 알린다. 그 밖의 예외는 retryable로 취급.
 
   app.grading (grader): |
+    def load_system_prompt() -> tuple[str, str]   # (본문, rubric_version). system_prompt_file을 읽고 sha1을 함께 기록
     def build_evidence(snapshot: list[dict], *, exclude_contrast_set_ids: list[str] = ()) -> EvidenceBundle
+        # 문항별 대조 답변 + 승급 패턴만. rubrics.jsonl은 넣지 않는다(evaluation_criteria.rules)
     def build_messages(snapshot: list[dict], evidence: EvidenceBundle) -> list[dict]
     def validate_output(raw: EvaluationLLMOutput, snapshot: list[dict]) -> EvaluationResult   # 실패 시 LLMOutputError
     def evaluate_exam(snapshot: list[dict], *, exclude_contrast_set_ids: list[str] = (), job_id: UUID | None = None)
-        -> tuple[EvaluationResult, dict]    # (result, meta{model,prompt_version,rubric_version,corpus_version,retrieved_doc_ids})
+        -> tuple[EvaluationResult, dict]
+        # meta{model, prompt_version, rubric_version, im_rubric_version, system_prompt_sha1, corpus_version, retrieved_doc_ids}
     def tier_of(level: str) -> dict         # {name, color}
     # app/grading/job.py
     def handle(job: dict) -> None           # evaluate 핸들러
@@ -679,11 +718,19 @@ api_schemas:
   Mistake: {quote: str, problem: str, fix: str}
   ItemFeedback: {order_no: int, evidence: "list[str]", mistakes: "list[Mistake]", upgrade_tip: str}
   FeedbackCard: {title: str, why: str, before: str, after: str, related_order_nos: "list[int]"}
-  DimensionScores: {task_completion: "int 1-5", text_type: "int 1-5", accuracy: "int 1-5", observed_fluency: "int 1-5"}
-  EvaluationResult: {assessment_status: assessment_status, estimated_level: "level|null", tier: "{name,color}|null",
-                     headline: str, grade_rationale: str, dimension_scores: "DimensionScores|null",
+  DimensionScores: {functions_tasks: "int 1-5|null", accuracy: "int 1-5|null", context_content: "int 1-5|null",
+                    text_type: "int 1-5|null"}
+  FactEvidence: {criterion: "functions_tasks|accuracy|context_content|text_type", observation: str,
+                 status: fact_status, order_no: "int|null", quote: "str|null"}
+  EvaluationResult: {assessment_status: assessment_status, base_level: "base_level|null", estimated_level: "level|null",
+                     im_estimation_status: im_estimation_status, im_rubric_version: "str|null",
+                     provisional_label: "str|null  (IM 세분값이면 policies.im_provisional_label, 서버가 붙임)",
+                     tier: "{name,color}|null", headline: str, grade_rationale: str,
+                     dimension_scores: "DimensionScores|null", fact_evidence: "list[FactEvidence]",
+                     fluency_observations: str, why_this_level: str, why_not_lower: str, next_level_gap: str,
+                     borderline_levels: "list[level]", uncertainty_reasons: "list[str]",
                      items: "list[ItemFeedback]", feedback_cards: "list[FeedbackCard]", limitations: "list[str]",
-                     insufficient_reason: "str|null", disclaimer: str}
+                     insufficient_reason: "str|null", rubric_version: str, disclaimer: str}
   ResultItemOut: {order_no: int, question_id: str, question_type: str, question_text: str, stt_text: str,
                   metrics: Metrics}
   ResultOut: {session_status: session_status, evaluation_status: "evaluation_status|null", run_no: "int|null",
@@ -694,21 +741,39 @@ api_schemas:
 # 10. 평가 LLM 출력 계약 (grader)
 # ===========================================================================
 evaluation_llm_output:   # app/schemas/internal.py EvaluationLLMOutput — Structured Output으로 강제
+  source: docs/REQUIREMENTS_v2.md F3 "출력 계약"
   fields:
     status: "assessed | insufficient_evidence"
-    estimated_level: "NL..AL | null   (insufficient_evidence면 null, assessed면 필수)"
-    insufficient_reason: "str | null  (insufficient_evidence면 필수)"
-    headline: 한국어 총평 1~2문장
+    base_level: "NL|NM|NH|IL|IM|IH|AL | null   (insufficient_evidence면 null)"
+    estimated_level: "NL|NM|NH|IL|IM1|IM2|IM3|IH|AL | null   (level_rules)"
+    im_estimation_status: "provisional | insufficient_evidence | not_applicable"
+    im_rubric_version: "project-im-v1 | null  (IM 세분화를 썼을 때)"
+    insufficient_reason: "str | null  (status=insufficient_evidence 또는 IM 세분화 보류면 필수: 사유 + 추가로 필요한 문항)"
+    headline: "한국어 총평 1~2문장. IM 세분값이면 '예상 IM2 · 내부 세분화 기준에 따른 잠정 진단' 형식"
     grade_rationale: 전체 시험 근거의 판단 사유(한국어)
-    dimension_scores: "{task_completion, text_type, accuracy, observed_fluency} 각 1~5 정수 | null"
+    dimension_scores: "{functions_tasks, accuracy, context_content, text_type} 각 1~5 정수 또는 null(미관찰) | null"
+    fact_evidence: "[{criterion, observation(ko), status(demonstrated|not_demonstrated|not_observed), order_no|null, quote|null}]"
+    fluency_observations: "관측 속도·멈춤·수정의 해석과 STT 한계(FACT와 별도, 한국어)"
+    why_this_level: 예상 등급의 직접 근거 요약
+    why_not_lower: 아래 등급과 구분되는 관찰
+    next_level_gap: 다음 등급의 미충족 특성과 연습 행동
+    borderline_levels: "[level] 근거가 섞일 때 인접 후보(estimated_level의 바로 위·아래만)"
+    uncertainty_reasons: "[str] 전사·과제 범위·일관성의 한계"
     items: "[{order_no, evidence[0..3], mistakes[0..5]{quote, problem(ko), fix(en)}, upgrade_tip(ko)}]"
     feedback_cards: "[{title, why, before, after, related_order_nos}] — assessed면 3~5장, 아니면 0~5장"
-    limitations: "[str] 음질·STT·근거 부족 등"
+    limitations: "[str] 음질·STT·근거 부족·세분화 보류 사유 등"
   server_validation:     # validate_output이 하나라도 실패하면 LLMOutputError
-    - estimated_level ∈ levels, status와 일관
+    - base_level ∈ base_levels, estimated_level ∈ levels, level_rules 전부, status와 일관
+    - im_estimation_status는 base_level==IM일 때 provisional(세분값 있음) 또는 insufficient_evidence(세분값 null),
+      그 밖에는 not_applicable
+    - provisional이면 im_rubric_version == evaluation_criteria.im_rubric_version
+    - IM 세분화 보류(estimated null)이거나 status insufficient_evidence면 insufficient_reason 필수
+    - borderline_levels는 levels 안의 값. estimated_level이 있으면 그와 인접(levels 순서 차 1)한 값만,
+      IM 세분화 보류면 IM1·IM2·IM3 안에서만
     - items의 order_no 집합 == 시험 문항 order_no 집합(누락·중복·범위 밖 금지)
-    - evidence와 mistakes.quote, feedback_cards.before는 해당 문항(related_order_nos) STT 텍스트의 부분 문자열
-      (대소문자·공백·구두점 정규화 후 비교). before가 여러 문항이면 그중 하나에 있으면 통과
-    - related_order_nos는 시험 문항 order_no 안에서만
-    - 점수는 1~5 정수
-    - 서버가 tier와 disclaimer를 붙여 EvaluationResult로 만든다(LLM 출력의 tier는 받지 않음)
+    - evidence, mistakes.quote, fact_evidence.quote(null이 아니면), feedback_cards.before는 해당 문항 STT 텍스트의 부분 문자열
+      (대소문자·공백·구두점 정규화 후 비교). fact_evidence의 order_no가 null이면 quote도 null이어야 함
+    - fact_evidence.status가 not_observed면 quote는 null
+    - related_order_nos·fact_evidence.order_no는 시험 문항 order_no 안에서만
+    - 점수는 1~5 정수 또는 null
+    - 서버가 tier, provisional_label, rubric_version, disclaimer를 붙여 EvaluationResult로 만든다(LLM이 만든 tier는 받지 않음)

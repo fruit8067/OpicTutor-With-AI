@@ -15,7 +15,13 @@ prompt: |
 
   [역할] 출제 문제 은행·시나리오·평가 근거 코퍼스의 담당자다. 이 데이터가 시험 구성과 평가 근거를 모두 결정한다.
   지금 상태: question_bank.yaml은 Q001~Q030(pilot 12, todo 18)인데,
-  source/contrast_sets_04.yaml·05.yaml에는 Q013~Q037의 9등급 대조 답변이 이미 작성되어 있다(빌드에는 아직 미반영, build는 12세트).
+  source/contrast_sets_04~08.yaml에 Q013~Q187의 9등급 대조 답변이 이미 작성되어 있다
+  (04: Q013~Q017, 05: Q018~Q037, 06: Q038~Q087, 07: Q088~Q137, 08: Q138~Q187). 빌드에는 아직 미반영(build는 12세트).
+  06~08은 수험생 복기 주제를 각색한 교육용 합성 예시이며 실제 기출 문구가 아니라고 파일 머리말에 적혀 있다. 그 문구를 유지한다.
+  평가 기준 변경(contracts v2): rubrics.jsonl은 더 이상 기본 채점 기준으로 프롬프트에 들어가지 않는다(고정 시스템 프롬프트가 기준).
+  rubrics.jsonl은 지우지 말고 빌드는 유지하되, README에 "참고용, 평가 기본 기준 아님(performance-feedback-actfl-speaking-v2 우선)"을 적는다.
+  대조 답변은 "보조 근거·학습 예시"다. IM1~IM3 대조 답변이 project-im-v1(REQUIREMENTS_v2 F3 C절)의 프로필과
+  눈에 띄게 어긋나면(예: 단어 수만 늘고 내용 확장은 없음) report.md에 목록으로 남긴다(대량 재작성은 하지 않음).
 
   [작업 — M1 (가장 먼저, 1시간 안에 PR)]
   1. question_bank.yaml에 Q000을 추가한다:
@@ -31,16 +37,19 @@ prompt: |
   5. .gitignore 때문에 build/ 새 파일이 무시되면 handoff에 적고 orchestrator에게 알린다(.gitignore는 bootstrap 소유).
 
   [작업 — M2]
-  6. Q031~Q037을 question_bank.yaml에 추가한다. question 문장은 contrast_sets_05.yaml의 "# Qxxx 질문:" 주석에서 가져오고,
+  6. Q031~Q187을 question_bank.yaml에 추가한다. question 문장은 각 contrast_sets_0N.yaml의 질문 주석(또는 질문 필드)에서 가져오고,
      question_type·topic·survey·difficulty는 질문 내용을 보고 기존 분류 규칙에 맞춰 정한다. 판단이 애매한 항목은 report에 표시.
-  7. Q013~Q037 중 대조 세트가 9등급 모두 있고 build 검사(check_monotonic 포함)를 통과한 문항만 status를 pilot으로 바꾼다.
+     문항이 150개 이상이므로 분류는 규칙 기반 스크립트(키워드·질문 형식)로 1차 처리하고, 애매한 것만 직접 판단한다.
+     실제 기출 문구를 그대로 옮긴 것으로 보이는 문항이 있으면 report에 표시한다.
+  7. Q013~Q187 중 대조 세트가 9등급 모두 있고 build 검사(check_monotonic 포함)를 통과한 문항만 status를 pilot으로 바꾼다.
      통과하지 못한 문항은 todo로 두고 사유를 report.md에 남긴다. todo 자료를 출제에 쓰지 않는다.
   8. build_corpus.py로 answers.jsonl을 다시 만든다(clean + stt 변형, contrast_set_id = 문항 id 규칙 유지).
      기존 필드 이름을 바꾸지 않는다(data-layer의 ingest가 의존). 새 필드 추가는 허용.
   9. 늘어난 pilot으로 시나리오를 확장한다. 사용자 선택지로 의미 있는 묶음(예: "여가 중심", "운동·건강", "여행")을
      검사를 통과하는 것만 추가한다. 통과 못 하면 넣지 않는다(대체 문항으로 몰래 채우지 않음).
      label·description은 한국어, scenario_id는 영문 snake_case.
-  10. (여유가 있으면) Q000 대조 세트 9등급을 contrast_sets_06.yaml로 작성한다. 형식·주의 문구는 05와 같게.
+  10. (여유가 있으면) Q000 대조 세트 9등급을 contrast_sets_q000.yaml로 작성한다(06~08은 이미 다른 문항이 쓰고 있음).
+      형식·주의 문구는 08과 같게. IM1~IM3는 project-im-v1 프로필 차이가 드러나게 쓴다.
   11. README.md와 report.md를 갱신한다: 문서 수, 등급별 통계, 시나리오 목록과 슬롯별 pool 크기, 검사 결과.
 
   [주의]
@@ -59,5 +68,7 @@ handoff_must_include:
   - pilot 문항 수(유형별), 시나리오 목록과 슬롯별 pool 크기
   - M1 이후 바뀐 문항 문장 목록(TTS 재생성 대상)
   - todo로 남긴 문항과 사유
+  - IM1~IM3 대조 답변 중 project-im-v1 프로필과 어긋나는 목록
+  - 문항 수가 늘어 임베딩 대상이 몇 건인지(data-layer ingest 비용 추정용)
 
 done_when: "M2 PR 병합, build 검사 0건 오류"

@@ -213,25 +213,45 @@ python -m scripts.ingest_rag          # M1 병합 이후, EMBED_API_KEY 필요
 
 1. agents/HANDOFF.md, agents/orchestration.yaml, agents/contracts.yaml을 읽어라.
 2. orchestration.yaml의 shared_preamble을 모든 작업의 규칙으로 삼아라.
-3. agents/<파일명>.yaml의 prompt를 너의 작업 지시로 삼아 그대로 수행하라.
+3. agents/<PC 폴더>/<파일명>.yaml의 prompt를 너의 작업 지시로 삼아 그대로 수행하라.
    local_checks를 실제로 실행하고, handoff_must_include 항목을 docs/handoff/<agent_id>.md에 채워라.
 4. 30분 안에 docs/handoff/<agent_id>.md 초안을 커밋·푸시하고, Draft PR을 만들어라.
 5. 남의 소유 경로는 절대 수정하지 마라. 계약을 바꿔야 하면 docs/change-requests/<agent_id>-NN.md를 써라.
 6. 푸시 전에는 항상 python agents/tools/check_ownership.py <agent_id> 를 실행하라.
 ```
 
-| agent_id | 파일명 | Phase |
+컴퓨터 3대 기준으로 에이전트 파일을 폴더별로 나눴습니다. **각 컴퓨터는 자기 폴더의 `README.md`만 위에서부터 따라 하면 됩니다.** 첫 메시지도 README에 단계별로 완성된 형태로 들어 있습니다.
+
+| 컴퓨터 | 폴더 | 실행 순서 (파일) |
 |---|---|---|
-| bootstrap | `00-bootstrap.yaml` | 0 |
-| corpus | `10-corpus.yaml` | 1 (M1 먼저) |
-| data-layer | `11-data-layer.yaml` | 1 (M1 먼저) |
-| session-api | `12-session-api.yaml` | 1 |
-| worker-stt | `13-worker-stt.yaml` | 1 |
-| grader | `14-grader.yaml` | 1 |
-| tts-host | `15-tts-host.yaml` | 1 |
-| frontend | `16-frontend.yaml` | 1 |
-| integrator | `20-integrator.yaml` | 2 |
-| reviewer | `30-reviewer.yaml` | 3 |
+| PC-A 백엔드 핵심 | [`PC-A_core/`](PC-A_core/README.md) | `1_bootstrap` → `2_data-layer` → `3_session-api` → `4_integrator` |
+| PC-B 데이터·AI | [`PC-B_ai/`](PC-B_ai/README.md) | `1_corpus` → `2_grader` → `3_worker-stt` |
+| PC-C 음성·화면 | [`PC-C_media-ui/`](PC-C_media-ui/README.md) | `1_tts-host` → `2_frontend` → `3_reviewer` |
+
+| agent_id | 파일 | Phase |
+|---|---|---|
+| bootstrap | `PC-A_core/1_bootstrap.yaml` | 0 |
+| data-layer | `PC-A_core/2_data-layer.yaml` | 1 (M1 먼저) |
+| session-api | `PC-A_core/3_session-api.yaml` | 1 |
+| integrator | `PC-A_core/4_integrator.yaml` | 2 |
+| corpus | `PC-B_ai/1_corpus.yaml` | 0과 동시 시작, M1 먼저 |
+| grader | `PC-B_ai/2_grader.yaml` | 1 |
+| worker-stt | `PC-B_ai/3_worker-stt.yaml` | 1 |
+| tts-host | `PC-C_media-ui/1_tts-host.yaml` | 0(Colab 준비) + 1 |
+| frontend | `PC-C_media-ui/2_frontend.yaml` | 1 |
+| reviewer | `PC-C_media-ui/3_reviewer.yaml` | 3 |
+
+### 3대 타임라인 (T0 = 시작, 시간은 대략)
+
+```
+          T0        T+1h(M0)     T+2.5h(M1)            T+6~7h(M2)     T+8h(M3)   T+9h(M4)
+PC-A  [bootstrap]──[data-layer M1]──[data-layer M2][session-api]────[integrator]
+PC-B  [corpus M1 ]──[corpus M2   ]──[grader              ][worker-stt]  (대기·버그 수정 지원)
+PC-C  (Colab 준비)──[tts-host                  ][frontend              ]·········[reviewer]
+```
+
+- **PC-A가 임계 경로**입니다. 오케스트레이터는 PC-A 앞에 있는 것이 가장 효율적입니다.
+- M2 병합 순서(1.4절)는 컴퓨터와 상관없이 그대로 지킵니다.
 
 ---
 

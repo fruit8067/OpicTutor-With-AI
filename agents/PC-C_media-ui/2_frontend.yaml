@@ -51,11 +51,20 @@ prompt: |
           host_lines.next 재생 후 다음 문항. 마지막이면 host_lines.finish 재생 → E1 → /result.
         - 진행 표시(3/8), 문항 텍스트는 기본 숨김 + [텍스트 보기] 토글.
      f. /result: E2 2초 폴링. grading → 채점 중 화면(3분 넘으면 "오래 걸리고 있어요", 폴링 계속).
-        grading_failed → 오류 안내 + [다시 평가](E3). done →
-          - assessed: 티어 카드(티어 색 = contracts tiers, 등급, headline), grade_rationale, 영역별 진단 4개(1~5 막대),
-            피드백 카드(before = 내 답변 인용, after = 수정 예시; "연습용 예시" 라벨), 문항별 상세(문항·내 STT 답변·근거·실수·팁·지표),
-            limitations, disclaimer.
-          - insufficient_evidence: 등급 자리에 "판단 근거가 부족해요" + insufficient_reason. 낮은 등급으로 대신 표시하지 않는다.
+        grading_failed → 오류 안내 + [다시 평가](E3). done → (contracts v2 EvaluationResult 기준)
+          - 머리 카드: estimated_level이 있으면 티어 색(contracts tiers) + "예상 {estimated_level}" + headline.
+            IM1·IM2·IM3이면 provisional_label("내부 세분화 기준에 따른 잠정 진단")을 등급 바로 옆에 항상 함께 표시한다(숨기기 금지).
+            base_level만 있고 estimated_level이 null(IM 세분화 보류)이면 "예상 IM (세분화 보류)" + 티어 없음 + insufficient_reason
+            + "추가로 필요한 답변" 안내. 이 경우 IM2 등 가운데 값으로 채우지 않는다.
+          - 등급 근거 3단: why_this_level(왜 이 등급인가) / why_not_lower(아래 등급보다 나은 점) / next_level_gap(다음 등급까지 부족한 점·연습).
+            borderline_levels가 있으면 "경계 후보: IM2 ↔ IM3" + uncertainty_reasons.
+          - FACT 진단: functions_tasks·accuracy·context_content·text_type 4개 막대(1~5). null이면 막대 대신 "이번 시험에서 관찰되지 않음".
+            그 아래 fact_evidence 목록 — status 배지(보여 줌 / 보여 주지 못함 / 관찰 기회 없음), 문항 번호, 인용(quote가 있을 때만).
+            "관찰 기회 없음"을 낮은 점수처럼 빨간색으로 표시하지 않는다.
+          - fluency_observations: "속도·멈춤 관찰(STT 기반 참고치)" 접이식 영역. 발음 점수처럼 보이게 하지 않는다.
+          - 피드백 카드(before = 내 답변 인용, after = 수정 예시; "연습용 예시" 라벨), 문항별 상세(문항·내 STT 답변·근거·실수·팁·지표),
+            limitations, rubric_version(작게), disclaimer.
+          - insufficient_evidence: 등급 자리에 "판단 근거가 부족해요" + insufficient_reason + 가능한 관찰·피드백. 낮은 등급으로 대신 표시하지 않는다.
         - [AI와 더 이야기하기] 비활성("준비 중"), [새 시험 보기](session_id 삭제 → /setup).
         - "근거 없는 정밀한 등급 거리"(예: 다음 등급까지 0.3)는 표시하지 않는다.
   4. 디자인: 차분한 시험장 톤의 한 가지 시각 방향을 정하고 이유를 handoff에 두 줄로. 보라 그라데이션·이모지 남발·카드만 나열 금지.
@@ -70,6 +79,7 @@ prompt: |
 local_checks:
   - "cd frontend && VITE_USE_MOCK=1 npm run dev  → 로그인부터 결과까지 키보드로 완주"
   - "mock으로: prepare_failed → 재시도 → ready, rejected → 재녹음, 업로드 실패 → 재전송, grading_failed → 재평가, insufficient_evidence 화면"
+  - "mock 결과 4종 화면 확인: 예상 IH(일반), 예상 IM2(잠정 진단 라벨), IM 세분화 보류(base IM·estimated null), insufficient_evidence"
   - "새로고침: /exam processing 중 새로고침 → 같은 문항 processing 복구"
   - "npm run build 경고 0, npm run lint(설정했다면)"
   - "python agents/tools/check_ownership.py frontend"

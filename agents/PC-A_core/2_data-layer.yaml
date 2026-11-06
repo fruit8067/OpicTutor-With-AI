@@ -35,6 +35,8 @@ prompt: |
        selected_answer_ids를 order_no 순으로 고정 → evaluations(run_no=1, queued) + evaluate 작업 → status grading.
        submitted 상태는 같은 트랜잭션 안에서 거쳐 가도 되지만 submitted_at은 남긴다.
      - finish_evaluation / fail_evaluation: run_no가 그 세션의 최대 run_no이고 세션이 grading일 때만 반영.
+       (contracts v2) base_level·estimated_level·im_estimation_status·im_rubric_version 컬럼을 함께 저장한다.
+       evaluations의 2단 등급 CHECK 제약이 DB 차원에서 잘못된 조합을 막는다 — 마이그레이션에 그대로 넣는다.
        create_regrade 후 이전 run의 늦은 완료가 결과를 덮어쓰지 않아야 한다.
      - claim_job: `SELECT … WHERE type = ANY(%s) AND status IN ('queued','failed') AND next_run_at <= now()
        ORDER BY created_at FOR UPDATE SKIP LOCKED LIMIT 1` → running, attempts+1, locked_by/locked_until.
@@ -46,6 +48,7 @@ prompt: |
      - id 기준 UPSERT, 같은 corpus_version·같은 text면 임베딩 재계산 생략(비용 절약).
      - 임베딩은 doc_type answer와 question만(루브릭·승급 패턴은 직접 조회하므로 NULL 허용).
      - 실행 전에 예상 임베딩 개수 출력, --dry-run 지원. 끝나면 doc_type별 건수 출력.
+       코퍼스가 Q001~Q187(대조 답변 약 3,300건 이상)로 늘어나므로 배치·재시작(중단 지점부터 이어서)을 지원한다.
      - 필드 매핑: question_id, question_type, level, level_rank, contrast_set_id, text_style, text는 컬럼, 나머지는 metadata.
   6. scripts/db_reset.py --yes: 모든 테이블 DROP → init_db (로컬 개발용, --yes 없으면 거부).
   7. app/db/dev.py: contracts.yaml app.db.dev의 seed_* 함수 3개. 다른 에이전트(worker-stt, grader, tts-host, session-api)가
