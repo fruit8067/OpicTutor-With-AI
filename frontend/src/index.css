@@ -1,3 +1,112 @@
+/* AI-assisted: 이 스타일은 Claude(Anthropic)의 도움으로 작성되었습니다. OWNER: frontend */
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* 방향: 조용한 면접 부스. 차가운 종이 바탕 + 청록 잉크, 빨강은 "지금 녹음 중"에만 쓴다. */
+:root {
+  --paper: #f5f7f6;
+  --sheet: #ffffff;
+  --ink: #1e3436;
+  --ink-soft: #4b6163;
+  --ink-faint: #74888a;
+  --line: #d3dddA;
+  --line-strong: #b5c4c1;
+  --teal: #2c6e68;
+  --teal-deep: #1f524d;
+  --teal-wash: #e3efec;
+  --rec: #c8463f;
+  --rec-wash: #fbe9e7;
+  --warn: #8a5a00;
+  --warn-wash: #fff4dc;
+  --focus: #1b6fd1;
+  --radius-s: 6px;
+  --radius-m: 10px;
+  color-scheme: light;
+}
+
+html, body, #root { min-height: 100%; }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'IBM Plex Sans KR', system-ui, -apple-system, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  font-feature-settings: 'tnum' 1;
+  -webkit-font-smoothing: antialiased;
+}
+h1, h2, h3 { line-height: 1.3; margin: 0; letter-spacing: -0.01em; }
+h1 { font-size: 1.75rem; font-weight: 700; }
+h2 { font-size: 1.25rem; font-weight: 600; }
+h3 { font-size: 1.0625rem; font-weight: 600; }
+p { margin: 0; }
+.prose-w { max-width: 68ch; }
+.muted { color: var(--ink-soft); }
+.faint { color: var(--ink-faint); font-size: 0.875rem; }
+
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; border-radius: 4px; }
+
+/* 버튼: 주 동작은 청록 면, 보조는 선만. 크기는 손가락·키보드 둘 다 편하게 */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+  min-height: 44px; padding: 0 1.1rem; border-radius: var(--radius-s);
+  font: inherit; font-weight: 600; cursor: pointer; border: 1.5px solid transparent;
+  background: var(--teal); color: #fff; transition: background-color 120ms;
+}
+.btn:hover { background: var(--teal-deep); }
+.btn:disabled { background: var(--line); color: var(--ink-faint); cursor: not-allowed; }
+.btn-ghost { background: transparent; color: var(--teal-deep); border-color: var(--line-strong); }
+.btn-ghost:hover { background: var(--teal-wash); }
+.btn-ghost:disabled { background: transparent; border-color: var(--line); }
+.btn-quiet { background: transparent; color: var(--teal-deep); padding: 0 0.5rem; min-height: 36px; }
+.btn-quiet:hover { background: var(--teal-wash); }
+
+.field { display: grid; gap: 0.35rem; }
+.input {
+  font: inherit; padding: 0.65rem 0.8rem; border-radius: var(--radius-s); border: 1.5px solid var(--line-strong);
+  background: var(--sheet); color: var(--ink);
+}
+
+.sheet { background: var(--sheet); border: 1px solid var(--line); border-radius: var(--radius-m); }
+.notice { border-left: 4px solid var(--teal); background: var(--teal-wash); padding: 0.75rem 1rem; border-radius: 0 var(--radius-s) var(--radius-s) 0; }
+.notice-warn { border-left-color: var(--warn); background: var(--warn-wash); }
+.notice-rec { border-left-color: var(--rec); background: var(--rec-wash); }
+
+.chip {
+  display: inline-flex; align-items: center; min-height: 26px; padding: 0 0.55rem; border-radius: 999px;
+  border: 1px solid var(--line-strong); font-size: 0.8125rem; color: var(--ink-soft); background: var(--sheet);
+}
+.badge { display: inline-flex; align-items: center; padding: 0.1rem 0.5rem; border-radius: 4px; font-size: 0.8125rem; font-weight: 600; }
+.badge-ok { background: var(--teal-wash); color: var(--teal-deep); }
+.badge-no { background: #f3ece4; color: #6b4b2a; }
+.badge-none { background: #eef1f0; color: var(--ink-soft); }
+
+/* 진행 레일: 8문항은 실제 순서라서 번호를 쓴다 */
+.rail { display: flex; gap: 6px; align-items: center; }
+.rail-step { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; font-size: 0.75rem; font-weight: 600;
+  border: 1.5px solid var(--line-strong); color: var(--ink-faint); background: var(--sheet); }
+.rail-step[data-state='done'] { background: var(--teal); border-color: var(--teal); color: #fff; }
+.rail-step[data-state='current'] { border-color: var(--teal); color: var(--teal-deep); box-shadow: 0 0 0 3px var(--teal-wash); }
+.rail-gap { width: 10px; height: 1.5px; background: var(--line-strong); }
+
+/* 마이크 버튼: 화면에서 유일하게 큰 원 */
+.mic {
+  width: 92px; height: 92px; border-radius: 50%; border: none; cursor: pointer; display: grid; place-items: center;
+  background: var(--teal); color: #fff; box-shadow: 0 0 0 8px var(--teal-wash);
+}
+.mic:disabled { background: var(--line); color: var(--ink-faint); box-shadow: none; cursor: not-allowed; }
+.mic[data-recording='true'] { background: var(--rec); box-shadow: 0 0 0 8px var(--rec-wash); }
+
+.meter { height: 8px; background: #e6ecea; border-radius: 4px; overflow: hidden; }
+.meter > span { display: block; height: 100%; background: var(--teal); transition: width 60ms linear; }
+
+.progress { height: 10px; background: #e6ecea; border-radius: 5px; overflow: hidden; }
+.progress > span { display: block; height: 100%; background: var(--teal); transition: width 300ms ease; }
+
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}
