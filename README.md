@@ -32,15 +32,7 @@
 
 ## 🎬 Demo (👀 Preview)
 
-<!-- 방법 B (고화질 MP4/MOV 영상 임베딩용 HTML) -->
-<p align="center">
-  <video src="./docs/demo.mp4" width="800px" controls autoplay muted loop></video>
-</p>
-
-<!-- 방법 A (GIF 애니메이션 크기 제어용 HTML - GitHub 웹 뷰어 즉시 미리보기 호환) -->
-<p align="center">
-  <img src="./images/demo.gif" alt="프로젝트 시연 GIF" width="800px">
-</p>
+https://github.com/user-attachments/assets/946e8a1e-212b-4089-b7de-0177b4ae00e8
 
 > **💡 데모 시연 핵심 흐름 요약**
 > 1. **Stitch 55:45 로그인 & 2단계 마이크 점검 (`/login` → `/setup`)**: 이메일/비밀번호 자체 인증(또는 게스트 시작) 후, 실시간 마이크 감도 측정과 직접 녹음 재생 확인 체크박스를 거쳐 시나리오별 8문항 세트를 준비합니다.
