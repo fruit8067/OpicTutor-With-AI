@@ -349,125 +349,125 @@ export default function Exam() {
   const steps = [orderNo - 1, orderNo, orderNo + 1].map((n, i) => ({ n, pos: ['prev', 'cur', 'next'][i] })).filter((s) => s.n >= 1 && s.n <= total);
 
   return (
-    <Shell wide>
-      <div style={{ display: 'grid', gap: 24 }}>
-        <section className="sheet" style={{ padding: '20px 24px', display: 'grid', gap: 16 }} aria-label="진행 상황">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <span className="chip chip-soft">● 실전 모의 인터뷰</span>
-              {q && !q.is_scored && <span className="faint">연습 문항 · 채점하지 않아요</span>}
-            </div>
-            <span className="faint">전체 {total}문항 중 {orderNo}번째</span>
+    <Shell wide compact>
+      <div style={{ display: 'grid', gap: 10 }}>
+        <section className="sheet exam-top-bar" aria-label="진행 상황">
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+            <span className="chip chip-soft" style={{ minHeight: 22, padding: '0 0.55rem', fontSize: '0.7rem' }}>● 실전 모의 인터뷰</span>
+            <span className="faint" style={{ fontSize: '0.8125rem' }}>전체 {total}문항 중 <strong>{orderNo}번째</strong></span>
+            {q && !q.is_scored && <span className="faint" style={{ fontSize: '0.75rem' }}>· 연습 문항(채점 제외)</span>}
           </div>
           <ol className="steps" style={{ listStyle: 'none', margin: 0, padding: 0 }}>
             {steps.map(({ n, pos }) => (
               <li key={n} className="step" data-state={stepState(n)} data-pos={pos} aria-current={n === orderNo ? 'step' : undefined}>
                 <span className="step-no">{n < orderNo
-                  ? <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>
+                  ? <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>
                   : n}</span>
-                <span style={{ display: 'grid', minWidth: 0 }}>
+                <span style={{ display: 'inline-flex', alignItems: 'baseline', gap: 5, minWidth: 0 }}>
                   <span className="step-kicker">{stepKicker(n)}</span>
                   <span className="step-title">문항 {n}{n === orderNo && q ? ` (${labelOf(TYPE_LABEL, q.question_type)})` : ''}</span>
                 </span>
-                {n === orderNo && recording && <span className="chip chip-rec" style={{ marginLeft: 'auto' }}>LIVE</span>}
+                {n === orderNo && recording && <span className="chip chip-rec" style={{ minHeight: 20, padding: '0 0.45rem', fontSize: '0.6875rem' }}>LIVE</span>}
               </li>
             ))}
           </ol>
         </section>
 
         <div className="exam-grid">
-          <section className="sheet" style={{ padding: 28, display: 'grid', gap: 22 }} aria-labelledby="q-h">
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-              <span className="chip chip-primary">Question {String(orderNo).padStart(2, '0')}</span>
-              {q && <span className="chip">{labelOf(TYPE_LABEL, q.question_type)}</span>}
-              {q && !q.is_scored && <span className="chip chip-soft" style={{ marginLeft: 'auto' }}>연습 문항</span>}
-            </div>
-            <h1 id="q-h" className="sr-only">{orderNo}번 문항 — {status}</h1>
-
-            {showText && q
-              ? <p id="q-text" lang="en" className="question-quote prose-w">“{q.text}”</p>
-              : <p className="muted" style={{ fontSize: '1.0625rem' }}>실제 시험처럼 질문은 음성으로 나와요. 잘 안 들렸다면 다시 듣거나 질문 글을 펼쳐 볼 수 있어요.</p>}
-
-            <div className="audio-tray">
-              <div style={{ width: 88, flex: 'none', color: 'var(--ink)' }}><Host state={hostState} /></div>
-              <div className="tray-who" style={{ display: 'grid', gap: 2, minWidth: 0 }}>
-                <strong style={{ fontSize: '0.9375rem' }}>진행자 린</strong>
-                <span className="faint">{busyAudio ? '질문을 읽고 있어요' : recording ? '답변을 듣고 있어요' : saving ? '답변을 확인하고 있어요' : '질문 음성'}</span>
+          <section className="exam-host-col" aria-labelledby="q-h">
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                <span className="chip chip-primary">Question {String(orderNo).padStart(2, '0')}</span>
+                {q && <span className="chip">{labelOf(TYPE_LABEL, q.question_type)}</span>}
+                {q && !q.is_scored && <span className="chip chip-soft">연습 문항</span>}
               </div>
               {q && (
-                <div style={{ display: 'grid', justifyItems: 'end', gap: 4 }}>
-                  <button className="btn btn-ghost" onClick={replay} disabled={!canReplay}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                  <span className="faint" style={{ fontSize: '0.75rem', color: 'var(--primary)', fontWeight: 600 }}>다시 듣기 {q.replay_limit - q.replay_count}회 남음</span>
+                  <button className="btn btn-ghost" style={{ minHeight: 34, padding: '0 0.85rem', fontSize: '0.8125rem' }} onClick={replay} disabled={!canReplay}
                           aria-label={`질문 다시 듣기, ${q.replay_limit - q.replay_count}회 남음`}>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8" /><path d="M3 3v5h5" /></svg>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8" /><path d="M3 3v5h5" /></svg>
                     다시 듣기
                   </button>
-                  <span className="faint" style={{ fontSize: '0.75rem', color: 'var(--primary)', fontWeight: 600 }}>남은 다시 듣기: {q.replay_limit - q.replay_count}회</span>
+                  <button className="btn btn-ghost" style={{ minHeight: 34, padding: '0 0.85rem', fontSize: '0.8125rem' }}
+                          onClick={() => setShowText((v) => !v)} aria-expanded={showText} aria-controls="q-text">
+                    <span>{showText ? '질문 글 숨기기' : '질문 글 보기'}</span>
+                  </button>
                 </div>
               )}
             </div>
+            <h1 id="q-h" className="sr-only">{orderNo}번 문항 — {status}</h1>
 
-            {q && (
-              <button className="btn btn-ghost" style={{ justifyContent: 'space-between', borderRadius: 'var(--radius-s)', background: 'var(--canvas)' }}
-                      onClick={() => setShowText((v) => !v)} aria-expanded={showText} aria-controls="q-text">
-                <span>{showText ? '질문 글 숨기기' : '질문 글 보기 (영어 원문)'}</span>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true" style={{ transform: showText ? 'rotate(180deg)' : undefined }}><path d="M6 9l6 6 6-6" /></svg>
-              </button>
+            <div className="host-open-stage">
+              <div className="host-avatar">
+                <Host state={hostState} />
+              </div>
+              <div className="host-caption">
+                <strong style={{ fontSize: '0.9375rem' }}>진행자 린</strong>
+                <span className="faint" style={{ fontSize: '0.8125rem' }}>· {busyAudio ? '질문을 읽고 있어요' : recording ? '답변을 듣고 있어요' : saving ? '답변을 확인하고 있어요' : '질문 음성 대기'}</span>
+              </div>
+            </div>
+
+            {showText && q && (
+              <div className="sheet" style={{ padding: '12px 16px' }}>
+                <p id="q-text" lang="en" className="question-quote prose-w">“{q.text}”</p>
+              </div>
             )}
 
             {phase === 'blocked' && cur && (
-              <div className="notice"><p style={{ marginBottom: 10 }}>브라우저가 소리 자동 재생을 막았어요. 버튼을 눌러 질문을 들어 주세요.</p>
+              <div className="notice"><p style={{ marginBottom: 8 }}>브라우저가 소리 자동 재생을 막았어요. 버튼을 눌러 질문을 들어 주세요.</p>
                 <button className="btn" onClick={async () => { await player.unlock(); await playQuestion(cur); }} autoFocus>눌러서 듣기</button></div>
             )}
             {phase === 'play_error' && cur && (
-              <div className="notice notice-warn" role="alert"><p style={{ marginBottom: 10 }}>질문 음성을 불러오지 못했어요. 같은 문항을 다시 재생해 주세요.</p>
+              <div className="notice notice-warn" role="alert"><p style={{ marginBottom: 8 }}>질문 음성을 불러오지 못했어요. 같은 문항을 다시 재생해 주세요.</p>
                 <button className="btn" onClick={() => playQuestion(cur)} autoFocus>다시 재생</button></div>
             )}
             {phase === 'line_error' && (
               <div className="notice notice-warn" role="alert">
-                <p style={{ marginBottom: 10 }}>진행자 음성을 재생하지 못했어요. 음성을 들은 뒤 계속할 수 있어요.</p>
+                <p style={{ marginBottom: 8 }}>진행자 음성을 재생하지 못했어요. 음성을 들은 뒤 계속할 수 있어요.</p>
                 <button className="btn" disabled={speakingLine} onClick={() => retryLine.current?.()} autoFocus>진행자 음성 다시 듣기</button>
               </div>
             )}
           </section>
 
-          <section className="sheet" style={{ padding: 28, display: 'grid', gap: 20, justifyItems: 'center', textAlign: 'center',
+          <section className="sheet" style={{ padding: '18px 22px', display: 'grid', gap: 12, justifyItems: 'center', alignContent: 'center', textAlign: 'center',
                    background: recording && !silent ? 'linear-gradient(180deg, #fff7f7 0%, #fff 40%)' : undefined }} aria-label="답변 녹음">
             {pill}
             {recording && silent && (
-              <div className="notice notice-warn" role="status" style={{ textAlign: 'left', width: '100%', boxSizing: 'border-box' }}>
-                <strong style={{ display: 'block' }}>목소리가 들리지 않아요. 마이크를 확인해 주세요</strong>
-                <span style={{ fontSize: '0.875rem' }}>마이크 권한이나 연결 상태, 음소거 버튼을 확인해 주세요.</span>
+              <div className="notice notice-warn" role="status" style={{ textAlign: 'left', width: '100%', boxSizing: 'border-box', padding: '0.6rem 0.85rem' }}>
+                <strong style={{ display: 'block', fontSize: '0.875rem' }}>목소리가 들리지 않아요. 마이크를 확인해 주세요</strong>
+                <span style={{ fontSize: '0.8125rem' }}>마이크 권한이나 연결 상태, 음소거 버튼을 확인해 주세요.</span>
               </div>
             )}
-            <div style={{ display: 'grid', gap: 10, width: '100%', maxWidth: 300 }}>
-              <span className="timer" aria-hidden="true">{fmt(recording ? elapsed : 0).padStart(5, '0')} <small>/ {fmt(RECORD_MAX_MS).padStart(5, '0')}</small></span>
+            <div style={{ display: 'grid', gap: 6, width: '100%', maxWidth: 280 }}>
+              <span className="timer" style={{ fontSize: '2.35rem' }} aria-hidden="true">{fmt(recording ? elapsed : 0).padStart(5, '0')} <small style={{ fontSize: '1.05rem' }}>/ {fmt(RECORD_MAX_MS).padStart(5, '0')}</small></span>
               <div className="rec-progress" aria-hidden="true"><span style={{ width: `${recording ? Math.min(100, (elapsed / RECORD_MAX_MS) * 100) : 0}%` }} /></div>
-              <div className="faint" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem' }}>
+              <div className="faint" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.72rem' }}>
                 <span>최소 {RECORD_MIN_MS / 1000}초</span><span>최대 {RECORD_MAX_MS / 1000}초 · 시간이 되면 자동 종료</span>
               </div>
             </div>
 
             {saving
-              ? <div style={{ width: 120, height: 120, borderRadius: '50%', display: 'grid', placeItems: 'center', alignContent: 'center', gap: 6, background: 'var(--canvas)', boxShadow: '0 0 0 10px var(--panel)' }}>
+              ? <div style={{ width: 104, height: 104, margin: '8px 0', borderRadius: '50%', display: 'grid', placeItems: 'center', alignContent: 'center', gap: 6, background: 'var(--canvas)', boxShadow: '0 0 0 8px var(--panel)' }}>
                   <span className="spinner" aria-hidden="true" /><span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--primary)' }}>저장 중</span>
                 </div>
               : <button className="mic" onClick={toggleRecord} disabled={!canRecord || busyAudio} data-recording={recording} data-silent={silent}
                         data-state={ready ? 'ready' : undefined}
-                        style={{ '--lvl': level } as CSSProperties}
+                        style={{ '--lvl': level, width: 104, height: 104, margin: '8px 0' } as CSSProperties}
                         aria-label={recording ? '녹음 마치기' : '녹음 시작'} aria-pressed={recording}>
                   {recording
-                    ? <svg width="30" height="30" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2" fill="currentColor" /></svg>
-                    : <svg width="34" height="34" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><rect x="9" y="3" width="6" height="11" rx="3" fill="currentColor" stroke="none" /><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21" /></svg>}
+                    ? <svg width="28" height="28" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2" fill="currentColor" /></svg>
+                    : <svg width="30" height="30" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><rect x="9" y="3" width="6" height="11" rx="3" fill="currentColor" stroke="none" /><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21" /></svg>}
                   <span aria-hidden="true">{recording ? 'STOP' : 'START'}</span>
                 </button>}
 
-            <div style={{ display: 'grid', gap: 6 }}>
-              <h2 style={{ fontSize: '1.25rem' }}>{headline}</h2>
-              {sub && <p className="muted" style={{ fontSize: '0.875rem' }}>{sub}</p>}
+            <div style={{ display: 'grid', gap: 4 }}>
+              <h2 style={{ fontSize: '1.125rem' }}>{headline}</h2>
+              {sub && <p className="muted" style={{ fontSize: '0.8125rem' }}>{sub}</p>}
             </div>
 
             {recording && (
-              <div className="panel" style={{ width: '100%', padding: '14px 16px', boxSizing: 'border-box', display: 'grid', gap: 8 }}>
+              <div className="panel" style={{ width: '100%', padding: '10px 14px', boxSizing: 'border-box', display: 'grid', gap: 6 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', fontWeight: 600 }}>
                   <span style={{ color: silent ? '#92400e' : 'var(--rec)' }}>{silent ? '음성 감지 신호 없음' : '실시간 음성 감지 중'}</span>
                   <span className="faint" style={{ fontSize: '0.75rem' }}>입력 {Math.round(level * 100)}%</span>
@@ -482,7 +482,7 @@ export default function Exam() {
             {phase === 'uploading' && <p className="faint">새로고침하거나 창을 닫으면 아직 보내지 못한 녹음이 사라질 수 있어요.</p>}
             {phase === 'upload_failed' && (
               <div className="notice notice-warn" role="alert" style={{ textAlign: 'left', width: '100%', boxSizing: 'border-box' }}>
-                <p style={{ marginBottom: 10 }}>네트워크 문제로 답변을 보내지 못했어요. 녹음은 이 화면에 보관되어 있어요. 새로고침하면 사라질 수 있어요.</p>
+                <p style={{ marginBottom: 8 }}>네트워크 문제로 답변을 보내지 못했어요. 녹음은 이 화면에 보관되어 있어요. 새로고침하면 사라질 수 있어요.</p>
                 <button className="btn" onClick={() => pendingUpload.current && upload(pendingUpload.current)} autoFocus>다시 보내기</button>
               </div>
             )}
@@ -491,27 +491,27 @@ export default function Exam() {
           </section>
         </div>
 
-        <section className="sheet" style={{ padding: '14px 20px', display: 'grid', gap: 12 }} aria-label="문항 동작">
+        <section className="sheet" style={{ padding: '10px 16px', display: 'grid', gap: 8 }} aria-label="문항 동작">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
-            <span className="faint" style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><path d="M3 14v-2a9 9 0 0 1 18 0v2" /><rect x="3" y="14" width="4" height="6" rx="1.5" /><rect x="17" y="14" width="4" height="6" rx="1.5" /></svg>
+            <span className="faint" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontSize: '0.8125rem' }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><path d="M3 14v-2a9 9 0 0 1 18 0v2" /><rect x="3" y="14" width="4" height="6" rx="1.5" /><rect x="17" y="14" width="4" height="6" rx="1.5" /></svg>
               답변을 저장하면 자동으로 다음 문항으로 넘어가요.
             </span>
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
               {q && (
-                <button className="btn btn-ghost" onClick={() => setConfirmSkip(true)} disabled={!canSkip || confirmSkip}
+                <button className="btn btn-ghost" style={{ minHeight: 38, padding: '0 1rem', fontSize: '0.875rem' }} onClick={() => setConfirmSkip(true)} disabled={!canSkip || confirmSkip}
                         aria-expanded={confirmSkip} aria-controls="skip-confirm">
                   이 문항 건너뛰기
                 </button>
               )}
-              <button className="btn btn-rec" onClick={toggleRecord} disabled={!recording}>
+              <button className="btn btn-rec" style={{ minHeight: 38, padding: '0 1rem', fontSize: '0.875rem' }} onClick={toggleRecord} disabled={!recording}>
                 <span className="rec-dot" aria-hidden="true" style={{ animation: recording ? undefined : 'none' }} />답변 완료 및 저장
               </button>
             </div>
           </div>
           {confirmSkip && canSkip && q && (
             <div id="skip-confirm" className="notice" role="alertdialog" aria-labelledby="skip-h">
-              <p id="skip-h" style={{ marginBottom: 10 }}>
+              <p id="skip-h" style={{ marginBottom: 8 }}>
                 {q.is_scored
                   ? '이 문항을 건너뛸까요? 답변 없이 다음 문항으로 넘어가고, 이 문항은 채점에 쓰이지 않아요. 건너뛴 문항이 많으면 예상 등급을 내지 못할 수 있어요.'
                   : '이 문항을 건너뛸까요? 연습 문항이라 채점에는 영향이 없어요.'}
