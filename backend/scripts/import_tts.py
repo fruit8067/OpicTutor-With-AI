@@ -132,7 +132,9 @@ def main(argv=None) -> int:
         for it in m["items"]:
             kind, ref = split_item_id(it["id"])
             (dest / kind).mkdir(exist_ok=True)
-            shutil.copyfile(root / kind / f"{ref}.mp3", dest / kind / f"{ref}.mp3")
+            src, dst = root / kind / f"{ref}.mp3", dest / kind / f"{ref}.mp3"
+            if not (dst.exists() and src.resolve() == dst.resolve()):   # 이미 반입된 폴더를 다시 등록할 때(DB만)
+                shutil.copyfile(src, dst)
         # 기존 manifest와 합치기(--stale 반입)
         old = {}
         if (dest / "manifest.json").is_file():

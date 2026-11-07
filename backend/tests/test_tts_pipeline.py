@@ -99,6 +99,15 @@ def test_import_activate_and_status(env, tmp_path):
     assert st["missing_pilot"] == [] and st["assets"] == len(all_items())
 
 
+def test_reimport_same_folder_registers_only(env, tmp_path):
+    from scripts.import_tts import main as imp
+    tts, _ = env
+    vid, folder = make_voice(tmp_path / "s", all_items())
+    assert imp([str(folder), "--activate", "--no-db"]) == 0
+    assert imp([str(tts / vid), "--activate", "--no-db"]) == 0   # 같은 폴더 재등록: SameFileError 없음
+    assert A.tts_status()["missing_pilot"] == []
+
+
 def test_import_rejects_bad(env, tmp_path):
     from scripts.import_tts import main as imp
     vid, folder = make_voice(tmp_path / "a", all_items(), bad_version=True)
