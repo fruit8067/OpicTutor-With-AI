@@ -107,3 +107,8 @@ bash: `python -m venv backend/.venv && backend/.venv/bin/pip install -r backend/
 - API 예시는 실제 스키마 enum·상태와 일치하도록 검토. 완료 스키마 필드 표 포함.
 - worker stub은 미구현 상태를 exit 오류로 알림. 정상 실행처럼 종료하지 않음.
 - GitHub 연결의 PR 생성은 403. 브랜치 push는 성공했으며 PR 병합은 대기.
+
+
+## CR frontend-01 타입 정정 (2026-11-07, OpenAI Codex)
+
+C 진행 중 기존 CR frontend-01을 수용했다. contracts v7와 Python Tier는 이미 객체인데 TS 생성 결과만 문자열 리터럴이었다. `EvaluationResult.tier`를 `Tier | null`로 고치고 Tier 인터페이스를 공개한다. HTTP/DB/평가 기준 변경이 아니므로 계약 버전은 유지한다. 키·경로 설정은 변경하지 않는다. 타입 컴파일과 ownership을 확인한 별도 PR로 반영한다.

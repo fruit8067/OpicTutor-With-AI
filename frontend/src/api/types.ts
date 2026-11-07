@@ -215,6 +215,9 @@ export interface AdditionalTask {
   suggested_question: string;
 }
 
+// CR frontend-01: 서버 Tier 객체와 일치 (OpenAI Codex).
+export interface Tier { name: string; color: string }
+
 export interface EvaluationResult {
   assessment_status: assessment_status;
   assessment_basis: "transcript_and_metrics";
@@ -227,7 +230,7 @@ export interface EvaluationResult {
   estimated_level: level | null;
   im_estimation_status: im_estimation_status;
   provisional_label: string | null;
-  tier: "{name: string; color: string}" | null;
+  tier: Tier | null;
   headline: string;
   grade_rationale: string;
   dimension_feedback: DimensionFeedbackSet;
