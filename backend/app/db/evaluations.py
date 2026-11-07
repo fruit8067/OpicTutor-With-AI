@@ -1,4 +1,5 @@
 # AI-assisted: 이 코드는 OpenAI Codex의 도움으로 작성되었습니다.
+# 후속 수정: 건너뛴 문항 제출·스냅샷 처리는 Claude(Anthropic)의 도움으로 작성되었습니다.
 # OWNER: data-layer (contracts.yaml ownership)
 from uuid import UUID
 from psycopg.types.json import Jsonb
@@ -25,12 +26,13 @@ def submit_session(session_id: UUID) -> UUID:
             e=latest(cur,session_id)
             if e: return e['id']
         require_state(s,'in_progress')
-        cur.execute("""SELECT q.order_no,a.id FROM session_questions q LEFT JOIN answers a
+        cur.execute("""SELECT q.order_no,q.skipped_at,a.id FROM session_questions q LEFT JOIN answers a
             ON a.session_question_id=q.id AND a.is_selected AND a.stt_status='done'
             WHERE q.session_id=%s ORDER BY q.order_no""",(session_id,))
         rows=cur.fetchall()
-        if len(rows)!=s['question_count'] or any(r['id'] is None for r in rows): raise AppError('NOT_ALL_ANSWERED')
-        selected=[r['id'] for r in rows]
+        # 건너뛴 문항은 답변 없이 제출된다. 건너뛰지 않았는데 저장된 답변이 없으면 아직 끝나지 않은 것이다.
+        if len(rows)!=s['question_count'] or any(r['id'] is None and r['skipped_at'] is None for r in rows): raise AppError('NOT_ALL_ANSWERED')
+        selected=[r['id'] for r in rows if r['id'] is not None]
         cur.execute("UPDATE sessions SET status='submitted',submitted_at=now(),selected_answer_ids=%s WHERE id=%s",(selected,session_id))
         return new_evaluation(cur,s,1,selected)
 
@@ -51,7 +53,8 @@ def get_latest_evaluation(session_id: UUID) -> dict | None:
 def load_exam_snapshot(session_id: UUID, selected_answer_ids: list[UUID]) -> list[dict]:
     with tx() as cur:
         cur.execute("""SELECT q.order_no,q.question_id,q.question_type,q.question_text,q.is_scored,q.target_functions,
-            q.target_time_frames,q.context_scope,a.id AS answer_id,a.stt_status,a.stt_text,a.metrics_json AS metrics,a.stt_version
+            q.target_time_frames,q.context_scope,a.id AS answer_id,a.stt_status,a.stt_text,a.metrics_json AS metrics,a.stt_version,
+            q.skipped_at IS NOT NULL AS skipped
             FROM session_questions q LEFT JOIN answers a ON a.session_question_id=q.id AND a.id=ANY(%s::uuid[])
             WHERE q.session_id=%s ORDER BY q.order_no""",(selected_answer_ids,session_id))
         return cur.fetchall()

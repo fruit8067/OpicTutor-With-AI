@@ -1,4 +1,5 @@
 // AI-assisted: 이 코드는 OpenAI Codex의 도움으로 작성되었습니다.
+// 후속 수정: SkipOut·건너뛴 문항 결과 필드는 Claude(Anthropic)의 도움으로 작성되었습니다.
 // OWNER: bootstrap (contracts.yaml ownership)
 export type level = "NL" | "NM" | "NH" | "IL" | "IM1" | "IM2" | "IM3" | "IH" | "AL";
 export type base_level = "NL" | "NM" | "NH" | "IL" | "IM" | "IH" | "AL";
@@ -92,6 +93,13 @@ export interface ReplayOut {
   order_no: number;
   replay_count: number;
   replay_limit: number;
+}
+
+export interface SkipOut {
+  order_no: number;
+  session_status: session_status;
+  current_order_no: number;
+  all_answered: boolean;
 }
 
 export interface Metrics {
@@ -258,8 +266,9 @@ export interface ResultItemOut {
   question_type: string;
   question_text: string;
   is_scored: boolean;
-  stt_text: string;
-  metrics: Metrics;
+  stt_text: string | null;
+  metrics: Metrics | null;
+  skipped: boolean;
 }
 
 export interface ResultOut {
@@ -270,4 +279,31 @@ export interface ResultOut {
   answers: (ResultItemOut)[];
   error_code: string | null;
   graded_at: string | null;
+}
+
+export interface RegisterIn {
+  email: string;
+  password: string;
+  nickname: string;
+}
+
+export interface LoginIn {
+  email: string;
+  password: string;
+}
+
+export interface UserOut {
+  id: string;
+  email: string;
+  nickname: string;
+  created_at: string;
+}
+
+export interface AuthOut {
+  token: string;
+  user: UserOut;
+}
+
+export interface LogoutOut {
+  ok: boolean;
 }

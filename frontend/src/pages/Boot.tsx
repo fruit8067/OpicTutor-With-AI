@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ApiError, getSession } from '../api/client';
 import { Shell, ErrorNote } from '../components/Shell';
-import { clearSessionId, loadNickname, loadSessionId, routeFor } from '../lib/session';
+import { clearSessionId, loadAuthToken, loadNickname, loadSessionId, routeFor } from '../lib/session';
 
 export default function Boot() {
   const nav = useNavigate();
@@ -14,7 +14,7 @@ export default function Boot() {
   const [attempt, setAttempt] = useState(0);
   useEffect(() => {
     const id = loadSessionId();
-    if (!id) { nav(loadNickname() ? '/setup' : '/login', { replace: true }); return; }
+    if (!id) { nav(loadAuthToken() || loadNickname() ? '/setup' : '/login', { replace: true }); return; }
     let stopped = false;
     getSession(id).then((s) => {
       if (stopped) return;
