@@ -22,7 +22,8 @@ def require_session(sid, authorization: str | None = None):
             raise AppError('FORBIDDEN')
     return s
 
-def require_answer(sid,aid):
+def require_answer(sid, aid, authorization: str | None = None):
+    require_session(sid, authorization)
     a=db.get_answer(aid)
     if a is None or a['session_id']!=sid: raise AppError('ANSWER_NOT_FOUND')
     return a
@@ -30,8 +31,8 @@ def require_answer(sid,aid):
 def require_in_progress(s):
     if s['status']!='in_progress': raise AppError('INVALID_STATE')
 
-def preflight_upload(sid,order_no,client_request_id):
-    s=require_session(sid)
+def preflight_upload(sid, order_no, client_request_id, authorization: str | None = None):
+    s=require_session(sid, authorization)
     q=db.get_session_question(sid,order_no)
     # 가장 최근 시도가 아니어도 같은 문항에 이미 저장된 키라면 멱등 재전송이다.
     # 저장 여부를 읽는 검사일 뿐이며 최종 중복/상태 판정은 create_answer 트랜잭션이 한다.
@@ -56,8 +57,8 @@ def session_out(sid, authorization: str | None = None):
         current_order_no=s['current_order_no'],all_answered=s['current_order_no']>s['question_count'],prepare=prepare,
         latest_evaluation_status=s.get('latest_evaluation_status'),created_at=s['created_at'],updated_at=s['updated_at'])
 
-def answer_out(a,s=None):
-    s=s or require_session(a['session_id'])
+def answer_out(a, s=None, authorization: str | None = None):
+    s=s or require_session(a['session_id'], authorization)
     return AnswerOut(answer_id=a['id'],order_no=a['order_no'],attempt_no=a['attempt_no'],stt_status=a['stt_status'],
         reject_reason=a.get('reject_reason'),error_code=a.get('error_code'),stt_text=a.get('stt_text'),metrics=a.get('metrics_json'),
         session_status=s['status'],current_order_no=s['current_order_no'],all_answered=s['current_order_no']>s['question_count'])

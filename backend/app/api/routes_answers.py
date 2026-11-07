@@ -4,7 +4,7 @@ import hashlib
 from pathlib import Path
 from uuid import UUID,uuid4
 from typing import Annotated
-from fastapi import APIRouter,UploadFile,File,Form,Response
+from fastapi import APIRouter,Header,UploadFile,File,Form,Response
 from starlette.concurrency import run_in_threadpool
 from app import db
 from app.config import settings
@@ -19,8 +19,8 @@ router=APIRouter(route_class=UploadRoute)
 @router.post('/sessions/{session_id}/answers',response_model=AnswerOut,status_code=202)
 async def upload(session_id: UUID,response: Response,order_no: Annotated[int,Form()],
                  client_request_id: Annotated[str,Form()],duration_ms: Annotated[int,Form()],
-                 audio: Annotated[UploadFile,File()]):
-    await run_in_threadpool(preflight_upload,session_id,order_no,client_request_id)
+                 audio: Annotated[UploadFile,File()],authorization: str | None = Header(default=None)):
+    await run_in_threadpool(preflight_upload,session_id,order_no,client_request_id,authorization)
     mime=(audio.content_type or '').split(';',1)[0].strip().lower()
     if mime not in MIME_EXT: raise AppError('UNSUPPORTED_MEDIA')
     if duration_ms<RECORD_MIN_MS: raise AppError('AUDIO_TOO_SHORT')
@@ -62,15 +62,16 @@ async def upload(session_id: UUID,response: Response,order_no: Annotated[int,For
                     if exc.code not in ('INVALID_STATE','ANSWER_PENDING'): raise
                 row=await run_in_threadpool(db.get_answer,row['id'])
         response.status_code=202 if created else 200
-        return await run_in_threadpool(answer_out,row)
+        return await run_in_threadpool(answer_out,row,None,authorization)
     finally:
         temp.unlink(missing_ok=True)
         await audio.close()
 
 @router.get('/sessions/{session_id}/answers/{answer_id}',response_model=AnswerOut)
-def get_answer(session_id: UUID,answer_id: UUID): return answer_out(require_answer(session_id,answer_id))
+def get_answer(session_id: UUID,answer_id: UUID,authorization: str | None = Header(default=None)):
+    return answer_out(require_answer(session_id,answer_id,authorization),None,authorization)
 
 @router.post('/sessions/{session_id}/answers/{answer_id}/retry-stt',response_model=AnswerOut,status_code=202)
-def retry(session_id: UUID,answer_id: UUID):
-    require_answer(session_id,answer_id);db.retry_stt(answer_id)
-    return answer_out(require_answer(session_id,answer_id))
+def retry(session_id: UUID,answer_id: UUID,authorization: str | None = Header(default=None)):
+    require_answer(session_id,answer_id,authorization);db.retry_stt(answer_id)
+    return answer_out(require_answer(session_id,answer_id,authorization),None,authorization)
