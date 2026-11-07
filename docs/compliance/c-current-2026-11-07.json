@@ -1,0 +1,73 @@
+{
+  "date_kst": "2026-11-07",
+  "contract_version": 7,
+  "user_scope": "Continue existing C code; Colab audio generation later",
+  "main_base": "0c4ee09196f37f2a5e2f48b55b0c7841b405e37f",
+  "sources": {
+    "tts-host": "5c83739dcf266e2e8353e1bbf99ba59c7b5f3979",
+    "frontend": "71e04a7d621df4af17742fcfb59d06813a03851f"
+  },
+  "tts": {
+    "unit_tests_passed": 19,
+    "seconds": 1.01,
+    "real_isolated_postgresql": true,
+    "synthetic_mp3_count": 12,
+    "flow": [
+      "import/register",
+      "ready",
+      "remove host next asset",
+      "prepare_failed/TTS_FILE_MISSING",
+      "restore/retry same eight questions",
+      "ready"
+    ],
+    "stale_attempt_ignored": true,
+    "database_and_temp_files_removed": true,
+    "colab_jobs": {
+      "total": 242,
+      "question": 222,
+      "host": 4,
+      "e2e_answer": 16,
+      "characters": 38342
+    },
+    "notebook_code_cells_parsed": 11,
+    "actual_colab_executed": false
+  },
+  "frontend": {
+    "browser": "Chromium 1280x900",
+    "passed_scenarios": 15,
+    "page_errors": 0,
+    "keyboard_eight_question_flow": true,
+    "single_submit": true,
+    "network_retry_same_request_id": true,
+    "result_variants": [
+      "IH",
+      "IM2",
+      "IM withheld",
+      "insufficient evidence",
+      "two unusable items"
+    ],
+    "actual_host_modules": true,
+    "production_host_files_copied": false,
+    "api": "mock",
+    "audio": "synthetic tone MP3",
+    "microphone": "Chromium fake device",
+    "build_and_lint_passed": true,
+    "explicit_host_composition_build_passed": true,
+    "result_type_cr": "frontend-01 resolved by bootstrap PR28"
+  },
+  "paid_requests": 0,
+  "keys_or_human_audio_committed": false,
+  "pending": [
+    "actual OmniVoice generation and import",
+    "real backend/microphone browser run",
+    "M2 merge dependencies",
+    "M3 integration",
+    "independent reviewer after M3"
+  ],
+  "full_c_or_product_complete": false,
+  "pull_requests": {
+    "tts_code": 19,
+    "frontend": 24,
+    "resolved_type_fix": 28
+  }
+}
