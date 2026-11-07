@@ -1,176 +1,230 @@
-<!-- AI-assisted: PR #31의 README 초안을 바탕으로 OpenAI Codex의 도움을 받아 develop/v2 기준으로 정리했습니다. -->
 <div align="center">
-  <img src="docs/assets/opic-tutor-mascot.svg" alt="OpicTutor 꿀꿀이" width="72">
+  <img src="./docs/assets/opic-tutor-mascot.svg" alt="OpicTutor 진행자 린(Rin)" width="76" />
 
   <h1>OpicTutor</h1>
 
-  <p><strong>영어로 말하는 8문항 모의 인터뷰, 내 답변을 근거로 받는 AI 피드백</strong></p>
-
-  <p>진행자 질문을 듣고 답하면, 시험이 끝난 뒤 예상 등급과 다음 연습 과제를 확인할 수 있습니다.</p>
+  <p><strong>실전 8문항 음성 모의 인터뷰 &amp; ACTFL FACT 루브릭 기반 AI 정밀 피드백 플랫폼</strong></p>
 
   <p>
-    <a href="#시작하기">시작하기</a> ·
-    <a href="#시험-흐름">시험 흐름</a> ·
-    <a href="#시스템-구성">시스템 구성</a> ·
-    <a href="#문제-해결">문제 해결</a> ·
-    <a href="#개발-문서">개발 문서</a>
+    진행자 <strong>린(Rin)</strong>의 영어 질문을 듣고 음성으로 답변하면,<br />
+    로컬 Whisper 전사(STT)와 3072차원 <code>pgvector</code> RAG가 내 발화 인용문을 근거로 예상 등급(<code>NL</code>–<code>AL</code>)과 맞춤 교정 카드를 제공합니다.
+  </p>
+
+  <p>
+    <img src="https://img.shields.io/badge/Frontend-React_19_%2B_TypeScript-4F46E5?style=flat-square&logo=react" alt="React 19" />
+    <img src="https://img.shields.io/badge/Backend-FastAPI_%2B_Python_3.12-009688?style=flat-square&logo=fastapi" alt="FastAPI" />
+    <img src="https://img.shields.io/badge/Database-PostgreSQL_16_%2B_pgvector-336791?style=flat-square&logo=postgresql" alt="PostgreSQL pgvector" />
+    <img src="https://img.shields.io/badge/STT-faster--whisper_(small.en)-F59E0B?style=flat-square" alt="faster-whisper" />
+    <img src="https://img.shields.io/badge/Design-Stitch_Design_System-10B981?style=flat-square" alt="Stitch Design System" />
+  </p>
+
+  <p>
+    <a href="#-demo--preview">🎬 Demo</a> ·
+    <a href="#-key-features-핵심-기능">✨ 핵심 기능</a> ·
+    <a href="#️-system-architecture--tech-stack">🏗️ 시스템 아키텍처</a> ·
+    <a href="#-quick-start-시작하기">🚀 시작하기</a> ·
+    <a href="#-project-structure-디렉터리-구조">📂 프로젝트 구조</a> ·
+    <a href="#-evaluation-principles-채점-및-설계-원칙">🔒 채점 원칙</a>
   </p>
 </div>
 
-이 문서는 `develop/v2`의 **로컬 개발 환경**을 기준으로 합니다. 예상 등급은 OPIc 연습용입니다. 평가는 전사문과 발화 지표를 바탕으로 하며 발음·억양은 채점 범위에서 제외합니다.
+---
 
-## 시험 흐름
+## 🎬 Demo (👀 Preview)
 
-| 단계 | 할 수 있는 일 |
-| --- | --- |
-| **시작** | 이메일로 가입하거나 로그인합니다. 게스트로도 시험을 시작할 수 있습니다. |
-| **마이크 점검** | 입력 장치를 선택하고 실시간 음량을 확인합니다. 테스트 녹음은 브라우저에서 재생한 뒤 듣기 확인을 체크합니다. |
-| **모의 인터뷰** | 기본·여가·운동/건강 중 시나리오를 골라 8문항을 진행합니다. 질문을 한 번 다시 듣거나 문항을 건너뛸 수 있습니다. 자기소개 1번에는 연습 피드백만 제공합니다. |
-| **종합 평가** | 로컬 Whisper가 녹음을 전사합니다. 시험을 제출하면 채점 대상 답변을 모아 AI 평가를 요청합니다. 건너뛴 문항은 평가 근거에서 제외합니다. |
-| **결과 리포트** | 예상 등급(NL–AL), FACT 진단, 답변 인용, 문항별 개선안과 다음 연습 질문을 확인합니다. IM1–IM3은 내부 기준에 따른 잠정 진단입니다. |
+<!-- 방법 B (고화질 MP4/MOV 영상 임베딩용 HTML) -->
+<p align="center">
+  <video src="./docs/demo.mp4" width="800px" controls autoplay muted loop></video>
+</p>
 
-시험 중 새로고침하면 브라우저에 저장된 세션을 이어갈 수 있습니다. 평가가 실패하면 저장된 답변으로 **평가 다시 하기**를 선택할 수 있습니다.
+<!-- 방법 A (GIF 애니메이션 크기 제어용 HTML - GitHub 웹 뷰어 즉시 미리보기 호환) -->
+<p align="center">
+  <img src="./images/demo.gif" alt="프로젝트 시연 GIF" width="800px">
+</p>
 
-## 시작하기
-
-**준비물**은 Git, Python 3.11 이상, Node.js 22.12 이상, Docker Compose, 마이크가 있는 브라우저입니다. 전체 채점 흐름을 사용하려면 평가 API 키와 임베딩 API 키가 필요합니다.
-
-### 1. 설치와 환경 설정
-
-Windows PowerShell에서 다음 명령을 실행합니다.
-
-```powershell
-git clone --branch develop/v2 https://github.com/fruit8067/OpicTutor-With-AI.git
-Set-Location OpicTutor-With-AI
-
-docker compose up -d --wait db
-python -m venv backend/.venv
-& .\backend\.venv\Scripts\python.exe -m pip install -r backend/requirements.txt
-npm.cmd --prefix frontend ci
-
-if (-not (Test-Path backend/.env)) {
-    Copy-Item backend/.env.example backend/.env
-}
-```
+> **💡 데모 시연 핵심 흐름 요약**
+> 1. **Stitch 55:45 로그인 & 2단계 마이크 점검 (`/login` → `/setup`)**: 이메일/비밀번호 자체 인증(또는 게스트 시작) 후, 실시간 마이크 감도 측정과 직접 녹음 재생 확인 체크박스를 거쳐 시나리오별 8문항 세트를 준비합니다.
+> 2. **오픈 스테이지 실전 모의 인터뷰 (`/exam`)**: 진행자 **린(Rin)** 의 TTS 영어 질문을 듣고 최대 1회 다시 듣기·실시간 음성 녹음·문항 건너뛰기(`Skip`)를 실제 시험과 동일한 호흡으로 진행합니다.
+> 3. **AI 정밀 진단 리포트 & 계정별 시험 히스토리 (`/result` → `/history`)**: 내 답변 인용문(`Quote`) 기반의 예상 등급(`NL`–`AL`), 4대 FACT 영역 진단, 문장 교정(`Before/After`) 카드를 확인하고, 계정별로 분리된 누적 발화 시간과 회차별 등급 추이를 관리합니다.
 
 <details>
-<summary>macOS / Linux 설치 명령</summary>
+<summary><strong>📌 데모 미디어 교체용 템플릿 코드 보기 (GIF / MP4)</strong></summary>
 
-```bash
-git clone --branch develop/v2 https://github.com/fruit8067/OpicTutor-With-AI.git
-cd OpicTutor-With-AI
+```html
+<!-- 방법 A (GIF 애니메이션 크기 제어용 HTML) -->
+<p align="center">
+  <img src="./images/demo.gif" alt="프로젝트 시연 GIF" width="800px">
+</p>
 
-docker compose up -d --wait db
-python3 -m venv backend/.venv
-backend/.venv/bin/python -m pip install -r backend/requirements.txt
-npm --prefix frontend ci
-test -f backend/.env || cp backend/.env.example backend/.env
+<!-- 방법 B (고화질 MP4/MOV 영상 임베딩용 HTML) -->
+<p align="center">
+  <video src="./docs/demo.mp4" width="800px" controls autoplay muted loop></video>
+</p>
 ```
 
 </details>
 
-[`backend/.env.example`](backend/.env.example)을 참고해 **`backend/.env`**를 설정합니다. 앞에 점이 있는 파일명입니다.
+---
 
-| 설정 | 용도와 기본값 |
-| --- | --- |
-| `LLM_API_KEY` 또는 `PICKLE_API_KEY` | 평가 제공자 키. 기본 제공자는 `https://llm.pcl.kr/v1`, 모델은 `pickle-general`입니다. `LLM_API_KEY`가 비어 있으면 `PICKLE_API_KEY`를 사용합니다. |
-| `EMBED_API_KEY` | 코퍼스 임베딩과 유사 예시 검색에 쓰는 별도 키. 기본 모델은 `text-embedding-3-large`이며 3072차원을 사용합니다. |
-| `DATABASE_URL` | 기본값은 Docker Compose의 로컬 `opic` DB에 연결합니다. 다른 개발 DB를 쓰는 경우 변경합니다. |
-| `DATA_DIR`, `TTS_DIR`, `RAG_BUILD_DIR` | 녹음, 음성 파일, 코퍼스 경로. `backend/` 기준 상대 경로를 사용합니다. |
+## ✨ Key Features (핵심 기능)
 
-키는 `.env`에 넣고 Git에는 포함하지 않습니다. 이미 실행 중인 backend와 worker에 환경 설정을 반영하려면 두 프로세스를 재시작합니다.
+| 영역 | 주요 기능 설명 |
+| :--- | :--- |
+| **1. 자체 인증 & 계정별 히스토리 격리** | • 표준 라이브러리 `PBKDF2-HMAC-SHA256`(20만 회 반복) + Bearer 세션 토큰 기반 자체 인증(`users`, `auth_tokens`)<br>• 타 회원의 시험 세션 조회·업로드·삭제 시도 시 `403 FORBIDDEN` 차단 및 브라우저 계정 전환 시 로컬 세션 자동 초기화 |
+| **2. 2단계 필수 마이크 점검 & 시나리오 출제** | • 입력 마이크 장치 선택, 실시간 볼륨 미터, 무음 경고 및 **녹음 후 직접 재생 확인 2단계 필수 체크박스 UX**<br>• 기본(집/루틴/약속)·여가·운동/건강 등 시나리오별 8문항(1번 자기소개 워밍업 + 2~8번 채점 문항) 이분 매칭 출제 |
+| **3. 진행자 '린(Rin)' 오픈 스테이지 인터뷰** | • 한 화면(`100vh`)에 수렴하는 컴팩트 상단 진행률 바 + 좌측 오픈 스테이지 캐릭터 애니메이션 + 우측 녹음 타이머<br>• 문항당 **1회 다시 듣기(`Replay`)**, **질문 글 보기 토글**, 답변이 어려운 문항 **건너뛰기(`Skip`)** 지원 |
+| **4. 로컬 Whisper STT & 발화 지표 계측** | • `faster-whisper (small.en)` 기반 비동기 음성 전사 및 타임스탬프 추출<br>• 실제 발화 시간(`speech_sec`), 분당 단어 수(`WPM`), 조음 속도, 장시간 침묵 횟수(`long_pause_count`), 필러 비율 자동 산출 |
+| **5. RAG + FACT 루브릭 정밀 진단 리포트** | • 3072차원 `pgvector` 코사인 검색으로 루브릭·등급 대조군·업그레이드 패턴 검색 후 구조화 JSON 평가 생성<br>• **Functions/Tasks · Accuracy · Context/Content · Text Type** 4대 영역 근거 인용, 지속 수행/흔들림 분석, Before/After 교정 카드 제공 |
+| **6. 내 시험 기록 & 누적 학습 통계 (`/history`)** | • 완료한 모의 인터뷰 수, 누적 실제 발화 시간, 누적 전사 완료 문항 수, 최근 예상 등급 4대 요약 KPI 카드<br>• 회차별 예상 등급 흐름 타임라인, 과거 시험 **`[리포트 보기]`** (`/result?session_id=...`), 미완료 시험 **`[이어하기]`** 지원 |
 
-### 2. DB, 진행자 음성, 검색 데이터 준비
+---
 
-저장소 루트에서 PowerShell로 실행합니다.
-
-```powershell
-Set-Location backend
-& .\.venv\Scripts\python.exe -c "from app.db import init_db; init_db()"
-& .\.venv\Scripts\python.exe -m scripts.import_tts ./static/tts/ac3049e033 --activate
-& .\.venv\Scripts\python.exe -m scripts.ingest_rag --dry-run
-```
-
-DB 초기화는 기존 데이터에 마이그레이션을 적용합니다. `import_tts`는 저장소에 포함된 진행자 MP3를 DB에 등록하고 활성화합니다. `--dry-run` 출력에서 처리할 문서 수와 비용 추정치를 확인한 뒤 실제 임베딩을 실행합니다.
-
-```powershell
-# backend/에서 실행. 미적재 문서가 있으면 외부 임베딩 요청이 발생합니다.
-& .\.venv\Scripts\python.exe -m scripts.ingest_rag
-```
-
-macOS/Linux에서는 `.\.venv\Scripts\python.exe` 대신 `./.venv/bin/python`으로 같은 모듈을 실행합니다.
-
-### 3. PowerShell 창 3개에서 실행
-
-아래 각 블록을 **저장소 루트에서 시작하는 별도 터미널**에서 실행합니다.
-
-```powershell
-# Backend · http://127.0.0.1:8000
-Set-Location backend
-& .\.venv\Scripts\python.exe -m uvicorn app.main:app --host 127.0.0.1 --port 8000
-```
-
-```powershell
-# Worker · 음성 준비, 전사, 평가
-Set-Location backend
-& .\.venv\Scripts\python.exe -m app.worker
-```
-
-```powershell
-# Frontend · http://127.0.0.1:5173
-Set-Location frontend
-npm.cmd run dev -- --host 127.0.0.1 --port 5173 --strictPort
-```
-
-macOS/Linux에서는 `cd`, `./.venv/bin/python`, `npm`을 사용합니다. 워커는 처음 실행할 때 Whisper 모델을 내려받을 수 있습니다.
-
-**[앱 열기](http://127.0.0.1:5173)** · [로그인](http://127.0.0.1:5173/login) · [API 문서](http://127.0.0.1:8000/docs) · [상태 확인](http://127.0.0.1:8000/api/v1/health)
-
-## 시스템 구성
+## 🏗️ System Architecture & Tech Stack
 
 ```mermaid
-flowchart LR
-    UI["React · 녹음 · 결과"] --> API["FastAPI · 인증 · 시험"]
-    API --> DB[("PostgreSQL · pgvector")]
-    API --> Files[("로컬 녹음 · 진행자 MP3")]
-    DB <-->|작업 큐| Worker["Python 워커"]
-    Worker <-->|녹음 전사| Files
-    Worker --> Whisper["로컬 faster-whisper"]
-    Worker -->|평가 입력| Pickle["OpenAI 호환 평가 API"]
-    Worker -->|필요 시 유사 예시 검색| Embedding["임베딩 API"]
+flowchart TB
+  subgraph Client["Frontend (React 19 + TypeScript + Vite)"]
+    UI_Auth["/login (Stitch 55:45 인증)"]
+    UI_Setup["/setup · /prepare · /ready (마이크 2단계 점검)"]
+    UI_Exam["/exam (진행자 린 오픈 스테이지 & 녹음)"]
+    UI_Result["/result (FACT AI 피드백 리포트)"]
+    UI_History["/history (계정별 시험 히스토리 & 누적 통계)"]
+  end
+
+  subgraph API["Backend API (FastAPI)"]
+    R_Auth["routes_auth.py\n(/auth/register, /login, /me)"]
+    R_Sess["routes_sessions.py\n(/sessions, /history, /skip, /replay)"]
+    R_Ans["routes_answers.py\n(스트리밍 멀티파트 업로드)"]
+    R_Res["routes_results.py\n(/submit, /result, /regrade)"]
+  end
+
+  subgraph DB["PostgreSQL 16 + pgvector"]
+    T_Users[("users / auth_tokens")]
+    T_Sess[("sessions / session_questions / answers")]
+    T_Evals[("evaluations / jobs / ai_requests")]
+    T_RAG[("rag_docs (VECTOR 3072)")]
+  end
+
+  subgraph Worker["Async Background Worker (app.worker)"]
+    W_TTS["tts_prepare\n(음성 에셋 매핑)"]
+    W_STT["stt\n(faster-whisper 전사 & 발화 지표)"]
+    W_Eval["evaluate\n(pgvector RAG + LLM 채점 & 계약 검증)"]
+  end
+
+  Client <-->|"REST API (Bearer Token)"| API
+  API <-->|"psycopg3 ConnectionPool"| DB
+  Worker <-->|"SKIP LOCKED Job Queue"| DB
 ```
 
-API는 음성 준비·전사·평가를 작업 큐에 넣고, 브라우저는 결과가 저장될 때까지 상태를 조회합니다. 진행자 음성은 [OmniVoice 노트북](colab/omnivoice_tts.ipynb)으로 미리 생성한 파일입니다. 답변 원음은 로컬에서 전사하고, 평가 제공자에는 전사문과 발화 지표를 포함한 평가 입력을 전달합니다. pgvector의 예시 검색은 [평가 기준](docs/prompts/opic_evaluation_system.md)을 보조합니다.
+### 기술 스택 (Tech Stack)
 
-| API | 주요 경로 · `/api/v1` 기준 |
-| --- | --- |
-| 계정 | `POST /auth/register`, `POST /auth/login`, `GET /auth/me`, `POST /auth/logout` |
-| 시험 | `POST /sessions`, `POST /sessions/{session_id}/start`, `GET /sessions/{session_id}/current` |
-| 답변 | `POST /sessions/{session_id}/answers`, `POST /sessions/{session_id}/questions/{order_no}/replay`, `POST /sessions/{session_id}/questions/{order_no}/skip` |
-| 결과 | `POST /sessions/{session_id}/submit`, `GET /sessions/{session_id}/result`, `POST /sessions/{session_id}/regrade` |
+| 구분 | 기술 및 라이브러리 | 역할 |
+| :--- | :--- | :--- |
+| **Frontend** | React 19, TypeScript, React Router v7, Vite 8, Tailwind CSS | SPA 라우팅, Stitch 디자인 시스템 UI, MediaRecorder 음성 녹음, 2초 폴링 상태 동기화 |
+| **Backend API** | Python 3.12, FastAPI, Pydantic v2, Uvicorn | RESTful API(`v1`), 스트리밍 업로드 가드(`UploadRoute`), 세션 상태 머신 및 소유권 검증 |
+| **Database** | PostgreSQL 16, `pgvector` (`VECTOR(3072)`), `psycopg 3` | 회원·세션·답변·평가 트랜잭션 저장, `FOR UPDATE SKIP LOCKED` 작업 큐, 3072차원 정확 코사인 검색 |
+| **Speech & AI** | `faster-whisper` (`small.en`), OpenAI-compatible LLM & Embedding API, ElevenLabs TTS | 로컬 음성 전사(STT), 발화 지표 계측, RAG 문맥 검색 및 ACTFL 루브릭 기반 JSON 평가 생성 |
+| **Quality & Test** | `oxlint`, TypeScript `tsc -b`, `pytest` / FastAPI `TestClient` | 프론트엔드 정적 분석(0 warnings/errors), 백엔드 계약 검증(`validate.py`) 및 인증/격리 통합 테스트 |
 
-## 문제 해결
+---
 
-| 증상 | 확인할 항목 |
-| --- | --- |
-| 회원가입이나 로그인 요청 실패 | 최신 `develop/v2`에서 backend를 실행하고 [API 문서](http://127.0.0.1:8000/docs)에 `/auth/login`이 있는지 확인합니다. |
-| 시험 준비에서 멈춤 | 워커 실행 여부와 [상태 응답](http://127.0.0.1:8000/api/v1/health)의 `db`, `corpus_version`, `tts.voice_id`, `tts.missing_pilot`을 확인합니다. |
-| 키를 넣었는데 임베딩 키 오류가 남 | 파일명이 `backend/.env`인지 확인하고 `EMBED_API_KEY`에 임베딩 제공자 키를 설정합니다. |
-| 평가 실패 | 평가 제공자 키와 사용량 한도를 확인합니다. 해결 후 결과 화면에서 **평가 다시 하기**를 누르면 저장된 답변을 사용합니다. |
+## 🚀 Quick Start (시작하기)
 
-## 개발 문서
+### 사전 준비물
+- **Git**, **Python 3.11+ (권장 3.12)**, **Node.js 22.12+**, **Docker Desktop (PostgreSQL + pgvector)**, 마이크가 연결된 브라우저
 
-| 경로 | 내용 |
-| --- | --- |
-| [`frontend/`](frontend/) | React, Vite, TypeScript 기반 시험 UI |
-| [`backend/`](backend/) | FastAPI, 워커, PostgreSQL 마이그레이션과 테스트 |
-| [코퍼스 구성과 빌드](rag_docs/README.md) | 문항, 시나리오, 대조 답변과 생성 절차 |
-| [요구사항](docs/REQUIREMENTS_v2.md) · [사용 흐름](docs/FLOWCHART.md) | 제품 범위와 상태 전이 |
-| [API 설계](docs/API_SPEC.md) · [모듈 계약과 소유권](agents/contracts.yaml) | API와 모듈 경계의 설계 문서. 실행 중인 경로는 FastAPI의 `/docs`에서 확인합니다. |
-| [TTS 작업 절차](docs/handoff/tts-host.md) | 새 질문과 진행자 음성 생성 및 반입 |
+### 1. 저장소 클론 및 환경 변수 설정
+```powershell
+git clone https://github.com/fruit8067/OpicTutor-With-AI.git
+cd OpicTutor-With-AI
 
-Frontend 검증은 `frontend/`에서 `npm run lint`, `npm run build`로 실행합니다. Backend 테스트는 별도 개발 DB를 준비하고 backend 가상환경에 `pytest`를 설치한 뒤 `backend/`에서 `python -m pytest`로 실행합니다. PR에서 모듈 경계를 변경할 경우 경로별 소유권과 계약을 확인합니다.
+# 백엔드 환경 변수 파일 생성 (.env.example 복사 후 API 키 입력)
+Copy-Item backend\.env.example backend\.env
+```
+- `backend/.env` 파일에서 채점 및 임베딩에 사용할 `LLM_API_KEY`(또는 `PICKLE_API_KEY`)와 `EMBED_API_KEY`를 설정합니다.
 
-## 라이선스
+### 2. PostgreSQL (`pgvector`) 데이터베이스 실행
+```powershell
+# Docker 볼륨 기반 PostgreSQL 16 (pgvector) 컨테이너 실행
+docker compose up -d
+```
+*(Windows 드라이브 권한 환경에 따라 볼륨 모드로 실행할 경우: `docker run -d --name opictutor-with-ai-db-1 -p 127.0.0.1:5432:5432 -e POSTGRES_USER=opic -e POSTGRES_PASSWORD=opic -e POSTGRES_DB=opic -v opictutor-with-ai_pgdata:/var/lib/postgresql/data pgvector/pgvector:pg16`)*
 
-[GNU General Public License v3.0](LICENSE). 연습 문항과 대조 답변은 교육용이며 공식 시험 문제나 채점 답안이 아닙니다.
+### 3. 백엔드 가상환경 설치 및 서버·워커 실행
+```powershell
+cd backend
+py -3.12 -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+
+# (최초 1회) 사전 생성된 TTS 에셋 등록 및 RAG 코퍼스 적재
+python -m scripts.pregen_tts
+python -m scripts.ingest_rag
+
+# [터미널 1] FastAPI 백엔드 서버 실행 (http://127.0.0.1:8000)
+python -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
+```
+
+```powershell
+# [터미널 2] 백그라운드 워커 실행 (TTS 준비 · Whisper STT · AI 평가)
+cd backend
+.\.venv\Scripts\python.exe -m app.worker
+```
+
+### 4. 프론트엔드 개발 서버 실행
+```powershell
+# [터미널 3] Vite 프론트엔드 서버 실행 (http://127.0.0.1:5173)
+cd frontend
+npm install
+npm run dev -- --host 127.0.0.1 --port 5173
+```
+브라우저에서 **http://127.0.0.1:5173/** 에 접속하면 즉시 서비스를 이용할 수 있습니다.
+
+---
+
+## 📂 Project Structure (디렉터리 구조)
+
+```text
+OpicTutor-With-AI/
+├── README.md                       # 프로젝트 메인 문서 (데모 영상 및 실행 가이드)
+├── docker-compose.yml              # PostgreSQL 16 + pgvector 컨테이너 설정
+├── docs/
+│   ├── demo.mp4                    # 고화질 프로젝트 시연 영상 (MP4)
+│   ├── assets/                     # 마스코트 SVG 및 문서 에셋
+│   └── prompts/                    # OPIc 평가 시스템 프롬프트
+├── images/
+│   └── demo.gif                    # 프로젝트 시연 애니메이션 (GIF)
+├── backend/
+│   ├── .env.example                # 환경 변수 템플릿 (API 키 제외)
+│   ├── migrations/                 # SQL 스키마 마이그레이션 (001_init ~ 006_user_history)
+│   ├── app/
+│   │   ├── main.py                 # FastAPI 엔트리포인트 및 라우터 마운트
+│   │   ├── api/                    # REST 엔드포인트 (auth, sessions, answers, results, meta)
+│   │   ├── db/                     # PostgreSQL 커넥션 풀 및 도메인별 쿼리 모듈
+│   │   ├── exam/                   # 시나리오 로더 및 8문항 이분 매칭 출제기
+│   │   ├── grading/                # RAG 검색, 프롬프트 조립, 계약 불변식 검증기(validate.py)
+│   │   ├── stt/                    # faster-whisper 전사 및 발화 지표 계산
+│   │   └── worker/                 # 비동기 작업 실행기 (tts_prepare, stt, evaluate)
+│   ├── static/tts/                 # 사전 합성된 호스트·문항 음성 에셋 (242개)
+│   └── tests/                      # 백엔드 단위·통합 테스트 (test_auth.py 등)
+├── frontend/
+│   ├── public/favicon.svg          # 진행자 '린(Rin)' 브라우저 탭 아이콘
+│   └── src/
+│       ├── api/                    # API 클라이언트 및 계약 타입 정의
+│       ├── components/Shell.tsx    # 상단 단계 네비게이션 헤더 및 공통 레이아웃
+│       ├── features/host/Host.tsx  # 진행자 '린(Rin)' 상태별 SVG 캐릭터 컴포넌트
+│       └── pages/                  # Login, Setup, Prepare, Ready, Exam, Result, History
+└── rag_docs/
+    └── build/                      # 정제된 루브릭·질문·모범답안 코퍼스 (JSON/JSONL)
+```
+
+---
+
+## 🔒 Evaluation Principles (채점 및 설계 원칙)
+
+OpicTutor는 실제 시험의 신뢰도를 해치는 임의 점수화를 지양하고 다음 **계약 불변 조건(Contract Invariants)** 을 코드 수준([validate.py](file:///d:/Projects/OpicTutor-With-AI/backend/app/grading/validate.py))에서 강제합니다:
+
+1. **1번 자기소개 워밍업 채점 제외**: 1번 문항(`is_scored = false`)은 연습 피드백만 제공하며 등급 산정 근거로 사용하지 않습니다.
+2. **근거 인용(`Quote`) 필수 검증**: 리포트의 모든 칭찬·교정 근거는 수험생의 실제 전사문(`stt_text`)에 존재하는 문구만 인용할 수 있습니다.
+3. **임의 숫자 점수·퍼센트·발음 등급 금지**: `92점`, `85%`, 발음/억양 점수 등 전사문만으로 증명할 수 없는 수치는 생성 단계와 검증 단계에서 모두 차단합니다.
+4. **2단 등급 체계 및 IM 잠정 진단 표시**: ACTFL 기본 등급(`NL`, `NM`, `NH`, `IL`, `IM`, `IH`, `AL`)을 먼저 판정하고, `IM` 세분화(`IM1`·`IM2`·`IM3`) 시 반드시 `잠정 진단 — 공식 채점 아님` 라벨을 함께 표시합니다.
