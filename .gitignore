@@ -232,3 +232,6 @@ backend/tests_local/
 frontend/src/__dev__/
 *.webm
 backend/static/tts/*/*.wav
+# AI-assisted(Claude): 로컬 녹음·디자인 내보내기 파일은 커밋하지 않는다
+*.m4a
+stitch_*.zip

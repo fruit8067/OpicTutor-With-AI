@@ -1,4 +1,5 @@
 # AI-assisted: 출력 검증은 OpenAI Codex의 도움으로 작성했습니다.
+# 후속 수정: 건너뛴 문항(답변 없음) 허용은 Claude(Anthropic)의 도움으로 작성했습니다.
 # OWNER: grader (contracts.yaml ownership)
 """서버 스냅샷과 출력 계약을 대조한다. 등급이나 인용을 조용히 보정하지 않는다."""
 import re
@@ -12,7 +13,11 @@ from .tiers import tier_of
 
 FORBIDDEN_PATTERNS=(r'발음\s*점수',r'합격\s*보장',r'\d+\s?%',r'\bAM\b',r'Advanced\s+Mid',r'100\s*점')
 
+def skipped(row):
+    return row.get('skipped') is True
+
 def usable(row):
+    if skipped(row): return False
     return row.get('stt_status')=='done' and isinstance(row.get('stt_text'),str) and bool(row['stt_text'].strip())
 
 def normalize(value):
@@ -32,7 +37,11 @@ def precheck_snapshot(snapshot: list[dict]) -> None:
         if row.get('question_type') not in c['question_types']: invalid()
         if (row['question_type']=='self_intro') != (row['order_no']==1): invalid()
         if not isinstance(row.get('question_text'),str) or not row['question_text'].strip(): invalid()
-        if row.get('stt_status') not in c['answer_stt_status']: invalid()
+        # 건너뛴 문항만 답변 없이(stt_status=None) 들어올 수 있다.
+        if 'skipped' in row and type(row['skipped']) is not bool: invalid()
+        if skipped(row):
+            if row.get('stt_status') is not None or row.get('stt_text') is not None: invalid()
+        elif row.get('stt_status') not in c['answer_stt_status']: invalid()
         if row.get('stt_text') is not None and not isinstance(row['stt_text'],str): invalid()
         for field in ['target_functions','target_time_frames','context_scope']:
             values=row.get(field)

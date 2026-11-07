@@ -1,5 +1,6 @@
 // AI-assisted: 이 코드는 Claude(Anthropic)의 도움으로 작성되었습니다.
 // 후속 수정: CR frontend-01의 타입 우회 제거는 OpenAI Codex의 도움으로 작성되었습니다.
+// 후속 수정: 건너뛴 문항 표시는 Claude(Anthropic)의 도움으로 작성되었습니다.
 // OWNER: frontend (contracts.yaml ownership)
 //
 // 결과: E2 2초 폴링. grading → 채점 중(3분 넘으면 안내, 폴링 계속), grading_failed → [다시 평가](E3), done → 보고서.
@@ -65,7 +66,7 @@ export default function Result() {
           <div style={{ color: 'var(--ink)' }}><Host state="processing" /></div>
           <div style={{ display: 'grid', gap: 12 }}>
             <h1>답변 전체를 평가하고 있어요</h1>
-            <p className="muted prose-w">8개 답변의 전사와 관측 지표를 함께 보고 예상 수준과 연습 방향을 정리하는 중이에요. 이 화면을 닫았다가 다시 와도 이어서 볼 수 있어요.</p>
+            <p className="muted prose-w">제출한 답변의 전사와 관측 지표를 함께 보고 예상 수준과 연습 방향을 정리하는 중이에요. 이 화면을 닫았다가 다시 와도 이어서 볼 수 있어요.</p>
             {slow && <p className="notice" role="status">평가가 평소보다 오래 걸리고 있어요. 계속 확인하고 있으니 조금만 더 기다려 주세요.</p>}
             <ErrorNote error={error} />
           </div>
@@ -80,7 +81,7 @@ export default function Result() {
       <Shell>
         <div style={{ display: 'grid', gap: 16, maxWidth: 680 }}>
           <h1>평가를 마치지 못했어요</h1>
-          <p className="muted">{labelOf(GRADING_ERROR_TEXT, data.error_code ?? 'EVAL_INTERNAL')} 저장된 답변 8개는 그대로 있어서, 다시 녹음하지 않고 평가만 다시 할 수 있어요.</p>
+          <p className="muted">{labelOf(GRADING_ERROR_TEXT, data.error_code ?? 'EVAL_INTERNAL')} 저장된 답변은 그대로 있어서, 다시 녹음하지 않고 평가만 다시 할 수 있어요.</p>
           <div style={{ display: 'flex', gap: 12 }}>
             <button className="btn" onClick={doRegrade} disabled={busy} autoFocus>다시 평가</button>
             <button className="btn btn-ghost" onClick={newExam}>새 시험 보기</button>
@@ -328,12 +329,15 @@ function ItemDetail({ it, a, warm = false }: { it: EvaluationResult['items'][num
       <summary style={{ cursor: 'pointer', display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
         <strong>{it.order_no}번</strong>
         <span className="faint">{a ? labelOf(TYPE_LABEL, a.question_type) : ''}</span>
+        {a?.skipped && <span className="badge badge-none">건너뜀</span>}
         {warm ? <span className="badge badge-none">채점 제외</span>
           : <span className={`badge ${it.task_fulfillment === 'fulfilled' ? 'badge-ok' : it.task_fulfillment === 'not_assessable' ? 'badge-none' : 'badge-no'}`}>{FULFILL_LABEL[it.task_fulfillment]}</span>}
       </summary>
       <div style={{ display: 'grid', gap: 12, marginTop: 12 }}>
         {a && <p lang="en" className="muted">{a.question_text}</p>}
-        {a && <div><span className="faint">내 답변(전사)</span><p lang="en">{a.stt_text || '전사 없음'}</p></div>}
+        {a && (a.skipped
+          ? <p className="muted">이 문항은 건너뛰어서 답변이 없어요.</p>
+          : <div><span className="faint">내 답변(전사)</span><p lang="en">{a.stt_text || '전사 없음'}</p></div>)}
         {it.evidence.length > 0 && <div style={{ display: 'grid', gap: 4 }}><span className="faint">근거</span>{it.evidence.map((e, i) => <Quote key={i}>{e}</Quote>)}</div>}
         {it.mistakes.length > 0 && (
           <div style={{ display: 'grid', gap: 8 }}>

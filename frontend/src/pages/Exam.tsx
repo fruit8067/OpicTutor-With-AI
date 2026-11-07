@@ -1,16 +1,18 @@
 // AI-assisted: 이 코드는 Claude(Anthropic)의 도움으로 작성되었습니다.
 // 후속 수정: 필수 대사 재시도·이탈 후 요청 방지는 OpenAI Codex의 도움으로 작성되었습니다.
+// 후속 수정: 문항 건너뛰기(Q3)는 Claude(Anthropic)의 도움으로 작성되었습니다.
 // OWNER: frontend (contracts.yaml ownership)
 //
 // 시험 화면 — 문항 하나의 상태 머신. 서버 상태가 진실이다.
 // loading → playing → awaiting_record → recording → uploading → processing
 //   → done(서버 current_order_no 증가 확인) → next 대사 → 다음 문항 loading
 //   → rejected → awaiting_record(재녹음) / failed → [다시 처리](U3)
+//   → [건너뛰기](Q3) → skipping → 서버 current_order_no 증가 확인 → next 대사 → 다음 문항
 // 업로드 202는 접수일 뿐이므로 절대 그것만 보고 다음 문항으로 가지 않는다. 문항·순서는 클라이언트가 계산하지 않는다.
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  ApiError, getAnswer, getCurrent, mediaUrl, NETWORK_ERROR, postReplay, retryStt, submitSession, uploadAnswer,
+  ApiError, getAnswer, getCurrent, mediaUrl, NETWORK_ERROR, postReplay, retryStt, skipQuestion, submitSession, uploadAnswer,
 } from '../api/client';
 import type { AnswerOut, CurrentQuestionOut } from '../api/types';
 import { Live, Rail, Shell } from '../components/Shell';
@@ -22,7 +24,10 @@ import { clearSessionId, loadSessionId, routeFor } from '../lib/session';
 
 type Phase =
   | 'loading' | 'playing' | 'blocked' | 'play_error' | 'awaiting_record' | 'recording'
-  | 'line_error' | 'uploading' | 'upload_failed' | 'processing' | 'failed' | 'finishing' | 'fatal';
+  | 'line_error' | 'uploading' | 'upload_failed' | 'processing' | 'failed' | 'skipping' | 'finishing' | 'fatal';
+
+// 오디오가 재생 중이지 않고 서버에 처리 중인 답변이 없는 단계에서만 건너뛸 수 있다.
+const SKIPPABLE: Phase[] = ['awaiting_record', 'blocked', 'play_error', 'failed'];
 
 const RETRY_DELAYS = [1000, 2000, 4000];
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
@@ -30,7 +35,7 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 function hostStateOf(phase: Phase): HostState {
   if (phase === 'playing') return 'speaking';
   if (phase === 'recording') return 'listening';
-  if (phase === 'uploading' || phase === 'processing' || phase === 'finishing') return 'processing';
+  if (phase === 'uploading' || phase === 'processing' || phase === 'skipping' || phase === 'finishing') return 'processing';
   return 'idle';
 }
 const fmt = (ms: number) => { const s = Math.floor(ms / 1000); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; };
@@ -47,6 +52,7 @@ export default function Exam() {
   const [elapsed, setElapsed] = useState(0);
   const [failedAnswer, setFailedAnswer] = useState<AnswerOut | null>(null);
   const [micError, setMicError] = useState<string | null>(null);
+  const [confirmSkip, setConfirmSkip] = useState(false);
   const retryLine = useRef<(() => Promise<void>) | null>(null);
   const recordingStarted = useRef(false);
   const stream = useRef<MediaStream | null>(null);
@@ -151,7 +157,7 @@ export default function Exam() {
 
   const load = useCallback(async (): Promise<void> => {
     if (!id) { nav('/setup', { replace: true }); return; }
-    setPhase('loading'); setNote(null); setShowText(false); setFailedAnswer(null);
+    setPhase('loading'); setNote(null); setShowText(false); setFailedAnswer(null); setConfirmSkip(false);
     let c: CurrentQuestionOut;
     try { c = await getCurrent(id); }
     catch (e) {
@@ -261,6 +267,27 @@ export default function Exam() {
     } catch (e) { setNote({ kind: 'warn', text: (e as Error).message }); }
   };
 
+  const skip = async () => {
+    if (!id || !cur?.question || !SKIPPABLE.includes(phase) || speakingLine) return;
+    const before = phase;
+    const orderNo = cur.question.order_no;
+    setConfirmSkip(false); setNote(null); setMicError(null);
+    setPhase('skipping');                                                  // 중복 클릭 방지
+    try {
+      const r = await skipQuestion(id, orderNo);
+      if (!alive.current) return;
+      pendingUpload.current = null; setFailedAnswer(null);
+      if (r.all_answered) { await finish(cur); return; }
+      await playLine(cur, 'next', () => loadRef.current());
+    } catch (e) {
+      if (!alive.current) return;
+      const code = e instanceof ApiError ? e.code : '';
+      if (code === 'ORDER_MISMATCH' || code === 'INVALID_STATE' || code === 'ANSWER_PENDING') { await load(); return; }
+      setNote({ kind: 'warn', text: (e as Error)?.message ?? '건너뛰지 못했어요. 다시 시도해 주세요.' });
+      setPhase(before);
+    }
+  };
+
   const retryProcessing = async () => {
     if (!id || !failedAnswer || !cur) return;
     setPhase('processing'); setNote(null);                                // 중복 클릭 방지: 즉시 처리 중으로
@@ -274,11 +301,12 @@ export default function Exam() {
   const busyAudio = phase === 'playing' || speakingLine;
   const canRecord = (phase === 'awaiting_record' || phase === 'recording') && !speakingLine;
   const canReplay = !!q && q.replay_count < q.replay_limit && (phase === 'awaiting_record') && !speakingLine;
+  const canSkip = !!q && SKIPPABLE.includes(phase) && !speakingLine;
   const hostState = speakingLine ? 'speaking' : hostStateOf(phase);
   const status = {
     loading: '문항을 불러오는 중', playing: '질문을 듣고 있어요', blocked: '브라우저가 자동 재생을 막았어요',
     play_error: '질문 음성을 재생하지 못했어요', awaiting_record: '마이크 버튼을 눌러 답해 주세요', recording: '녹음 중 — 다 말했으면 버튼을 다시 눌러 주세요',
-    line_error: '진행자 음성을 다시 재생해 주세요', uploading: '답변을 보내는 중', upload_failed: '답변을 보내지 못했어요', processing: '답변 처리 중', failed: '답변을 처리하지 못했어요',
+    line_error: '진행자 음성을 다시 재생해 주세요', uploading: '답변을 보내는 중', upload_failed: '답변을 보내지 못했어요', processing: '답변 처리 중', failed: '답변을 처리하지 못했어요', skipping: '다음 문항으로 넘어가는 중',
     finishing: '시험을 마치는 중', fatal: '문제가 생겼어요',
   }[phase];
 
@@ -306,7 +334,24 @@ export default function Exam() {
                 <button className="btn btn-quiet" onClick={() => setShowText((v) => !v)} aria-expanded={showText} aria-controls="q-text">
                   {showText ? '질문 글 숨기기' : '질문 글 보기'}
                 </button>
+                <button className="btn btn-quiet" onClick={() => setConfirmSkip(true)} disabled={!canSkip || confirmSkip}
+                        aria-expanded={confirmSkip} aria-controls="skip-confirm">
+                  이 문항 건너뛰기
+                </button>
               </div>
+              {confirmSkip && canSkip && (
+                <div id="skip-confirm" className="notice" role="alertdialog" aria-labelledby="skip-h">
+                  <p id="skip-h" style={{ marginBottom: 10 }}>
+                    {q.is_scored
+                      ? '이 문항을 건너뛸까요? 답변 없이 다음 문항으로 넘어가고, 이 문항은 채점에 쓰이지 않아요. 건너뛴 문항이 많으면 예상 등급을 내지 못할 수 있어요.'
+                      : '이 문항을 건너뛸까요? 연습 문항이라 채점에는 영향이 없어요.'}
+                  </p>
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    <button className="btn" onClick={skip} autoFocus>건너뛰기</button>
+                    <button className="btn btn-ghost" onClick={() => setConfirmSkip(false)}>계속 답하기</button>
+                  </div>
+                </div>
+              )}
               {showText && <p id="q-text" lang="en" className="sheet prose-w" style={{ padding: '14px 16px' }}>{q.text}</p>}
             </div>
           )}
