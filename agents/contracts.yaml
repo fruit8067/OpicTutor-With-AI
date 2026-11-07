@@ -8,8 +8,10 @@
 #
 # AI-assisted: this contract was written with help from Claude (Anthropic).
 
-contract_version: 7
+contract_version: 8
 changelog:
+  - "8 (2026-11-07, CR tts-host-01): 새 TTS 반입은 텍스트 해시별 파일 경로로 저장해 기존 세션 음성을 보존.
+     기존 평면 경로·Colab ZIP 입력은 호환 유지. HTTP·DB·공개 함수·평가 원문 변경 없음."
   - "7 (2026-11-07, CR orchestrator-04): 사용자 제공 Pickle URL/model·PICKLE_API_KEY 별칭,
      text-embedding-3-large/3072 기본값·VECTOR(3072) exact cosine 검색 및 모델별 임베딩 재사용/마이그레이션 규칙. HTTP·평가 원문 유지."
   - "6 (2026-11-07, CR data-layer-01): finish_evaluation의 im_rubric_version·corpus_version nullable 타입을
@@ -315,6 +317,8 @@ data_files:
        "settings_version": "<sha1(위 6개 값 JSON, 정렬 키)>[:10]",
        "items": [{"id": "question/Q001", "text_sha1": "...", "seconds": 7.4}]}
     voice_id: "settings_version과 같은 값을 voice_id로 사용"
+    local_import: "로컬 반입 후 items에 TTS_DIR 기준 상대 file_path를 기록한다. 새 자산은 voice_id/kind/ref_id/text_sha1.mp3;
+      file_path 없는 기존 manifest는 voice_id/kind/ref_id.mp3로 읽는다. Colab ZIP 입력 형식은 유지한다."
   active_voice:
     path: backend/static/tts/active_voice.json
     owner: tts-host
@@ -329,7 +333,9 @@ data_files:
     note: "진행자 이름은 임시. 바꾸면 change_request 없이 tts-host가 수정 가능(텍스트 해시로 자동 무효화)"
   audio_files:
     answer: "{DATA_DIR}/audio/{session_id}/{answer_id}.{webm|ogg|wav|m4a}"
-    tts_url: "/media/tts/{voice_id}/{kind}/{ref_id}.mp3  (FastAPI StaticFiles, TTS_DIR 마운트)"
+    tts_url: "/media/tts/{voice_id}/{kind}/{ref_id}/{text_sha1}.mp3 (새 반입). 기존 /media/tts/{voice_id}/{kind}/{ref_id}.mp3도 유지.
+      FastAPI StaticFiles, TTS_DIR 마운트. 클라이언트는 서버가 준 URL을 그대로 사용한다."
+    tts_preservation: "문장 변경 반입은 기존 파일/등록본을 덮어쓰거나 삭제하지 않는다. 기존 세션의 음성 URL을 보존한다."
 
 # ===========================================================================
 # 6. DB 스키마 — backend/migrations/001_init.sql (bootstrap 작성 → data-layer 소유)
