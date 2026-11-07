@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="30 36 140 144">
+  <!-- 귀(둥근 안테나) -->
+  <circle cx="52" cy="58" r="14" fill="#FFB4A2" />
+  <circle cx="148" cy="58" r="14" fill="#FFB4A2" />
+  <!-- 몸 -->
+  <rect x="40" y="52" width="120" height="122" rx="56" fill="#FFD6C9" />
+  <rect x="58" y="128" width="84" height="34" rx="17" fill="#FFC1AE" />
+  <!-- 눈 -->
+  <g fill="#3B2F2F">
+    <circle cx="78" cy="99" r="7.5" />
+    <circle cx="122" cy="99" r="7.5" />
+    <circle cx="80.5" cy="96.5" r="2.2" fill="#fff" />
+    <circle cx="124.5" cy="96.5" r="2.2" fill="#fff" />
+  </g>
+  <!-- 볼 -->
+  <circle cx="66" cy="116" r="7.5" fill="#FF8FA3" opacity="0.5" />
+  <circle cx="134" cy="116" r="7.5" fill="#FF8FA3" opacity="0.5" />
+  <!-- 입 -->
+  <ellipse cx="100" cy="122" rx="9" ry="4.5" fill="#7A2E3A" />
+</svg>
