@@ -12,9 +12,14 @@ UPLOAD_TOLERANCE_MS=5000
 UPLOAD_MAX_BYTES=10485760
 MIME_EXT={'audio/webm':'webm','audio/ogg':'ogg','audio/wav':'wav','audio/mp4':'m4a'}
 
-def require_session(sid):
+def require_session(sid, authorization: str | None = None):
     s=db.get_session(sid)
     if s is None: raise AppError('SESSION_NOT_FOUND')
+    if s.get('user_id') is not None:
+        from .routes_auth import optional_current_user
+        user=optional_current_user(authorization)
+        if user is None or user['id']!=s['user_id']:
+            raise AppError('FORBIDDEN')
     return s
 
 def require_answer(sid,aid):
@@ -39,8 +44,8 @@ def preflight_upload(sid,order_no,client_request_id):
     if pending and pending['stt_status'] in ('queued','processing'):
         raise AppError('ANSWER_PENDING')
 
-def session_out(sid):
-    s=require_session(sid)
+def session_out(sid, authorization: str | None = None):
+    s=require_session(sid, authorization)
     prepare=None
     if s['status'] in ('preparing','prepare_failed','ready'):
         qs=db.list_session_questions(sid)

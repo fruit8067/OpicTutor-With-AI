@@ -18,9 +18,10 @@ export function Logo() {
 }
 
 const NAV_STEPS = [
-  { key: 'setup', label: '환경 점검', paths: ['/setup', '/prepare', '/ready'] },
-  { key: 'exam', label: '실전 인터뷰', paths: ['/exam'] },
-  { key: 'result', label: 'AI 피드백 리포트', paths: ['/result'] },
+  { key: 'setup', label: '환경 점검', paths: ['/setup', '/prepare', '/ready'], to: '/setup' },
+  { key: 'exam', label: '실전 인터뷰', paths: ['/exam'], to: null },
+  { key: 'result', label: 'AI 피드백 리포트', paths: ['/result'], to: null },
+  { key: 'history', label: '내 시험 기록', paths: ['/history'], to: '/history' },
 ];
 
 export function Shell({ children, wide = false, compact = false, aside }: { children: ReactNode; wide?: boolean; compact?: boolean; aside?: ReactNode }) {
@@ -29,6 +30,7 @@ export function Shell({ children, wide = false, compact = false, aside }: { chil
   const user = loadAuthUser();
   const nick = user?.nickname || loadNickname();
   const max = wide ? 1280 : 960;
+  const inExam = loc.pathname === '/exam';
 
   const onLogout = async () => {
     try { await logoutUser(); } catch { /* 네트워크/만료 무시 */ }
@@ -47,6 +49,21 @@ export function Shell({ children, wide = false, compact = false, aside }: { chil
             <nav aria-label="진행 단계" className="shell-nav">
               {NAV_STEPS.map((st, idx) => {
                 const active = st.paths.includes(loc.pathname);
+                const clickable = !!st.to && !inExam && !active;
+                if (clickable && st.to) {
+                  return (
+                    <button
+                      key={st.key}
+                      type="button"
+                      onClick={() => nav(st.to)}
+                      className={`shell-nav-item ${active ? 'active' : ''}`}
+                      style={{ border: 0, background: 'transparent', cursor: 'pointer', fontFamily: 'inherit' }}
+                    >
+                      <span className="shell-nav-num" aria-hidden="true">{idx + 1}</span>
+                      {st.label}
+                    </button>
+                  );
+                }
                 return (
                   <span
                     key={st.key}

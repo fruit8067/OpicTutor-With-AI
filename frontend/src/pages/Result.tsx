@@ -6,7 +6,7 @@
 // 결과: E2 2초 폴링. grading → 채점 중(3분 넘으면 안내, 폴링 계속), grading_failed → [다시 평가](E3), done → 보고서.
 // 서버가 준 값을 그대로 보여 준다. 등급을 계산·보정하지 않고, 숫자 점수·막대·별점을 그리지 않는다.
 import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ApiError, getResult, regrade } from '../api/client';
 import type { EvaluationResult, ResultItemOut, ResultOut } from '../api/types';
 import { ErrorNote, Live, Shell } from '../components/Shell';
@@ -23,12 +23,14 @@ const TIER_NAME: Record<string, string> = { bronze: '브론즈', silver: '실버
 
 export default function Result() {
   const nav = useNavigate();
-  const id = loadSessionId();
+  const [searchParams] = useSearchParams();
+  const querySessionId = searchParams.get('session_id');
+  const id = querySessionId || loadSessionId();
   const [data, setData] = useState<ResultOut | null>(null);
   const [error, setError] = useState<unknown>(null);
   const [busy, setBusy] = useState(false);
   const startedAt = useRef(0);
-  useEffect(() => { startedAt.current = Date.now(); }, []);
+  useEffect(() => { startedAt.current = Date.now(); }, [id]);
   const [slow, setSlow] = useState(false);
 
   const waiting = !data || ['submitted', 'grading'].includes(data.session_status);
@@ -40,18 +42,31 @@ export default function Result() {
       setData(r); setError(null);
       setSlow(Date.now() - startedAt.current > SLOW_MS);
       const to = routeFor(r.session_status);
-      if (!to) { clearSessionId(); nav('/setup', { replace: true }); return false; }
-      if (to !== '/result') { nav(to, { replace: true }); return false; }
+      if (!to) {
+        if (!querySessionId) clearSessionId();
+        nav(querySessionId ? '/history' : '/setup', { replace: true });
+        return false;
+      }
+      if (to !== '/result') {
+        if (querySessionId) nav('/history', { replace: true });
+        else nav(to, { replace: true });
+        return false;
+      }
       return ['submitted', 'grading'].includes(r.session_status);
     } catch (e) {
       if (!active()) return false;
-      if (e instanceof ApiError && e.code === 'SESSION_NOT_FOUND') { clearSessionId(); nav('/setup', { replace: true }); return false; }
-      if (e instanceof ApiError && e.code === 'INVALID_STATE') { nav('/', { replace: true }); return false; }
+      if (e instanceof ApiError && (e.code === 'SESSION_NOT_FOUND' || e.code === 'FORBIDDEN')) {
+        if (!querySessionId) clearSessionId();
+        nav(querySessionId ? '/history' : '/setup', { replace: true });
+        return false;
+      }
+      if (e instanceof ApiError && e.code === 'INVALID_STATE') { nav(querySessionId ? '/history' : '/', { replace: true }); return false; }
       setError(e); return true;
     }
   }, 2000, !!id && waiting);
 
   const newExam = () => { clearSessionId(); nav('/setup'); };
+  const goHistory = () => { nav('/history'); };
   const doRegrade = async () => {
     if (!id) return;
     setBusy(true);
@@ -95,7 +110,7 @@ export default function Result() {
   }
 
   if (!data.result) return <Shell><p className="muted">결과를 불러오는 중…</p></Shell>;
-  return <Report r={data.result} answers={data.answers} gradedAt={data.graded_at} onNew={newExam} />;
+  return <Report r={data.result} answers={data.answers} gradedAt={data.graded_at} onNew={newExam} onHistory={goHistory} />;
 }
 
 /* ---------------- 보고서 (Stitch AI Feedback Report + contracts 불변 조건 유지) ---------------- */
@@ -119,7 +134,7 @@ const Quote = ({ children }: { children: ReactNode }) => (
   <q lang="en" style={{ display: 'block', borderLeft: '3px solid var(--primary)', background: 'var(--canvas)', borderRadius: '0 6px 6px 0', padding: '6px 12px', color: 'var(--ink)', quotes: 'none', fontSize: '0.9375rem' }}>{children}</q>
 );
 
-function Report({ r, answers, gradedAt, onNew }: { r: EvaluationResult; answers: ResultItemOut[]; gradedAt: string | null; onNew: () => void }) {
+function Report({ r, answers, gradedAt, onNew, onHistory }: { r: EvaluationResult; answers: ResultItemOut[]; gradedAt: string | null; onNew: () => void; onHistory: () => void }) {
   const scope = r.evaluation_scope;
   const tier = r.tier;
   const insufficient = r.assessment_status === 'insufficient_evidence';
@@ -155,6 +170,9 @@ function Report({ r, answers, gradedAt, onNew }: { r: EvaluationResult; answers:
             <h1 style={{ fontSize: '1.85rem' }}>모의 인터뷰 종합 평가 리포트</h1>
           </div>
           <div className="no-print" style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+            <button type="button" className="btn btn-ghost" onClick={onHistory}>
+              ← 내 시험 기록
+            </button>
             <button type="button" className="btn btn-ghost" onClick={() => window.print()}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><path d="M6 9V2h12v7" /><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" /><rect x="6" y="14" width="12" height="8" /></svg>
               PDF / 인쇄

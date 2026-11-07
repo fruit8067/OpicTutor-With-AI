@@ -18,6 +18,8 @@ def create_session(*, client_request_id: str | None, scenario_id: str, settings_
             if existing: return existing['id'],False
         if replaces_session_id:
             old=session_for_update(cur,replaces_session_id)
+            if old.get('user_id') is not None and old.get('user_id')!=user_id:
+                raise AppError('FORBIDDEN')
             require_state(old,'preparing','ready','prepare_failed')
             cur.execute("UPDATE sessions SET status='cancelled' WHERE id=%s",(replaces_session_id,))
         cur.execute("""INSERT INTO sessions(client_request_id,replaces_session_id,scenario_id,settings_json,status,question_count,user_id)
@@ -100,3 +102,52 @@ def increment_replay(session_id: UUID, order_no: int, limit: int) -> int:
         row=cur.fetchone()
         if row is None: raise AppError('REPLAY_LIMIT')
         return row['replay_count']
+
+def list_user_sessions(user_id: UUID, limit: int = 50) -> list[dict]:
+    with tx() as cur:
+        cur.execute("""
+            SELECT
+                s.id AS session_id,
+                s.scenario_id,
+                s.status,
+                s.question_count,
+                s.current_order_no,
+                s.created_at,
+                s.submitted_at,
+                (SELECT COUNT(*)::int FROM session_questions sq
+                 JOIN answers a ON a.session_question_id = sq.id
+                 WHERE sq.session_id = s.id AND a.is_selected = true AND a.stt_status = 'done') AS answered_count,
+                (SELECT COUNT(*)::int FROM session_questions sq
+                 WHERE sq.session_id = s.id AND sq.skipped_at IS NOT NULL) AS skipped_count,
+                (SELECT COALESCE(SUM(COALESCE((a.metrics_json->>'speech_sec')::float, a.client_duration_ms / 1000.0)), 0.0)::float
+                 FROM session_questions sq
+                 JOIN answers a ON a.session_question_id = sq.id
+                 WHERE sq.session_id = s.id AND a.is_selected = true AND a.stt_status = 'done') AS total_speech_sec,
+                e.assessment_status,
+                e.base_level,
+                e.estimated_level,
+                e.im_estimation_status,
+                e.result_json->>'provisional_label' AS provisional_label,
+                e.result_json->'tier' AS tier,
+                e.result_json->>'headline' AS headline,
+                CASE WHEN e.status = 'done' THEN e.updated_at ELSE NULL END AS graded_at
+            FROM sessions s
+            LEFT JOIN evaluations e ON e.id = COALESCE(
+                s.result_id,
+                (SELECT id FROM evaluations WHERE session_id = s.id AND status = 'done' ORDER BY run_no DESC LIMIT 1)
+            )
+            WHERE s.user_id = %s AND s.status != 'cancelled'
+            ORDER BY s.created_at DESC
+            LIMIT %s
+        """, (user_id, limit))
+        return cur.fetchall()
+
+def delete_user_session(session_id: UUID, user_id: UUID) -> None:
+    with tx() as cur:
+        s = session_for_update(cur, session_id)
+        if s.get('user_id') != user_id:
+            raise AppError('FORBIDDEN')
+        cur.execute("UPDATE sessions SET result_id = NULL WHERE id = %s", (session_id,))
+        cur.execute("UPDATE sessions SET replaces_session_id = NULL WHERE replaces_session_id = %s", (session_id,))
+        cur.execute("DELETE FROM sessions WHERE id = %s AND user_id = %s", (session_id, user_id))
+

@@ -3,6 +3,7 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import Boot from './pages/Boot';
 import Exam from './pages/Exam';
+import History from './pages/History';
 import Login from './pages/Login';
 import Prepare from './pages/Prepare';
 import Ready from './pages/Ready';
@@ -15,6 +16,7 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Boot />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/history" element={<History />} />
         <Route path="/setup" element={<Setup />} />
         <Route path="/prepare" element={<Prepare />} />
         <Route path="/ready" element={<Ready />} />
