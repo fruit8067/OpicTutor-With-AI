@@ -1,0 +1,42 @@
+{
+  "passed": 11,
+  "cases": [
+    "cancel network failure preserves session and route /ready",
+    "cancel network failure preserves session and route /prepare",
+    "successful cancellation clears session",
+    "empty current question does not submit",
+    "recording error returns to same item without upload constructor",
+    "recording error returns to same item without upload async_error",
+    "recording error returns to same item without upload track_ended",
+    "setup recording failure returns to microphone retry",
+    "late ready response ignored after successful cancellation",
+    "cancelled result state routes to setup",
+    "recorder automatically stops at supplied maximum"
+  ],
+  "page_errors": [],
+  "paid_requests": 0,
+  "scope": "actual Chromium/media classes; API and error injection fixtures; no human microphone",
+  "date_kst": "2026-11-07",
+  "contract_version": 8,
+  "baseline_browser_scenarios_passed": 15,
+  "recorder_node_tests_passed": 4,
+  "late_microphone": {
+    "before": "live",
+    "after": "ended"
+  },
+  "scenario_retry": {
+    "same_input_keeps_request_id": true,
+    "changed_scenario_uses_new_id": true,
+    "selection_disabled_in_flight": true
+  },
+  "before_reproduction": {
+    "cancel_failure_lost_session": true,
+    "empty_question_submit_requests": 1,
+    "recorder_error_unhandled_and_stuck": true
+  },
+  "final_browser_effects": {
+    "cancel_failure_preserves_session": true,
+    "empty_question_submit_requests": 0,
+    "recorder_unhandled_errors": 0
+  }
+}

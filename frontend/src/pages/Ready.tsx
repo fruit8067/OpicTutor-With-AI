@@ -1,4 +1,5 @@
 // AI-assisted: 이 코드는 Claude(Anthropic)의 도움으로 작성되었습니다.
+// 후속 수정: 취소 오류 복구는 OpenAI Codex의 도움으로 작성되었습니다.
 // OWNER: frontend (contracts.yaml ownership)
 // 준비 완료: [시험 시작] 클릭에서 오디오 잠금 해제(unlock) 후 S5 → /exam.
 import { useEffect, useState } from 'react';
@@ -21,12 +22,15 @@ export default function Ready() {
 
   useEffect(() => {
     if (!id) { nav('/setup', { replace: true }); return; }
+    const lifetime = { stopped: false };
     getSession(id).then((cur) => {
+      if (lifetime.stopped) return;
       const to = routeFor(cur.status);
       if (!to) { clearSessionId(); nav('/setup', { replace: true }); }
       else if (to !== '/ready') nav(to, { replace: true });
       else setS(cur);
-    }).catch(setError);
+    }).catch((e) => { if (!lifetime.stopped) setError(e); });
+    return () => { lifetime.stopped = true; };
   }, [id, nav]);
 
   const start = async () => {
@@ -37,6 +41,14 @@ export default function Ready() {
       await startSession(id);
       nav('/exam');
     } catch (e) { setError(e); } finally { setBusy(false); }
+  };
+
+  const change = async () => {
+    if (!id) return;
+    setBusy(true); setError(null);
+    try { await cancelAndReset(id); nav('/setup'); }
+    catch (e) { setError(e); }
+    finally { setBusy(false); }
   };
 
   return (
@@ -53,7 +65,7 @@ export default function Ready() {
           </ul>
           <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
             <button className="btn" onClick={start} disabled={busy || !s} autoFocus>시험 시작</button>
-            <button className="btn btn-ghost" onClick={async () => { if (id) await cancelAndReset(id); nav('/setup'); }} disabled={busy}>설정 바꾸기</button>
+            <button className="btn btn-ghost" onClick={change} disabled={busy}>설정 바꾸기</button>
           </div>
           <p className="faint">시작하면 진행자 음성이 바로 나와요. 스피커나 이어폰 소리를 켜 주세요.</p>
           <ErrorNote error={error} />

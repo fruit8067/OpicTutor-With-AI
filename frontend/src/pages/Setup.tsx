@@ -30,6 +30,9 @@ export default function Setup() {
   const [scenario, setScenario] = useState('default');
   const [error, setError] = useState<unknown>(null);
   const [busy, setBusy] = useState(false);
+  const alive = useRef(true);
+  const openingMic = useRef(false);
+  useEffect(() => { alive.current = true; return () => { alive.current = false; }; }, []);
   const reqId = useRef<string>(crypto.randomUUID());
 
   useEffect(() => { getScenarios().then(setScenarios).catch(setError); }, []);
@@ -42,19 +45,31 @@ export default function Setup() {
   useEffect(() => () => { if (testUrl) URL.revokeObjectURL(testUrl); }, [testUrl]);
 
   const enableMic = async () => {
+    if (openingMic.current) return;
+    openingMic.current = true;
     setMicErr(null);
-    try { setStream(await openMic()); } catch (e) { setMicErr(micErrorKind(e)); }
+    try {
+      const opened = await openMic();
+      if (!alive.current) opened.getTracks().forEach((track) => track.stop());
+      else setStream(opened);
+    } catch (e) { if (alive.current) setMicErr(micErrorKind(e)); }
+    finally { openingMic.current = false; }
   };
 
   const runTest = async () => {
     if (!stream) return;
     setTest('recording');
     const rec = new Recorder(stream);
-    const p = rec.start(3000);
-    const r = await p;
-    if (testUrl) URL.revokeObjectURL(testUrl);
-    setTestUrl(URL.createObjectURL(r.blob));
-    setTest(r.peak < SILENCE_PEAK ? 'quiet' : 'recorded');
+    try {
+      const r = await rec.start(3000);
+      if (!alive.current) return;
+      if (testUrl) URL.revokeObjectURL(testUrl);
+      setTestUrl(URL.createObjectURL(r.blob));
+      setTest(r.peak < SILENCE_PEAK ? 'quiet' : 'recorded');
+    } catch {
+      stream.getTracks().forEach((t) => t.stop());
+      if (alive.current) { setStream(null); setMicErr('other'); setTest('idle'); }
+    }
   };
 
   const submit = async () => {
@@ -128,14 +143,14 @@ export default function Setup() {
         <section className="sheet" style={{ padding: 24, display: 'grid', gap: 12 }} aria-labelledby="sc-h">
           <h2 id="sc-h">2. 시험 구성</h2>
           {!scenarios ? <p className="muted">구성 목록을 불러오는 중…</p> : (
-            <fieldset style={{ border: 0, padding: 0, margin: 0, display: 'grid', gap: 8 }}>
+            <fieldset disabled={busy} style={{ border: 0, padding: 0, margin: 0, display: 'grid', gap: 8 }}>
               <legend className="sr-only">시험 구성 선택</legend>
               {scenarios.map((sc) => (
                 <label key={sc.scenario_id} style={{ display: 'flex', gap: 12, alignItems: 'flex-start', padding: '10px 12px',
                   border: `1.5px solid ${scenario === sc.scenario_id ? 'var(--teal)' : 'var(--line)'}`, borderRadius: 'var(--radius-s)', cursor: 'pointer',
                   background: scenario === sc.scenario_id ? 'var(--teal-wash)' : 'var(--sheet)' }}>
                   <input type="radio" name="scenario" value={sc.scenario_id} checked={scenario === sc.scenario_id}
-                         onChange={() => setScenario(sc.scenario_id)} style={{ marginTop: 6 }} />
+                         onChange={() => { if (scenario !== sc.scenario_id) reqId.current = crypto.randomUUID(); setScenario(sc.scenario_id); }} style={{ marginTop: 6 }} />
                   <span><strong>{sc.label}</strong> <span className="faint">{sc.question_count}문항</span><br /><span className="muted">{sc.description}</span></span>
                 </label>
               ))}

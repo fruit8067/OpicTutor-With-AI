@@ -92,3 +92,23 @@ VITE_API_BASE=http://127.0.0.1:8000/api/v1 npm run dev
 실제 OmniVoice ZIP 생성/반입과 실제 서버·마이크 연동, M2 병합 순서, M3 통합 후 별도 대화의 독립 reviewer가 남아 있다. mock 모듈은 계약대로 src/__dev__에만 두고 커밋하지 않는다. C 전체/제품 완료를 선언하지 않는다. CR frontend-01은 bootstrap의 별도 PR로 처리하며 공개 HTTP 형식을 바꾸지 않는다.
 
 CR frontend-01은 PR #28/main 0c4ee09에서 해결됐다. 이 브랜치도 rebase한 뒤 Result의 unknown 캐스팅을 제거했다.
+
+
+## C 요구사항·FLOWCHART 감사 (OpenAI Codex, 2026-11-07)
+
+### 재현·수정
+
+- 취소 네트워크 실패에도 session_id를 지우고 setup으로 이동: 브라우저에서 재현 후 취소 확인 성공/SESSION_NOT_FOUND에만 삭제하도록 수정. ready·prepare 화면에 오류를 표시하고 같은 세션에서 재시도한다.
+- current 응답이 all_answered=false/question=null인데 submit: 실제 종료 요청1회를 재현. 현재 문항 조회 실패로 표시하고 다시 불러오며 submit0으로 수정했다.
+- MediaRecorder 생성/시작 오류가 unhandled되고 녹음 중에 고정: 재현 후 Promise 거절·오류/장치 해제·빈 결과 정리, 동일 문항 재녹음으로 복구. 미완성 Blob은 업로드하지 않는다.
+- 화면 이탈 뒤 늦게 승인된 마이크 스트림이 live로 남음: 재현 후 반환된 스트림을 바로 stop하며 ended를 확인했다. 늦은 상태 조회도 이전 화면으로 이동시키지 않는다.
+- 설정의 동일 입력 재시도는 요청 키 유지, 시나리오 변경은 새 키를 사용하도록 보강했다. 요청 중 시나리오 변경은 막는다. 결과의 cancelled 상태도 세션을 지우고 setup으로 복구한다.
+
+### 확인 결과
+
+- 기존 브라우저15개 회귀 재실행 통과. 오류/취소/이탈/녹음 최대시간 경계11개 추가 통과(pageerror0). 늦은 마이크 해제와 설정 재시도 키 분리도 별도 Chromium 검증했다.
+- `node --test frontend/tests/recorder.test.ts`: 생성 실패·비동기 오류·장치 해제·최대 시간4개 통과. Node24 기본 TypeScript 실행을 사용하며 제품 의존성을 추가하지 않았다.
+- 실제 C Host/음성 + A/B HTTP/DB/워커를 연결한8문항 시험은 done/answers8/evaluations1/ai_requests0. 실제 OmniVoice 206 응답17개, 결과 새로고침 평가 추가0. STT 전사 생성과 평가 추론은 대역이며 실제 사람 마이크·LLM 품질 검증은 아니다.
+- build/lint 통과. 새 음성 자산은 원격 tts-host에서 제공됐으며 실제 Colab 재실행을 이번 감사가 수행한 것으로 표시하지 않는다.
+
+상세 요구사항 대조와 수정 전/후 증거는 `docs/C_REQUIREMENTS_VERIFICATION.md` 및 compliance 기록에서 관리한다. 독립 reviewer/M4로 표시하지 않으며 실제 마이크·공급자 품질·M2/M3 조건은 남아 있다.

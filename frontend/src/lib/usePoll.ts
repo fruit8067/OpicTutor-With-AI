@@ -1,16 +1,17 @@
 // AI-assisted: 이 코드는 Claude(Anthropic)의 도움으로 작성되었습니다.
+// 후속 수정: 이탈 후 늦은 응답 무시는 OpenAI Codex의 도움으로 작성되었습니다.
 // OWNER: frontend (contracts.yaml ownership)
 import { useEffect, useRef } from 'react';
 
 /** fn을 즉시 1회, 이후 interval마다 호출. fn이 false를 돌려주면 멈춘다. 이전 호출이 끝나기 전엔 겹치지 않는다. */
-export function usePoll(fn: () => Promise<boolean | void>, interval: number, enabled = true) {
+export function usePoll(fn: (active: () => boolean) => Promise<boolean | void>, interval: number, enabled = true) {
   const ref = useRef(fn);
   useEffect(() => { ref.current = fn; });
   useEffect(() => {
     if (!enabled) return;
     const st = { stopped: false, timer: 0 };
     const run = async () => {
-      const again = await ref.current().catch(() => true);
+      const again = await ref.current(() => !st.stopped).catch(() => true);
       if (!st.stopped && again !== false) st.timer = window.setTimeout(run, interval);
     };
     void run();

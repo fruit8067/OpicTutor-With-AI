@@ -21,16 +21,18 @@ export default function Prepare() {
   const [error, setError] = useState<unknown>(null);
   const [busy, setBusy] = useState(false);
 
-  usePoll(async () => {
+  usePoll(async (active) => {
     if (!id) { nav('/setup', { replace: true }); return false; }
     try {
       const cur = await getSession(id);
+      if (!active()) return false;
       setS(cur); setError(null);
       const to = routeFor(cur.status);
       if (!to) { clearSessionId(); nav('/setup', { replace: true }); return false; }
       if (to !== '/prepare') { nav(to, { replace: true }); return false; }
       return cur.status === 'preparing';
     } catch (e) {
+      if (!active()) return false;
       if (e instanceof ApiError && e.code === 'SESSION_NOT_FOUND') { clearSessionId(); nav('/setup', { replace: true }); return false; }
       setError(e); return true;
     }
@@ -46,7 +48,13 @@ export default function Prepare() {
       if (to && to !== '/prepare') nav(to, { replace: true });
     } catch (e) { setError(e); } finally { setBusy(false); }
   };
-  const change = async () => { if (id) await cancelAndReset(id); nav('/setup'); };
+  const change = async () => {
+    if (!id) return;
+    setBusy(true); setError(null);
+    try { await cancelAndReset(id); nav('/setup'); }
+    catch (e) { setError(e); }
+    finally { setBusy(false); }
+  };
 
   const p = s?.prepare;
   const pct = p && p.total ? Math.round((p.linked / p.total) * 100) : 0;
