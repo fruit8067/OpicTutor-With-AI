@@ -1,4 +1,5 @@
 # AI-assisted: 이 스크립트는 Claude(Anthropic)의 도움으로 작성되었습니다.
+# 후속 수정: 버전별 로컬 경로 호환은 OpenAI Codex의 도움으로 작성되었습니다.
 # OWNER: tts-host (contracts.yaml ownership)
 """Colab(OmniVoice)에 보낼 TTS 작업 목록 만들기 → backend/static/tts/jobs.jsonl
 
@@ -18,7 +19,7 @@ import sys
 from pathlib import Path
 
 from app.config import settings
-from app.tts.assets import active_voice_id, asset_rel_path, load_manifest, manifest_index, pilot_questions, text_hash, tts_dir
+from app.tts.assets import active_voice_id, manifest_asset_path, load_manifest, manifest_index, pilot_questions, text_hash, tts_dir
 from app.tts.host_lines import HOST_LINES
 
 E2E_LEVELS = ("IM2", "IL")
@@ -73,7 +74,8 @@ def stale_only(rows: list[dict]) -> list[dict]:
     keep = []
     for r in rows:
         it = idx.get(r["id"])
-        if it is None or it.get("text_sha1") != r["text_sha1"] or not (tts_dir() / asset_rel_path(vid, r["kind"], r["ref_id"])).is_file():
+        path = manifest_asset_path(vid, r["kind"], r["ref_id"], it) if it else None
+        if it is None or it.get("text_sha1") != r["text_sha1"] or path is None or not path.is_file():
             keep.append(r)
     return keep
 

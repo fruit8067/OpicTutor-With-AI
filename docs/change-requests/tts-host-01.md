@@ -8,3 +8,7 @@ AI-assisted (OpenAI Codex).
 - 영향: tts-host import/status/stale. session-api/frontend는 DB file_path의 불투명 URL을 그대로 사용하므로 공개 함수·HTTP·DB 변경 없음.
 - 막힘 여부: 새 경로 구현은 계약 승인 전 대기. 기존 음성/평면 경로는 보존하고 DB reset/파일 삭제 없이 점진 전환한다.
 - 승인 후: 변경 문항 재반입 뒤 기존 파일 보존, 레거시 manifest·같은 폴더 재등록·stale 및 실제 DB 세션 URL을 검증한다.
+
+## 처리 결과
+
+PR #30/main a37f85e로 승인된 계약 v8을 따른다. 새 반입만 해시별 경로/file_path로 저장하고 기존 평면 경로·Colab ZIP·기존 세션 등록본은 보존한다. 공개 함수·HTTP·DB 컬럼 변경 없음.

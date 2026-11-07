@@ -117,3 +117,23 @@ python -m scripts.import_tts static/tts/ac3049e033 --activate     # 이미 같�
 저장소의 `colab/omnivoice_tts.ipynb`와 위 `jobs.jsonl`을 사용한다. 기존 운영자 절차대로 T4에서 진행자 기준 음성을 정하고, e2e 답변은 별도 합성 목소리로 생성한다. ZIP과 host_voice.pt는 로컬에 내려받는다. ZIP은 backend 기준 상대 경로를 사용해 `python -m scripts.import_tts <상대경로/tts_mp3.zip> --activate`로 반입한다. 코드 테스트용 tone MP3를 실제 진행자 자산으로 활성화하지 않는다.
 
 실제 instruct/seed/speed/voice_id·길이·용량은 **미정/미측정**이다. 현재 실제 자산 누락은 남아 있으므로 missing_pilot=[]/M2 audio 완료/제품 완주를 주장하지 않는다. 전체 M2 후 M3 통합과 별도 대화의 독립 reviewer 검토가 필요하다.
+
+
+## C 요구사항 감사 후속 (OpenAI Codex, 2026-11-07)
+
+다른 작업자가 올린 dd440e3의 실제 음성·노트북 수정·재등록 수정은 fast-forward로 보존했다. 실제 voice ac3049e033의242개/20,842,506바이트/2,584.18초를 검사했고 작업 목록과 text_sha1 불일치0, missing_pilot=[]였다. 이 감사가 Colab을 다시 실행한 것은 아니다. 위 음성 미생성 기록은 이전 이력이다.
+
+### 재현·수정
+
+1. 같은 voice/ref의 문장 변경 반입이 이전 세션 파일을 덮어씀: 실패 회귀에서 SHA256 변경을 재현했다. CR tts-host-01을 먼저 제출했고 PR#30/main의 contracts v8 승인 후 새 반입을 `voice/kind/ref/text_sha1.mp3`에 보존하도록 수정했다. 로컬 manifest의 상대 file_path를 DB에 등록한다. 기존 평면 파일·Colab 입력·동일 폴더 재등록은 호환된다.
+2. JSON은 유효하지만 items 구조가 손상된 manifest가 상태 조회에서 예외를 발생시킴: 비정상 index는 사용 불가로 처리한다. 잘못된 JSON/MP3 반입은 활성화 전에 거부한다.
+3. 0바이트 등록 음성이 준비 완료로 연결될 수 있음: 상태/prepare 검사에서 유효 파일로 세지 않는다.
+
+### 증거
+
+- `python -m pytest tests/test_tts_pipeline.py -q`: **29 passed/1.34초**, skip0. 덮어쓰기 방지·레거시 경로·같은 폴더 재등록·손상 manifest/MP3·DB 실패 시 비활성화·빈 파일을 포함한다.
+- 실제 임시 PostgreSQL의 반입/claim/prepare: ready → 파일 제거 prepare_failed/TTS_FILE_MISSING → 복구·동일8문항 retry → ready, stale attempt 무시. 원래 DB reset 없음.
+- 실제 Chromium+C Host·A/B HTTP/DB/워커·실제 OmniVoice 파일로8문항 흐름 done, answers8/evaluations1/ai_requests0. 실제 미디어206 응답17개. 결과 새로고침 평가 추가0, 문장 변경 반입 후 이전 세션 URL/파일 보존. STT 전사 생성·채점 추론만 대역이다.
+- 실제 자료는 이 브랜치에 보존하고, v8 검증은 임시 DB/디렉터리에 반입한 뒤 제거했다. 실제 사람 마이크·평가 품질·독립 reviewer 통과로 해석하지 않는다.
+
+계약 v8 반영 후 다른 역할은 최신 main으로 rebase해야 한다. C/A/B 전체 M2 병합과 M3 및 독립 reviewer는 별도 조건이다.
