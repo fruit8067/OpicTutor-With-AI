@@ -4,6 +4,10 @@
 
 사용자가 목표를 명확히 했다: C는 새로 구현하지 않고 A/B의 핵심 기능과 전체 요구사항·API·flowchart 연결을 심화 검증한다. C가 필요한 경계는 명시적인 테스트 대역으로 확인하며 제품 완주 완료로 표시하지 않는다.
 
+## 최신 C 감사
+
+사용자의 후속 지시로 C까지 범위를 확대했다. [C 요구사항·흐름 대조](C_REQUIREMENTS_VERIFICATION.md)와 [고정 기록](compliance/c-audit-2026-11-07.json)을 참조한다. 원격 실제 음성242개를 보존·검사했고, 재현한 취소/문항 누락/녹음 오류/음성 덮어쓰기 등을 수정했다. 덮어쓰기 해결은 먼저 CR#30/main으로 계약 v8을 승인했다. 실제 HTTP/DB/워커/음성8문항 흐름은 통과했으며 STT·평가 추론 대역과 실제 사람 마이크/공급자 품질 조건을 구분한다. 아래 C를 추가하지 않던 문구는 이전 범위의 이력이다.
+
 ## 적용된 기반
 
 - CR orchestrator-01: PR #10에서 승인·병합. contracts v4, orchestration v3, 실제 도구 attribution, nullable tier·strip UTF-8 TTS hash·provider 실제 요청 예산을 명확히 했다. 고정 평가 원문과 API/도메인 DB 스키마는 유지했다.

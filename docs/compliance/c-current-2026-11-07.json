@@ -69,5 +69,7 @@
     "tts_code": 19,
     "frontend": 24,
     "resolved_type_fix": 28
-  }
+  },
+  "superseded_by": "c-audit-2026-11-07.json",
+  "history_note": "Earlier code-first check. Actual remote audio and the subsequent requirement audit are recorded separately."
 }

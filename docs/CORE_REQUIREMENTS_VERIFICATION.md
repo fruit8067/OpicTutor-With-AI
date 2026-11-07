@@ -2,6 +2,8 @@
 
 2026-11-07 KST. 사용자의 최신 목표에 따라 C를 새로 만들지 않고 A/B를 프로젝트 전체 흐름에 대조했다. 기준은 REQUIREMENTS_v2, PROJECT_REQUIREMENTS, FLOWCHART, API_SPEC 및 contracts v7다. 요구사항을 현재 구현에 맞춰 낮추지 않았다.
 
+후속 C 범위 확대·계약 v8 및 실제 C/AB 연결 감사는 [C 대조표](C_REQUIREMENTS_VERIFICATION.md)에 기록했다. 이 문서의 v7 실행은 당시 증거로 보존한다.
+
 ## 판정
 
 **A/B HTTP·PostgreSQL·작업·검증·결과 저장 조합, 실제 Pickle 연결/합성 IL 결과 저장, 실제 large3072 M1/M2 적재는 통과했다. 전체 평가 정확도·반복/함정 및 실제 마이크·제품/브라우저 완주는 아직 검증 중이다.**
