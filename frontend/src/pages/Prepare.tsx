@@ -1,4 +1,5 @@
 // AI-assisted: 이 코드는 Claude(Anthropic)의 도움으로 작성되었습니다.
+// 후속 수정: 상태 복구 처리는 OpenAI Codex의 도움으로 작성되었습니다.
 // OWNER: frontend (contracts.yaml ownership)
 // 준비: S2 2초 폴링. linked/total, prepare_failed면 실패 목록 + 같은 세트로 다시 준비(S3) / 설정 바꾸기(S4).
 import { useState } from 'react';
@@ -38,7 +39,12 @@ export default function Prepare() {
   const retry = async () => {
     if (!id) return;
     setBusy(true);
-    try { setS(await retryPrepare(id)); setError(null); } catch (e) { setError(e); } finally { setBusy(false); }
+    try {
+      const updated = await retryPrepare(id);
+      setS(updated); setError(null);
+      const to = routeFor(updated.status);
+      if (to && to !== '/prepare') nav(to, { replace: true });
+    } catch (e) { setError(e); } finally { setBusy(false); }
   };
   const change = async () => { if (id) await cancelAndReset(id); nav('/setup'); };
 

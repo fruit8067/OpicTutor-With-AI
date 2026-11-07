@@ -1,0 +1,31 @@
+{
+  "scope": "Chromium 1280x900, pre-merge owned Host modules, synthetic MP3/API/fake microphone; not real school provider or human microphone",
+  "cases": [
+    "question playback ends before recording",
+    "short recording no upload; failed say_again blocks until replay",
+    "refresh restores processing same answer",
+    "done plus order advance still requires next-line playback",
+    "prepare failure same-session retry ready",
+    "grading failed regrade waiting",
+    "result variant IH",
+    "result variant IM2",
+    "result variant held",
+    "result variant insufficient",
+    "result variant missing",
+    "autoplay blocked offers explicit retry and keeps microphone disabled",
+    "keyboard login and local fake microphone setup test, no upload",
+    "network upload retry retains client_request_id",
+    "keyboard eight fake-microphone recordings, HTTP 202 holds order, finish playback and single submit"
+  ],
+  "passed": 15,
+  "page_errors": [],
+  "paid_requests": 0,
+  "actual_colab_audio": false,
+  "date_kst": "2026-11-07",
+  "contract_version": 7,
+  "production_host_files_copied": false,
+  "visual_inspection": [
+    "exam",
+    "IM2 result"
+  ]
+}

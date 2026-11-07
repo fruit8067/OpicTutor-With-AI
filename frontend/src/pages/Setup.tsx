@@ -1,4 +1,5 @@
 // AI-assisted: 이 코드는 Claude(Anthropic)의 도움으로 작성되었습니다.
+// 후속 수정: 상태 복구 처리는 OpenAI Codex의 도움으로 작성되었습니다.
 // OWNER: frontend (contracts.yaml ownership)
 // 설정: 마이크 권한 → 실시간 음량 → 3초 테스트 녹음·재생(업로드 안 함) → 시나리오 선택 → S1.
 import { useEffect, useRef, useState } from 'react';
@@ -66,7 +67,10 @@ export default function Setup() {
           const s = await getSession(prev);
           if (['preparing', 'ready', 'prepare_failed'].includes(s.status)) replaces = prev;
           else if (s.status !== 'cancelled') { nav('/', { replace: true }); return; }  // 진행 중 시험이 있으면 그 화면으로
-        } catch { /* 없는 세션이면 새로 */ }
+        } catch (e) {
+          // 조회가 실패한 상태에서 진행 중 세션을 덮어 만들지 않는다.
+          if (!(e instanceof ApiError) || e.code !== 'SESSION_NOT_FOUND') throw e;
+        }
       }
       const s = await createSession({ client_request_id: reqId.current, scenario_id: scenario, mic_check_passed: true,
                                       replaces_session_id: replaces });
