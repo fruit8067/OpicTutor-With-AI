@@ -31,16 +31,19 @@ export default function Result() {
   const [slow, setSlow] = useState(false);
 
   const waiting = !data || ['submitted', 'grading'].includes(data.session_status);
-  usePoll(async () => {
+  usePoll(async (active) => {
     if (!id) { nav('/setup', { replace: true }); return false; }
     try {
       const r = await getResult(id);
+      if (!active()) return false;
       setData(r); setError(null);
       setSlow(Date.now() - startedAt.current > SLOW_MS);
       const to = routeFor(r.session_status);
-      if (to && to !== '/result') { nav(to, { replace: true }); return false; }
+      if (!to) { clearSessionId(); nav('/setup', { replace: true }); return false; }
+      if (to !== '/result') { nav(to, { replace: true }); return false; }
       return ['submitted', 'grading'].includes(r.session_status);
     } catch (e) {
+      if (!active()) return false;
       if (e instanceof ApiError && e.code === 'SESSION_NOT_FOUND') { clearSessionId(); nav('/setup', { replace: true }); return false; }
       if (e instanceof ApiError && e.code === 'INVALID_STATE') { nav('/', { replace: true }); return false; }
       setError(e); return true;

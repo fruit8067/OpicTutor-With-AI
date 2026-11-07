@@ -1,4 +1,5 @@
 // AI-assisted: 이 코드는 Claude(Anthropic)의 도움으로 작성되었습니다.
+// 후속 수정: 녹음 오류·장치 해제 복구는 OpenAI Codex의 도움으로 작성되었습니다.
 // OWNER: frontend (contracts.yaml ownership)
 // 마이크 녹음 도우미: 형식 선택(webm/opus → ogg → mp4), 실시간 음량, 최대 음량, 최대 길이 자동 종료.
 export const RECORD_MIN_MS = 2000;      // contracts policies.record_min_ms
@@ -59,7 +60,6 @@ export class Recorder {
   private peak = 0;
   private stopMeter: () => void = () => {};
   private timer = 0;
-  private resolve: ((r: Recording) => void) | null = null;
   readonly mime: string;
   private stream: MediaStream;
   private onLevel?: (rms: number) => void;
@@ -71,23 +71,52 @@ export class Recorder {
   }
 
   start(maxMs = RECORD_MAX_MS): Promise<Recording> {
+    if (this.rec?.state === 'recording') return Promise.reject(new Error('이미 녹음 중입니다.'));
     this.chunks = [];
     this.peak = 0;
-    this.rec = new MediaRecorder(this.stream, { mimeType: this.mime });
-    this.rec.ondataavailable = (e) => { if (e.data.size) this.chunks.push(e.data); };
-    this.rec.onstop = () => {
-      const durationMs = performance.now() - this.started;
-      this.stopMeter();
-      window.clearTimeout(this.timer);
-      const type = this.rec?.mimeType || this.mime;
-      this.resolve?.({ blob: new Blob(this.chunks, { type: type.split(';')[0] }), mime: type.split(';')[0], durationMs, peak: this.peak });
-      this.resolve = null;
-    };
-    this.stopMeter = meter(this.stream, (rms) => { this.peak = Math.max(this.peak, rms); this.onLevel?.(rms); });
-    this.started = performance.now();
-    this.rec.start(250);
-    this.timer = window.setTimeout(() => this.stop(), maxMs);
-    return new Promise((res) => { this.resolve = res; });
+    return new Promise((resolve, reject) => {
+      let settled = false;
+      const tracks = this.stream.getAudioTracks();
+      const cleanup = () => {
+        window.clearTimeout(this.timer);
+        this.stopMeter();
+        this.stopMeter = () => {};
+        tracks.forEach((track) => track.removeEventListener('ended', ended));
+        if (this.rec) {
+          this.rec.onstop = null;
+          this.rec.onerror = null;
+          this.rec.ondataavailable = null;
+        }
+      };
+      const fail = (error: unknown) => {
+        if (settled) return;
+        settled = true;
+        cleanup();
+        if (this.rec?.state === 'recording') this.rec.stop();
+        reject(error);
+      };
+      const ended = () => fail(new Error('마이크 연결이 끊어졌어요. 다시 연결한 뒤 녹음해 주세요.'));
+      try {
+        if (!tracks.some((track) => track.readyState === 'live')) throw new Error('마이크 연결을 확인해 주세요.');
+        this.rec = new MediaRecorder(this.stream, { mimeType: this.mime });
+        this.rec.ondataavailable = (event) => { if (event.data.size) this.chunks.push(event.data); };
+        this.rec.onerror = () => fail(new Error('녹음하지 못했어요. 마이크를 확인하고 다시 시도해 주세요.'));
+        this.rec.onstop = () => {
+          if (settled) return;
+          const type = this.rec?.mimeType || this.mime;
+          const blob = new Blob(this.chunks, { type: type.split(';')[0] });
+          if (!blob.size) { fail(new Error('녹음된 소리가 없어요. 다시 녹음해 주세요.')); return; }
+          settled = true;
+          cleanup();
+          resolve({ blob, mime: type.split(';')[0], durationMs: performance.now() - this.started, peak: this.peak });
+        };
+        tracks.forEach((track) => track.addEventListener('ended', ended, { once: true }));
+        this.stopMeter = meter(this.stream, (rms) => { this.peak = Math.max(this.peak, rms); this.onLevel?.(rms); });
+        this.started = performance.now();
+        this.timer = window.setTimeout(() => this.stop(), maxMs);
+        this.rec.start(250);
+      } catch (error) { fail(error); }
+    });
   }
 
   elapsedMs(): number { return this.rec?.state === 'recording' ? performance.now() - this.started : 0; }

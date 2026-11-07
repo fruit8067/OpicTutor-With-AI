@@ -1,4 +1,5 @@
 // AI-assisted: 이 코드는 Claude(Anthropic)의 도움으로 작성되었습니다.
+// 후속 수정: 늦은 상태 응답 무시는 OpenAI Codex의 도움으로 작성되었습니다.
 // OWNER: frontend (contracts.yaml ownership)
 // 앱 시작·새로고침: session_id가 있으면 서버 상태(S2)로 화면을 정한다. 없거나 취소·404면 /login → /setup.
 import { useEffect, useState } from 'react';
@@ -14,13 +15,17 @@ export default function Boot() {
   useEffect(() => {
     const id = loadSessionId();
     if (!id) { nav(loadNickname() ? '/setup' : '/login', { replace: true }); return; }
+    let stopped = false;
     getSession(id).then((s) => {
+      if (stopped) return;
       const to = routeFor(s.status);
       if (!to) { clearSessionId(); nav('/setup', { replace: true }); } else nav(to, { replace: true });
     }).catch((e) => {
+      if (stopped) return;
       if (e instanceof ApiError && e.code === 'SESSION_NOT_FOUND') { clearSessionId(); nav('/setup', { replace: true }); }
       else setError(e);
     });
+    return () => { stopped = true; };
   }, [nav, attempt]);
   return (
     <Shell>

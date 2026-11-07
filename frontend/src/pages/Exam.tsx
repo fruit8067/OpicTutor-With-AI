@@ -48,6 +48,7 @@ export default function Exam() {
   const [failedAnswer, setFailedAnswer] = useState<AnswerOut | null>(null);
   const [micError, setMicError] = useState<string | null>(null);
   const retryLine = useRef<(() => Promise<void>) | null>(null);
+  const recordingStarted = useRef(false);
   const stream = useRef<MediaStream | null>(null);
   const recorder = useRef<Recorder | null>(null);
   const pendingUpload = useRef<{ rec: Recording; reqId: string; orderNo: number } | null>(null);
@@ -160,7 +161,8 @@ export default function Exam() {
     if (!alive.current) return;
     setCur(c);
     if (c.session_status !== 'in_progress') { const to = routeFor(c.session_status); nav(to ?? '/setup', { replace: true }); return; }
-    if (c.all_answered || !c.question) { await finish(c); return; }
+    if (c.all_answered) { await finish(c); return; }
+    if (!c.question) { handleFatal(new Error('현재 문항을 불러오지 못했어요. 다시 불러와 주세요.')); return; }
     const p = c.pending_answer;
     if (p && p.order_no === c.question.order_no) {
       if (p.stt_status === 'queued' || p.stt_status === 'processing') { await poll(p.answer_id, p.order_no, c); return; }
@@ -216,20 +218,28 @@ export default function Exam() {
   const toggleRecord = async () => {
     if (!cur?.question) return;
     if (phase === 'recording') { recorder.current?.stop(); return; }
-    if (phase !== 'awaiting_record') return;
+    if (phase !== 'awaiting_record' || recordingStarted.current) return;
+    recordingStarted.current = true;
     setNote(null); setMicError(null);
-    try { if (!stream.current) stream.current = await openMic(); }
+    try { if (!stream.current || !stream.current.getAudioTracks().some((t) => t.readyState === 'live')) stream.current = await openMic(); }
     catch (e) {
       const k = micErrorKind(e);
+      recordingStarted.current = false;
       setMicError(k === 'denied' ? '마이크 권한이 꺼졌어요. 주소창의 사이트 설정에서 마이크를 허용한 뒤 다시 눌러 주세요.' : '마이크를 켜지 못했어요. 연결을 확인하고 다시 눌러 주세요.');
       return;
     }
-    if (!alive.current || phaseRef.current !== 'awaiting_record') { stream.current?.getTracks().forEach((t) => t.stop()); return; }
+    if (!alive.current || phaseRef.current !== 'awaiting_record') { recordingStarted.current = false; stream.current?.getTracks().forEach((t) => t.stop()); return; }
     const r = new Recorder(stream.current);
     recorder.current = r;
     setElapsed(0);
     setPhase('recording');
-    const rec = await r.start(RECORD_MAX_MS);
+    let rec: Recording;
+    try { rec = await r.start(RECORD_MAX_MS); }
+    catch {
+      stream.current?.getTracks().forEach((t) => t.stop()); stream.current = null;
+      if (alive.current) { setMicError('녹음하지 못했어요. 마이크 연결을 확인하고 다시 녹음해 주세요.'); setPhase('awaiting_record'); }
+      return;
+    } finally { recordingStarted.current = false; }
     if (!alive.current) return;
     if (rec.durationMs < RECORD_MIN_MS || rec.peak < SILENCE_PEAK) {
       setNote({ kind: 'warn', text: rec.durationMs < RECORD_MIN_MS ? '답변이 너무 짧았어요. 다시 답해 주세요.' : '목소리가 거의 들리지 않았어요. 마이크 가까이에서 다시 답해 주세요.' });
