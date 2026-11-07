@@ -44,7 +44,19 @@ def test_lost_lease_cancels_handler_without_completion(monkeypatch):
     assert seen and not calls
 
 
-def test_actual_tts_stub_is_excluded_without_consuming_jobs():
-    assert registry.is_stub(registry.get_handler('tts_prepare'))
-    assert 'tts_prepare' not in registry.available_types(['tts_prepare'])
-    assert 'stt' in registry.available_types(['stt'])
+def _stub_handler(conn, job):
+    raise NotImplementedError('TODO')
+
+
+def test_stub_handler_is_excluded_without_consuming_jobs(monkeypatch):
+    # tts-host 병합 후 실제 stub이 없어졌으므로 가짜 stub으로 제외 규칙을 확인한다.
+    real=registry.get_handler
+    monkeypatch.setattr(registry,'get_handler',lambda kind:_stub_handler if kind=='tts_prepare' else real(kind))
+    assert registry.is_stub(_stub_handler)
+    assert registry.available_types(['tts_prepare','stt'])==['stt']
+
+
+def test_merged_handlers_are_all_available():
+    # 병합된 실제 핸들러(tts_prepare·stt)는 stub으로 오인하지 않는다.
+    assert not registry.is_stub(registry.get_handler('tts_prepare'))
+    assert registry.available_types(['tts_prepare','stt'])==['tts_prepare','stt']
