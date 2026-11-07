@@ -2,6 +2,12 @@
 
 ## 상태
 
+사용자의 후속 A/B main 병합 요청을 반영했다. worker-stt #7→session-api #3→grader #6 순서로 필수 native ownership/최신 main을 확인하고 rebase merge했다. main 4dc68a3의 단일 checkout 전체 backend/tests는 **157 passed/skip0/14.37초**이며 격리 DB를 생성/삭제했다. 로컬 .env는 보존했다. 자세한 기록은 docs/compliance/ab-merge-2026-11-07.json.
+
+구현 병합은 품질/M3 완료 선언이 아니다. Pickle quota_exhausted로 남은35시험·반복/함정·실제 사람 마이크 조건을 보존한다. frontend #24와 integrator #4는 아직 미병합이며 전체 M2/M3/M4를 완료로 표시하지 않는다.
+
+### 이전 상태 이력
+
 최신 C 요구사항 감사: docs/C_REQUIREMENTS_VERIFICATION.md와 compliance/c-audit-2026-11-07.json을 정본으로 본다. 다른 작업자의 실제 음성 dd440e3을 보존해242개/해시 일치/누락0을 확인했다. 취소/문항 누락/녹음 오류/늦은 마이크와 음성 덮어쓰기 등 재현·정적 발견을 수정했다. 음성 덮어쓰기 CR tts-host-01은 PR#30/main으로 승인해 계약 v8이 됐다. 공개 HTTP/DB/평가 원문 변경 없음.
 
 TTS29개, 녹음 Node4개, 기존 Chromium15·추가 경계11개 통과. 실제 C+AB HTTP/DB/워커/OmniVoice8문항 done/평가1회/미디어206 17개, 결과 refresh 추가평가0. STT 전사·채점 추론만 대역이며 유료요청0. A/B128/14.34초·공개 선언 차이0. 실제 사람 마이크/공급자 품질·M2/M3·독립 reviewer는 별도 조건이다.

@@ -1,0 +1,56 @@
+{
+  "date_kst": "2026-11-07",
+  "scope": "A/B implementation merge requested by user; incomplete quality checks remain recorded",
+  "contract_version": 8,
+  "tested_main": "4dc68a352651fb86030ebfd0ce2a4faf34858854",
+  "merged": [
+    {
+      "role": "worker-stt",
+      "pr": 7,
+      "commit": "0b8259379df82b12fcfcf1d76064aa9956342248"
+    },
+    {
+      "role": "session-api",
+      "pr": 3,
+      "commit": "5a0c09e185ffbd0e9a682961f33ed132faf41ade"
+    },
+    {
+      "role": "grader",
+      "pr": 6,
+      "commit": "4dc68a352651fb86030ebfd0ce2a4faf34858854"
+    }
+  ],
+  "already_merged_roles": [
+    "bootstrap",
+    "data-layer",
+    "corpus",
+    "tts-host"
+  ],
+  "merge_method": "REBASE",
+  "native_ownership_required_and_successful": true,
+  "protection_relaxed": false,
+  "post_merge_test": {
+    "command": "python docs/compliance/verify_core.py --workspace . backend/tests",
+    "source": "single clean main checkout; no role checkout dependencies",
+    "passed": 157,
+    "failed": 0,
+    "skipped": 0,
+    "seconds": 14.37,
+    "isolated_database_created_and_dropped": true,
+    "existing_database_reset": false,
+    "warnings": [
+      "anyio assertion rewrite from test composition imports"
+    ]
+  },
+  "local_env_unchanged": true,
+  "paid_requests_during_merge": 0,
+  "pending": [
+    "Pickle quota recovery and remaining35 exams",
+    "trap/repeat and real IM2 queue quality checks",
+    "actual human microphone product exam",
+    "frontend PR24",
+    "integrator PR4/M3",
+    "independent reviewer/M4"
+  ],
+  "mvp_complete": false
+}
