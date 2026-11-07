@@ -75,3 +75,10 @@ contracts v7 / CR orchestrator-04: 호출 시점 os.getenv('LLM_API_KEY') 우선
   실측 리포트의 평균 비용은 LLM usage 기준이며 검색 임베딩 usage는 ai_requests의 embed 기록과 구분한다.
 - 키 미구성 상태에서 실제 evaluate 워커 실행: evaluation.failed, session.grading_failed, EVAL_INTERNAL, 외부 평가 호출 0.
   실제 잘못된 키의 HTTP 401 실험이나 성공 등급 실험을 통과했다고 표시하지 않는다.
+
+
+## 구현 main 병합 요청 (2026-11-07, OpenAI Codex)
+
+사용자 후속 A/B main 병합 지시에 따라 구현을 main에 반영한다. 최신 A/B129 passed/skip0/14.60초와 실제 IL 결과 저장·잘못된 키1회 실패·관측 사용량/한도 중단·이어 실행 검증이 근거다. 계약 v8은 TTS 저장 경로만 변경하며 고정 평가 원문·HTTP·grader 공개 함수는 유지한다.
+
+**품질 검증은 미완료다.** 40시험 중5건 정상 뒤 quota_exhausted로 중단됐으며 남은35·함정/3회 반복·실제 IM2 queue 등은 후속 조건으로 유지한다. 기존 파일럿75%를 목표 달성으로 표시하지 않고 실제 수험생 정확도를 주장하지 않는다. 구현 병합은 전체 M2/M3/정확도 검증 완료 선언이 아니다.
