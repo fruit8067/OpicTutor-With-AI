@@ -4,7 +4,7 @@
 
 ## 상태
 
-M2 완료 (2026-11-07) — PR "[frontend] M2". main `5bca38a` 기준. tts-host(`features/host`) 병합 전에는 bootstrap stub이 들어 있어서
+M2 코드 구현·후속 검증 완료, 실제 음성/통합 대기 (2026-11-07) — PR "[frontend] M2". main `5bca38a` 기준. tts-host(`features/host`) 병합 전에는 bootstrap stub이 들어 있어서
 **실제 음성 재생은 tts-host PR 병합 후** 동작한다(stub `play()`가 오류를 던짐 → 화면은 "다시 재생"을 보여 줌). mock 완주는 tts-host 브랜치의 host 파일을 겹쳐서 확인했다.
 
 ## 디자인 방향
@@ -74,3 +74,19 @@ VITE_API_BASE=http://127.0.0.1:8000/api/v1 npm run dev
 
 - bootstrap/orchestrator: CR frontend-01 검토
 - tts-host: `useTtsPlayer`의 이전 재생 결과 무시 수정(agent/tts-host `0d38581`)이 있어야 개발 모드(StrictMode)에서 첫 문항 재생이 실패하지 않는다
+
+
+## 2026-11-07 C 후속 보강 (OpenAI Codex)
+
+기존 구현과 Claude 출처를 보존했다. 진행자 greeting/next/say_again/finish도 재생 성공 뒤에만 진행하도록 수정했다. 실패·자동 재생 차단 시 같은 음성의 명시적 재시도를 제공하며 녹음/다음 문항/submit으로 넘어가지 않는다. 화면 이탈 후 업로드 재시도/진행을 막았다. 준비 재시도가 즉시 ready를 반환하면 해당 화면으로 이동한다. 설정의 기존 세션 조회가 네트워크 오류이면 새 세션을 만들지 않는다(SESSION_NOT_FOUND만 새 생성 허용).
+
+- `cd frontend; npm ci; npm run build; npm run lint`: build 성공, lint 경고0.
+- Chromium 1280×900에서 **15개 시나리오 통과 / pageerror0 / 유료 요청0**. `frontend/verification/browser-2026-11-07.json`에 결과를 기록한다.
+- 키보드 로그인/마이크 사전 녹음(업로드0), 키보드 8문항 녹음·202 처리 대기·완료 후 이동·마지막 음성 후 submit1회를 확인했다. 첫 업로드 네트워크 실패의 재전송은 같은 client_request_id를 유지했다.
+- 질문/대사 재생 실패와 자동 재생 차단, 짧은 녹음의 업로드 거부, processing 새로고침 복구, 준비 실패/재시도, 재평가, 결과 IH/IM2/IM보류/근거부족/결측2문항 표시를 확인했다.
+- 브라우저 검증은 API 대역·합성 tone MP3·Chromium fake microphone을 사용했다. 테스트 서버는 ignored `src/__dev__/vite.verify.ts`의 명시적 resolver로 tts-host 소유 Host/플레이어를 불러왔다. 다른 역할 소스를 이 브랜치에 복사하거나 stub을 성공으로 바꾸지 않았다. 실제 사람 마이크·OmniVoice 음질·실제 LLM 완료의 증거가 아니다.
+- 시험/IM2 결과 화면을 시각 확인했다. 기존 종이/청록 디자인을 유지한다.
+
+### 남은 조건
+
+실제 OmniVoice ZIP 생성/반입과 실제 서버·마이크 연동, M2 병합 순서, M3 통합 후 별도 대화의 독립 reviewer가 남아 있다. mock 모듈은 계약대로 src/__dev__에만 두고 커밋하지 않는다. C 전체/제품 완료를 선언하지 않는다. CR frontend-01은 bootstrap의 별도 PR로 처리하며 공개 HTTP 형식을 바꾸지 않는다.

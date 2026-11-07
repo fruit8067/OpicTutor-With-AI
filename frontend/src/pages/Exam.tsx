@@ -1,4 +1,5 @@
 // AI-assisted: 이 코드는 Claude(Anthropic)의 도움으로 작성되었습니다.
+// 후속 수정: 필수 대사 재시도·이탈 후 요청 방지는 OpenAI Codex의 도움으로 작성되었습니다.
 // OWNER: frontend (contracts.yaml ownership)
 //
 // 시험 화면 — 문항 하나의 상태 머신. 서버 상태가 진실이다.
@@ -21,7 +22,7 @@ import { clearSessionId, loadSessionId, routeFor } from '../lib/session';
 
 type Phase =
   | 'loading' | 'playing' | 'blocked' | 'play_error' | 'awaiting_record' | 'recording'
-  | 'uploading' | 'upload_failed' | 'processing' | 'failed' | 'finishing' | 'fatal';
+  | 'line_error' | 'uploading' | 'upload_failed' | 'processing' | 'failed' | 'finishing' | 'fatal';
 
 const RETRY_DELAYS = [1000, 2000, 4000];
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
@@ -46,6 +47,7 @@ export default function Exam() {
   const [elapsed, setElapsed] = useState(0);
   const [failedAnswer, setFailedAnswer] = useState<AnswerOut | null>(null);
   const [micError, setMicError] = useState<string | null>(null);
+  const retryLine = useRef<(() => Promise<void>) | null>(null);
   const stream = useRef<MediaStream | null>(null);
   const recorder = useRef<Recorder | null>(null);
   const pendingUpload = useRef<{ rec: Recording; reqId: string; orderNo: number } | null>(null);
@@ -67,12 +69,23 @@ export default function Exam() {
 
   const lineUrl = useCallback((c: CurrentQuestionOut | null, key: string) => mediaUrl(c?.host_lines?.[key]?.audio_url), []);
 
-  const playLine = useCallback(async (c: CurrentQuestionOut | null, key: string) => {
-    const url = lineUrl(c, key);
-    if (!url) return;
-    setSpeakingLine(true);
-    await player.play(url);
-    setSpeakingLine(false);
+  // 대사도 필수 음성이다. 실패하면 같은 음성을 재시도한 뒤에만 진행한다.
+  const playLine = useCallback(async (c: CurrentQuestionOut | null, key: string, next: () => Promise<void>) => {
+    const attempt = async (): Promise<void> => {
+      setSpeakingLine(true);
+      const url = lineUrl(c, key);
+      const result = url ? await player.play(url) : 'error';
+      if (!alive.current) return;
+      setSpeakingLine(false);
+      if (result !== 'ended') {
+        retryLine.current = attempt;
+        setPhase('line_error');
+        return;
+      }
+      retryLine.current = null;
+      await next();
+    };
+    await attempt();
   }, [lineUrl, player]);
 
   const handleFatal = useCallback((e: unknown) => {
@@ -84,12 +97,13 @@ export default function Exam() {
   const finish = useCallback(async (c: CurrentQuestionOut | null) => {
     if (!id) return;
     setPhase('finishing');
-    await playLine(c, 'finish');
-    try { await submitSession(id); nav('/result', { replace: true }); }
+    await playLine(c, 'finish', async () => {
+    try { await submitSession(id); if (alive.current) nav('/result', { replace: true }); }
     catch (e) {
       if (e instanceof ApiError && e.code === 'INVALID_STATE') { nav('/', { replace: true }); return; } // 이미 제출됨 → 상태 라우팅
       handleFatal(e);
     }
+    });
   }, [id, nav, playLine, handleFatal]);
 
   const playQuestion = useCallback(async (c: CurrentQuestionOut) => {
@@ -112,17 +126,16 @@ export default function Exam() {
         if (e instanceof ApiError && e.code !== NETWORK_ERROR && e.status < 500) { handleFatal(e); return; }
         await sleep(2000); continue;                    // 일시 오류: 같은 문항에서 계속 확인
       }
+      if (!alive.current) return;
       if (a.stt_status === 'done' && (a.current_order_no > orderNo || a.all_answered)) {
         pendingUpload.current = null;
         if (a.all_answered) { await finish(c); return; }
-        await playLine(c, 'next');
-        await loadRef.current();
+        await playLine(c, 'next', () => loadRef.current());
         return;
       }
       if (a.stt_status === 'rejected') {
         setNote({ kind: 'warn', text: `${labelOf(REJECT_TEXT, a.reject_reason ?? '')} 같은 문항에 다시 답해 주세요.` });
-        await playLine(c, 'say_again');
-        setPhase('awaiting_record');
+        await playLine(c, 'say_again', async () => { setPhase('awaiting_record'); });
         return;
       }
       if (a.stt_status === 'failed') {
@@ -160,8 +173,9 @@ export default function Exam() {
         setPhase('awaiting_record'); return;
       }
     }
-    await playQuestion(c);
-  }, [id, nav, finish, poll, playQuestion, handleFatal]);
+    if (c.question.order_no === 1) await playLine(c, 'greeting', () => playQuestion(c));
+    else await playQuestion(c);
+  }, [id, nav, finish, poll, playQuestion, playLine, handleFatal]);
 
   useEffect(() => { loadRef.current = load; }, [load]);
   const started = useRef(false);
@@ -178,9 +192,11 @@ export default function Exam() {
     if (!id || !cur) return;
     setPhase('uploading');
     for (let i = 0; ; i++) {
+      if (!alive.current) return;
       try {
         const a = await uploadAnswer(id, { order_no: job.orderNo, client_request_id: job.reqId, duration_ms: job.rec.durationMs,
                                            audio: job.rec.blob, filename: `answer.${extFor(job.rec.mime)}` });
+        if (!alive.current) return;
         await poll(a.answer_id, job.orderNo, cur);
         return;
       } catch (e) {
@@ -208,6 +224,7 @@ export default function Exam() {
       setMicError(k === 'denied' ? '마이크 권한이 꺼졌어요. 주소창의 사이트 설정에서 마이크를 허용한 뒤 다시 눌러 주세요.' : '마이크를 켜지 못했어요. 연결을 확인하고 다시 눌러 주세요.');
       return;
     }
+    if (!alive.current || phaseRef.current !== 'awaiting_record') { stream.current?.getTracks().forEach((t) => t.stop()); return; }
     const r = new Recorder(stream.current);
     recorder.current = r;
     setElapsed(0);
@@ -217,7 +234,7 @@ export default function Exam() {
     if (rec.durationMs < RECORD_MIN_MS || rec.peak < SILENCE_PEAK) {
       setNote({ kind: 'warn', text: rec.durationMs < RECORD_MIN_MS ? '답변이 너무 짧았어요. 다시 답해 주세요.' : '목소리가 거의 들리지 않았어요. 마이크 가까이에서 다시 답해 주세요.' });
       setPhase('awaiting_record');
-      await playLine(cur, 'say_again');
+      await playLine(cur, 'say_again', async () => { setPhase('awaiting_record'); });
       return;
     }
     const job = { rec, reqId: crypto.randomUUID(), orderNo: cur.question.order_no };   // 녹음 1회당 키 1개
@@ -251,7 +268,7 @@ export default function Exam() {
   const status = {
     loading: '문항을 불러오는 중', playing: '질문을 듣고 있어요', blocked: '브라우저가 자동 재생을 막았어요',
     play_error: '질문 음성을 재생하지 못했어요', awaiting_record: '마이크 버튼을 눌러 답해 주세요', recording: '녹음 중 — 다 말했으면 버튼을 다시 눌러 주세요',
-    uploading: '답변을 보내는 중', upload_failed: '답변을 보내지 못했어요', processing: '답변 처리 중', failed: '답변을 처리하지 못했어요',
+    line_error: '진행자 음성을 다시 재생해 주세요', uploading: '답변을 보내는 중', upload_failed: '답변을 보내지 못했어요', processing: '답변 처리 중', failed: '답변을 처리하지 못했어요',
     finishing: '시험을 마치는 중', fatal: '문제가 생겼어요',
   }[phase];
 
@@ -316,6 +333,12 @@ export default function Exam() {
           {micError && <p className="notice notice-warn" role="alert">{micError}</p>}
           {note && <p className={`notice ${note.kind === 'warn' ? 'notice-warn' : ''}`} role={note.kind === 'warn' ? 'alert' : undefined}>{note.text}</p>}
 
+          {phase === 'line_error' && (
+            <div className="notice notice-warn" role="alert">
+              <p>진행자 음성을 재생하지 못했어요. 음성을 들은 뒤 계속할 수 있어요.</p>
+              <button className="btn" disabled={speakingLine} onClick={() => retryLine.current?.()} autoFocus>진행자 음성 다시 듣기</button>
+            </div>
+          )}
           {phase === 'uploading' && <p className="faint">새로고침하거나 창을 닫으면 아직 보내지 못한 녹음이 사라질 수 있어요.</p>}
           {phase === 'upload_failed' && (
             <div className="notice notice-warn" role="alert">
