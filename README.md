@@ -1,6 +1,6 @@
 <!-- AI-assisted: PR #31의 README 초안을 바탕으로 OpenAI Codex의 도움을 받아 develop/v2 기준으로 정리했습니다. -->
 <div align="center">
-  <img src="frontend/public/favicon.svg" alt="" width="72">
+  <img src="docs/assets/opic-tutor-mascot.svg" alt="OpicTutor 꿀꿀이" width="72">
 
   <h1>OpicTutor</h1>
 
