@@ -39,7 +39,7 @@ def _check(db, idx: dict, voice_id: str, kind: str, ref_id: str, text: str) -> t
     from pathlib import PureWindowsPath
     path = (base / stored).resolve()
     if (asset.get("status") != "available" or PureWindowsPath(stored).drive or
-            PureWindowsPath(stored).root or not path.is_relative_to(base) or not path.is_file()):
+            PureWindowsPath(stored).root or not path.is_relative_to(base) or not path.is_file() or path.stat().st_size == 0):
         return None, "TTS_FILE_MISSING"
     return asset["id"], None
 

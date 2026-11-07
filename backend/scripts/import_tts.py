@@ -5,7 +5,7 @@
 
 python -m scripts.import_tts <zip|폴더> [--activate] [--no-db]
 1. {TTS_DIR}/{voice_id}/ 에 풀기 (voice_id = manifest.settings_version, zip 최상위 폴더 이름과 같아야 함)
-2. manifest 검사: 필수 키, settings_version 재계산 일치, 모든 item 파일 존재, mp3 길이(PyAV) > 0, id 형식
+2. 새 반입은 {voice_id}/{kind}/{ref_id}/{text_sha1}.mp3에 보존(v8), 기존 파일은 유지. manifest 검사: 필수 키, settings_version 재계산 일치, 모든 item 파일 존재, mp3 길이(PyAV) > 0, id 형식
 3. 각 item을 db.upsert_tts_asset으로 등록(kind/ref_id = id 분리, text_hash = manifest text_sha1). --no-db면 생략
 4. --activate면 active_voice.json 갱신. e2e_answer는 backend/e2e_audio/{level}/{order:02d}.mp3로도 복사
 5. 요약: 등록 수, 누락, 오류. 오류가 있으면 exit 1(그 경우 활성화하지 않음)
@@ -66,9 +66,22 @@ def find_root(path: Path, tmp: Path) -> Path:
     return subs[0]
 
 
+def source_asset(root: Path, manifest: dict, item: dict) -> Path:
+    kind, ref = split_item_id(item["id"])
+    if "file_path" in item:
+        expected = asset_rel_path(manifest["settings_version"], kind, ref, item["text_sha1"])
+        if item["file_path"] != expected: raise ValueError("로컬 file_path 불일치")
+        path = root / kind / ref / f"{item['text_sha1']}.mp3"
+    else:
+        path = root / kind / f"{ref}.mp3"
+    if not path.resolve().is_relative_to(root.resolve()): raise ValueError("음성 경로 이탈")
+    return path
+
+
 def validate(root: Path, check_name: bool = True) -> tuple[dict, list[str]]:
     errs = []
-    m = json.loads((root / "manifest.json").read_text(encoding="utf-8"))
+    try: m = json.loads((root / "manifest.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError): return {}, ["manifest를 읽을 수 없습니다"]
     if not isinstance(m, dict):
         return {}, ["manifest는 JSON 객체여야 합니다"]
     for k in REQUIRED:
@@ -99,7 +112,9 @@ def validate(root: Path, check_name: bool = True) -> tuple[dict, list[str]]:
             errs.append(f"{it['id']}: text_sha1 형식 오류")
         if kind == "e2e_answer" and not re.fullmatch(r"(?:IM2|IL)_0[1-8]", ref):
             errs.append(f"{it['id']}: e2e 등급/순서 형식 오류")
-        f = root / kind / f"{ref}.mp3"
+        try: f = source_asset(root, m, it)
+        except (ValueError, KeyError, TypeError):
+            errs.append(f"{it['id']}: 로컬 음성 경로 오류"); continue
         if not f.is_file():
             errs.append(f"{it['id']}: 파일 없음")
             continue
@@ -131,10 +146,13 @@ def main(argv=None) -> int:
         dest.mkdir(parents=True, exist_ok=True)
         for it in m["items"]:
             kind, ref = split_item_id(it["id"])
-            (dest / kind).mkdir(exist_ok=True)
-            src, dst = root / kind / f"{ref}.mp3", dest / kind / f"{ref}.mp3"
+            src = source_asset(root, m, it)
+            relative = asset_rel_path(vid, kind, ref, it["text_sha1"])
+            dst = tts_dir() / relative
+            dst.parent.mkdir(parents=True, exist_ok=True)
             if not (dst.exists() and src.resolve() == dst.resolve()):   # 이미 반입된 폴더를 다시 등록할 때(DB만)
                 shutil.copyfile(src, dst)
+            it["file_path"] = relative
         # 기존 manifest와 합치기(--stale 반입)
         old = {}
         if (dest / "manifest.json").is_file():
@@ -150,7 +168,7 @@ def main(argv=None) -> int:
         for it in m["items"]:
             kind, ref = split_item_id(it["id"])
             db.upsert_tts_asset(kind=kind, ref_id=ref, text_hash=it["text_sha1"], voice_id=vid, settings_version=vid,
-                                file_path=asset_rel_path(vid, kind, ref), duration_sec=it.get("_measured") or it.get("seconds"))
+                                file_path=it["file_path"], duration_sec=it.get("_measured") or it.get("seconds"))
             registered += 1
     e2e = 0
     jobs_meta = {}
@@ -167,12 +185,12 @@ def main(argv=None) -> int:
         level, _, order = ref.partition("_")
         target = BACKEND / "e2e_audio" / level / f"{order}.mp3"
         target.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copyfile(dest / kind / f"{ref}.mp3", target)
+        shutil.copyfile(tts_dir() / it["file_path"], target)
         e2e += 1
     if a.activate:
         (tts_dir() / "active_voice.json").write_text(json.dumps({"voice_id": vid}) + "\n", encoding="utf-8")
     total = sum(it.get("_measured", 0) for it in m["items"])
-    size = sum((dest / split_item_id(i["id"])[0] / f"{split_item_id(i['id'])[1]}.mp3").stat().st_size for i in m["items"])
+    size = sum((tts_dir() / i["file_path"]).stat().st_size for i in m["items"])
     print(f"voice_id={vid}: 반입 {len(m['items'])}개(총 {total:.0f}초, {size / 1e6:.1f}MB), DB 등록 {registered}개, "
           f"e2e 복사 {e2e}개, 누락 0, 해시 불일치 0{' — 활성화함' if a.activate else ''}")
     return 0

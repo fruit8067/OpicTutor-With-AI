@@ -161,7 +161,7 @@ def registered(vid, items, status="available"):
     for item_id, text in items.items():
         kind, ref = A.split_item_id(item_id)
         out[(kind, ref, A.text_hash(text), vid)] = {"id": f"id-{item_id}", "status": status,
-                                                   "file_path": A.asset_rel_path(vid, kind, ref)}
+                                                   "file_path": A.asset_rel_path(vid, kind, ref, A.text_hash(text))}
     return out
 
 
@@ -195,7 +195,7 @@ def test_prepare_missing_mismatch_file(active, monkeypatch, env):
     reg.pop(("question", "Q000", A.text_hash(items["question/Q000"]), active))     # 등록 없음 → MISSING
     f = FakeDB(reg)
     patch_db(monkeypatch, f)
-    (tts / active / "host" / "next.mp3").unlink()                                   # 파일 없음 → FILE_MISSING
+    (tts / A.asset_rel_path(active, "host", "next", A.text_hash(HOST_LINES["next"]))).unlink()                                   # 파일 없음 → FILE_MISSING
     f.list_session_questions = lambda sid: [
         {"order_no": 1, "question_id": "Q000", "question_text": "Tell me about yourself."},
         {"order_no": 2, "question_id": "Q001", "question_text": "Describe your NEW home."}]  # 문장 바뀜 → MISMATCH
@@ -275,3 +275,56 @@ def test_changed_text_keeps_old_asset(env, tmp_path):
     write_mp3(second / "question/Q001.mp3", seconds=1.5)
     assert imp([str(second), "--no-db"]) == 0
     assert hashlib.sha256(old_file.read_bytes()).hexdigest() == digest
+
+
+@pytest.mark.parametrize("value", [[1], {"items": None}, {"items": [{"id": []}]}])
+def test_malformed_manifest_index_is_unavailable(value):
+    assert A.manifest_index(value) == {}
+
+
+def test_legacy_flat_manifest_still_works(env, tmp_path):
+    import shutil
+    tts, _ = env
+    vid, folder = make_voice(tmp_path / "source", all_items())
+    shutil.copytree(folder, tts / vid)
+    (tts / "active_voice.json").write_text(json.dumps({"voice_id": vid}),encoding="utf-8")
+    assert A.tts_status()["missing_pilot"] == []
+
+
+def test_invalid_json_import_does_not_activate(env, tmp_path):
+    from scripts.import_tts import main as imp
+    folder=tmp_path / "invalid";folder.mkdir()
+    (folder/"manifest.json").write_text("{broken",encoding="utf-8")
+    assert imp([str(folder),"--activate","--no-db"]) == 1
+    assert A.active_voice_id() is None
+
+
+
+def test_database_failure_does_not_activate(env, tmp_path, monkeypatch):
+    from scripts.import_tts import main as imp
+    vid, folder = make_voice(tmp_path / "source", all_items())
+    def fail(**kwargs): raise RuntimeError("database unavailable")
+    monkeypatch.setattr(real_db, "upsert_tts_asset", fail)
+    with pytest.raises(RuntimeError, match="database unavailable"):
+        imp([str(folder), "--activate"])
+    assert A.active_voice_id() is None
+
+
+def test_corrupt_mp3_is_rejected_before_activation(env, tmp_path):
+    from scripts.import_tts import main as imp
+    vid, folder = make_voice(tmp_path / "source", all_items())
+    (folder / "host/next.mp3").write_bytes(b"broken audio")
+    assert imp([str(folder), "--activate", "--no-db"]) == 1
+    assert A.active_voice_id() is None
+
+
+
+def test_empty_registered_file_blocks_preparation(active, monkeypatch, env):
+    tts, _ = env
+    path=tts / A.asset_rel_path(active,"question","Q001",A.text_hash(all_items()["question/Q001"]))
+    path.write_bytes(b"")
+    fake=FakeDB(registered(active, all_items()))
+    patch_db(monkeypatch,fake)
+    P.handle(JOB)
+    assert fake.completed is None and fake.failed[0]["error_code"]=="TTS_FILE_MISSING"
+    assert "Q001" in A.tts_status()["missing_pilot"]

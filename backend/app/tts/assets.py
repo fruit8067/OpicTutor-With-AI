@@ -43,8 +43,11 @@ def active_voice_id() -> str | None:
     return vid if isinstance(vid, str) and re.fullmatch(r"[0-9a-f]{10}", vid) else None
 
 
-def asset_rel_path(voice_id: str, kind: str, ref_id: str) -> str:
+def asset_rel_path(voice_id: str, kind: str, ref_id: str, text_sha1: str | None = None) -> str:
     """TTS_DIR 기준 상대 경로(DB tts_assets.file_path에 저장하는 값)."""
+    if text_sha1 is not None:
+        if not re.fullmatch(r"[0-9a-f]{40}", text_sha1): raise ValueError("text_sha1 형식 오류")
+        return f"{voice_id}/{kind}/{ref_id}/{text_sha1}.mp3"
     return f"{voice_id}/{kind}/{ref_id}.mp3"
 
 
@@ -63,13 +66,37 @@ def split_item_id(item_id: str) -> tuple[str, str]:
 def load_manifest(voice_id: str) -> dict | None:
     p = tts_dir() / voice_id / "manifest.json"
     try:
-        return json.loads(p.read_text(encoding="utf-8"))
+        manifest = json.loads(p.read_text(encoding="utf-8"))
+        if not isinstance(manifest, dict) or not isinstance(manifest.get("items"), list): return None
+        if manifest.get("settings_version") != voice_id: return None
+        return manifest
     except (OSError, ValueError):
         return None
 
 
 def manifest_index(manifest: dict | None) -> dict[str, dict]:
-    return {it["id"]: it for it in (manifest or {}).get("items", []) if isinstance(it, dict) and "id" in it}
+    if not isinstance(manifest, dict) or not isinstance(manifest.get("items"), list): return {}
+    result = {}
+    for item in manifest["items"]:
+        if not isinstance(item, dict) or not isinstance(item.get("id"), str): return {}
+        if item["id"] in result: return {}
+        try: split_item_id(item["id"])
+        except ValueError: return {}
+        result[item["id"]] = item
+    return result
+
+
+def manifest_asset_path(voice_id: str, kind: str, ref_id: str, item: dict) -> Path | None:
+    """v8 로컬 file_path와 v7 평면 경로를 함께 읽는다."""
+    try:
+        legacy = asset_rel_path(voice_id, kind, ref_id)
+        expected = asset_rel_path(voice_id, kind, ref_id, item["text_sha1"])
+        relative = item.get("file_path", legacy)
+        if relative not in (legacy, expected): return None
+        path = (tts_dir() / relative).resolve()
+        if not path.is_relative_to(tts_dir().resolve()): return None
+        return path
+    except (KeyError, TypeError, ValueError): return None
 
 
 def pilot_questions() -> list[dict]:
@@ -95,7 +122,8 @@ def tts_status() -> dict:
             kind, ref = split_item_id(item_id)
         except ValueError:
             continue
-        if (tts_dir() / asset_rel_path(vid, kind, ref)).is_file():
+        path = manifest_asset_path(vid, kind, ref, it)
+        if path is not None and path.is_file() and path.stat().st_size > 0:
             present[item_id] = it.get("text_sha1")
     missing = [q["id"] for q in pilot if present.get(f"question/{q['id']}") != text_hash(q.get("question", ""))]
     missing += [f"host/{k}" for k, t in HOST_LINES.items() if present.get(f"host/{k}") != text_hash(t)]
