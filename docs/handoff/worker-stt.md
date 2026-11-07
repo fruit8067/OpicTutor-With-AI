@@ -85,3 +85,8 @@ main 832f898(tts-host M2·계약 v8) 위로 rebase. tts_prepare가 실제 핸들
 가짜 stub으로 제외 규칙을 확인하는 테스트와 병합된 tts_prepare·stt가 모두 확보 대상인지 확인하는 테스트로 나눴다. 런타임 코드 변경 없음.
 backend 전체 69 passed. test_db_ingest 2건은 tiktoken 인코딩 다운로드가 막힌 검증 환경 문제로 main에서도 동일하게 실패한다.
 실제 마이크 검증은 아직 대기다.
+
+
+## 구현 main 병합 요청 (2026-11-07, OpenAI Codex)
+
+사용자의 후속 A/B main 병합 지시에 따라 검증된 구현을 병합한다. 원격 작업자가 추가한 7c6917d의 실제 TTS 핸들러/stub 제외 회귀를 보존하고 최신 main으로 rebase했다. 최신 A/B129 passed/skip0/14.60초, ownership 통과. 실제 합성 small.en CLI와 복구 이력 및 실제 C/AB 작업 executor 연결 증거가 있다. 실제 사람 마이크 검증은 아직 미완료이며 구현 병합을 품질/M3 완료로 표시하지 않는다.
