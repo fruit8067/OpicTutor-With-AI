@@ -259,3 +259,19 @@ def test_prepare_rejects_external_file(active, monkeypatch, env, tmp_path):
     P.handle(JOB)
     assert fake.completed is None
     assert fake.failed[0]["error_code"] == "TTS_FILE_MISSING"
+
+
+# AI-assisted (OpenAI Codex). F0/F6: an old session must keep its original audio.
+def test_changed_text_keeps_old_asset(env, tmp_path):
+    from scripts.import_tts import main as imp
+    import hashlib
+    vid, first = make_voice(tmp_path / "first", {"question/Q001": "Original question."})
+    assert imp([str(first), "--no-db"]) == 0
+    tts, _ = env
+    old_item = A.manifest_index(A.load_manifest(vid))["question/Q001"]
+    old_file = tts / old_item.get("file_path", A.asset_rel_path(vid, "question", "Q001"))
+    digest = hashlib.sha256(old_file.read_bytes()).hexdigest()
+    _, second = make_voice(tmp_path / "second", {"question/Q001": "Updated question."})
+    write_mp3(second / "question/Q001.mp3", seconds=1.5)
+    assert imp([str(second), "--no-db"]) == 0
+    assert hashlib.sha256(old_file.read_bytes()).hexdigest() == digest
