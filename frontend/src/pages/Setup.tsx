@@ -1,5 +1,6 @@
 // AI-assisted: 이 코드는 Claude(Anthropic)의 도움으로 작성되었습니다.
 // 후속 수정: 상태 복구 처리는 OpenAI Codex의 도움으로 작성되었습니다.
+// 후속 수정: 마이크 장치 선택·음량 막대는 Claude(Anthropic)의 도움으로 작성되었습니다.
 // OWNER: frontend (contracts.yaml ownership)
 // 설정: 마이크 권한 → 실시간 음량 → 3초 테스트 녹음·재생(업로드 안 함) → 시나리오 선택 → S1.
 import { useEffect, useRef, useState } from 'react';
@@ -7,8 +8,11 @@ import { useNavigate } from 'react-router-dom';
 import { ApiError, createSession, getScenarios, getSession } from '../api/client';
 import type { ScenarioOut } from '../api/types';
 import { ErrorNote, Live, Shell } from '../components/Shell';
-import { meter, micErrorKind, openMic, Recorder, SILENCE_PEAK, type MicErrorKind } from '../lib/recorder';
-import { loadSessionId, saveSessionId } from '../lib/session';
+import { MicLevel } from '../components/MicLevel';
+import {
+  listMics, meter, micErrorKind, openMic, Recorder, SILENCE_PEAK, streamDeviceId, toLevel, type MicDevice, type MicErrorKind,
+} from '../lib/recorder';
+import { loadMicId, loadSessionId, saveMicId, saveSessionId } from '../lib/session';
 
 const MIC_HELP: Record<MicErrorKind, string> = {
   denied: '마이크 권한이 막혀 있어요. 주소창 왼쪽 자물쇠(또는 사이트 설정) 아이콘 → 마이크 → 허용으로 바꾼 뒤 이 페이지를 새로고침해 주세요. Safari는 설정 → 웹사이트 → 마이크에서 바꿀 수 있어요.',
@@ -24,6 +28,7 @@ export default function Setup() {
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [micErr, setMicErr] = useState<MicErrorKind | null>(null);
   const [level, setLevel] = useState(0);
+  const [mics, setMics] = useState<MicDevice[]>([]);
   const [test, setTest] = useState<TestState>('idle');
   const [testUrl, setTestUrl] = useState<string | null>(null);
   const [scenarios, setScenarios] = useState<ScenarioOut[] | null>(null);
@@ -36,6 +41,14 @@ export default function Setup() {
   const reqId = useRef<string>(crypto.randomUUID());
 
   useEffect(() => { getScenarios().then(setScenarios).catch(setError); }, []);
+  // 권한을 받은 뒤에야 장치 이름이 보인다. 장치를 꽂거나 빼면 목록을 다시 읽는다.
+  useEffect(() => {
+    if (!stream) return;
+    const refresh = () => { listMics().then((m) => { if (alive.current) setMics(m); }).catch(() => {}); };
+    refresh();
+    navigator.mediaDevices?.addEventListener?.('devicechange', refresh);
+    return () => navigator.mediaDevices?.removeEventListener?.('devicechange', refresh);
+  }, [stream]);
   useEffect(() => {
     if (!stream) return;
     const stop = meter(stream, setLevel);
@@ -49,9 +62,26 @@ export default function Setup() {
     openingMic.current = true;
     setMicErr(null);
     try {
-      const opened = await openMic();
+      const opened = await openMic(loadMicId());
       if (!alive.current) opened.getTracks().forEach((track) => track.stop());
       else setStream(opened);
+    } catch (e) { if (alive.current) setMicErr(micErrorKind(e)); }
+    finally { openingMic.current = false; }
+  };
+
+  // 다른 마이크로 바꾸면 테스트를 다시 해야 한다.
+  const changeMic = async (deviceId: string) => {
+    if (openingMic.current || deviceId === micId) return;
+    openingMic.current = true;
+    setMicErr(null);
+    try {
+      const opened = await openMic(deviceId);
+      if (!alive.current) { opened.getTracks().forEach((t) => t.stop()); return; }
+      stream?.getTracks().forEach((t) => t.stop());
+      saveMicId(streamDeviceId(opened) ?? deviceId);
+      setStream(opened);
+      setTest('idle');
+      if (testUrl) { URL.revokeObjectURL(testUrl); setTestUrl(null); }
     } catch (e) { if (alive.current) setMicErr(micErrorKind(e)); }
     finally { openingMic.current = false; }
   };
@@ -89,6 +119,7 @@ export default function Setup() {
       }
       const s = await createSession({ client_request_id: reqId.current, scenario_id: scenario, mic_check_passed: true,
                                       replaces_session_id: replaces });
+      saveMicId(streamDeviceId(stream));
       stream?.getTracks().forEach((t) => t.stop());
       saveSessionId(s.session_id);
       nav('/prepare');
@@ -99,6 +130,7 @@ export default function Setup() {
   };
 
   const micOk = test === 'passed';
+  const micId = streamDeviceId(stream);
   return (
     <Shell>
       <div style={{ display: 'grid', gap: 32, maxWidth: 720 }}>
@@ -116,12 +148,18 @@ export default function Setup() {
             </div>
           ) : (
             <div style={{ display: 'grid', gap: 14 }}>
+              {mics.length > 0 && (
+                <label className="field" style={{ maxWidth: 420 }}>
+                  <span>사용할 마이크</span>
+                  <select className="input" value={micId ?? ''} onChange={(e) => void changeMic(e.target.value)}>
+                    {!mics.some((m) => m.deviceId === micId) && <option value={micId ?? ''}>기본 마이크</option>}
+                    {mics.map((m) => <option key={m.deviceId} value={m.deviceId}>{m.label}</option>)}
+                  </select>
+                </label>
+              )}
               <div style={{ display: 'grid', gap: 6 }}>
-                <span className="faint" id="lv">입력 음량 — 아무 말이나 해 보세요</span>
-                <div className="meter" role="meter" aria-labelledby="lv" aria-valuemin={0} aria-valuemax={100}
-                     aria-valuenow={Math.round(Math.min(1, level * 6) * 100)}>
-                  <span style={{ width: `${Math.min(100, level * 600)}%` }} />
-                </div>
+                <span className="faint">입력 음량 — 아무 말이나 해 보세요. 말할 때 막대가 움직이면 정상이에요.</span>
+                <MicLevel level={toLevel(level)} active variant="test" label="입력 음량" />
               </div>
               <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
                 <button className="btn btn-ghost" onClick={runTest} disabled={test === 'recording'}>

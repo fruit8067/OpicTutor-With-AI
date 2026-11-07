@@ -111,3 +111,27 @@ p { margin: 0; }
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; animation: none !important; }
 }
+
+/* AI-assisted: 마이크 UX(음량 막대·녹음 링·대기 안내) 스타일은 Claude(Anthropic)의 도움으로 작성되었습니다. */
+.mic { position: relative; transition: box-shadow 80ms linear, transform 120ms ease; }
+.mic[data-state='ready'] { animation: mic-invite 2.2s ease-in-out infinite; }
+.mic[data-recording='true'] {
+  box-shadow: 0 0 0 calc(8px + var(--lvl, 0) * 22px) var(--rec-wash), 0 0 0 calc(10px + var(--lvl, 0) * 22px) rgba(184, 62, 55, 0.35);
+}
+.mic[data-recording='true']::after {
+  content: ''; position: absolute; inset: -6px; border-radius: 50%; border: 2px solid var(--rec);
+  animation: mic-pulse 1.4s ease-out infinite; pointer-events: none;
+}
+@keyframes mic-invite { 0%, 100% { box-shadow: 0 0 0 8px var(--teal-wash); } 50% { box-shadow: 0 0 0 16px var(--teal-wash); } }
+@keyframes mic-pulse { from { transform: scale(1); opacity: 0.8; } to { transform: scale(1.45); opacity: 0; } }
+
+.rec-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: var(--rec); margin-right: 6px; animation: rec-blink 1s steps(2, start) infinite; }
+@keyframes rec-blink { to { visibility: hidden; } }
+
+.miclevel { display: flex; align-items: center; gap: 3px; height: 44px; width: 100%; max-width: 320px; }
+.miclevel > span { flex: 1; min-width: 3px; border-radius: 2px; background: #d5dedb; transition: height 70ms linear; }
+.miclevel[data-active='true'] > span { background: var(--rec); }
+.miclevel[data-variant='test'][data-active='true'] > span { background: var(--teal); }
+
+.rec-progress { height: 4px; background: #eadbd9; border-radius: 2px; overflow: hidden; max-width: 320px; }
+.rec-progress > span { display: block; height: 100%; background: var(--rec); transition: width 200ms linear; }
