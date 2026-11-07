@@ -266,5 +266,27 @@ class ResultOut(ContractModel):
     error_code: str | None
     graded_at: datetime | None
 
-for _name in ['HealthOut', 'ScenarioOut', 'HostLineOut', 'CreateSessionIn', 'PrepareFailure', 'PrepareProgress', 'SessionOut', 'QuestionOut', 'CurrentQuestionOut', 'ReplayOut', 'Metrics', 'AnswerOut', 'Mistake', 'ItemFeedback', 'FeedbackCard', 'DimensionFeedback', 'DimensionFeedbackSet', 'QuoteRef', 'FactEvidence', 'CoverageEntry', 'Coverage', 'SustainedPerformance', 'BreakdownObservation', 'UnusableItem', 'EvaluationScope', 'AdditionalTask', 'EvaluationResult', 'ResultItemOut', 'ResultOut']:
+class RegisterIn(ContractModel):
+    email: str
+    password: str
+    nickname: str
+
+class LoginIn(ContractModel):
+    email: str
+    password: str
+
+class UserOut(ContractModel):
+    id: UUID
+    email: str
+    nickname: str
+    created_at: datetime
+
+class AuthOut(ContractModel):
+    token: str
+    user: UserOut
+
+class LogoutOut(ContractModel):
+    ok: bool = True
+
+for _name in ['HealthOut', 'ScenarioOut', 'HostLineOut', 'CreateSessionIn', 'PrepareFailure', 'PrepareProgress', 'SessionOut', 'QuestionOut', 'CurrentQuestionOut', 'ReplayOut', 'Metrics', 'AnswerOut', 'Mistake', 'ItemFeedback', 'FeedbackCard', 'DimensionFeedback', 'DimensionFeedbackSet', 'QuoteRef', 'FactEvidence', 'CoverageEntry', 'Coverage', 'SustainedPerformance', 'BreakdownObservation', 'UnusableItem', 'EvaluationScope', 'AdditionalTask', 'EvaluationResult', 'ResultItemOut', 'ResultOut', 'RegisterIn', 'LoginIn', 'UserOut', 'AuthOut', 'LogoutOut']:
     globals()[_name].model_rebuild()

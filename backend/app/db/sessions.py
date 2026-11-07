@@ -8,7 +8,8 @@ from .pool import tx, session_for_update, require_state, idempotency_lock
 from .jobs import enqueue
 
 def create_session(*, client_request_id: str | None, scenario_id: str, settings_json: dict,
-                   questions: list[SessionQuestionIn], replaces_session_id: UUID | None) -> tuple[UUID, bool]:
+                   questions: list[SessionQuestionIn], replaces_session_id: UUID | None,
+                   user_id: UUID | None = None) -> tuple[UUID, bool]:
     with tx() as cur:
         idempotency_lock(cur,client_request_id)
         if client_request_id is not None:
@@ -19,9 +20,9 @@ def create_session(*, client_request_id: str | None, scenario_id: str, settings_
             old=session_for_update(cur,replaces_session_id)
             require_state(old,'preparing','ready','prepare_failed')
             cur.execute("UPDATE sessions SET status='cancelled' WHERE id=%s",(replaces_session_id,))
-        cur.execute("""INSERT INTO sessions(client_request_id,replaces_session_id,scenario_id,settings_json,status,question_count)
-            VALUES (%s,%s,%s,%s,'preparing',%s) RETURNING id""",
-            (client_request_id,replaces_session_id,scenario_id,Jsonb(settings_json),len(questions)))
+        cur.execute("""INSERT INTO sessions(client_request_id,replaces_session_id,scenario_id,settings_json,status,question_count,user_id)
+            VALUES (%s,%s,%s,%s,'preparing',%s,%s) RETURNING id""",
+            (client_request_id,replaces_session_id,scenario_id,Jsonb(settings_json),len(questions),user_id))
         sid=cur.fetchone()['id']
         for question in questions:
             q=question.model_dump() if hasattr(question,'model_dump') else dict(question)

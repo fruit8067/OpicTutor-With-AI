@@ -209,6 +209,93 @@ p { margin: 0; }
 .spinner { width: 28px; height: 28px; border-radius: 50%; border: 3px solid var(--primary-surface); border-top-color: var(--primary); animation: spin 0.9s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
+/* 3단계: Stitch sign_in 55:45 분할 레이아웃 */
+.signin-layout { display: grid; grid-template-columns: minmax(0, 55fr) minmax(0, 45fr); min-height: 100vh; background: #fff; }
+@media (max-width: 960px) { .signin-layout { grid-template-columns: 1fr; } }
+.signin-showcase {
+  position: relative; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between;
+  padding: clamp(1.75rem, 4vw, 3.5rem);
+  background: linear-gradient(135deg, var(--primary-surface) 0%, #f1f5f9 55%, #ffffff 100%);
+  border-right: 1px solid var(--border-subtle);
+}
+.signin-glow { position: absolute; border-radius: 50%; filter: blur(64px); pointer-events: none; opacity: 0.55; }
+.signin-glow-top { width: 340px; height: 340px; top: -90px; left: -90px; background: #c7d2fe; }
+.signin-glow-bottom { width: 280px; height: 280px; bottom: 20px; right: -40px; background: #dbeafe; }
+.signin-features { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 640px) { .signin-features { grid-template-columns: 1fr; } }
+.signin-feature-card {
+  background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(6px);
+  border: 1px solid var(--border-subtle); border-radius: var(--radius-m);
+  padding: 14px 16px; display: grid; gap: 6px; align-content: start; box-shadow: var(--shadow-1);
+}
+.signin-feature-icon { width: 32px; height: 32px; border-radius: 8px; display: grid; place-items: center; margin-bottom: 2px; }
+.signin-banner {
+  border-radius: 16px; padding: 16px 20px;
+  background: linear-gradient(135deg, #1e1b4b 0%, #312e81 60%, #4338ca 100%);
+  color: #fff; box-shadow: var(--shadow-2);
+}
+.signin-form-col { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: clamp(1.75rem, 4vw, 3.5rem); background: #fff; }
+.signin-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; border-radius: 10px; background: var(--panel); }
+.signin-tab {
+  border: 0; border-radius: 7px; padding: 8px 12px; font: inherit; font-size: 0.875rem; font-weight: 600;
+  background: transparent; color: var(--ink-soft); cursor: pointer; transition: all 120ms;
+}
+.signin-tab.active { background: #fff; color: var(--primary); box-shadow: var(--shadow-1); }
+
+/* 4단계: Shell 상단 단계 네비게이션 & 사용자 배지 */
+.shell-nav { display: inline-flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+@media (max-width: 720px) { .shell-nav { display: none; } }
+.shell-nav-item {
+  display: inline-flex; align-items: center; gap: 6px; padding: 5px 11px; border-radius: 8px;
+  font-size: 0.8125rem; font-weight: 600; color: var(--ink-soft); transition: all 120ms;
+}
+.shell-nav-item.active { background: var(--primary-surface); color: var(--primary); }
+.shell-nav-num {
+  width: 18px; height: 18px; border-radius: 50%; display: grid; place-items: center;
+  font-size: 0.6875rem; font-weight: 700; background: var(--panel); color: var(--slate-500);
+}
+.shell-nav-item.active .shell-nav-num { background: var(--primary); color: #fff; }
+.shell-user-badge {
+  display: inline-flex; align-items: center; gap: 8px; padding: 4px 10px 4px 5px;
+  border-radius: 999px; background: var(--canvas); border: 1px solid var(--border-subtle);
+}
+.shell-user-avatar {
+  width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center;
+  font-size: 0.75rem; font-weight: 700; background: var(--primary); color: #fff;
+}
+
+/* 4단계: Stitch AI 피드백 리포트 레이아웃 */
+.report-nav {
+  position: sticky; top: 57px; z-index: 15;
+  display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap;
+  padding: 8px 12px; border-radius: var(--radius-m);
+  background: rgba(255, 255, 255, 0.92); backdrop-filter: blur(8px);
+  border: 1px solid var(--border-subtle); box-shadow: var(--shadow-1);
+}
+.report-nav-links { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+.report-nav-link {
+  padding: 6px 12px; border-radius: 8px; font-size: 0.8125rem; font-weight: 600;
+  color: var(--ink-soft); text-decoration: none; transition: background-color 120ms, color 120ms;
+}
+.report-nav-link:hover { background: var(--primary-surface); color: var(--primary); }
+.report-hero {
+  position: relative; overflow: hidden;
+  display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 28px;
+  padding: 28px; border-radius: var(--radius-m); background: #fff;
+  border: 1px solid var(--border-subtle); box-shadow: var(--shadow-2);
+}
+@media (max-width: 960px) { .report-hero { grid-template-columns: 1fr; } }
+.report-hero-grade {
+  display: flex; flex-direction: column; justify-content: space-between; gap: 16px;
+  padding-right: 24px; border-right: 1px solid var(--border-subtle);
+}
+@media (max-width: 960px) { .report-hero-grade { padding-right: 0; padding-bottom: 20px; border-right: 0; border-bottom: 1px solid var(--border-subtle); } }
+.report-grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+@media (max-width: 820px) { .report-grid-2 { grid-template-columns: 1fr; } }
+.report-grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+@media (max-width: 960px) { .report-grid-3 { grid-template-columns: 1fr; } }
+@media print { .no-print, .report-nav { display: none !important; } }
+
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
 
 @media (prefers-reduced-motion: reduce) {

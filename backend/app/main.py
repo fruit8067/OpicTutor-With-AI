@@ -10,7 +10,7 @@ from starlette.concurrency import run_in_threadpool
 from app import db
 from app.config import settings
 from app.errors import install_error_handlers
-from app.api import routes_meta,routes_sessions,routes_answers,routes_results
+from app.api import routes_meta,routes_auth,routes_sessions,routes_answers,routes_results
 
 @asynccontextmanager
 async def lifespan(app):
@@ -24,4 +24,4 @@ app.add_middleware(CORSMiddleware,allow_origins=[v.strip() for v in settings.COR
     allow_methods=['*'],allow_headers=['*'])
 settings.TTS_DIR.mkdir(parents=True,exist_ok=True)
 app.mount('/media/tts',StaticFiles(directory=settings.TTS_DIR),name='tts')
-for module in [routes_meta,routes_sessions,routes_answers,routes_results]: app.include_router(module.router,prefix='/api/v1')
+for module in [routes_meta,routes_auth,routes_sessions,routes_answers,routes_results]: app.include_router(module.router,prefix='/api/v1')

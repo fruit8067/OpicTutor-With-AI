@@ -280,3 +280,30 @@ export interface ResultOut {
   error_code: string | null;
   graded_at: string | null;
 }
+
+export interface RegisterIn {
+  email: string;
+  password: string;
+  nickname: string;
+}
+
+export interface LoginIn {
+  email: string;
+  password: string;
+}
+
+export interface UserOut {
+  id: string;
+  email: string;
+  nickname: string;
+  created_at: string;
+}
+
+export interface AuthOut {
+  token: string;
+  user: UserOut;
+}
+
+export interface LogoutOut {
+  ok: boolean;
+}
