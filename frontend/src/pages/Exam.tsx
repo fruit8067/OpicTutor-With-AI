@@ -1,6 +1,6 @@
 // AI-assisted: 이 코드는 Claude(Anthropic)의 도움으로 작성되었습니다.
 // 후속 수정: 필수 대사 재시도·이탈 후 요청 방지는 OpenAI Codex의 도움으로 작성되었습니다.
-// 후속 수정: 문항 건너뛰기(Q3)는 Claude(Anthropic)의 도움으로 작성되었습니다.
+// 후속 수정: 문항 건너뛰기(Q3), 마이크 UX(실시간 음량·무음 경고·장치 선택)는 Claude(Anthropic)의 도움으로 작성되었습니다.
 // OWNER: frontend (contracts.yaml ownership)
 //
 // 시험 화면 — 문항 하나의 상태 머신. 서버 상태가 진실이다.
@@ -9,7 +9,7 @@
 //   → rejected → awaiting_record(재녹음) / failed → [다시 처리](U3)
 //   → [건너뛰기](Q3) → skipping → 서버 current_order_no 증가 확인 → next 대사 → 다음 문항
 // 업로드 202는 접수일 뿐이므로 절대 그것만 보고 다음 문항으로 가지 않는다. 문항·순서는 클라이언트가 계산하지 않는다.
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState, type CSSProperties } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   ApiError, getAnswer, getCurrent, mediaUrl, NETWORK_ERROR, postReplay, retryStt, skipQuestion, submitSession, uploadAnswer,
@@ -17,10 +17,13 @@ import {
 import type { AnswerOut, CurrentQuestionOut } from '../api/types';
 import { Live, Rail, Shell } from '../components/Shell';
 import { Host, type HostState } from '../features/host/Host';
+import { MicLevel } from '../components/MicLevel';
 import { labelOf, REJECT_TEXT, STT_ERROR_TEXT, TYPE_LABEL } from '../lib/messages';
 import { usePlayer, type PlayResult } from '../lib/player';
-import { extFor, micErrorKind, openMic, Recorder, RECORD_MAX_MS, RECORD_MIN_MS, SILENCE_PEAK, type Recording } from '../lib/recorder';
-import { clearSessionId, loadSessionId, routeFor } from '../lib/session';
+import {
+  extFor, micErrorKind, openMic, Recorder, RECORD_MAX_MS, RECORD_MIN_MS, SILENCE_PEAK, SILENCE_WARN_MS, toLevel, VOICE_RMS, type Recording,
+} from '../lib/recorder';
+import { clearSessionId, loadMicId, loadSessionId, routeFor } from '../lib/session';
 
 type Phase =
   | 'loading' | 'playing' | 'blocked' | 'play_error' | 'awaiting_record' | 'recording'
@@ -53,6 +56,10 @@ export default function Exam() {
   const [failedAnswer, setFailedAnswer] = useState<AnswerOut | null>(null);
   const [micError, setMicError] = useState<string | null>(null);
   const [confirmSkip, setConfirmSkip] = useState(false);
+  const [level, setLevel] = useState(0);              // 녹음 중 실시간 음량(0~1)
+  const [silent, setSilent] = useState(false);        // 녹음 중 SILENCE_WARN_MS 이상 목소리 없음
+  const rms = useRef(0);
+  const lastVoiceAt = useRef(0);
   const retryLine = useRef<(() => Promise<void>) | null>(null);
   const recordingStarted = useRef(false);
   const stream = useRef<MediaStream | null>(null);
@@ -189,10 +196,17 @@ export default function Exam() {
   const started = useRef(false);
   useEffect(() => { if (started.current) return; started.current = true; void loadRef.current(); }, []); // 첫 진입 1회(StrictMode 이중 실행 방지)
 
-  // 녹음 경과 시간
+  // 녹음 경과 시간·실시간 음량·무음 감지
   useEffect(() => {
     if (phase !== 'recording') return;
-    const t = window.setInterval(() => setElapsed(recorder.current?.elapsedMs() ?? 0), 200);
+    lastVoiceAt.current = performance.now();
+    const t = window.setInterval(() => {
+      setElapsed(recorder.current?.elapsedMs() ?? 0);
+      const now = performance.now();
+      if (rms.current >= VOICE_RMS) lastVoiceAt.current = now;
+      setLevel(toLevel(rms.current));
+      setSilent(now - lastVoiceAt.current >= SILENCE_WARN_MS);
+    }, 80);
     return () => window.clearInterval(t);
   }, [phase]);
 
@@ -227,7 +241,7 @@ export default function Exam() {
     if (phase !== 'awaiting_record' || recordingStarted.current) return;
     recordingStarted.current = true;
     setNote(null); setMicError(null);
-    try { if (!stream.current || !stream.current.getAudioTracks().some((t) => t.readyState === 'live')) stream.current = await openMic(); }
+    try { if (!stream.current || !stream.current.getAudioTracks().some((t) => t.readyState === 'live')) stream.current = await openMic(loadMicId()); }
     catch (e) {
       const k = micErrorKind(e);
       recordingStarted.current = false;
@@ -235,7 +249,8 @@ export default function Exam() {
       return;
     }
     if (!alive.current || phaseRef.current !== 'awaiting_record') { recordingStarted.current = false; stream.current?.getTracks().forEach((t) => t.stop()); return; }
-    const r = new Recorder(stream.current);
+    rms.current = 0;
+    const r = new Recorder(stream.current, (v) => { rms.current = v; });
     recorder.current = r;
     setElapsed(0);
     setPhase('recording');
@@ -365,21 +380,34 @@ export default function Exam() {
               <button className="btn" onClick={() => playQuestion(cur)} autoFocus>다시 재생</button></div>
           )}
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: 24, padding: '20px 0' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 28, padding: '20px 0', flexWrap: 'wrap' }}>
             <button className="mic" onClick={toggleRecord} disabled={!canRecord || busyAudio} data-recording={phase === 'recording'}
+                    data-state={phase === 'awaiting_record' && canRecord && !busyAudio ? 'ready' : undefined}
+                    style={{ '--lvl': level } as CSSProperties}
                     aria-label={phase === 'recording' ? '녹음 마치기' : '녹음 시작'} aria-pressed={phase === 'recording'}>
               {phase === 'recording'
                 ? <svg width="30" height="30" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2" fill="currentColor" /></svg>
                 : <svg width="34" height="34" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><rect x="9" y="3" width="6" height="11" rx="3" fill="currentColor" stroke="none" /><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21" /></svg>}
             </button>
-            <div style={{ display: 'grid', gap: 4 }}>
+            <div style={{ display: 'grid', gap: 8, flex: '1 1 240px', minWidth: 0 }}>
               {phase === 'recording' ? (
                 <>
-                  <span style={{ color: 'var(--rec)', fontWeight: 600 }} aria-hidden="true">● 녹음 중 {fmt(elapsed)}</span>
-                  <span className="faint">최대 {fmt(RECORD_MAX_MS)}. 시간이 되면 자동으로 마쳐요.</span>
+                  <span style={{ color: 'var(--rec)', fontWeight: 700, fontSize: '1.05rem' }}>
+                    <span className="rec-dot" aria-hidden="true" />녹음 중 {fmt(elapsed)} <span className="faint" style={{ fontWeight: 400 }}>/ {fmt(RECORD_MAX_MS)}</span>
+                  </span>
+                  <MicLevel level={level} active label="실시간 입력 음량" />
+                  <div className="rec-progress" aria-hidden="true"><span style={{ width: `${Math.min(100, (elapsed / RECORD_MAX_MS) * 100)}%` }} /></div>
+                  {silent
+                    ? <span className="notice notice-warn" role="status" style={{ padding: '6px 10px' }}>목소리가 들리지 않아요. 마이크 가까이에서 말하거나 연결을 확인해 주세요.</span>
+                    : <span className="faint">다 말했으면 버튼을 다시 눌러 마쳐요. 시간이 되면 자동으로 마쳐요.</span>}
                 </>
               ) : busyAudio ? <span className="muted">진행자 음성이 끝나면 녹음할 수 있어요.</span>
-                : phase === 'awaiting_record' ? <span className="muted">버튼을 눌러 시작하고, 다 말하면 다시 눌러 마쳐요.</span>
+                : phase === 'awaiting_record' ? (
+                  <>
+                    <span style={{ fontWeight: 600 }}>마이크 버튼을 눌러 답변을 시작하세요</span>
+                    <span className="faint">녹음이 시작되면 버튼이 빨간색으로 바뀌고, 말하는 동안 막대가 움직여요.</span>
+                  </>
+                )
                 : phase === 'uploading' || phase === 'processing' ? <span className="muted">답변을 저장하는 중이에요. 이 문항에서 기다려 주세요.</span>
                 : null}
             </div>
