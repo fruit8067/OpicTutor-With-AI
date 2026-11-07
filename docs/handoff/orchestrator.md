@@ -2,6 +2,12 @@
 
 ## 상태
 
+사용자 후속 C 병합 요청으로 frontend PR#24를 최신 main/필수 native ownership 확인 후 main 731c1e3에 rebase merge했다. TTS PR#19는 이미 main 832f898에 있다. A/B/C Phase1 구현 PR은 main에 반영됐고, 단일 main에서 frontend npm ci/build/lint 및 녹음 Node4개를 통과했다. .env와 backend 트리는 변경되지 않았다. 기록: docs/compliance/c-merge-2026-11-07.json.
+
+integrator #4/M3는 아직 미병합이며 실제 사람 마이크/공급자 품질·Pickle 남은35시험/반복/함정·독립 M4 검토는 후속이다. 구현 병합을 제품 전체 완료로 표시하지 않는다.
+
+### 이전 상태 이력
+
 사용자의 후속 A/B main 병합 요청을 반영했다. worker-stt #7→session-api #3→grader #6 순서로 필수 native ownership/최신 main을 확인하고 rebase merge했다. main 4dc68a3의 단일 checkout 전체 backend/tests는 **157 passed/skip0/14.37초**이며 격리 DB를 생성/삭제했다. 로컬 .env는 보존했다. 자세한 기록은 docs/compliance/ab-merge-2026-11-07.json.
 
 구현 병합은 품질/M3 완료 선언이 아니다. Pickle quota_exhausted로 남은35시험·반복/함정·실제 사람 마이크 조건을 보존한다. frontend #24와 integrator #4는 아직 미병합이며 전체 M2/M3/M4를 완료로 표시하지 않는다.
