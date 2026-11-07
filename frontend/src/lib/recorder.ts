@@ -1,10 +1,16 @@
 // AI-assisted: 이 코드는 Claude(Anthropic)의 도움으로 작성되었습니다.
 // 후속 수정: 녹음 오류·장치 해제 복구는 OpenAI Codex의 도움으로 작성되었습니다.
+// 후속 수정: 마이크 장치 선택·실시간 무음 기준·음량 정규화는 Claude(Anthropic)의 도움으로 작성되었습니다.
 // OWNER: frontend (contracts.yaml ownership)
 // 마이크 녹음 도우미: 형식 선택(webm/opus → ogg → mp4), 실시간 음량, 최대 음량, 최대 길이 자동 종료.
 export const RECORD_MIN_MS = 2000;      // contracts policies.record_min_ms
 export const RECORD_MAX_MS = 120000;    // contracts policies.record_max_ms
 export const SILENCE_PEAK = 0.02;       // 이보다 작으면 거의 무음으로 보고 업로드하지 않는다(클라이언트 사전 확인)
+export const VOICE_RMS = 0.015;         // 녹음 중 이 이상이면 목소리가 들어오는 것으로 본다(실시간 표시용)
+export const SILENCE_WARN_MS = 3000;    // 녹음 중 이 시간 동안 목소리가 없으면 화면에 경고한다
+
+/** RMS(0~1)를 화면 표시용 0~1 값으로 바꾼다. 말소리 RMS는 보통 0.02~0.15라 키워서 보여 준다. */
+export const toLevel = (rms: number) => Math.min(1, rms * 6);
 
 const CANDIDATES = ['audio/webm;codecs=opus', 'audio/webm', 'audio/ogg;codecs=opus', 'audio/ogg', 'audio/mp4'];
 const EXT: Record<string, string> = { 'audio/webm': 'webm', 'audio/ogg': 'ogg', 'audio/mp4': 'm4a' };
@@ -24,10 +30,30 @@ export function micErrorKind(e: unknown): MicErrorKind {
   return 'other';
 }
 
-export async function openMic(): Promise<MediaStream> {
+/** 마이크를 연다. deviceId가 사라졌으면(장치 분리) 기본 마이크로 다시 연다. */
+export async function openMic(deviceId?: string | null): Promise<MediaStream> {
   if (!navigator.mediaDevices?.getUserMedia || !pickMime()) throw Object.assign(new Error('unsupported'), { name: 'unsupported' });
-  return navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } });
+  const base = { echoCancellation: true, noiseSuppression: true };
+  if (deviceId) {
+    try { return await navigator.mediaDevices.getUserMedia({ audio: { ...base, deviceId: { exact: deviceId } } }); }
+    catch (e) {
+      const n = (e as { name?: string })?.name;
+      if (n !== 'OverconstrainedError' && n !== 'NotFoundError') throw e;
+    }
+  }
+  return navigator.mediaDevices.getUserMedia({ audio: base });
 }
+
+export interface MicDevice { deviceId: string; label: string }
+/** 연결된 마이크 목록. 권한을 받기 전에는 이름(label)이 비어 있을 수 있다. */
+export async function listMics(): Promise<MicDevice[]> {
+  if (!navigator.mediaDevices?.enumerateDevices) return [];
+  const all = await navigator.mediaDevices.enumerateDevices();
+  return all.filter((d) => d.kind === 'audioinput' && d.deviceId)
+    .map((d, i) => ({ deviceId: d.deviceId, label: d.label || `마이크 ${i + 1}` }));
+}
+/** 스트림이 실제로 쓰는 장치 ID */
+export const streamDeviceId = (s: MediaStream | null) => s?.getAudioTracks()[0]?.getSettings?.().deviceId ?? null;
 
 /** 스트림의 실시간 음량(0~1)을 콜백으로 보낸다. 반환값은 정리 함수. */
 export function meter(stream: MediaStream, onLevel: (rms: number) => void): () => void {
