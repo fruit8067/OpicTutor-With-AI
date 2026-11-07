@@ -114,3 +114,8 @@ CR frontend-01은 PR #28/main 0c4ee09에서 해결됐다. 이 브랜치도 rebas
 상세 요구사항 대조와 수정 전/후 증거는 `docs/C_REQUIREMENTS_VERIFICATION.md` 및 compliance 기록에서 관리한다. 독립 reviewer/M4로 표시하지 않으며 실제 마이크·공급자 품질·M2/M3 조건은 남아 있다.
 
 추가 접근성 대조에서 작은 안내 글자의 대비가 배경에 따라3.165~3.729:1로 AA에 미달했다. 기존 색 계열을 유지하며 --ink-faint를 #586e70, 녹음 문구의 --rec를 #b83e37로 보정했다. 종이/흰색/안내/녹음 배경의 일반 텍스트 대비를4.5:1 이상으로 확인한다. disabled 요소는 별도 기준이다.
+
+
+## 사용자 요청에 따른 C 구현 main 병합 (2026-11-07, OpenAI Codex)
+
+A/B 선행 구현이 main에 병합된 뒤 최신 main으로 rebase했다. 사용자의 C 병합 요청에 따라 프런트 PR#24를 반영한다. build/lint와 녹음 Node4개를 다시 통과했고 기존 Chromium15·경계11·실제 C/AB HTTP/DB/OmniVoice8문항 검증은 보존한다. 실제 사람 마이크/공급자 품질·M3·독립 reviewer는 후속 조건이며 구현 병합을 제품 완료로 표시하지 않는다.
