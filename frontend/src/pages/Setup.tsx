@@ -207,21 +207,70 @@ export default function Setup() {
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gap: 10 }}>
-                <strong>3초 테스트 녹음</strong>
+              <div style={{ display: 'grid', gap: 12 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                  <strong>3초 테스트 녹음 및 확인 <span className="chip chip-soft" style={{ marginLeft: 6 }}>필수 2단계</span></strong>
+                  <span className="faint" style={{ fontSize: '0.8125rem' }}>① 3초 녹음 → ② 아래 확인 체크박스 클릭</span>
+                </div>
                 <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
                   <button className="btn btn-ghost" onClick={runTest} disabled={test === 'recording'}>
-                    {test === 'recording' ? '3초 녹음 중…' : test === 'idle' ? '3초 테스트 녹음' : '다시 테스트'}
+                    {test === 'recording' ? '3초 녹음 중…' : test === 'idle' ? '① 3초 테스트 녹음 시작' : '다시 테스트 녹음'}
                   </button>
                   {testUrl && test !== 'recording' && <audio src={testUrl} controls aria-label="테스트 녹음 재생" />}
                 </div>
                 {test === 'quiet' && <p className="notice notice-warn" role="alert">소리가 거의 녹음되지 않았어요. 마이크 가까이에서 다시 테스트해 주세요.</p>}
-                {heard && (
-                  <label style={{ display: 'flex', gap: 8, alignItems: 'center', fontWeight: 500 }}>
-                    <input type="checkbox" checked={micOk} onChange={(e) => setTest(e.target.checked ? 'passed' : 'recorded')} />
-                    <span>녹음한 내 목소리가 또렷하게 들려요</span>
-                  </label>
-                )}
+
+                <label
+                  htmlFor="mic-confirm-check"
+                  style={{
+                    display: 'flex', gap: 14, alignItems: 'center', padding: '16px 18px', borderRadius: 'var(--radius-m)',
+                    cursor: heard ? 'pointer' : 'not-allowed',
+                    border: micOk
+                      ? '2px solid var(--success)'
+                      : heard
+                        ? '2px solid var(--primary)'
+                        : '1px dashed var(--border-hover)',
+                    background: micOk
+                      ? 'var(--success-surface)'
+                      : heard
+                        ? 'var(--primary-surface)'
+                        : 'var(--canvas)',
+                    boxShadow: heard && !micOk ? '0 0 0 4px rgba(79, 70, 229, 0.14)' : undefined,
+                    opacity: heard ? 1 : 0.65,
+                    transition: 'all 150ms ease',
+                  }}
+                >
+                  <input
+                    id="mic-confirm-check"
+                    type="checkbox"
+                    disabled={!heard}
+                    checked={micOk}
+                    onChange={(e) => setTest(e.target.checked ? 'passed' : 'recorded')}
+                    style={{ width: 22, height: 22, accentColor: micOk ? 'var(--success)' : 'var(--primary)', flex: 'none', cursor: heard ? 'pointer' : 'not-allowed' }}
+                  />
+                  <span style={{ display: 'grid', gap: 2, flex: 1, minWidth: 0 }}>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                      <strong style={{ fontSize: '1rem', color: micOk ? '#047857' : heard ? 'var(--primary-hover)' : 'var(--ink)' }}>
+                        ② 녹음한 내 목소리가 또렷하게 들려요
+                      </strong>
+                      {!micOk && (
+                        <span className={heard ? 'chip chip-primary' : 'chip'} style={{ minHeight: 22, padding: '0 0.55rem', fontSize: '0.7rem' }}>
+                          {heard ? '필수 체크 · 여기를 눌러 주세요!' : '필수 체크'}
+                        </span>
+                      )}
+                      {micOk && (
+                        <span className="badge badge-ok">✓ 확인 완료</span>
+                      )}
+                    </span>
+                    <span className="faint" style={{ fontSize: '0.8125rem', color: micOk ? '#047857' : heard ? 'var(--primary)' : undefined }}>
+                      {micOk
+                        ? '마이크 확인이 완료되었어요. 아래 [이 설정으로 시험 준비하기] 버튼을 눌러 시작하세요.'
+                        : heard
+                          ? '녹음을 들어 보셨다면 이 체크박스를 꼭 눌러 주세요. 체크해야 시험을 시작할 수 있어요.'
+                          : '먼저 위의 [① 3초 테스트 녹음 시작] 버튼을 눌러 목소리를 녹음하면 이 체크박스가 활성화돼요.'}
+                    </span>
+                  </span>
+                </label>
               </div>
             </>
           )}
@@ -260,11 +309,31 @@ export default function Setup() {
           )}
         </section>
 
-        <div style={{ display: 'grid', gap: 8, justifyItems: 'end' }}>
+        <div style={{ display: 'grid', gap: 10, justifyItems: 'end' }}>
+          {!micOk && (
+            <div className={heard ? 'notice notice-warn' : 'notice'} style={{ justifySelf: 'stretch', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
+              <span style={{ fontSize: '0.875rem', fontWeight: 600 }}>
+                {heard
+                  ? '⚠️ 마지막 단계! 위의 [② 녹음한 내 목소리가 또렷하게 들려요] 체크박스를 눌러야 시작 버튼이 켜져요.'
+                  : !stream
+                    ? '마이크를 켜고 3초 테스트 녹음 후 확인 체크박스를 눌러야 시작할 수 있어요.'
+                    : '3초 테스트 녹음을 진행한 뒤, 목소리 확인 체크박스를 꼭 눌러 주세요.'}
+              </span>
+              {heard && (
+                <button
+                  type="button"
+                  className="btn btn-ghost"
+                  style={{ minHeight: 34, padding: '0 0.9rem', fontSize: '0.8125rem' }}
+                  onClick={() => document.getElementById('mic-confirm-check')?.focus()}
+                >
+                  체크박스로 이동 ↑
+                </button>
+              )}
+            </div>
+          )}
           <button className="btn" onClick={submit} disabled={!micOk || busy || !scenarios} style={{ minHeight: 48, padding: '0 1.75rem' }}>
             {busy ? '시험 준비를 요청하는 중…' : '이 설정으로 시험 준비하기 →'}
           </button>
-          {!micOk && <p className="faint">마이크 테스트를 마치고 소리가 잘 들리는지 확인해야 시작할 수 있어요.</p>}
           <div style={{ justifySelf: 'stretch' }}><ErrorNote error={error} /></div>
         </div>
         <Live>{test === 'recording' ? '테스트 녹음 중' : test === 'recorded' ? '테스트 녹음 완료. 재생해서 확인해 주세요' : ''}</Live>

@@ -15,13 +15,13 @@ export function Logo() {
   );
 }
 
-export function Shell({ children, wide = false, aside }: { children: ReactNode; wide?: boolean; aside?: ReactNode }) {
+export function Shell({ children, wide = false, compact = false, aside }: { children: ReactNode; wide?: boolean; compact?: boolean; aside?: ReactNode }) {
   const nick = loadNickname();
   const max = wide ? 1280 : 960;
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <header style={{ borderBottom: '1px solid var(--line)', background: 'rgba(255,255,255,0.92)', backdropFilter: 'blur(6px)', position: 'sticky', top: 0, zIndex: 10 }}>
-        <div style={{ maxWidth: max, margin: '0 auto', padding: '0.85rem 1.5rem', display: 'flex',
+        <div style={{ maxWidth: max, margin: '0 auto', padding: compact ? '0.55rem 1.5rem' : '0.85rem 1.5rem', display: 'flex',
                       alignItems: 'center', justifyContent: 'space-between', gap: 16 }}>
           <Logo />
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
@@ -30,11 +30,11 @@ export function Shell({ children, wide = false, aside }: { children: ReactNode; 
           </div>
         </div>
       </header>
-      <main style={{ flex: 1, width: '100%', maxWidth: max, margin: '0 auto', padding: '2rem 1.5rem 4rem', boxSizing: 'border-box' }}>
+      <main style={{ flex: 1, width: '100%', maxWidth: max, margin: '0 auto', padding: compact ? '0.75rem 1.5rem 0.75rem' : '2rem 1.5rem 4rem', boxSizing: 'border-box' }}>
         {children}
       </main>
       <footer style={{ borderTop: '1px solid var(--line)', background: 'var(--panel)' }}>
-        <div className="faint" style={{ maxWidth: max, margin: '0 auto', padding: '1.25rem 1.5rem' }}>
+        <div className="faint" style={{ maxWidth: max, margin: '0 auto', padding: compact ? '0.6rem 1.5rem' : '1.25rem 1.5rem', fontSize: compact ? '0.75rem' : undefined }}>
           OpicTutor · AI 기반 오픽 모의 인터뷰. 예상 등급은 참고용이며 공식 성적이 아니에요.
         </div>
       </footer>
