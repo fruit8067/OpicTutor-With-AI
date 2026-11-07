@@ -66,7 +66,9 @@ export const getHealth = () => request<T.HealthOut>('GET', '/health');          
 export const getScenarios = () => request<T.ScenarioOut[]>('GET', '/scenarios');                         // A2
 export const getHostLines = () => request<Record<string, T.HostLineOut>>('GET', '/host-lines');          // A3
 export const createSession = (data: T.CreateSessionIn) => request<T.SessionOut>('POST', '/sessions', data); // S1
+export const getUserHistory = () => request<T.UserHistoryOut>('GET', '/sessions/history');
 export const getSession = (id: string) => request<T.SessionOut>('GET', s(id));                           // S2
+export const deleteSession = (id: string) => request<T.DeleteSessionOut>('DELETE', s(id));
 export const retryPrepare = (id: string) => request<T.SessionOut>('POST', `${s(id)}/prepare/retry`);    // S3
 export const cancelSession = (id: string) => request<T.SessionOut>('POST', `${s(id)}/cancel`);          // S4
 export const startSession = (id: string) => request<T.SessionOut>('POST', `${s(id)}/start`);            // S5

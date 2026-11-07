@@ -22,7 +22,7 @@ export default function Boot() {
       if (!to) { clearSessionId(); nav('/setup', { replace: true }); } else nav(to, { replace: true });
     }).catch((e) => {
       if (stopped) return;
-      if (e instanceof ApiError && e.code === 'SESSION_NOT_FOUND') { clearSessionId(); nav('/setup', { replace: true }); }
+      if (e instanceof ApiError && (e.code === 'SESSION_NOT_FOUND' || e.code === 'FORBIDDEN')) { clearSessionId(); nav('/setup', { replace: true }); }
       else setError(e);
     });
     return () => { stopped = true; };

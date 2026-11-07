@@ -26,11 +26,16 @@ export const loadAuthUser = (): UserOut | null => safe(() => {
   return raw ? (JSON.parse(raw) as UserOut) : null;
 }, null);
 export const saveAuth = (token: string, user: UserOut) => {
+  const prev = loadAuthUser();
+  if (!prev || prev.id !== user.id) {
+    clearSessionId();
+  }
   saveAuthToken(token);
   saveNickname(user.nickname);
   safe(() => localStorage.setItem(USER, JSON.stringify(user)), undefined);
 };
 export const clearAuth = () => {
+  clearSessionId();
   saveAuthToken(null);
   saveNickname('');
   safe(() => localStorage.removeItem(USER), undefined);

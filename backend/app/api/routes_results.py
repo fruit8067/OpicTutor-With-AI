@@ -2,7 +2,7 @@
 # 후속 수정: 건너뛴 문항 표시는 Claude(Anthropic)의 도움으로 작성되었습니다.
 # OWNER: session-api (contracts.yaml ownership)
 from uuid import UUID
-from fastapi import APIRouter
+from fastapi import APIRouter,Header
 from app import db
 from app.errors import AppError
 from app.schemas.api import SessionOut,ResultOut,ResultItemOut
@@ -11,12 +11,13 @@ from .deps import require_session,session_out
 router=APIRouter()
 
 @router.post('/sessions/{session_id}/submit',response_model=SessionOut,status_code=202)
-def submit(session_id: UUID):
-    db.submit_session(session_id);return session_out(session_id)
+def submit(session_id: UUID,authorization: str | None = Header(default=None)):
+    require_session(session_id,authorization)
+    db.submit_session(session_id);return session_out(session_id,authorization)
 
 @router.get('/sessions/{session_id}/result',response_model=ResultOut)
-def result(session_id: UUID):
-    s=require_session(session_id)
+def result(session_id: UUID,authorization: str | None = Header(default=None)):
+    s=require_session(session_id,authorization)
     if s['status'] not in ('submitted','grading','grading_failed','done'): raise AppError('INVALID_STATE')
     latest=db.get_latest_evaluation(session_id)
     # 재평가 중에도 이전의 성공 결과는 보존한다.
@@ -29,8 +30,9 @@ def result(session_id: UUID):
         graded_at=displayed['updated_at'] if displayed and displayed['status']=='done' else None)
 
 @router.post('/sessions/{session_id}/regrade',response_model=SessionOut,status_code=202)
-def regrade(session_id: UUID):
-    db.create_regrade(session_id);return session_out(session_id)
+def regrade(session_id: UUID,authorization: str | None = Header(default=None)):
+    require_session(session_id,authorization)
+    db.create_regrade(session_id);return session_out(session_id,authorization)
 
 @router.post('/sessions/{session_id}/chat',status_code=501)
 def chat(session_id: UUID): raise AppError('NOT_IMPLEMENTED')

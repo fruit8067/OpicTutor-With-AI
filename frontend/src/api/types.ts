@@ -307,3 +307,47 @@ export interface AuthOut {
 export interface LogoutOut {
   ok: boolean;
 }
+
+export interface SessionHistorySummaryOut {
+  total_sessions: number;
+  completed_sessions: number;
+  in_progress_sessions: number;
+  total_speech_sec: number;
+  total_answered_questions: number;
+  latest_assessment_status: assessment_status | null;
+  latest_base_level: base_level | null;
+  latest_estimated_level: level | null;
+  latest_im_estimation_status: im_estimation_status | null;
+  latest_provisional_label: string | null;
+}
+
+export interface SessionHistoryItemOut {
+  session_id: string;
+  scenario_id: string;
+  status: session_status;
+  question_count: number;
+  current_order_no: number;
+  answered_count: number;
+  skipped_count: number;
+  total_speech_sec: number;
+  assessment_status: assessment_status | null;
+  base_level: base_level | null;
+  estimated_level: level | null;
+  im_estimation_status: im_estimation_status | null;
+  provisional_label: string | null;
+  tier: Tier | null;
+  headline: string | null;
+  created_at: string;
+  submitted_at: string | null;
+  graded_at: string | null;
+}
+
+export interface UserHistoryOut {
+  summary: SessionHistorySummaryOut;
+  items: SessionHistoryItemOut[];
+}
+
+export interface DeleteSessionOut {
+  ok: boolean;
+  session_id: string;
+}

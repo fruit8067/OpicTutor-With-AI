@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { loginUser, registerUser } from '../api/client';
 import { ErrorNote, Logo } from '../components/Shell';
 import { Host } from '../features/host/Host';
-import { loadAuthUser, loadNickname, saveAuth, saveNickname } from '../lib/session';
+import { clearAuth, loadAuthUser, loadNickname, saveAuth, saveNickname } from '../lib/session';
 
 type Mode = 'login' | 'register';
 
@@ -40,6 +40,7 @@ export default function Login() {
   };
 
   const startGuest = () => {
+    clearAuth();
     saveNickname(nickname.trim() || '게스트');
     nav('/setup');
   };

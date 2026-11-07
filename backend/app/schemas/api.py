@@ -288,5 +288,45 @@ class AuthOut(ContractModel):
 class LogoutOut(ContractModel):
     ok: bool = True
 
-for _name in ['HealthOut', 'ScenarioOut', 'HostLineOut', 'CreateSessionIn', 'PrepareFailure', 'PrepareProgress', 'SessionOut', 'QuestionOut', 'CurrentQuestionOut', 'ReplayOut', 'Metrics', 'AnswerOut', 'Mistake', 'ItemFeedback', 'FeedbackCard', 'DimensionFeedback', 'DimensionFeedbackSet', 'QuoteRef', 'FactEvidence', 'CoverageEntry', 'Coverage', 'SustainedPerformance', 'BreakdownObservation', 'UnusableItem', 'EvaluationScope', 'AdditionalTask', 'EvaluationResult', 'ResultItemOut', 'ResultOut', 'RegisterIn', 'LoginIn', 'UserOut', 'AuthOut', 'LogoutOut']:
+class SessionHistorySummaryOut(ContractModel):
+    total_sessions: int
+    completed_sessions: int
+    in_progress_sessions: int
+    total_speech_sec: float
+    total_answered_questions: int
+    latest_assessment_status: assessment_status | None
+    latest_base_level: base_level | None
+    latest_estimated_level: level | None
+    latest_im_estimation_status: im_estimation_status | None
+    latest_provisional_label: str | None
+
+class SessionHistoryItemOut(ContractModel):
+    session_id: UUID
+    scenario_id: str
+    status: session_status
+    question_count: int
+    current_order_no: int
+    answered_count: int
+    skipped_count: int
+    total_speech_sec: float
+    assessment_status: assessment_status | None
+    base_level: base_level | None
+    estimated_level: level | None
+    im_estimation_status: im_estimation_status | None
+    provisional_label: str | None
+    tier: Tier | None
+    headline: str | None
+    created_at: datetime
+    submitted_at: datetime | None
+    graded_at: datetime | None
+
+class UserHistoryOut(ContractModel):
+    summary: SessionHistorySummaryOut
+    items: list[SessionHistoryItemOut]
+
+class DeleteSessionOut(ContractModel):
+    ok: bool = True
+    session_id: UUID
+
+for _name in ['HealthOut', 'ScenarioOut', 'HostLineOut', 'CreateSessionIn', 'PrepareFailure', 'PrepareProgress', 'SessionOut', 'QuestionOut', 'CurrentQuestionOut', 'ReplayOut', 'Metrics', 'AnswerOut', 'Mistake', 'ItemFeedback', 'FeedbackCard', 'DimensionFeedback', 'DimensionFeedbackSet', 'QuoteRef', 'FactEvidence', 'CoverageEntry', 'Coverage', 'SustainedPerformance', 'BreakdownObservation', 'UnusableItem', 'EvaluationScope', 'AdditionalTask', 'EvaluationResult', 'ResultItemOut', 'ResultOut', 'RegisterIn', 'LoginIn', 'UserOut', 'AuthOut', 'LogoutOut', 'SessionHistorySummaryOut', 'SessionHistoryItemOut', 'UserHistoryOut', 'DeleteSessionOut']:
     globals()[_name].model_rebuild()
