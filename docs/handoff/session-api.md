@@ -60,3 +60,8 @@ coverage는 실제 선택된 채점 문항의 태그 합집합과 시나리오 �
   최종 판정은 계속 db.create_answer 트랜잭션이 담당한다.
 - 추가 회귀 검증 후 backend 전체 테스트: 25 passed, skip 0 (PostgreSQL 포함).
 - 실제 uvicorn HTTP: /health 200(ready=false), /docs 200, /openapi.json 200.
+
+
+## 구현 main 병합 요청 (2026-11-07, OpenAI Codex)
+
+사용자 후속 A/B main 병합 지시에 따라 구현을 병합한다. 최신 A/B129 passed/skip0/14.60초, 공개64/API모델29/경로17 차이0, 실제 격리 PostgreSQL/HTTP/작업/결과 복구 검증을 통과했다. 실제 uvicorn 준비/취소 경계, 10MiB 조기413, 합성 Whisper8문항 저장 이력 및 실제 C/AB HTTP 연결 증거를 보존한다. 실제 사람 마이크·공급자 품질·M3는 별도 미완료이며 초기 M1 미병합/키 미구성 기록은 과거 이력이다.
