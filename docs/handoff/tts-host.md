@@ -4,8 +4,8 @@
 
 ## 상태
 
-**M2 code 완료 (2026-11-07)** — 코드 PR "[tts-host] M2 code". **음성(mp3)은 아직 없음**: Colab(T4 GPU) 실행은 사람이 해야 한다.
-음성 PR "[tts-host] M2 audio"는 아래 "운영자 절차"로 zip을 반입한 뒤 따로 올린다. 브랜치는 main `5bca38a` 기준.
+**M2 code 검증·보강 완료, M2 audio 대기 (2026-11-07)** — 코드 PR "[tts-host] M2 code". **음성(mp3)은 아직 없음**: Colab(T4 GPU) 실행은 사람이 해야 한다.
+음성 PR "[tts-host] M2 audio"는 아래 "운영자 절차"로 zip을 반입한 뒤 따로 올린다. 브랜치는 main `8e8fd59` 기준으로 rebase했다.
 
 ## 완료한 것
 
@@ -87,3 +87,20 @@ async function playQuestion(url: string) {
 
 - frontend: `Host.demo.tsx`를 개발용 라우트(`/__host`)에 연결할지 결정해 주세요.
 - integrator: e2e 음성은 `backend/e2e_audio/{IM2|IL}/{01..08}.mp3`(슬롯 순서)로 생성됩니다.
+
+
+## 2026-11-07 C 후속 검증 (OpenAI Codex)
+
+사용자가 C 작업 진행과 코드 우선/Colab 나중을 선택했다. 기존 Claude 구현과 출처를 보존하고 경로 검사를 보강했다. ZIP의 Windows drive/root/backslash·상위 경로, item ID의 경로 구분자를 거부하고 DB 파일 경로가 TTS_DIR 밖이면 준비 실패로 처리한다. 활성 voice_id는 계약의 sha1[:10] 형식만 허용한다.
+
+- `cd backend` 후 활성화한 Python으로 `python -m pytest tests/test_tts_pipeline.py -q`: **19 passed / 1.01초**.
+- 실제 PostgreSQL 임시 DB + 실제 반입/MP3 디코드/작업 claim/prepare: 합성 파일12개 등록 → ready → host/next 파일 제거 → prepare_failed/TTS_FILE_MISSING → 파일 복구·retry attempt2 → ready. 같은8문항 보존, attempt1 무시, AI요청0, 임시 DB/파일 정리. worker CLI 통합이나 실제 OmniVoice 음질 검증으로 표시하지 않는다.
+- `cd frontend` 후 `npm ci`, `npm run build`: 성공. `npx oxlint src/features/host`: 경고0. 전체 lint의18개 경고는 main의 API stub 경로이며 tts-host 소유 밖이라 수정하지 않았다.
+- 노트북 코드 셀11개 Python 구문 검사 통과. Colab/GPU 실행은 하지 않았다.
+- `python -m scripts.export_tts_jobs --e2e`: 현재 corpus M2에서 **242개 = 질문222 + 대사4 + e2e16**, 총38,342자. 작업 파일은 `backend/static/tts/jobs.jsonl`에 커밋한다.
+
+### 다음 Colab 작업
+
+저장소의 `colab/omnivoice_tts.ipynb`와 위 `jobs.jsonl`을 사용한다. 기존 운영자 절차대로 T4에서 진행자 기준 음성을 정하고, e2e 답변은 별도 합성 목소리로 생성한다. ZIP과 host_voice.pt는 로컬에 내려받는다. ZIP은 backend 기준 상대 경로를 사용해 `python -m scripts.import_tts <상대경로/tts_mp3.zip> --activate`로 반입한다. 코드 테스트용 tone MP3를 실제 진행자 자산으로 활성화하지 않는다.
+
+실제 instruct/seed/speed/voice_id·길이·용량은 **미정/미측정**이다. 현재 실제 자산 누락은 남아 있으므로 missing_pilot=[]/M2 audio 완료/제품 완주를 주장하지 않는다. 전체 M2 후 M3 통합과 별도 대화의 독립 reviewer 검토가 필요하다.

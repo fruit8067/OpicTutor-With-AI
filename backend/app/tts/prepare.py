@@ -1,4 +1,5 @@
 # AI-assisted: 이 코드는 Claude(Anthropic)의 도움으로 작성되었습니다.
+# 후속 수정: 경로·반입 검증은 OpenAI Codex의 도움으로 작성되었습니다.
 # OWNER: tts-host (contracts.yaml ownership)
 """tts_prepare 작업 핸들러 — 세션의 8문항 + 진행자 대사 4개 음성이 정확히 준비됐는지 검사·연결한다.
 
@@ -33,7 +34,12 @@ def _check(db, idx: dict, voice_id: str, kind: str, ref_id: str, text: str) -> t
         if other is not None and other.get("text_sha1") != h:
             return None, "TTS_HASH_MISMATCH"
         return None, "TTS_ASSET_MISSING"
-    if asset.get("status") != "available" or not (tts_dir() / str(asset.get("file_path", ""))).is_file():
+    base = tts_dir().resolve()
+    stored = str(asset.get("file_path", ""))
+    from pathlib import PureWindowsPath
+    path = (base / stored).resolve()
+    if (asset.get("status") != "available" or PureWindowsPath(stored).drive or
+            PureWindowsPath(stored).root or not path.is_relative_to(base) or not path.is_file()):
         return None, "TTS_FILE_MISSING"
     return asset["id"], None
 
