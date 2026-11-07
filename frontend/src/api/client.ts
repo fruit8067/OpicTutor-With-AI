@@ -5,7 +5,8 @@
 // 함수 이름은 contracts frontend_interfaces.api_client 기준. bootstrap stub 이름은 아래 별칭으로 유지한다.
 import type * as T from './types';
 
-export const API_BASE: string = import.meta.env.VITE_API_BASE ?? 'http://127.0.0.1:8000/api/v1';
+// 같은 출처의 프록시를 사용해 다른 기기의 localhost로 요청하지 않는다. OpenAI Codex.
+export const API_BASE: string = import.meta.env.VITE_API_BASE ?? '/api/v1';
 export const API_ORIGIN: string = (() => {
   try { return new URL(API_BASE).origin; } catch { return window.location.origin; }
 })();
