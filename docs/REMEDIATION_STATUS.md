@@ -4,6 +4,10 @@
 
 사용자가 목표를 명확히 했다: C는 새로 구현하지 않고 A/B의 핵심 기능과 전체 요구사항·API·flowchart 연결을 심화 검증한다. C가 필요한 경계는 명시적인 테스트 대역으로 확인하며 제품 완주 완료로 표시하지 않는다.
 
+## 최신 A/B 구현 병합
+
+사용자의 병합 요청으로 worker-stt #7, session-api #3, grader #6을 main에 순서대로 반영했다. 보호 규칙/필수 native ownership/rebase-only를 유지했다. 단일 main checkout 전체 백엔드157개 통과, skip0,14.37초. [병합·검증 기록](compliance/ab-merge-2026-11-07.json). 이전 기능 PR Draft 기록은 당시 상태다. 품질 검증·Pickle 남은35시험/반복/함정·실제 사람 마이크와 frontend #24/integrator #4·M3/M4는 남아 있다.
+
 ## 최신 C 감사
 
 사용자의 후속 지시로 C까지 범위를 확대했다. [C 요구사항·흐름 대조](C_REQUIREMENTS_VERIFICATION.md)와 [고정 기록](compliance/c-audit-2026-11-07.json)을 참조한다. 원격 실제 음성242개를 보존·검사했고, 재현한 취소/문항 누락/녹음 오류/음성 덮어쓰기 등을 수정했다. 덮어쓰기 해결은 먼저 CR#30/main으로 계약 v8을 승인했다. 실제 HTTP/DB/워커/음성8문항 흐름은 통과했으며 STT·평가 추론 대역과 실제 사람 마이크/공급자 품질 조건을 구분한다. 아래 C를 추가하지 않던 문구는 이전 범위의 이력이다.
