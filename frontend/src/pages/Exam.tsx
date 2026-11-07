@@ -1,6 +1,6 @@
 // AI-assisted: 이 코드는 Claude(Anthropic)의 도움으로 작성되었습니다.
 // 후속 수정: 필수 대사 재시도·이탈 후 요청 방지는 OpenAI Codex의 도움으로 작성되었습니다.
-// 후속 수정: 문항 건너뛰기(Q3), 마이크 UX(실시간 음량·무음 경고·장치 선택)는 Claude(Anthropic)의 도움으로 작성되었습니다.
+// 후속 수정: 문항 건너뛰기(Q3), 마이크 UX(실시간 음량·무음 경고·장치 선택), Stitch 레이아웃(진행 카드·7:5 작업 영역)은 Claude(Anthropic)의 도움으로 작성되었습니다.
 // OWNER: frontend (contracts.yaml ownership)
 //
 // 시험 화면 — 문항 하나의 상태 머신. 서버 상태가 진실이다.
@@ -15,7 +15,7 @@ import {
   ApiError, getAnswer, getCurrent, mediaUrl, NETWORK_ERROR, postReplay, retryStt, skipQuestion, submitSession, uploadAnswer,
 } from '../api/client';
 import type { AnswerOut, CurrentQuestionOut } from '../api/types';
-import { Live, Rail, Shell } from '../components/Shell';
+import { Live, Shell } from '../components/Shell';
 import { Host, type HostState } from '../features/host/Host';
 import { MicLevel } from '../components/MicLevel';
 import { labelOf, REJECT_TEXT, STT_ERROR_TEXT, TYPE_LABEL } from '../lib/messages';
@@ -325,116 +325,203 @@ export default function Exam() {
     finishing: '시험을 마치는 중', fatal: '문제가 생겼어요',
   }[phase];
 
+  const recording = phase === 'recording';
+  const saving = phase === 'uploading' || phase === 'processing' || phase === 'skipping' || phase === 'finishing';
+  const ready = phase === 'awaiting_record' && canRecord && !busyAudio;
+  const pill = recording
+    ? (silent ? <span className="chip chip-warn"><span className="rec-dot" aria-hidden="true" />REC · 음성 입력 감지 대기 중</span>
+              : <span className="chip chip-rec"><span className="rec-dot" aria-hidden="true" />REC · 녹음 진행 중</span>)
+    : saving ? <span className="chip chip-soft">● 답변 저장 중</span>
+    : ready ? <span className="chip chip-soft">● 답변 대기 (준비 완료)</span>
+    : busyAudio ? <span className="chip">● 질문 듣는 중</span>
+    : <span className="chip">● 대기</span>;
+  const headline = recording ? (silent ? '마이크 입력이 감지되지 않고 있어요' : '녹음 중이에요 — 편하게 말해 보세요')
+    : saving ? (phase === 'skipping' ? '다음 문항으로 넘어가는 중이에요' : '답변을 저장하고 있어요…')
+    : ready ? '버튼을 눌러 답변을 시작하세요'
+    : busyAudio ? '진행자 음성이 끝나면 녹음할 수 있어요'
+    : status;
+  const sub = recording ? (silent ? '마이크 가까이에서 다시 말하거나, 마이크 연결을 확인해 주세요. 녹음은 계속되고 있어요.' : '말이 막히면 "Well…"처럼 자연스럽게 이어 가도 괜찮아요. 다 말했으면 버튼을 다시 눌러요.')
+    : saving ? '음성을 텍스트로 바꿔 저장하는 중이에요. 이 문항에서 잠시 기다려 주세요.'
+    : ready ? '녹음이 시작되면 버튼이 빨간색으로 바뀌고, 말하는 동안 막대가 움직여요.'
+    : null;
+  const stepState = (n: number) => (n < orderNo ? 'done' : n === orderNo ? 'current' : 'todo');
+  const stepKicker = (n: number) => (n < orderNo ? '완료' : n > orderNo ? '대기 중' : recording ? '진행 중 (REC)' : saving ? '저장 중' : '진행 중');
+  const steps = [orderNo - 1, orderNo, orderNo + 1].map((n, i) => ({ n, pos: ['prev', 'cur', 'next'][i] })).filter((s) => s.n >= 1 && s.n <= total);
+
   return (
-    <Shell wide aside={<Rail total={total} current={orderNo} doneUpTo={orderNo - 1} />}>
-      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(220px, 320px) 1fr', gap: 48, alignItems: 'start', paddingTop: 16 }}>
-        <div style={{ color: 'var(--ink)', position: 'sticky', top: 24 }}>
-          <Host state={hostState} />
-          <p className="faint" style={{ textAlign: 'center', marginTop: 8 }}>진행자 린</p>
+    <Shell wide>
+      <div style={{ display: 'grid', gap: 24 }}>
+        <section className="sheet" style={{ padding: '20px 24px', display: 'grid', gap: 16 }} aria-label="진행 상황">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <span className="chip chip-soft">● 실전 모의 인터뷰</span>
+              {q && !q.is_scored && <span className="faint">연습 문항 · 채점하지 않아요</span>}
+            </div>
+            <span className="faint">전체 {total}문항 중 {orderNo}번째</span>
+          </div>
+          <ol className="steps" style={{ listStyle: 'none', margin: 0, padding: 0 }}>
+            {steps.map(({ n, pos }) => (
+              <li key={n} className="step" data-state={stepState(n)} data-pos={pos} aria-current={n === orderNo ? 'step' : undefined}>
+                <span className="step-no">{n < orderNo
+                  ? <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>
+                  : n}</span>
+                <span style={{ display: 'grid', minWidth: 0 }}>
+                  <span className="step-kicker">{stepKicker(n)}</span>
+                  <span className="step-title">문항 {n}{n === orderNo && q ? ` (${labelOf(TYPE_LABEL, q.question_type)})` : ''}</span>
+                </span>
+                {n === orderNo && recording && <span className="chip chip-rec" style={{ marginLeft: 'auto' }}>LIVE</span>}
+              </li>
+            ))}
+          </ol>
+        </section>
+
+        <div className="exam-grid">
+          <section className="sheet" style={{ padding: 28, display: 'grid', gap: 22 }} aria-labelledby="q-h">
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+              <span className="chip chip-primary">Question {String(orderNo).padStart(2, '0')}</span>
+              {q && <span className="chip">{labelOf(TYPE_LABEL, q.question_type)}</span>}
+              {q && !q.is_scored && <span className="chip chip-soft" style={{ marginLeft: 'auto' }}>연습 문항</span>}
+            </div>
+            <h1 id="q-h" className="sr-only">{orderNo}번 문항 — {status}</h1>
+
+            {showText && q
+              ? <p id="q-text" lang="en" className="question-quote prose-w">“{q.text}”</p>
+              : <p className="muted" style={{ fontSize: '1.0625rem' }}>실제 시험처럼 질문은 음성으로 나와요. 잘 안 들렸다면 다시 듣거나 질문 글을 펼쳐 볼 수 있어요.</p>}
+
+            <div className="audio-tray">
+              <div style={{ width: 88, flex: 'none', color: 'var(--ink)' }}><Host state={hostState} /></div>
+              <div className="tray-who" style={{ display: 'grid', gap: 2, minWidth: 0 }}>
+                <strong style={{ fontSize: '0.9375rem' }}>진행자 린</strong>
+                <span className="faint">{busyAudio ? '질문을 읽고 있어요' : recording ? '답변을 듣고 있어요' : saving ? '답변을 확인하고 있어요' : '질문 음성'}</span>
+              </div>
+              {q && (
+                <div style={{ display: 'grid', justifyItems: 'end', gap: 4 }}>
+                  <button className="btn btn-ghost" onClick={replay} disabled={!canReplay}
+                          aria-label={`질문 다시 듣기, ${q.replay_limit - q.replay_count}회 남음`}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8" /><path d="M3 3v5h5" /></svg>
+                    다시 듣기
+                  </button>
+                  <span className="faint" style={{ fontSize: '0.75rem', color: 'var(--primary)', fontWeight: 600 }}>남은 다시 듣기: {q.replay_limit - q.replay_count}회</span>
+                </div>
+              )}
+            </div>
+
+            {q && (
+              <button className="btn btn-ghost" style={{ justifyContent: 'space-between', borderRadius: 'var(--radius-s)', background: 'var(--canvas)' }}
+                      onClick={() => setShowText((v) => !v)} aria-expanded={showText} aria-controls="q-text">
+                <span>{showText ? '질문 글 숨기기' : '질문 글 보기 (영어 원문)'}</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true" style={{ transform: showText ? 'rotate(180deg)' : undefined }}><path d="M6 9l6 6 6-6" /></svg>
+              </button>
+            )}
+
+            {phase === 'blocked' && cur && (
+              <div className="notice"><p style={{ marginBottom: 10 }}>브라우저가 소리 자동 재생을 막았어요. 버튼을 눌러 질문을 들어 주세요.</p>
+                <button className="btn" onClick={async () => { await player.unlock(); await playQuestion(cur); }} autoFocus>눌러서 듣기</button></div>
+            )}
+            {phase === 'play_error' && cur && (
+              <div className="notice notice-warn" role="alert"><p style={{ marginBottom: 10 }}>질문 음성을 불러오지 못했어요. 같은 문항을 다시 재생해 주세요.</p>
+                <button className="btn" onClick={() => playQuestion(cur)} autoFocus>다시 재생</button></div>
+            )}
+            {phase === 'line_error' && (
+              <div className="notice notice-warn" role="alert">
+                <p style={{ marginBottom: 10 }}>진행자 음성을 재생하지 못했어요. 음성을 들은 뒤 계속할 수 있어요.</p>
+                <button className="btn" disabled={speakingLine} onClick={() => retryLine.current?.()} autoFocus>진행자 음성 다시 듣기</button>
+              </div>
+            )}
+          </section>
+
+          <section className="sheet" style={{ padding: 28, display: 'grid', gap: 20, justifyItems: 'center', textAlign: 'center',
+                   background: recording && !silent ? 'linear-gradient(180deg, #fff7f7 0%, #fff 40%)' : undefined }} aria-label="답변 녹음">
+            {pill}
+            {recording && silent && (
+              <div className="notice notice-warn" role="status" style={{ textAlign: 'left', width: '100%', boxSizing: 'border-box' }}>
+                <strong style={{ display: 'block' }}>목소리가 들리지 않아요. 마이크를 확인해 주세요</strong>
+                <span style={{ fontSize: '0.875rem' }}>마이크 권한이나 연결 상태, 음소거 버튼을 확인해 주세요.</span>
+              </div>
+            )}
+            <div style={{ display: 'grid', gap: 10, width: '100%', maxWidth: 300 }}>
+              <span className="timer" aria-hidden="true">{fmt(recording ? elapsed : 0).padStart(5, '0')} <small>/ {fmt(RECORD_MAX_MS).padStart(5, '0')}</small></span>
+              <div className="rec-progress" aria-hidden="true"><span style={{ width: `${recording ? Math.min(100, (elapsed / RECORD_MAX_MS) * 100) : 0}%` }} /></div>
+              <div className="faint" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem' }}>
+                <span>최소 {RECORD_MIN_MS / 1000}초</span><span>최대 {RECORD_MAX_MS / 1000}초 · 시간이 되면 자동 종료</span>
+              </div>
+            </div>
+
+            {saving
+              ? <div style={{ width: 120, height: 120, borderRadius: '50%', display: 'grid', placeItems: 'center', alignContent: 'center', gap: 6, background: 'var(--canvas)', boxShadow: '0 0 0 10px var(--panel)' }}>
+                  <span className="spinner" aria-hidden="true" /><span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--primary)' }}>저장 중</span>
+                </div>
+              : <button className="mic" onClick={toggleRecord} disabled={!canRecord || busyAudio} data-recording={recording} data-silent={silent}
+                        data-state={ready ? 'ready' : undefined}
+                        style={{ '--lvl': level } as CSSProperties}
+                        aria-label={recording ? '녹음 마치기' : '녹음 시작'} aria-pressed={recording}>
+                  {recording
+                    ? <svg width="30" height="30" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2" fill="currentColor" /></svg>
+                    : <svg width="34" height="34" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><rect x="9" y="3" width="6" height="11" rx="3" fill="currentColor" stroke="none" /><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21" /></svg>}
+                  <span aria-hidden="true">{recording ? 'STOP' : 'START'}</span>
+                </button>}
+
+            <div style={{ display: 'grid', gap: 6 }}>
+              <h2 style={{ fontSize: '1.25rem' }}>{headline}</h2>
+              {sub && <p className="muted" style={{ fontSize: '0.875rem' }}>{sub}</p>}
+            </div>
+
+            {recording && (
+              <div className="panel" style={{ width: '100%', padding: '14px 16px', boxSizing: 'border-box', display: 'grid', gap: 8 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', fontWeight: 600 }}>
+                  <span style={{ color: silent ? '#92400e' : 'var(--rec)' }}>{silent ? '음성 감지 신호 없음' : '실시간 음성 감지 중'}</span>
+                  <span className="faint" style={{ fontSize: '0.75rem' }}>입력 {Math.round(level * 100)}%</span>
+                </div>
+                <MicLevel level={level} active label="실시간 입력 음량" />
+              </div>
+            )}
+
+            {micError && <p className="notice notice-warn" role="alert" style={{ textAlign: 'left', width: '100%', boxSizing: 'border-box' }}>{micError}</p>}
+            {note && <p className={`notice ${note.kind === 'warn' ? 'notice-warn' : ''}`} role={note.kind === 'warn' ? 'alert' : undefined}
+                        style={{ textAlign: 'left', width: '100%', boxSizing: 'border-box' }}>{note.text}</p>}
+            {phase === 'uploading' && <p className="faint">새로고침하거나 창을 닫으면 아직 보내지 못한 녹음이 사라질 수 있어요.</p>}
+            {phase === 'upload_failed' && (
+              <div className="notice notice-warn" role="alert" style={{ textAlign: 'left', width: '100%', boxSizing: 'border-box' }}>
+                <p style={{ marginBottom: 10 }}>네트워크 문제로 답변을 보내지 못했어요. 녹음은 이 화면에 보관되어 있어요. 새로고침하면 사라질 수 있어요.</p>
+                <button className="btn" onClick={() => pendingUpload.current && upload(pendingUpload.current)} autoFocus>다시 보내기</button>
+              </div>
+            )}
+            {phase === 'failed' && <button className="btn" onClick={retryProcessing} autoFocus>다시 처리</button>}
+            {phase === 'fatal' && <button className="btn btn-ghost" onClick={() => load()}>다시 불러오기</button>}
+          </section>
         </div>
 
-        <section style={{ display: 'grid', gap: 24 }} aria-labelledby="q-h">
-          <div style={{ display: 'grid', gap: 6 }}>
-            <span className="faint">{orderNo} / {total} · {q ? labelOf(TYPE_LABEL, q.question_type) : ''}{q && !q.is_scored ? ' · 채점하지 않는 연습 문항' : ''}</span>
-            <h1 id="q-h" style={{ fontSize: '1.5rem' }}>{status}</h1>
-          </div>
-
-          {q && (
-            <div style={{ display: 'grid', gap: 8 }}>
-              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                <button className="btn btn-ghost" onClick={replay} disabled={!canReplay}
-                        aria-label={`질문 다시 듣기, ${q.replay_limit - q.replay_count}회 남음`}>
-                  다시 듣기 ({q.replay_limit - q.replay_count}회 남음)
-                </button>
-                <button className="btn btn-quiet" onClick={() => setShowText((v) => !v)} aria-expanded={showText} aria-controls="q-text">
-                  {showText ? '질문 글 숨기기' : '질문 글 보기'}
-                </button>
-                <button className="btn btn-quiet" onClick={() => setConfirmSkip(true)} disabled={!canSkip || confirmSkip}
+        <section className="sheet" style={{ padding: '14px 20px', display: 'grid', gap: 12 }} aria-label="문항 동작">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+            <span className="faint" style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><path d="M3 14v-2a9 9 0 0 1 18 0v2" /><rect x="3" y="14" width="4" height="6" rx="1.5" /><rect x="17" y="14" width="4" height="6" rx="1.5" /></svg>
+              답변을 저장하면 자동으로 다음 문항으로 넘어가요.
+            </span>
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              {q && (
+                <button className="btn btn-ghost" onClick={() => setConfirmSkip(true)} disabled={!canSkip || confirmSkip}
                         aria-expanded={confirmSkip} aria-controls="skip-confirm">
                   이 문항 건너뛰기
                 </button>
-              </div>
-              {confirmSkip && canSkip && (
-                <div id="skip-confirm" className="notice" role="alertdialog" aria-labelledby="skip-h">
-                  <p id="skip-h" style={{ marginBottom: 10 }}>
-                    {q.is_scored
-                      ? '이 문항을 건너뛸까요? 답변 없이 다음 문항으로 넘어가고, 이 문항은 채점에 쓰이지 않아요. 건너뛴 문항이 많으면 예상 등급을 내지 못할 수 있어요.'
-                      : '이 문항을 건너뛸까요? 연습 문항이라 채점에는 영향이 없어요.'}
-                  </p>
-                  <div style={{ display: 'flex', gap: 8 }}>
-                    <button className="btn" onClick={skip} autoFocus>건너뛰기</button>
-                    <button className="btn btn-ghost" onClick={() => setConfirmSkip(false)}>계속 답하기</button>
-                  </div>
-                </div>
               )}
-              {showText && <p id="q-text" lang="en" className="sheet prose-w" style={{ padding: '14px 16px' }}>{q.text}</p>}
-            </div>
-          )}
-
-          {phase === 'blocked' && cur && (
-            <div className="notice"><p style={{ marginBottom: 10 }}>브라우저가 소리 자동 재생을 막았어요. 버튼을 눌러 질문을 들어 주세요.</p>
-              <button className="btn" onClick={async () => { await player.unlock(); await playQuestion(cur); }} autoFocus>눌러서 듣기</button></div>
-          )}
-          {phase === 'play_error' && cur && (
-            <div className="notice notice-warn" role="alert"><p style={{ marginBottom: 10 }}>질문 음성을 불러오지 못했어요. 같은 문항을 다시 재생해 주세요.</p>
-              <button className="btn" onClick={() => playQuestion(cur)} autoFocus>다시 재생</button></div>
-          )}
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: 28, padding: '20px 0', flexWrap: 'wrap' }}>
-            <button className="mic" onClick={toggleRecord} disabled={!canRecord || busyAudio} data-recording={phase === 'recording'}
-                    data-state={phase === 'awaiting_record' && canRecord && !busyAudio ? 'ready' : undefined}
-                    style={{ '--lvl': level } as CSSProperties}
-                    aria-label={phase === 'recording' ? '녹음 마치기' : '녹음 시작'} aria-pressed={phase === 'recording'}>
-              {phase === 'recording'
-                ? <svg width="30" height="30" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2" fill="currentColor" /></svg>
-                : <svg width="34" height="34" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><rect x="9" y="3" width="6" height="11" rx="3" fill="currentColor" stroke="none" /><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21" /></svg>}
-            </button>
-            <div style={{ display: 'grid', gap: 8, flex: '1 1 240px', minWidth: 0 }}>
-              {phase === 'recording' ? (
-                <>
-                  <span style={{ color: 'var(--rec)', fontWeight: 700, fontSize: '1.05rem' }}>
-                    <span className="rec-dot" aria-hidden="true" />녹음 중 {fmt(elapsed)} <span className="faint" style={{ fontWeight: 400 }}>/ {fmt(RECORD_MAX_MS)}</span>
-                  </span>
-                  <MicLevel level={level} active label="실시간 입력 음량" />
-                  <div className="rec-progress" aria-hidden="true"><span style={{ width: `${Math.min(100, (elapsed / RECORD_MAX_MS) * 100)}%` }} /></div>
-                  {silent
-                    ? <span className="notice notice-warn" role="status" style={{ padding: '6px 10px' }}>목소리가 들리지 않아요. 마이크 가까이에서 말하거나 연결을 확인해 주세요.</span>
-                    : <span className="faint">다 말했으면 버튼을 다시 눌러 마쳐요. 시간이 되면 자동으로 마쳐요.</span>}
-                </>
-              ) : busyAudio ? <span className="muted">진행자 음성이 끝나면 녹음할 수 있어요.</span>
-                : phase === 'awaiting_record' ? (
-                  <>
-                    <span style={{ fontWeight: 600 }}>마이크 버튼을 눌러 답변을 시작하세요</span>
-                    <span className="faint">녹음이 시작되면 버튼이 빨간색으로 바뀌고, 말하는 동안 막대가 움직여요.</span>
-                  </>
-                )
-                : phase === 'uploading' || phase === 'processing' ? <span className="muted">답변을 저장하는 중이에요. 이 문항에서 기다려 주세요.</span>
-                : null}
+              <button className="btn btn-rec" onClick={toggleRecord} disabled={!recording}>
+                <span className="rec-dot" aria-hidden="true" style={{ animation: recording ? undefined : 'none' }} />답변 완료 및 저장
+              </button>
             </div>
           </div>
-
-          {micError && <p className="notice notice-warn" role="alert">{micError}</p>}
-          {note && <p className={`notice ${note.kind === 'warn' ? 'notice-warn' : ''}`} role={note.kind === 'warn' ? 'alert' : undefined}>{note.text}</p>}
-
-          {phase === 'line_error' && (
-            <div className="notice notice-warn" role="alert">
-              <p>진행자 음성을 재생하지 못했어요. 음성을 들은 뒤 계속할 수 있어요.</p>
-              <button className="btn" disabled={speakingLine} onClick={() => retryLine.current?.()} autoFocus>진행자 음성 다시 듣기</button>
+          {confirmSkip && canSkip && q && (
+            <div id="skip-confirm" className="notice" role="alertdialog" aria-labelledby="skip-h">
+              <p id="skip-h" style={{ marginBottom: 10 }}>
+                {q.is_scored
+                  ? '이 문항을 건너뛸까요? 답변 없이 다음 문항으로 넘어가고, 이 문항은 채점에 쓰이지 않아요. 건너뛴 문항이 많으면 예상 등급을 내지 못할 수 있어요.'
+                  : '이 문항을 건너뛸까요? 연습 문항이라 채점에는 영향이 없어요.'}
+              </p>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <button className="btn" onClick={skip} autoFocus>건너뛰기</button>
+                <button className="btn btn-ghost" onClick={() => setConfirmSkip(false)}>계속 답하기</button>
+              </div>
             </div>
           )}
-          {phase === 'uploading' && <p className="faint">새로고침하거나 창을 닫으면 아직 보내지 못한 녹음이 사라질 수 있어요.</p>}
-          {phase === 'upload_failed' && (
-            <div className="notice notice-warn" role="alert">
-              <p style={{ marginBottom: 10 }}>네트워크 문제로 답변을 보내지 못했어요. 녹음은 이 화면에 보관되어 있어요. 새로고침하면 사라질 수 있어요.</p>
-              <button className="btn" onClick={() => pendingUpload.current && upload(pendingUpload.current)} autoFocus>다시 보내기</button>
-            </div>
-          )}
-          {phase === 'failed' && (
-            <div style={{ display: 'flex', gap: 12 }}>
-              <button className="btn" onClick={retryProcessing} autoFocus>다시 처리</button>
-            </div>
-          )}
-          {phase === 'fatal' && <button className="btn btn-ghost" onClick={() => load()}>다시 불러오기</button>}
         </section>
       </div>
       <Live>{status}</Live>
