@@ -1,4 +1,5 @@
 // AI-assisted: 이 코드는 Claude(Anthropic)의 도움으로 작성되었습니다.
+// 후속 수정: CR frontend-01의 타입 우회 제거는 OpenAI Codex의 도움으로 작성되었습니다.
 // OWNER: frontend (contracts.yaml ownership)
 //
 // 결과: E2 2초 폴링. grading → 채점 중(3분 넘으면 안내, 폴링 계속), grading_failed → [다시 평가](E3), done → 보고서.
@@ -16,11 +17,8 @@ import { clearSessionId, loadSessionId, routeFor } from '../lib/session';
 import { usePoll } from '../lib/usePoll';
 
 const SLOW_MS = 180000; // policies.grading_poll_slow_notice_ms
-// contracts.yaml tiers (서버가 tier를 주지만, 타입 정의가 문자열로 잘못 생성돼 있어 표시는 서버 값 우선 + 이름만 매핑)
+// contracts.yaml tiers: 서버의 객체를 그대로 사용하고 표시 이름만 매핑한다.
 const TIER_NAME: Record<string, string> = { bronze: '브론즈', silver: '실버', gold: '골드', platinum: '플래티넘', diamond: '다이아몬드' };
-type Tier = { name: string; color: string } | null;
-// CR frontend-01: types.ts의 EvaluationResult.tier가 문자열 리터럴 타입으로 생성돼 있어 여기서만 객체로 해석한다.
-const tierOf = (r: EvaluationResult): Tier => (r.tier as unknown as Tier) ?? null;
 
 export default function Result() {
   const nav = useNavigate();
@@ -111,7 +109,7 @@ const Quote = ({ children }: { children: ReactNode }) => (
 
 function Report({ r, answers, gradedAt, onNew }: { r: EvaluationResult; answers: ResultItemOut[]; gradedAt: string | null; onNew: () => void }) {
   const scope = r.evaluation_scope;
-  const tier = tierOf(r);
+  const tier = r.tier;
   const insufficient = r.assessment_status === 'insufficient_evidence';
   const imHeld = !insufficient && r.base_level === 'IM' && r.estimated_level === null;
   const byOrder = new Map(answers.map((a) => [a.order_no, a]));

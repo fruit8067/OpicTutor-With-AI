@@ -90,3 +90,5 @@ VITE_API_BASE=http://127.0.0.1:8000/api/v1 npm run dev
 ### 남은 조건
 
 실제 OmniVoice ZIP 생성/반입과 실제 서버·마이크 연동, M2 병합 순서, M3 통합 후 별도 대화의 독립 reviewer가 남아 있다. mock 모듈은 계약대로 src/__dev__에만 두고 커밋하지 않는다. C 전체/제품 완료를 선언하지 않는다. CR frontend-01은 bootstrap의 별도 PR로 처리하며 공개 HTTP 형식을 바꾸지 않는다.
+
+CR frontend-01은 PR #28/main 0c4ee09에서 해결됐다. 이 브랜치도 rebase한 뒤 Result의 unknown 캐스팅을 제거했다.
