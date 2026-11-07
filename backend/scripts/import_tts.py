@@ -1,4 +1,5 @@
 # AI-assisted: 이 스크립트는 Claude(Anthropic)의 도움으로 작성되었습니다.
+# 후속 수정: 경로·반입 검증은 OpenAI Codex의 도움으로 작성되었습니다.
 # OWNER: tts-host (contracts.yaml ownership)
 """Colab에서 받은 tts_mp3.zip(또는 풀린 폴더)을 반입한다.
 
@@ -15,11 +16,12 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import re
 import shutil
 import sys
 import tempfile
 import zipfile
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 
 from app.tts.assets import asset_rel_path, split_item_id, tts_dir
 
@@ -49,7 +51,10 @@ def find_root(path: Path, tmp: Path) -> Path:
     if path.is_file():
         with zipfile.ZipFile(path) as z:
             for name in z.namelist():
-                if name.startswith("/") or ".." in Path(name).parts:
+                win = PureWindowsPath(name)
+                target = (tmp / name).resolve()
+                if (win.drive or win.root or "\\" in name or
+                        ".." in Path(name).parts or not target.is_relative_to(tmp.resolve())):
                     raise SystemExit(f"zip에 안전하지 않은 경로: {name}")
             z.extractall(tmp)
         path = tmp
@@ -64,17 +69,24 @@ def find_root(path: Path, tmp: Path) -> Path:
 def validate(root: Path, check_name: bool = True) -> tuple[dict, list[str]]:
     errs = []
     m = json.loads((root / "manifest.json").read_text(encoding="utf-8"))
+    if not isinstance(m, dict):
+        return {}, ["manifest는 JSON 객체여야 합니다"]
     for k in REQUIRED:
         if k not in m:
             errs.append(f"manifest 필수 키 없음: {k}")
     if errs:
         return m, errs
+    if not isinstance(m["items"], list) or not m["items"]:
+        return m, ["manifest items는 비어 있지 않은 목록이어야 합니다"]
     if settings_version(m) != m["settings_version"]:
         errs.append(f"settings_version 불일치: manifest {m['settings_version']} / 재계산 {settings_version(m)}")
     if check_name and root.name != m["settings_version"]:
         errs.append(f"최상위 폴더 이름({root.name})이 settings_version({m['settings_version']})과 다름")
     seen = set()
     for it in m["items"]:
+        if not isinstance(it, dict):
+            errs.append("manifest item은 객체여야 합니다")
+            continue
         try:
             kind, ref = split_item_id(it.get("id", ""))
         except ValueError as e:
@@ -83,8 +95,10 @@ def validate(root: Path, check_name: bool = True) -> tuple[dict, list[str]]:
         if it["id"] in seen:
             errs.append(f"중복 id {it['id']}")
         seen.add(it["id"])
-        if not isinstance(it.get("text_sha1"), str) or len(it["text_sha1"]) != 40:
+        if not isinstance(it.get("text_sha1"), str) or not re.fullmatch(r"[0-9a-f]{40}", it["text_sha1"]):
             errs.append(f"{it['id']}: text_sha1 형식 오류")
+        if kind == "e2e_answer" and not re.fullmatch(r"(?:IM2|IL)_0[1-8]", ref):
+            errs.append(f"{it['id']}: e2e 등급/순서 형식 오류")
         f = root / kind / f"{ref}.mp3"
         if not f.is_file():
             errs.append(f"{it['id']}: 파일 없음")

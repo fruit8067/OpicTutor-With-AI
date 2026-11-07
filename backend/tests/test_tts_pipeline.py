@@ -218,3 +218,35 @@ def test_prepare_cancel_flag(active, monkeypatch):
     ev = threading.Event(); ev.set()
     P.handle({**JOB, "_cancel": ev})
     assert f.completed is None and f.failed is None
+
+
+# AI-assisted: 경로 회귀 검증은 OpenAI Codex의 도움으로 작성했습니다.
+@pytest.mark.parametrize("name", ["question/..\\escape", "question/C:escape", "host/../next", "e2e_answer/IL_01/escape"])
+def test_item_paths_cannot_escape(name):
+    with pytest.raises(ValueError):
+        A.split_item_id(name)
+
+
+@pytest.mark.parametrize("name", ["../escape.mp3", "..\\escape.mp3", "C:/escape.mp3", "/escape.mp3"])
+def test_zip_paths_cannot_escape(tmp_path, name):
+    from scripts.import_tts import find_root
+    archive = tmp_path / "unsafe.zip"
+    with zipfile.ZipFile(archive, "w") as z:
+        z.writestr(name, b"invalid")
+    unpack = tmp_path / "unpack"
+    unpack.mkdir()
+    with pytest.raises(SystemExit, match="안전하지 않은"):
+        find_root(archive, unpack)
+    assert list(unpack.iterdir()) == []
+
+
+def test_prepare_rejects_external_file(active, monkeypatch, env, tmp_path):
+    external = tmp_path / "outside.mp3"
+    write_mp3(external)
+    reg = registered(active, all_items())
+    reg[("question", "Q000", A.text_hash(all_items()["question/Q000"]), active)]["file_path"] = str(external)
+    fake = FakeDB(reg)
+    patch_db(monkeypatch, fake)
+    P.handle(JOB)
+    assert fake.completed is None
+    assert fake.failed[0]["error_code"] == "TTS_FILE_MISSING"

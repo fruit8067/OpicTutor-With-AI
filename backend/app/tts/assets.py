@@ -1,4 +1,5 @@
 # AI-assisted: 이 코드는 Claude(Anthropic)의 도움으로 작성되었습니다.
+# 후속 수정: 경로·반입 검증은 OpenAI Codex의 도움으로 작성되었습니다.
 # OWNER: tts-host (contracts.yaml ownership)
 """TTS 자산 공통 함수.
 
@@ -11,6 +12,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 from pathlib import Path
 
 from app.config import settings
@@ -38,7 +40,7 @@ def active_voice_id() -> str | None:
         vid = json.loads(p.read_text(encoding="utf-8")).get("voice_id")
     except (OSError, ValueError, AttributeError):
         return None
-    return vid if isinstance(vid, str) and vid.strip() else None
+    return vid if isinstance(vid, str) and re.fullmatch(r"[0-9a-f]{10}", vid) else None
 
 
 def asset_rel_path(voice_id: str, kind: str, ref_id: str) -> str:
@@ -53,7 +55,7 @@ def tts_url(file_path: str) -> str:
 def split_item_id(item_id: str) -> tuple[str, str]:
     """'question/Q001' → ('question', 'Q001')."""
     kind, sep, ref = str(item_id).partition("/")
-    if not sep or kind not in KINDS or not ref or "/" in ref or ref in (".", ".."):
+    if not sep or kind not in KINDS or not re.fullmatch(r"[A-Za-z0-9_-]+", ref):
         raise ValueError(f"잘못된 item id: {item_id!r}")
     return kind, ref
 
