@@ -1,4 +1,5 @@
 // AI-assisted: 이 코드는 Claude(Anthropic)의 도움으로 작성되었습니다.
+// 후속 수정: REC 문구의 AA 대비는 OpenAI Codex의 도움으로 작성되었습니다.
 // OWNER: tts-host (contracts.yaml ownership)
 //
 // 진행자 캐릭터 "린"(오리지널 SVG, 단순 도형). 실존 시험 진행자·알려진 캐릭터를 닮지 않게 만든 둥근 말풍선형 캐릭터.
@@ -102,10 +103,10 @@ export function Host({ state, className }: { state: HostState; className?: strin
       </g>
       {state === 'listening' && (
         <g aria-hidden="true">
-          <circle cx="172" cy="28" r="7" fill="#E5484D">
+          <circle cx="172" cy="28" r="7" fill="#b83e37">
             {move && <animate attributeName="opacity" values="1;0.3;1" dur="1.2s" repeatCount="indefinite" />}
           </circle>
-          <text x="160" y="32" fontSize="11" textAnchor="end" fill="#E5484D" fontWeight="600">REC</text>
+          <text x="160" y="32" fontSize="11" textAnchor="end" fill="#b83e37" fontWeight="600">REC</text>
         </g>
       )}
       {state === 'processing' && (
