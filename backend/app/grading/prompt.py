@@ -1,4 +1,5 @@
 # AI-assisted: 이 코드는 OpenAI Codex의 도움으로 작성했습니다.
+# 후속 수정: 건너뛴 문항 표시(v6 템플릿)는 Claude(Anthropic)의 도움으로 작성했습니다.
 # OWNER: grader (contracts.yaml ownership)
 from contextlib import contextmanager
 from contextvars import ContextVar
@@ -10,10 +11,10 @@ from html import escape
 from app.config import settings
 from app.schemas.internal import EvidenceBundle
 from .rules import contract
-from .validate import usable
+from .validate import usable,skipped
 
 _exam_meta=ContextVar('grading_exam_meta',default={})
-TEMPLATE_VERSION='evaluate_exam.v5'
+TEMPLATE_VERSION='evaluate_exam.v6'
 
 @contextmanager
 def exam_context(meta):
@@ -53,10 +54,12 @@ def build_messages(snapshot: list[dict], evidence: EvidenceBundle) -> list[dict]
             '<required_output_metadata>'+data(constraints)+'</required_output_metadata>']
     for row in snapshot:
         attrs={k:row[k] for k in ['order_no','question_type','is_scored','target_functions','target_time_frames','context_scope','stt_status']}
+        attrs['skipped']=skipped(row)
         pieces.append('<item metadata="'+data(attrs,attribute=True)+'">')
         pieces.append('<question>'+escape(row['question_text'],quote=False)+'</question>')
         text=row.get('stt_text')
-        if row['stt_status']=='done' and isinstance(text,str) and text.strip():
+        if skipped(row): pieces.append('<transcript status="skipped"/>')
+        elif row['stt_status']=='done' and isinstance(text,str) and text.strip():
             pieces.append('<transcript untrusted="true">'+escape(text,quote=False)+'</transcript>')
             candidates=[match.group().strip() for match in re.finditer(r'[^.!?]+(?:[.!?]+|$)',text) if match.group().strip()]
             pieces.append('<verbatim_quote_candidates>'+data(candidates)+'</verbatim_quote_candidates>')

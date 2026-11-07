@@ -1,4 +1,5 @@
 # AI-assisted: 이 코드는 OpenAI Codex의 도움으로 작성되었습니다.
+# 후속 수정: SkipOut·건너뛴 문항 결과 필드는 Claude(Anthropic)의 도움으로 작성되었습니다.
 # OWNER: bootstrap (contracts.yaml ownership)
 from __future__ import annotations
 from datetime import datetime
@@ -101,6 +102,12 @@ class ReplayOut(ContractModel):
     order_no: int
     replay_count: int
     replay_limit: int
+
+class SkipOut(ContractModel):
+    order_no: int
+    session_status: session_status
+    current_order_no: int
+    all_answered: bool
 
 class Metrics(ContractModel):
     duration_sec: float
@@ -246,8 +253,9 @@ class ResultItemOut(ContractModel):
     question_type: str
     question_text: str
     is_scored: bool
-    stt_text: str
-    metrics: Metrics
+    stt_text: str | None
+    metrics: Metrics | None
+    skipped: bool = False
 
 class ResultOut(ContractModel):
     session_status: session_status

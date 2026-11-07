@@ -394,6 +394,7 @@ db_schema_sql: |
     context_scope      TEXT[] NOT NULL DEFAULT '{}',
     tts_asset_id     UUID NULL REFERENCES tts_assets(id),
     replay_count     INT  NOT NULL DEFAULT 0,
+    skipped_at       TIMESTAMPTZ NULL,                 -- 004: 사용자가 건너뛴 시각(Q3). NULL이면 건너뛰지 않음
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(), updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     UNIQUE (session_id, order_no),
     UNIQUE (session_id, question_id)
@@ -570,9 +571,14 @@ module_interfaces:
     def reject_stt(answer_id: UUID, reason: str) -> None     # rejected (순서 전진 없음)
     def fail_stt(answer_id: UUID, error_code: str) -> None   # failed (순서 전진 없음)
     def retry_stt(answer_id: UUID) -> None                   # failed→queued, stt_attempt+1, 작업 등록
+    def skip_question(session_id: UUID, order_no: int) -> dict
+        # 한 트랜잭션: in_progress, order_no == current_order_no, queued/processing 답변 없음 확인
+        # → skipped_at 기록 + current_order_no +1. 이미 건너뛴 문항이면 바꾸지 않고 현재 값 반환(멱등).
+        # 반환: {order_no, session_status, current_order_no, all_answered}
     # 제출·평가
     def submit_session(session_id: UUID) -> UUID
-        # 한 트랜잭션: 모든 문항에 is_selected done 답변이 있는지 확인(아니면 AppError NOT_ALL_ANSWERED)
+        # 한 트랜잭션: 건너뛰지 않은 모든 문항에 is_selected done 답변이 있는지 확인(아니면 AppError NOT_ALL_ANSWERED)
+        # 건너뛴 문항은 selected_answer_ids에 들어가지 않는다.
         # → selected_answer_ids 고정, submitted_at → evaluations(run_no=1) + evaluate 작업 → grading. evaluation_id 반환.
         # 이미 submitted/grading/done이면 기존 최신 evaluation_id 반환(멱등).
     def create_regrade(session_id: UUID) -> UUID             # grading_failed|done → 새 run_no, 작업 등록, grading
@@ -580,7 +586,8 @@ module_interfaces:
     def get_latest_evaluation(session_id: UUID) -> dict | None
     def load_exam_snapshot(session_id: UUID, selected_answer_ids: list[UUID]) -> list[dict]
         # order_no 순 [{order_no, question_id, question_type, question_text, is_scored, target_functions,
-        #              target_time_frames, context_scope, answer_id, stt_status, stt_text, metrics, stt_version}]
+        #              target_time_frames, context_scope, answer_id, stt_status, stt_text, metrics, stt_version, skipped}]
+        # 건너뛴 문항은 skipped=true, answer_id/stt_status/stt_text/metrics=null
         # + 세션 settings_json.coverage는 get_session으로
     def mark_evaluation_running(evaluation_id: UUID) -> bool
     def finish_evaluation(evaluation_id: UUID, *, result: dict, assessment_status: str,
@@ -716,6 +723,9 @@ api:
        errors: [INVALID_STATE], note: "in_progress에서만. 모든 답변 저장 완료면 all_answered=true, question=null"}
     - {id: Q2,  method: POST, path: "/sessions/{session_id}/questions/{order_no}/replay", res: ReplayOut,
        errors: [REPLAY_LIMIT, ORDER_MISMATCH], note: "다시 듣기 직전에 호출. 첫 재생은 호출하지 않음"}
+    - {id: Q3,  method: POST, path: "/sessions/{session_id}/questions/{order_no}/skip", res: SkipOut,
+       errors: [INVALID_STATE, ORDER_MISMATCH, ANSWER_PENDING],
+       note: "현재 문항을 답변 없이 건너뜀. 같은 문항 재요청은 멱등. 채점에서는 답변 없음으로 처리"}
     - {id: U1,  method: POST, path: "/sessions/{session_id}/answers", req: "multipart: order_no, client_request_id, duration_ms, audio",
        res: AnswerOut, status: 202,
        errors: [INVALID_STATE, ORDER_MISMATCH, ANSWER_PENDING, AUDIO_TOO_SHORT, AUDIO_TOO_LONG, UNSUPPORTED_MEDIA, PAYLOAD_TOO_LARGE],
@@ -776,6 +786,7 @@ api_schemas:
                        question: "QuestionOut|null", pending_answer: "AnswerOut|null",
                        host_lines: "dict[str, HostLineOut]"}
   ReplayOut: {order_no: int, replay_count: int, replay_limit: int}
+  SkipOut: {order_no: int, session_status: session_status, current_order_no: int, all_answered: bool}
   Metrics: {duration_sec: float, speech_sec: float, word_count: int, wpm: float, articulation_wpm: "float|null",
             long_pause_count: int, observed_filler_per100: "float|null", metrics_version: str}
   AnswerOut: {answer_id: UUID, order_no: int, attempt_no: int, stt_status: answer_stt_status,
@@ -816,7 +827,7 @@ api_schemas:
                      additional_tasks_needed: "list[AdditionalTask]", limitations: "list[str]",
                      insufficient_reason: "str|null", disclaimer: str}
   ResultItemOut: {order_no: int, question_id: str, question_type: str, question_text: str, is_scored: bool,
-                  stt_text: str, metrics: Metrics}
+                  stt_text: "str|null", metrics: "Metrics|null", skipped: bool}
   ResultOut: {session_status: session_status, evaluation_status: "evaluation_status|null", run_no: "int|null",
               result: "EvaluationResult|null", answers: "list[ResultItemOut]", error_code: "str|null",
               graded_at: "datetime|null"}
