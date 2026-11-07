@@ -4,19 +4,20 @@
 @tailwind components;
 @tailwind utilities;
 
+/* 후속 수정: 작은 안내/녹음 문구의 AA 대비 보정은 OpenAI Codex의 도움으로 작성되었습니다. */
 /* 방향: 조용한 면접 부스. 차가운 종이 바탕 + 청록 잉크, 빨강은 "지금 녹음 중"에만 쓴다. */
 :root {
   --paper: #f5f7f6;
   --sheet: #ffffff;
   --ink: #1e3436;
   --ink-soft: #4b6163;
-  --ink-faint: #74888a;
+  --ink-faint: #586e70;
   --line: #d3dddA;
   --line-strong: #b5c4c1;
   --teal: #2c6e68;
   --teal-deep: #1f524d;
   --teal-wash: #e3efec;
-  --rec: #c8463f;
+  --rec: #b83e37;
   --rec-wash: #fbe9e7;
   --warn: #8a5a00;
   --warn-wash: #fff4dc;
