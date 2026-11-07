@@ -1,0 +1,68 @@
+{
+  "scope": "real Chromium + C frontend/Host + composed A/B HTTP/PostgreSQL/jobs and actual OmniVoice assets",
+  "fixtures": [
+    "STT transcript generation",
+    "grading inference"
+  ],
+  "human_microphone": false,
+  "paid_requests": 0,
+  "voice_id": "ac3049e033",
+  "final_status": "done",
+  "order": 9,
+  "counts": {
+    "answers": 8,
+    "evaluations": 1,
+    "ai_requests": 0
+  },
+  "worker_outcomes": [
+    {
+      "type": "tts_prepare",
+      "result": "done"
+    },
+    {
+      "type": "stt",
+      "result": "done"
+    },
+    {
+      "type": "stt",
+      "result": "done"
+    },
+    {
+      "type": "stt",
+      "result": "done"
+    },
+    {
+      "type": "stt",
+      "result": "done"
+    },
+    {
+      "type": "stt",
+      "result": "done"
+    },
+    {
+      "type": "stt",
+      "result": "done"
+    },
+    {
+      "type": "stt",
+      "result": "done"
+    },
+    {
+      "type": "stt",
+      "result": "done"
+    },
+    {
+      "type": "evaluate",
+      "result": "done"
+    }
+  ],
+  "actual_media_http_responses": 17,
+  "http_errors": [],
+  "same_questions": true,
+  "result_refresh_no_new_evaluation": true,
+  "old_session_audio_preserved_after_changed_text": true,
+  "media_status_counts": {
+    "206": 17
+  },
+  "isolated_database_and_temporary_assets_removed": true
+}

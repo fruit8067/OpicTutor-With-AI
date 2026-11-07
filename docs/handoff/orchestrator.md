@@ -2,6 +2,14 @@
 
 ## 상태
 
+최신 C 요구사항 감사: docs/C_REQUIREMENTS_VERIFICATION.md와 compliance/c-audit-2026-11-07.json을 정본으로 본다. 다른 작업자의 실제 음성 dd440e3을 보존해242개/해시 일치/누락0을 확인했다. 취소/문항 누락/녹음 오류/늦은 마이크와 음성 덮어쓰기 등 재현·정적 발견을 수정했다. 음성 덮어쓰기 CR tts-host-01은 PR#30/main으로 승인해 계약 v8이 됐다. 공개 HTTP/DB/평가 원문 변경 없음.
+
+TTS29개, 녹음 Node4개, 기존 Chromium15·추가 경계11개 통과. 실제 C+AB HTTP/DB/워커/OmniVoice8문항 done/평가1회/미디어206 17개, 결과 refresh 추가평가0. STT 전사·채점 추론만 대역이며 유료요청0. A/B128/14.34초·공개 선언 차이0. 실제 사람 마이크/공급자 품질·M2/M3·독립 reviewer는 별도 조건이다.
+
+TTS 코드/실제 자산/감사 수정 PR#19는 main 832f898에 병합했다. frontend PR#24는 최신 main rebase/build/lint/ownership 후 Draft를 유지한다.
+
+### 이전 상태 이력
+
 최신 사용자 지시로 C 작업을 시작했다. 기존 tts-host/frontend 원격 구현을 보존해 최신 main으로 rebase하고 역할별 수정·push를 완료했다. 사용자는 코드 우선/Colab 나중을 선택했다. TTS 단위19개·실제 임시 DB 준비/누락/복구, Chromium15개(키보드8문항 포함)가 통과했다. CR frontend-01 타입 수정은 PR#28/main 0c4ee09에 병합했다. 코드 PR#19/#24는 실제 음성 및 M2 의존 조건을 명시한 Draft로 유지한다. 상세 기록: docs/compliance/c-current-2026-11-07.json.
 
 기존 A/B 완료5건·Pickle quota_exhausted·남은35시험 조건은 유지된다. 실제 음성/마이크·M2/M3·독립 reviewer를 완료로 표시하지 않는다.
