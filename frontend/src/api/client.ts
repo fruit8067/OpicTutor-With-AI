@@ -4,6 +4,7 @@
 // contracts.yaml api.endpoints 전부. 실패 응답 {"error": {code, message, detail}} → ApiError로 throw.
 // 함수 이름은 contracts frontend_interfaces.api_client 기준. bootstrap stub 이름은 아래 별칭으로 유지한다.
 import type * as T from './types';
+import { loadAuthToken } from '../lib/session';
 
 // 같은 출처의 프록시를 사용해 다른 기기의 localhost로 요청하지 않는다. OpenAI Codex.
 export const API_BASE: string = import.meta.env.VITE_API_BASE ?? '/api/v1';
@@ -29,10 +30,14 @@ export const NETWORK_ERROR = 'NETWORK_ERROR';
 
 async function request<R>(method: string, path: string, body?: unknown, init?: RequestInit): Promise<R> {
   let res: Response;
+  const headers: Record<string, string> = {};
+  if (body !== undefined && !(body instanceof FormData)) headers['Content-Type'] = 'application/json';
+  const token = loadAuthToken();
+  if (token) headers['Authorization'] = `Bearer ${token}`;
   try {
     res = await fetch(API_BASE + path, {
       method,
-      headers: body !== undefined && !(body instanceof FormData) ? { 'Content-Type': 'application/json' } : undefined,
+      headers: Object.keys(headers).length ? headers : undefined,
       body: body === undefined ? undefined : body instanceof FormData ? body : JSON.stringify(body),
       ...init,
     });
@@ -52,6 +57,11 @@ async function request<R>(method: string, path: string, body?: unknown, init?: R
 }
 
 const s = (id: string) => `/sessions/${encodeURIComponent(id)}`;
+
+export const registerUser = (data: T.RegisterIn) => request<T.AuthOut>('POST', '/auth/register', data);
+export const loginUser = (data: T.LoginIn) => request<T.AuthOut>('POST', '/auth/login', data);
+export const logoutUser = () => request<T.LogoutOut>('POST', '/auth/logout');
+export const getMe = () => request<T.UserOut>('GET', '/auth/me');
 
 export const getHealth = () => request<T.HealthOut>('GET', '/health');                                    // A1
 export const getScenarios = () => request<T.ScenarioOut[]>('GET', '/scenarios');                         // A2
