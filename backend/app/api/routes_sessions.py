@@ -1,10 +1,11 @@
 # AI-assisted: 이 코드는 OpenAI Codex의 도움으로 작성되었습니다.
+# 후속 수정: 문항 건너뛰기(Q3)는 Claude(Anthropic)의 도움으로 작성되었습니다.
 # OWNER: session-api (contracts.yaml ownership)
 from uuid import UUID
 from fastapi import APIRouter,Response
 from app import db,exam,tts
 from app.errors import AppError
-from app.schemas.api import CreateSessionIn,SessionOut,CurrentQuestionOut,QuestionOut,ReplayOut
+from app.schemas.api import CreateSessionIn,SessionOut,CurrentQuestionOut,QuestionOut,ReplayOut,SkipOut
 from app.exam.scenarios import coverage_for
 from .deps import require_session,require_in_progress,session_out,answer_out,host_lines,REPLAY_LIMIT
 
@@ -61,3 +62,7 @@ def current(session_id: UUID):
 def replay(session_id: UUID,order_no: int):
     count=db.increment_replay(session_id,order_no,REPLAY_LIMIT)
     return ReplayOut(order_no=order_no,replay_count=count,replay_limit=REPLAY_LIMIT)
+
+@router.post('/sessions/{session_id}/questions/{order_no}/skip',response_model=SkipOut)
+def skip(session_id: UUID,order_no: int):
+    return SkipOut(**db.skip_question(session_id,order_no))

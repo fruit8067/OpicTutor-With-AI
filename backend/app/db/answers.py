@@ -1,4 +1,5 @@
 # AI-assisted: 이 코드는 OpenAI Codex의 도움으로 작성되었습니다.
+# 후속 수정: 문항 건너뛰기(skip_question)는 Claude(Anthropic)의 도움으로 작성되었습니다.
 # OWNER: data-layer (contracts.yaml ownership)
 from uuid import UUID
 from psycopg.types.json import Jsonb
@@ -89,3 +90,21 @@ def retry_stt(answer_id: UUID) -> None:
         attempt=a['stt_attempt']+1
         cur.execute("UPDATE answers SET stt_status='queued',stt_attempt=%s,error_code=NULL WHERE id=%s",(attempt,answer_id))
         enqueue(cur,'stt',answer_id,f'stt:{answer_id}:{attempt}',{'stt_attempt':attempt})
+
+def skip_question(session_id: UUID, order_no: int) -> dict:
+    """현재 문항을 답변 없이 건너뛴다. 같은 문항 재요청은 멱등으로 현재 진행 상태만 돌려준다."""
+    with tx() as cur:
+        s=session_for_update(cur,session_id)
+        cur.execute('SELECT id,skipped_at FROM session_questions WHERE session_id=%s AND order_no=%s FOR UPDATE',(session_id,order_no))
+        q=cur.fetchone()
+        if q is None: raise AppError('ORDER_MISMATCH')
+        if q['skipped_at'] is None:
+            require_state(s,'in_progress')
+            if order_no!=s['current_order_no'] or order_no>s['question_count']: raise AppError('ORDER_MISMATCH')
+            cur.execute("SELECT 1 FROM answers WHERE session_question_id=%s AND stt_status IN ('queued','processing')",(q['id'],))
+            if cur.fetchone(): raise AppError('ANSWER_PENDING')
+            cur.execute('UPDATE session_questions SET skipped_at=now() WHERE id=%s',(q['id'],))
+            cur.execute('UPDATE sessions SET current_order_no=current_order_no+1 WHERE id=%s AND current_order_no=%s RETURNING *',(session_id,order_no))
+            s=cur.fetchone()
+        return {'order_no':order_no,'session_status':s['status'],'current_order_no':s['current_order_no'],
+                'all_answered':s['current_order_no']>s['question_count']}

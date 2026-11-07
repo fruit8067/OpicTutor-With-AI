@@ -1,4 +1,5 @@
 # AI-assisted: 이 코드는 OpenAI Codex의 도움으로 작성되었습니다.
+# 후속 수정: 건너뛴 문항 표시는 Claude(Anthropic)의 도움으로 작성되었습니다.
 # OWNER: session-api (contracts.yaml ownership)
 from uuid import UUID
 from fastapi import APIRouter
@@ -21,7 +22,7 @@ def result(session_id: UUID):
     # 재평가 중에도 이전의 성공 결과는 보존한다.
     displayed=db.get_evaluation(s['result_id']) if s.get('result_id') else latest
     rows=db.load_exam_snapshot(session_id,s.get('selected_answer_ids') or [])
-    answers=[ResultItemOut(**{k:r[k] for k in ['order_no','question_id','question_type','question_text','is_scored','stt_text','metrics']}) for r in rows]
+    answers=[ResultItemOut(**{k:r[k] for k in ['order_no','question_id','question_type','question_text','is_scored','stt_text','metrics','skipped']}) for r in rows]
     return ResultOut(session_status=s['status'],evaluation_status=latest['status'] if latest else None,
         run_no=latest['run_no'] if latest else None,result=displayed.get('result_json') if displayed else None,
         answers=answers,error_code=latest.get('error_code') if latest else None,

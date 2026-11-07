@@ -63,6 +63,8 @@ export const startSession = (id: string) => request<T.SessionOut>('POST', `${s(i
 export const getCurrent = (id: string) => request<T.CurrentQuestionOut>('GET', `${s(id)}/current`);      // Q1
 export const postReplay = (id: string, orderNo: number) =>
   request<T.ReplayOut>('POST', `${s(id)}/questions/${orderNo}/replay`);                                 // Q2
+export const skipQuestion = (id: string, orderNo: number) =>
+  request<T.SkipOut>('POST', `${s(id)}/questions/${orderNo}/skip`);                                     // Q3
 
 export interface UploadInput { order_no: number; client_request_id: string; duration_ms: number; audio: Blob; filename: string }
 export const uploadAnswer = (id: string, u: UploadInput) => {                                           // U1
