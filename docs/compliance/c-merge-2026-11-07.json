@@ -1,0 +1,37 @@
+{
+  "date_kst": "2026-11-07",
+  "contract_version": 8,
+  "scope": "C implementation merge requested by user",
+  "tts_pr": {
+    "number": 19,
+    "merged": true,
+    "commit": "832f898fc21f20c6180f20a643e9f5dbc6f4dc62"
+  },
+  "frontend_pr": {
+    "number": 24,
+    "merged": true,
+    "commit": "731c1e3aea6af61df0836a23f4c227600e947aeb"
+  },
+  "merge_method": "REBASE",
+  "native_ownership_successful": true,
+  "post_merge_main": "731c1e3aea6af61df0836a23f4c227600e947aeb",
+  "post_merge_validation": {
+    "npm_ci": true,
+    "build": true,
+    "lint": true,
+    "recorder_node_tests_passed": 4,
+    "skipped": 0,
+    "backend_tree_unchanged": true,
+    "local_env_unchanged": true
+  },
+  "phase1_implementation_prs_merged": true,
+  "integrator_pr4_merged": false,
+  "remaining": [
+    "actual human microphone product exam",
+    "real provider quality and Pickle quota-limited eval remainder",
+    "M3 integration",
+    "independent M4 review"
+  ],
+  "paid_requests": 0,
+  "product_complete": false
+}

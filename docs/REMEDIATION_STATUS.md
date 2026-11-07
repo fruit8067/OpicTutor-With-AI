@@ -4,6 +4,10 @@
 
 사용자가 목표를 명확히 했다: C는 새로 구현하지 않고 A/B의 핵심 기능과 전체 요구사항·API·flowchart 연결을 심화 검증한다. C가 필요한 경계는 명시적인 테스트 대역으로 확인하며 제품 완주 완료로 표시하지 않는다.
 
+## 최신 C 구현 병합
+
+사용자 요청으로 frontend #24도 main 731c1e3에 병합했다(TTS #19는 기병합). [C 병합 기록](compliance/c-merge-2026-11-07.json). 최신 main에서 build/lint/Node4개 통과, .env·backend 트리 보존. A/B/C Phase1 구현은 main에 있지만 integrator #4/M3·실제 사람 마이크/공급자 품질·독립 M4 검토는 남아 있다. 아래 frontend Draft/미병합 기록은 이전 상태다.
+
 ## 최신 A/B 구현 병합
 
 사용자의 병합 요청으로 worker-stt #7, session-api #3, grader #6을 main에 순서대로 반영했다. 보호 규칙/필수 native ownership/rebase-only를 유지했다. 단일 main checkout 전체 백엔드157개 통과, skip0,14.37초. [병합·검증 기록](compliance/ab-merge-2026-11-07.json). 이전 기능 PR Draft 기록은 당시 상태다. 품질 검증·Pickle 남은35시험/반복/함정·실제 사람 마이크와 frontend #24/integrator #4·M3/M4는 남아 있다.
