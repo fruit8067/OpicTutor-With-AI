@@ -4,8 +4,8 @@
 
 ## 상태
 
-**M2 code 검증·보강 완료, M2 audio 대기 (2026-11-07)** — 코드 PR "[tts-host] M2 code". **음성(mp3)은 아직 없음**: Colab(T4 GPU) 실행은 사람이 해야 한다.
-음성 PR "[tts-host] M2 audio"는 아래 "운영자 절차"로 zip을 반입한 뒤 따로 올린다. 브랜치는 main `8e8fd59` 기준으로 rebase했다.
+**M2 code + audio 완료 (2026-11-07)** — 활성 음성 `ac3049e033` 반입. corpus M2(main `8e8fd59`) 기준 pilot 222문항 + 진행자 대사 4개
+모두 준비되어 `tts_status().missing_pilot == []`. **DB 등록은 서버 PC에서 한 번 더 필요**(아래 "서버 PC에서 할 일"). 코드는 main `8e8fd59` 기준으로 rebase된 브랜치 위에 반입했다.
 
 ## 완료한 것
 
@@ -71,14 +71,27 @@ async function playQuestion(url: string) {
 
 | 항목 | 값 |
 |---|---|
-| instruct / seed / speed | (Colab 실행 후 기록) |
-| voice_id | (Colab 실행 후 기록) |
-| 생성 개수 | jobs: question 13 + host 4 + e2e 16 = 33 (corpus M1 기준. M2 병합 후 pilot 222 + 4 + 16) |
-| 총 길이·용량 | (반입 후 `import_tts` 요약값 기록) |
+| instruct / seed / speed / num_step | `female, young adult, moderate pitch, american accent` / 42 / 0.95 / 32 |
+| e2e 답변 목소리(11번 셀) | `male, young adult, low pitch, korean accent` / seed 7 / speed 1.0 |
+| model_revision | `c5fdb5ccb189668d56333f77ba2629f4cd7535f4` (k2-fsa/OmniVoice) |
+| voice_id (= settings_version) | `ac3049e033` |
+| 생성 개수 | 242 = question 222 + host 4 + e2e_answer 16 |
+| 총 길이·용량 | 2,584초(약 43분), 20.8MB (64kbps mono 24kHz). e2e_audio 2.3MB |
+| 문항 길이 | 최소 2.7초 / 중앙 10.7초 / 최대 31.1초, 글자당 속도 이상치 0 |
+| 기준 음성 프롬프트 | `host_voice.pt`는 커밋하지 않고 운영자가 보관(같은 목소리로 --stale 재생성할 때 필요) |
+
+## 서버 PC에서 할 일 (DB 등록)
+
+파일은 커밋으로 배포되지만 `tts_assets` 테이블 등록은 각 서버의 DB에서 해야 tts_prepare가 연결할 수 있다.
+```bash
+cd backend
+python -m scripts.import_tts static/tts/ac3049e033 --activate     # 이미 같은 폴더면 파일은 그대로, DB에만 242건 upsert
+```
+(폴더를 원본으로 주면 같은 자리로 복사·manifest 병합 후 DB 등록. e2e_audio도 다시 복사됨)
 
 ## 알려진 문제
 
-- 음성 미생성이므로 `tts_status().missing_pilot`은 아직 전 문항. done_when(누락 0)은 audio PR에서 충족한다.
+- 반입·검사는 DB 없이(`--no-db`) 했다. DB 등록과 실제 tts_prepare → ready 확인은 서버 PC에서 위 명령 후 진행.
 - DB 연동 local_checks(preparing 세션 → `--types tts_prepare --once` → ready, mp3 삭제 → `TTS_FILE_MISSING`)는
   data-layer 병합 후 실행. 핸들러 흐름은 가짜 db pytest로 확인했다.
 - `TTS_HASH_MISMATCH`는 활성 manifest 기준으로 판별한다(DB에는 정확한 해시 조회 함수만 있어서).
