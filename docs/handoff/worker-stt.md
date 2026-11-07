@@ -79,3 +79,9 @@ Windows SAPI Zira로 만든 합성 영어 음성을 10/30/60초로 잘랐다. �
 - 종료 직후 processing/순서 1을 확인했고 재처리 후 done/순서 2를 확인했다. 리스 시각을 SQL로 앞당기지 않은 실제 복구 실험이다.
 - 원음은 합성 60초 파일이며 실제 사용자 마이크 발화는 아니다.
 - 공개 PR: https://github.com/fruit8067/OpicTutor-With-AI/pull/7 (Draft).
+
+## tts-host 병합 후 rebase (2026-11-07 11:0x KST)
+main 832f898(tts-host M2·계약 v8) 위로 rebase. tts_prepare가 실제 핸들러가 되어 "실제 tts stub 제외" 테스트가 깨졌으므로,
+가짜 stub으로 제외 규칙을 확인하는 테스트와 병합된 tts_prepare·stt가 모두 확보 대상인지 확인하는 테스트로 나눴다. 런타임 코드 변경 없음.
+backend 전체 69 passed. test_db_ingest 2건은 tiktoken 인코딩 다운로드가 막힌 검증 환경 문제로 main에서도 동일하게 실패한다.
+실제 마이크 검증은 아직 대기다.
