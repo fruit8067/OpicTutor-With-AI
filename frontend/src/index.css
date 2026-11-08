@@ -207,6 +207,7 @@ p { margin: 0; }
 .question-quote { font-size: 1.1rem; font-weight: 700; line-height: 1.4; letter-spacing: -0.015em; color: var(--ink); }
 
 .spinner { width: 28px; height: 28px; border-radius: 50%; border: 3px solid var(--primary-surface); border-top-color: var(--primary); animation: spin 0.9s linear infinite; }
+.spinner.spinner-xs { width: 10px; height: 10px; border-width: 2px; flex: none; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
 /* 3단계: Stitch sign_in 55:45 분할 레이아웃 */

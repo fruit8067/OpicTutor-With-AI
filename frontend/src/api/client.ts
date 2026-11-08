@@ -1,4 +1,5 @@
 // AI-assisted: 이 코드는 Claude(Anthropic)의 도움으로 작성되었습니다.
+// 후속 수정: v3 getActiveSessions는 Claude(Anthropic)의 도움으로 작성되었습니다.
 // OWNER: frontend (contracts.yaml ownership)
 //
 // contracts.yaml api.endpoints 전부. 실패 응답 {"error": {code, message, detail}} → ApiError로 throw.
@@ -67,6 +68,7 @@ export const getScenarios = () => request<T.ScenarioOut[]>('GET', '/scenarios');
 export const getHostLines = () => request<Record<string, T.HostLineOut>>('GET', '/host-lines');          // A3
 export const createSession = (data: T.CreateSessionIn) => request<T.SessionOut>('POST', '/sessions', data); // S1
 export const getUserHistory = () => request<T.UserHistoryOut>('GET', '/sessions/history');
+export const getActiveSessions = () => request<T.ActiveSessionsOut>('GET', '/sessions/active');         // H2 (v3)
 export const getSession = (id: string) => request<T.SessionOut>('GET', s(id));                           // S2
 export const deleteSession = (id: string) => request<T.DeleteSessionOut>('DELETE', s(id));
 export const retryPrepare = (id: string) => request<T.SessionOut>('POST', `${s(id)}/prepare/retry`);    // S3

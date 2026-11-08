@@ -78,6 +78,9 @@ def complete_stt(answer_id: UUID, *, text: str, timestamps: list[dict], metrics:
             cur.execute("""UPDATE answers SET stt_status='done',is_selected=true,stt_text=%s,timestamps_json=%s,
                 metrics_json=%s,stt_version=%s,reject_reason=NULL,error_code=NULL WHERE id=%s""",
                 (text,Jsonb(timestamps),Jsonb(metrics),stt_version,answer_id))
+            # 호환: v3 배포 전에 접수되어 순서가 아직 그 문항에 머문 답변이면 여기서 전진한다(v3 접수분에는 해당 없음).
+            cur.execute('UPDATE sessions SET current_order_no=current_order_no+1 WHERE id=%s AND current_order_no=%s AND status=%s',
+                        (s['id'],a['order_no'],'in_progress'))
             maybe_enqueue_evaluation(cur,s)
         return summary(cur,s)
 

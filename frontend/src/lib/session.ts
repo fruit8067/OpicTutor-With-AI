@@ -41,6 +41,9 @@ export const clearAuth = () => {
   safe(() => localStorage.removeItem(USER), undefined);
 };
 
+/** v3: 리포트 주소에 세션을 담아 여러 시험 결과를 열 수 있게 한다. AI-assisted(Claude). */
+export const resultPath = (id: string) => `/result?session_id=${encodeURIComponent(id)}`;
+
 /** 세션 상태 → 화면 경로 (frontend.yaml 2번 라우팅 표). null이면 세션 삭제 후 /setup */
 export function routeFor(status: session_status): string | null {
   switch (status) {

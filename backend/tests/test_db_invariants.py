@@ -147,6 +147,15 @@ def test_pending_retry_and_order(session):
     assert db.stt_progress(session)==dict(total=2,done=1,pending=0,unusable=1)
 
 
+def test_pre_v3_pending_answer_still_advances_on_completion(session):
+    ready(session)
+    aid=answer(session,1)[0]['id']
+    # v3 이전 접수분처럼 순서가 아직 그 문항에 머문 상태를 재현한다.
+    with tx() as cur: cur.execute('UPDATE sessions SET current_order_no=1 WHERE id=%s',(session,))
+    assert complete(aid)['current_order_no']==2
+    assert complete(answer(session,2)[0]['id'])['current_order_no']==3   # v3 접수분은 두 번 전진하지 않는다.
+
+
 def evaluations(sid):
     with tx() as cur:
         cur.execute('SELECT * FROM evaluations WHERE session_id=%s',(sid,))

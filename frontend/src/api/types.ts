@@ -1,5 +1,5 @@
 // AI-assisted: 이 코드는 OpenAI Codex의 도움으로 작성되었습니다.
-// 후속 수정: SkipOut·건너뛴 문항 결과 필드는 Claude(Anthropic)의 도움으로 작성되었습니다.
+// 후속 수정: SkipOut·건너뛴 문항 결과 필드와 v3 SttProgress·ActiveSessionsOut은 Claude(Anthropic)의 도움으로 작성되었습니다.
 // OWNER: bootstrap (contracts.yaml ownership)
 export type level = "NL" | "NM" | "NH" | "IL" | "IM1" | "IM2" | "IM3" | "IH" | "AL";
 export type base_level = "NL" | "NM" | "NH" | "IL" | "IM" | "IH" | "AL";
@@ -55,6 +55,14 @@ export interface PrepareProgress {
   failures: (PrepareFailure)[];
 }
 
+/** v3: 건너뛰지 않고 접수된 문항 기준 STT 진행 현황 */
+export interface SttProgress {
+  total: number;
+  done: number;
+  pending: number;
+  unusable: number;
+}
+
 export interface SessionOut {
   session_id: string;
   status: session_status;
@@ -64,6 +72,7 @@ export interface SessionOut {
   all_answered: boolean;
   prepare: PrepareProgress | null;
   latest_evaluation_status: evaluation_status | null;
+  stt_progress?: SttProgress | null;
   created_at: string;
   updated_at: string;
 }
@@ -87,6 +96,7 @@ export interface CurrentQuestionOut {
   question: QuestionOut | null;
   pending_answer: AnswerOut | null;
   host_lines: Record<string, HostLineOut>;
+  stt_progress?: SttProgress | null;
 }
 
 export interface ReplayOut {
@@ -269,6 +279,7 @@ export interface ResultItemOut {
   stt_text: string | null;
   metrics: Metrics | null;
   skipped: boolean;
+  stt_status?: answer_stt_status | null;
 }
 
 export interface ResultOut {
@@ -279,6 +290,7 @@ export interface ResultOut {
   answers: (ResultItemOut)[];
   error_code: string | null;
   graded_at: string | null;
+  stt_progress?: SttProgress | null;
 }
 
 export interface RegisterIn {
@@ -350,4 +362,25 @@ export interface UserHistoryOut {
 export interface DeleteSessionOut {
   ok: boolean;
   session_id: string;
+}
+
+export interface ActiveSessionItemOut {
+  session_id: string;
+  scenario_id: string;
+  status: session_status;
+  question_count: number;
+  current_order_no: number;
+  latest_evaluation_status: evaluation_status | null;
+  stt_progress: SttProgress;
+  created_at: string;
+  submitted_at: string | null;
+  updated_at: string;
+}
+
+/** v3 GET /sessions/active — 헤더 배지·완료 알림용 */
+export interface ActiveSessionsOut {
+  items: ActiveSessionItemOut[];
+  recent_finished: ActiveSessionItemOut[];
+  latest_report_session_id: string | null;
+  in_progress_session_id: string | null;
 }

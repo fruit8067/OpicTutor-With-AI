@@ -1,9 +1,12 @@
 // AI-assisted: 이 코드는 Claude(Anthropic)의 도움으로 작성되었습니다.
 // 후속 수정: CR frontend-01의 타입 우회 제거는 OpenAI Codex의 도움으로 작성되었습니다.
 // 후속 수정: 건너뛴 문항 표시, 결과 화면 네비게이션 통합 및 Stitch 리포트 디자인 적용을 반영했습니다.
+// 후속 수정: v3 STT 대기(submitted) 진행 표시·분석 중 이동 버튼·인식 불가 문항 표시는 Claude(Anthropic)의 도움으로 작성되었습니다.
 // OWNER: frontend (contracts.yaml ownership)
 //
-// 결과: E2 2초 폴링. grading → 채점 중(3분 넘으면 안내, 폴링 계속), grading_failed → [다시 평가](E3), done → 보고서.
+// 결과: E2 2초 폴링. submitted → 답변 분석 중(stt_progress), grading → 채점 중(3분 넘으면 안내, 폴링 계속),
+// grading_failed → [다시 평가](E3), done → 보고서. 분석·채점은 서버에서 계속되므로 이 화면을 떠나도 된다.
+// 세션은 주소의 ?session_id=를 우선하고, 없으면 마지막 세션(localStorage)을 쓴다.
 // 서버가 준 값을 그대로 보여 준다. 등급을 계산·보정하지 않고, 숫자 점수·막대·별점을 그리지 않는다.
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
@@ -14,7 +17,7 @@ import { Host } from '../features/host/Host';
 import {
   CONTEXT_LABEL, FACT_LABEL, FACT_STATUS_LABEL, FULFILL_LABEL, FUNCTION_LABEL, GRADING_ERROR_TEXT, labelOf, TIME_LABEL, TYPE_LABEL,
 } from '../lib/messages';
-import { clearSessionId, loadSessionId, routeFor } from '../lib/session';
+import { clearSessionId, loadSessionId, resultPath, routeFor } from '../lib/session';
 import { usePoll } from '../lib/usePoll';
 
 const SLOW_MS = 180000; // policies.grading_poll_slow_notice_ms
@@ -66,6 +69,11 @@ export default function Result() {
   }, 2000, !!id && waiting);
 
   const newExam = () => { clearSessionId(); nav('/setup'); };
+  // 분석 중 새 시험: 지금 세션은 서버에서 계속 분석된다. 리포트는 주소(session_id)로 다시 열 수 있다.
+  const startAnother = () => { if (!querySessionId && id) nav(resultPath(id), { replace: true }); clearSessionId(); nav('/setup'); };
+  const stt = data?.stt_progress ?? null;
+  const analyzing = data?.session_status === 'submitted';
+  const sttDone = stt ? stt.done + stt.unusable : 0;
   const goHistory = () => { nav('/history'); };
   const doRegrade = async () => {
     if (!id) return;
@@ -80,14 +88,33 @@ export default function Result() {
         <div className="sheet" style={{ padding: 36, display: 'grid', gridTemplateColumns: 'minmax(160px, 220px) 1fr', gap: 36, alignItems: 'center', maxWidth: 820, margin: '2rem auto' }}>
           <div style={{ color: 'var(--ink)' }}><Host state="processing" /></div>
           <div style={{ display: 'grid', gap: 12 }}>
-            <span className="chip chip-soft" style={{ justifySelf: 'start' }}>● AI 정밀 채점 진행 중</span>
-            <h1>답변 전체를 평가하고 있어요</h1>
-            <p className="muted prose-w">제출한 답변의 전사와 관측 지표를 함께 보고 예상 수준과 연습 방향을 정리하는 중이에요. 이 화면을 닫았다가 다시 와도 이어서 볼 수 있어요.</p>
+            {analyzing
+              ? <span className="chip chip-soft" style={{ justifySelf: 'start' }}>● 답변 분석 중 {sttDone}/{stt?.total ?? 0}</span>
+              : <span className="chip chip-soft" style={{ justifySelf: 'start' }}>● AI 정밀 채점 진행 중</span>}
+            <h1>{analyzing ? '답변을 텍스트로 옮기고 있어요' : '답변 전체를 평가하고 있어요'}</h1>
+            <p className="muted prose-w">
+              {analyzing
+                ? '남은 답변의 음성 인식이 끝나면 바로 종합 평가를 시작해요.'
+                : '제출한 답변의 전사와 관측 지표를 함께 보고 예상 수준과 연습 방향을 정리하는 중이에요.'}
+              {' '}분석은 서버에서 계속되니 다른 화면으로 이동해도 괜찮아요. 끝나면 화면 위쪽에 알림이 떠요.
+            </p>
+            {analyzing && stt && stt.total > 0 && (
+              <div className="rec-progress" role="progressbar" aria-label="답변 분석 진행" aria-valuemin={0} aria-valuemax={stt.total} aria-valuenow={sttDone}>
+                <span style={{ width: `${Math.round((sttDone / stt.total) * 100)}%` }} />
+              </div>
+            )}
+            {stt && stt.unusable > 0 && (
+              <p className="faint" style={{ fontSize: '0.8125rem' }}>인식되지 않은 답변 {stt.unusable}개는 평가에서 인식 불가 문항으로 처리돼요.</p>
+            )}
             {slow && <p className="notice" role="status">평가가 평소보다 오래 걸리고 있어요. 계속 확인하고 있으니 조금만 더 기다려 주세요.</p>}
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              <button className="btn btn-ghost" onClick={goHistory}>내 시험 기록 보기</button>
+              <button className="btn btn-ghost" onClick={startAnother}>새 시험 시작</button>
+            </div>
             <ErrorNote error={error} />
           </div>
         </div>
-        <Live>평가 중</Live>
+        <Live>{analyzing ? '답변 분석 중' : '평가 중'}</Live>
       </Shell>
     );
   }
@@ -558,6 +585,7 @@ function ItemDetail({ it, a, warm = false }: { it: EvaluationResult['items'][num
           <strong>{it.order_no}번</strong>
           <span className="faint">{a ? labelOf(TYPE_LABEL, a.question_type) : ''}</span>
           {a?.skipped && <span className="badge badge-none">건너뜀</span>}
+          {a && !a.skipped && (a.stt_status === 'rejected' || a.stt_status === 'failed') && <span className="badge badge-none">인식 불가</span>}
           {warm
             ? <span className="badge badge-none">채점 제외</span>
             : <span className={`badge ${it.task_fulfillment === 'fulfilled' ? 'badge-ok' : it.task_fulfillment === 'not_assessable' ? 'badge-none' : 'badge-no'}`}>{FULFILL_LABEL[it.task_fulfillment]}</span>}
@@ -580,7 +608,7 @@ function ItemDetail({ it, a, warm = false }: { it: EvaluationResult['items'][num
           : (
             <div className="panel" style={{ padding: '12px 14px', background: 'var(--canvas)', border: '1px solid var(--border-subtle)', display: 'grid', gap: 4 }}>
               <span className="faint" style={{ fontSize: '0.75rem', fontWeight: 600 }}>내 답변(전사)</span>
-              <p lang="en">{a.stt_text || '전사 없음'}</p>
+              <p lang="en">{a.stt_text || (a.stt_status === 'rejected' || a.stt_status === 'failed' ? '음성을 인식하지 못해 평가에서 제외됐어요.' : '전사 없음')}</p>
             </div>
           ))}
         {it.evidence.length > 0 && (

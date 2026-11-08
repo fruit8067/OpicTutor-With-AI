@@ -1,20 +1,21 @@
 // AI-assisted: 이 코드는 Claude(Anthropic)의 도움으로 작성되었습니다.
 // 후속 수정: 필수 대사 재시도·이탈 후 요청 방지는 OpenAI Codex의 도움으로 작성되었습니다.
-// 후속 수정: 문항 건너뛰기(Q3), 마이크 UX(실시간 음량·무음 경고·장치 선택), Stitch 레이아웃(진행 카드·7:5 작업 영역)은 Claude(Anthropic)의 도움으로 작성되었습니다.
+// 후속 수정: 문항 건너뛰기(Q3), 마이크 UX(실시간 음량·무음 경고·장치 선택), Stitch 레이아웃(진행 카드·7:5 작업 영역),
+// v3 비동기 STT(업로드 접수 즉시 다음 문항, 백그라운드 분석 진행 표시)는 Claude(Anthropic)의 도움으로 작성되었습니다.
 // OWNER: frontend (contracts.yaml ownership)
 //
 // 시험 화면 — 문항 하나의 상태 머신. 서버 상태가 진실이다.
-// loading → playing → awaiting_record → recording → uploading → processing
-//   → done(서버 current_order_no 증가 확인) → next 대사 → 다음 문항 loading
-//   → rejected → awaiting_record(재녹음) / failed → [다시 처리](U3)
+// loading → playing → awaiting_record → recording → uploading
+//   → 202 접수(서버가 이미 current_order_no를 전진시킴) → next 대사 → 다음 문항 loading
 //   → [건너뛰기](Q3) → skipping → 서버 current_order_no 증가 확인 → next 대사 → 다음 문항
-// 업로드 202는 접수일 뿐이므로 절대 그것만 보고 다음 문항으로 가지 않는다. 문항·순서는 클라이언트가 계산하지 않는다.
+// v3: STT는 서버 워커가 뒤에서 처리한다. 화면은 STT 완료를 기다리지 않고, 진행 상황(stt_progress)만 작게 보여 준다.
+// 인식에 실패한 답변(rejected/failed)은 평가에서 인식 불가 문항으로 처리된다. 문항·순서는 클라이언트가 계산하지 않는다.
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  ApiError, getAnswer, getCurrent, mediaUrl, NETWORK_ERROR, postReplay, retryStt, skipQuestion, submitSession, uploadAnswer,
+  ApiError, getAnswer, getCurrent, getSession, mediaUrl, NETWORK_ERROR, postReplay, skipQuestion, submitSession, uploadAnswer,
 } from '../api/client';
-import type { AnswerOut, CurrentQuestionOut } from '../api/types';
+import type { CurrentQuestionOut, SttProgress } from '../api/types';
 import { Live, Shell } from '../components/Shell';
 import { Host, type HostState } from '../features/host/Host';
 import { MicLevel } from '../components/MicLevel';
@@ -23,14 +24,16 @@ import { usePlayer, type PlayResult } from '../lib/player';
 import {
   extFor, micErrorKind, openMic, Recorder, RECORD_MAX_MS, RECORD_MIN_MS, SILENCE_PEAK, SILENCE_WARN_MS, toLevel, VOICE_RMS, type Recording,
 } from '../lib/recorder';
-import { clearSessionId, loadMicId, loadSessionId, routeFor } from '../lib/session';
+import { clearSessionId, loadMicId, loadSessionId, resultPath, routeFor } from '../lib/session';
+import { usePoll } from '../lib/usePoll';
 
 type Phase =
   | 'loading' | 'playing' | 'blocked' | 'play_error' | 'awaiting_record' | 'recording'
-  | 'line_error' | 'uploading' | 'upload_failed' | 'processing' | 'failed' | 'skipping' | 'finishing' | 'fatal';
+  | 'line_error' | 'uploading' | 'upload_failed' | 'processing' | 'skipping' | 'finishing' | 'fatal';
 
-// 오디오가 재생 중이지 않고 서버에 처리 중인 답변이 없는 단계에서만 건너뛸 수 있다.
-const SKIPPABLE: Phase[] = ['awaiting_record', 'blocked', 'play_error', 'failed'];
+// 오디오가 재생 중이지 않고 보내는 중인 녹음이 없는 단계에서만 건너뛸 수 있다.
+const SKIPPABLE: Phase[] = ['awaiting_record', 'blocked', 'play_error'];
+const PROGRESS_POLL_MS = 5000;
 
 const RETRY_DELAYS = [1000, 2000, 4000];
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
@@ -53,7 +56,7 @@ export default function Exam() {
   const [note, setNote] = useState<{ kind: 'info' | 'warn'; text: string } | null>(null);
   const [showText, setShowText] = useState(false);
   const [elapsed, setElapsed] = useState(0);
-  const [failedAnswer, setFailedAnswer] = useState<AnswerOut | null>(null);
+  const [progress, setProgress] = useState<SttProgress | null>(null);   // 백그라운드 STT 진행 현황(v3)
   const [micError, setMicError] = useState<string | null>(null);
   const [confirmSkip, setConfirmSkip] = useState(false);
   const [level, setLevel] = useState(0);              // 녹음 중 실시간 음량(0~1)
@@ -112,7 +115,8 @@ export default function Exam() {
     if (!id) return;
     setPhase('finishing');
     await playLine(c, 'finish', async () => {
-    try { await submitSession(id); if (alive.current) nav('/result', { replace: true }); }
+    // v3: 남은 STT를 기다리지 않고 바로 제출한다. 서버가 마지막 STT가 끝날 때 평가를 등록한다.
+    try { await submitSession(id); if (alive.current) nav(resultPath(id), { replace: true }); }
     catch (e) {
       if (e instanceof ApiError && e.code === 'INVALID_STATE') { nav('/', { replace: true }); return; } // 이미 제출됨 → 상태 라우팅
       handleFatal(e);
@@ -129,42 +133,33 @@ export default function Exam() {
     setPhase(r === 'ended' ? 'awaiting_record' : r === 'blocked' ? 'blocked' : 'play_error');
   }, [player]);
 
-  const poll = useCallback(async (answerId: string, orderNo: number, c: CurrentQuestionOut) => {
+  // v3 이전에 접수되어 그 문항에 머문 답변만 기다린다(배포 시점에 진행 중이던 시험 호환). 새 답변은 기다리지 않는다.
+  const waitLegacy = useCallback(async (answerId: string) => {
     if (!id) return;
     setPhase('processing');
     for (;;) {
       if (!alive.current) return;
-      let a: AnswerOut;
-      try { a = await getAnswer(id, answerId); }
-      catch (e) {
+      try {
+        const a = await getAnswer(id, answerId);
+        if (a.stt_status !== 'queued' && a.stt_status !== 'processing') { await loadRef.current(); return; }
+      } catch (e) {
         if (e instanceof ApiError && e.code !== NETWORK_ERROR && e.status < 500) { handleFatal(e); return; }
-        await sleep(2000); continue;                    // 일시 오류: 같은 문항에서 계속 확인
-      }
-      if (!alive.current) return;
-      if (a.stt_status === 'done' && (a.current_order_no > orderNo || a.all_answered)) {
-        pendingUpload.current = null;
-        if (a.all_answered) { await finish(c); return; }
-        await playLine(c, 'next', () => loadRef.current());
-        return;
-      }
-      if (a.stt_status === 'rejected') {
-        setNote({ kind: 'warn', text: `${labelOf(REJECT_TEXT, a.reject_reason ?? '')} 같은 문항에 다시 답해 주세요.` });
-        await playLine(c, 'say_again', async () => { setPhase('awaiting_record'); });
-        return;
-      }
-      if (a.stt_status === 'failed') {
-        setFailedAnswer(a);
-        setNote({ kind: 'warn', text: labelOf(STT_ERROR_TEXT, a.error_code ?? 'STT_ENGINE_ERROR') });
-        setPhase('failed');
-        return;
       }
       await sleep(2000);
     }
-  }, [id, finish, playLine, handleFatal]); // 다음 문항 로드는 loadRef(아래 load)로
+  }, [id, handleFatal]);
+
+  // 분석이 남아 있는 동안만 진행 현황을 가볍게 다시 읽는다. 탭이 숨겨져 있으면 건너뛴다.
+  usePoll(async (active) => {
+    if (!id) return false;
+    if (document.visibilityState === 'hidden') return true;
+    try { const s = await getSession(id); if (active() && s.stt_progress) setProgress(s.stt_progress); return (s.stt_progress?.pending ?? 0) > 0; }
+    catch { return true; }
+  }, PROGRESS_POLL_MS, (progress?.pending ?? 0) > 0);
 
   const load = useCallback(async (): Promise<void> => {
     if (!id) { nav('/setup', { replace: true }); return; }
-    setPhase('loading'); setNote(null); setShowText(false); setFailedAnswer(null); setConfirmSkip(false);
+    setPhase('loading'); setNote(null); setShowText(false); setConfirmSkip(false);
     let c: CurrentQuestionOut;
     try { c = await getCurrent(id); }
     catch (e) {
@@ -173,24 +168,23 @@ export default function Exam() {
     }
     if (!alive.current) return;
     setCur(c);
+    if (c.stt_progress) setProgress(c.stt_progress);
     if (c.session_status !== 'in_progress') { const to = routeFor(c.session_status); nav(to ?? '/setup', { replace: true }); return; }
     if (c.all_answered) { await finish(c); return; }
     if (!c.question) { handleFatal(new Error('현재 문항을 불러오지 못했어요. 다시 불러와 주세요.')); return; }
     const p = c.pending_answer;
+    // v3에서는 현재 문항에 처리 중인 답변이 남지 않는다. 아래는 v3 이전에 접수된 답변 호환 처리다.
     if (p && p.order_no === c.question.order_no) {
-      if (p.stt_status === 'queued' || p.stt_status === 'processing') { await poll(p.answer_id, p.order_no, c); return; }
-      if (p.stt_status === 'failed') {
-        setFailedAnswer(p); setNote({ kind: 'warn', text: labelOf(STT_ERROR_TEXT, p.error_code ?? 'STT_ENGINE_ERROR') });
-        setPhase('failed'); return;
-      }
-      if (p.stt_status === 'rejected') {
-        setNote({ kind: 'warn', text: `${labelOf(REJECT_TEXT, p.reject_reason ?? '')} 같은 문항에 다시 답해 주세요.` });
+      if (p.stt_status === 'queued' || p.stt_status === 'processing') { await waitLegacy(p.answer_id); return; }
+      if (p.stt_status === 'rejected' || p.stt_status === 'failed') {
+        const why = p.stt_status === 'rejected' ? labelOf(REJECT_TEXT, p.reject_reason ?? '') : labelOf(STT_ERROR_TEXT, p.error_code ?? 'STT_ENGINE_ERROR');
+        setNote({ kind: 'warn', text: `${why} 같은 문항에 다시 답해 주세요.` });
         setPhase('awaiting_record'); return;
       }
     }
     if (c.question.order_no === 1) await playLine(c, 'greeting', () => playQuestion(c));
     else await playQuestion(c);
-  }, [id, nav, finish, poll, playQuestion, playLine, handleFatal]);
+  }, [id, nav, finish, waitLegacy, playQuestion, playLine, handleFatal]);
 
   useEffect(() => { loadRef.current = load; }, [load]);
   const started = useRef(false);
@@ -219,7 +213,11 @@ export default function Exam() {
         const a = await uploadAnswer(id, { order_no: job.orderNo, client_request_id: job.reqId, duration_ms: job.rec.durationMs,
                                            audio: job.rec.blob, filename: `answer.${extFor(job.rec.mime)}` });
         if (!alive.current) return;
-        await poll(a.answer_id, job.orderNo, cur);
+        // v3: 202 접수 = 서버가 이미 다음 문항으로 넘겼다. STT 결과는 기다리지 않는다.
+        pendingUpload.current = null;
+        setProgress((p) => ({ total: (p?.total ?? 0) + 1, done: p?.done ?? 0, pending: (p?.pending ?? 0) + 1, unusable: p?.unusable ?? 0 }));
+        if (a.all_answered) { await finish(cur); return; }
+        await playLine(cur, 'next', () => loadRef.current());
         return;
       } catch (e) {
         const transient = !(e instanceof ApiError) || e.code === NETWORK_ERROR || e.status >= 500;
@@ -291,7 +289,7 @@ export default function Exam() {
     try {
       const r = await skipQuestion(id, orderNo);
       if (!alive.current) return;
-      pendingUpload.current = null; setFailedAnswer(null);
+      pendingUpload.current = null;
       if (r.all_answered) { await finish(cur); return; }
       await playLine(cur, 'next', () => loadRef.current());
     } catch (e) {
@@ -301,13 +299,6 @@ export default function Exam() {
       setNote({ kind: 'warn', text: (e as Error)?.message ?? '건너뛰지 못했어요. 다시 시도해 주세요.' });
       setPhase(before);
     }
-  };
-
-  const retryProcessing = async () => {
-    if (!id || !failedAnswer || !cur) return;
-    setPhase('processing'); setNote(null);                                // 중복 클릭 방지: 즉시 처리 중으로
-    try { const a = await retryStt(id, failedAnswer.answer_id); setFailedAnswer(null); await poll(a.answer_id, a.order_no, cur); }
-    catch (e) { setNote({ kind: 'warn', text: (e as Error).message }); setPhase('failed'); }
   };
 
   const q = cur?.question;
@@ -321,7 +312,7 @@ export default function Exam() {
   const status = {
     loading: '문항을 불러오는 중', playing: '질문을 듣고 있어요', blocked: '브라우저가 자동 재생을 막았어요',
     play_error: '질문 음성을 재생하지 못했어요', awaiting_record: '마이크 버튼을 눌러 답해 주세요', recording: '녹음 중 — 다 말했으면 버튼을 다시 눌러 주세요',
-    line_error: '진행자 음성을 다시 재생해 주세요', uploading: '답변을 보내는 중', upload_failed: '답변을 보내지 못했어요', processing: '답변 처리 중', failed: '답변을 처리하지 못했어요', skipping: '다음 문항으로 넘어가는 중',
+    line_error: '진행자 음성을 다시 재생해 주세요', uploading: '답변을 보내는 중', upload_failed: '답변을 보내지 못했어요', processing: '이전 답변 처리 중', skipping: '다음 문항으로 넘어가는 중',
     finishing: '시험을 마치는 중', fatal: '문제가 생겼어요',
   }[phase];
 
@@ -336,12 +327,12 @@ export default function Exam() {
     : busyAudio ? <span className="chip">● 질문 듣는 중</span>
     : <span className="chip">● 대기</span>;
   const headline = recording ? (silent ? '마이크 입력이 감지되지 않고 있어요' : '녹음 중이에요 — 편하게 말해 보세요')
-    : saving ? (phase === 'skipping' ? '다음 문항으로 넘어가는 중이에요' : '답변을 저장하고 있어요…')
+    : saving ? (phase === 'skipping' ? '다음 문항으로 넘어가는 중이에요' : phase === 'processing' ? '이전 답변을 확인하고 있어요…' : '답변을 보내고 있어요…')
     : ready ? '버튼을 눌러 답변을 시작하세요'
     : busyAudio ? '진행자 음성이 끝나면 녹음할 수 있어요'
     : status;
   const sub = recording ? (silent ? '마이크 가까이에서 다시 말하거나, 마이크 연결을 확인해 주세요. 녹음은 계속되고 있어요.' : '말이 막히면 "Well…"처럼 자연스럽게 이어 가도 괜찮아요. 다 말했으면 버튼을 다시 눌러요.')
-    : saving ? '음성을 텍스트로 바꿔 저장하는 중이에요. 이 문항에서 잠시 기다려 주세요.'
+    : saving ? (phase === 'processing' ? '이전에 보낸 답변을 확인하고 있어요. 잠시만 기다려 주세요.' : '보내기만 끝나면 바로 다음 문항으로 넘어가요. 분석은 뒤에서 이어져요.')
     : ready ? '녹음이 시작되면 버튼이 빨간색으로 바뀌고, 말하는 동안 막대가 움직여요.'
     : null;
   const stepState = (n: number) => (n < orderNo ? 'done' : n === orderNo ? 'current' : 'todo');
@@ -356,6 +347,15 @@ export default function Exam() {
             <span className="chip chip-soft" style={{ minHeight: 22, padding: '0 0.55rem', fontSize: '0.7rem' }}>● 실전 모의 인터뷰</span>
             <span className="faint" style={{ fontSize: '0.8125rem' }}>전체 {total}문항 중 <strong>{orderNo}번째</strong></span>
             {q && !q.is_scored && <span className="faint" style={{ fontSize: '0.75rem' }}>· 연습 문항(채점 제외)</span>}
+            {progress && progress.total > 0 && (
+              <span className={`chip ${progress.pending > 0 ? 'chip-soft' : ''}`} role="status" aria-live="polite"
+                    style={{ minHeight: 22, padding: '0 0.55rem', fontSize: '0.7rem', gap: 6 }}
+                    title={progress.unusable > 0 ? `인식되지 않은 답변 ${progress.unusable}개는 평가에서 인식 불가 문항으로 처리돼요.` : undefined}>
+                {progress.pending > 0 && <span className="spinner spinner-xs" aria-hidden="true" />}
+                {progress.pending > 0 ? `답변 분석 중 ${progress.done + progress.unusable}/${progress.total}` : `답변 분석 완료 ${progress.total}/${progress.total}`}
+                {progress.unusable > 0 && ` · 인식 안 됨 ${progress.unusable}`}
+              </span>
+            )}
           </div>
           <ol className="steps" style={{ listStyle: 'none', margin: 0, padding: 0 }}>
             {steps.map(({ n, pos }) => (
@@ -449,7 +449,7 @@ export default function Exam() {
 
             {saving
               ? <div style={{ width: 104, height: 104, margin: '8px 0', borderRadius: '50%', display: 'grid', placeItems: 'center', alignContent: 'center', gap: 6, background: 'var(--canvas)', boxShadow: '0 0 0 8px var(--panel)' }}>
-                  <span className="spinner" aria-hidden="true" /><span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--primary)' }}>저장 중</span>
+                  <span className="spinner" aria-hidden="true" /><span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--primary)' }}>{phase === 'uploading' ? '보내는 중' : '저장 중'}</span>
                 </div>
               : <button className="mic" onClick={toggleRecord} disabled={!canRecord || busyAudio} data-recording={recording} data-silent={silent}
                         data-state={ready ? 'ready' : undefined}
@@ -486,7 +486,6 @@ export default function Exam() {
                 <button className="btn" onClick={() => pendingUpload.current && upload(pendingUpload.current)} autoFocus>다시 보내기</button>
               </div>
             )}
-            {phase === 'failed' && <button className="btn" onClick={retryProcessing} autoFocus>다시 처리</button>}
             {phase === 'fatal' && <button className="btn btn-ghost" onClick={() => load()}>다시 불러오기</button>}
           </section>
         </div>
@@ -495,7 +494,7 @@ export default function Exam() {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
             <span className="faint" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontSize: '0.8125rem' }}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><path d="M3 14v-2a9 9 0 0 1 18 0v2" /><rect x="3" y="14" width="4" height="6" rx="1.5" /><rect x="17" y="14" width="4" height="6" rx="1.5" /></svg>
-              답변을 저장하면 자동으로 다음 문항으로 넘어가요.
+              답변을 보내면 바로 다음 문항으로 넘어가요. 분석은 뒤에서 이어져요.
             </span>
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
               {q && (
