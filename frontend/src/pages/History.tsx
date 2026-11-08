@@ -1,9 +1,10 @@
 // AI-assisted: 유저별 테스트 히스토리 및 누적 학습 기록(/history) 화면입니다.
+// 후속 수정: v3 분석 중 진행 표시(답변 분석 N/M)·완료 시 자동 새로고침은 Claude(Anthropic)의 도움으로 작성되었습니다.
 // OWNER: frontend (contracts.yaml ownership)
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ApiError, deleteSession, getScenarios, getUserHistory } from '../api/client';
-import type { ScenarioOut, SessionHistoryItemOut, UserHistoryOut } from '../api/types';
+import type { ScenarioOut, SessionHistoryItemOut, session_status, SttProgress, UserHistoryOut } from '../api/types';
 import { ErrorNote, Shell } from '../components/Shell';
 import {
   clearAuth,
@@ -11,9 +12,11 @@ import {
   loadAuthToken,
   loadAuthUser,
   loadSessionId,
+  resultPath,
   routeFor,
   saveSessionId,
 } from '../lib/session';
+import { useActiveSessions } from '../lib/useActiveSessions';
 
 const TIER_NAME: Record<string, string> = {
   bronze: '브론즈',
@@ -31,11 +34,12 @@ function formatDuration(sec: number): string {
   return `${m}분 ${s}초`;
 }
 
-function statusBadge(it: SessionHistoryItemOut): { label: string; cls: string } {
-  switch (it.status) {
+function statusBadge(it: SessionHistoryItemOut, status: session_status = it.status, stt?: SttProgress): { label: string; cls: string } {
+  switch (status) {
     case 'done':
       return { label: '평가 완료', cls: 'chip chip-ok' };
     case 'submitted':
+      return { label: stt && stt.total > 0 ? `답변 분석 중 ${stt.done + stt.unusable}/${stt.total}` : '답변 분석 중', cls: 'chip chip-soft' };
     case 'grading':
       return { label: 'AI 채점 중', cls: 'chip chip-soft' };
     case 'grading_failed':
@@ -87,6 +91,12 @@ export default function History() {
     setReloadTick((t) => t + 1);
   };
 
+  // v3: 분석·채점 상태는 헤더와 같은 활성 세션 저장소(5초 폴링)에서 읽는다.
+  const { data: active } = useActiveSessions();
+  const liveOf = (sid: string) => active?.items.find((a) => a.session_id === sid);
+  // 세션이 분석·채점을 마치면(recent_finished가 바뀌면) 아래 조회 effect가 기록을 다시 읽는다.
+  const finishedKey = (active?.recent_finished ?? []).map((a) => `${a.session_id}:${a.status}`).sort().join(',');
+
   useEffect(() => {
     if (!loadAuthToken()) return;
     let cancelled = false;
@@ -116,7 +126,7 @@ export default function History() {
     return () => {
       cancelled = true;
     };
-  }, [nav, reloadTick]);
+  }, [nav, reloadTick, finishedKey]);
 
   const startNewExam = () => {
     clearSessionId();
@@ -130,7 +140,7 @@ export default function History() {
   };
 
   const openReport = (it: SessionHistoryItemOut) => {
-    nav(`/result?session_id=${encodeURIComponent(it.session_id)}`);
+    nav(resultPath(it.session_id));
   };
 
   const onDelete = async (it: SessionHistoryItemOut) => {
@@ -326,7 +336,8 @@ export default function History() {
           ) : (
             <div style={{ display: 'grid', gap: 12 }}>
               {items.map((it) => {
-                const badge = statusBadge(it);
+                const live = liveOf(it.session_id);
+                const badge = statusBadge(it, live?.status ?? it.status, live?.stt_progress);
                 const scLabel = scenarios[it.scenario_id]?.label ?? `시나리오 (${it.scenario_id})`;
                 const canReport = ['done', 'submitted', 'grading', 'grading_failed'].includes(it.status);
                 const canResume = ['in_progress', 'ready', 'preparing', 'prepare_failed'].includes(it.status);
@@ -391,7 +402,7 @@ export default function History() {
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
                       {canReport && (
                         <button type="button" className="btn" onClick={() => openReport(it)}>
-                          {it.status === 'done' ? '리포트 보기 →' : '채점 상태 보기 →'}
+                          {it.status === 'done' ? '리포트 보기 →' : (live?.status ?? it.status) === 'submitted' ? '분석 상태 보기 →' : '채점 상태 보기 →'}
                         </button>
                       )}
                       {canResume && (

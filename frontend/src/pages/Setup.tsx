@@ -1,6 +1,6 @@
 // AI-assisted: 이 코드는 Claude(Anthropic)의 도움으로 작성되었습니다.
 // 후속 수정: 상태 복구 처리는 OpenAI Codex의 도움으로 작성되었습니다.
-// 후속 수정: 마이크 장치 선택·음량 막대, Stitch 마이크 점검 화면 구성은 Claude(Anthropic)의 도움으로 작성되었습니다.
+// 후속 수정: 마이크 장치 선택·음량 막대, Stitch 마이크 점검 화면 구성, v3 분석 중 새 시험 허용은 Claude(Anthropic)의 도움으로 작성되었습니다.
 // OWNER: frontend (contracts.yaml ownership)
 // 설정: 마이크 권한 → 실시간 음량 → 3초 테스트 녹음·재생(업로드 안 함) → 시나리오 선택 → S1.
 import { useEffect, useRef, useState } from 'react';
@@ -127,7 +127,8 @@ export default function Setup() {
         try {
           const s = await getSession(prev);
           if (['preparing', 'ready', 'prepare_failed'].includes(s.status)) replaces = prev;
-          else if (s.status !== 'cancelled') { nav('/', { replace: true }); return; }  // 진행 중 시험이 있으면 그 화면으로
+          else if (s.status === 'in_progress') { nav('/exam', { replace: true }); return; }  // 진행 중 시험이 있으면 그 화면으로
+          // v3: 제출한 시험(submitted/grading/grading_failed/done)은 서버에서 분석이 이어지므로 새 시험을 그대로 만든다.
         } catch (e) {
           // 조회가 실패한 상태에서 진행 중 세션을 덮어 만들지 않는다.
           if (!(e instanceof ApiError) || e.code !== 'SESSION_NOT_FOUND') throw e;

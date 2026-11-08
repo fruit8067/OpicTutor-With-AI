@@ -71,6 +71,12 @@ export default function Result() {
   const newExam = () => { clearSessionId(); nav('/setup'); };
   // 분석 중 새 시험: 지금 세션은 서버에서 계속 분석된다. 리포트는 주소(session_id)로 다시 열 수 있다.
   const startAnother = () => { if (!querySessionId && id) nav(resultPath(id), { replace: true }); clearSessionId(); nav('/setup'); };
+  // 브라우저 알림은 사용자가 직접 허용했을 때만 쓴다(선택 기능).
+  const [notifyState, setNotifyState] = useState<NotificationPermission | 'unsupported'>(
+    () => (typeof Notification === 'undefined' ? 'unsupported' : Notification.permission));
+  const askNotify = async () => {
+    try { setNotifyState(await Notification.requestPermission()); } catch { setNotifyState('unsupported'); }
+  };
   const stt = data?.stt_progress ?? null;
   const analyzing = data?.session_status === 'submitted';
   const sttDone = stt ? stt.done + stt.unusable : 0;
@@ -96,11 +102,11 @@ export default function Result() {
               {analyzing
                 ? '남은 답변의 음성 인식이 끝나면 바로 종합 평가를 시작해요.'
                 : '제출한 답변의 전사와 관측 지표를 함께 보고 예상 수준과 연습 방향을 정리하는 중이에요.'}
-              {' '}분석은 서버에서 계속되니 다른 화면으로 이동해도 괜찮아요. 끝나면 화면 위쪽에 알림이 떠요.
+              {' '}분석은 서버에서 계속되니 다른 화면으로 이동해도 괜찮아요. 끝나면 화면 오른쪽 아래에 알림이 떠요.
             </p>
             {analyzing && stt && stt.total > 0 && (
               <div className="rec-progress" role="progressbar" aria-label="답변 분석 진행" aria-valuemin={0} aria-valuemax={stt.total} aria-valuenow={sttDone}>
-                <span style={{ width: `${Math.round((sttDone / stt.total) * 100)}%` }} />
+                <span style={{ width: `${Math.round((sttDone / stt.total) * 100)}%`, background: 'var(--primary)' }} />
               </div>
             )}
             {stt && stt.unusable > 0 && (
@@ -110,7 +116,11 @@ export default function Result() {
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
               <button className="btn btn-ghost" onClick={goHistory}>내 시험 기록 보기</button>
               <button className="btn btn-ghost" onClick={startAnother}>새 시험 시작</button>
+              {notifyState === 'default' && (
+                <button className="btn btn-ghost" onClick={askNotify}>끝나면 브라우저 알림 받기</button>
+              )}
             </div>
+            {notifyState === 'granted' && <p className="faint" style={{ fontSize: '0.8125rem' }}>다른 탭에 있어도 리포트가 준비되면 브라우저 알림을 보내 드려요.</p>}
             <ErrorNote error={error} />
           </div>
         </div>

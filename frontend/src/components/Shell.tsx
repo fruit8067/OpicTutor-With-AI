@@ -1,10 +1,12 @@
 // AI-assisted: 이 코드는 Claude(Anthropic)의 도움으로 작성되었습니다.
 // 후속 수정: Stitch 디자인(로고·고정 헤더·푸터) 및 단계별 상단 네비게이션·로그아웃 통합을 적용했습니다.
+// 후속 수정: v3 분석 중 화면 이동(메뉴 경로), 헤더 "분석 중" 배지, 리포트 준비 토스트는 Claude(Anthropic)의 도움으로 작성되었습니다.
 // OWNER: frontend (contracts.yaml ownership)
 import type { ReactNode } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { logoutUser } from '../api/client';
-import { clearAuth, clearSessionId, loadAuthUser, loadNickname } from '../lib/session';
+import { clearAuth, clearSessionId, loadAuthUser, loadNickname, resultPath, saveSessionId } from '../lib/session';
+import { dismissToast, useActiveSessions, waitingItems } from '../lib/useActiveSessions';
 
 export function Logo() {
   return (
@@ -17,7 +19,8 @@ export function Logo() {
   );
 }
 
-const NAV_STEPS = [
+// to: 고정 경로. exam·result는 서버의 활성 세션 정보로 경로를 정한다(없으면 이동 불가).
+const NAV_STEPS: { key: string; label: string; paths: string[]; to: string | null }[] = [
   { key: 'setup', label: '환경 점검', paths: ['/setup', '/prepare', '/ready'], to: '/setup' },
   { key: 'exam', label: '실전 인터뷰', paths: ['/exam'], to: null },
   { key: 'result', label: 'AI 피드백 리포트', paths: ['/result'], to: null },
@@ -31,6 +34,16 @@ export function Shell({ children, wide = false, compact = false, aside }: { chil
   const nick = user?.nickname || loadNickname();
   const max = wide ? 1280 : 960;
   const inExam = loc.pathname === '/exam';
+  const { data: active, toasts } = useActiveSessions();
+  const waiting = waitingItems(active);
+  const examId = active?.in_progress_session_id ?? null;
+  const reportId = active?.latest_report_session_id ?? null;
+  const go = (key: string, to: string | null) => {
+    if (key === 'exam' && examId) { saveSessionId(examId); nav('/exam'); return; }
+    if (key === 'result' && reportId) { nav(resultPath(reportId)); return; }
+    if (to) nav(to);
+  };
+  const targetOf = (key: string, to: string | null) => (key === 'exam' ? (examId ? '/exam' : null) : key === 'result' ? (reportId ? 'r' : null) : to);
 
   const onLogout = async () => {
     try { await logoutUser(); } catch { /* 네트워크/만료 무시 */ }
@@ -49,13 +62,14 @@ export function Shell({ children, wide = false, compact = false, aside }: { chil
             <nav aria-label="진행 단계" className="shell-nav">
               {NAV_STEPS.map((st, idx) => {
                 const active = st.paths.includes(loc.pathname);
-                const clickable = !!st.to && !inExam && !active;
-                if (clickable && st.to) {
+                // 시험 화면에서는 녹음 흐름을 지키려고 메뉴 이동을 막는다. 분석·채점 중에는 자유롭게 이동할 수 있다.
+                const clickable = !!targetOf(st.key, st.to) && !inExam && !active;
+                if (clickable) {
                   return (
                     <button
                       key={st.key}
                       type="button"
-                      onClick={() => nav(st.to)}
+                      onClick={() => go(st.key, st.to)}
                       className={`shell-nav-item ${active ? 'active' : ''}`}
                       style={{ border: 0, background: 'transparent', cursor: 'pointer', fontFamily: 'inherit' }}
                     >
@@ -78,6 +92,13 @@ export function Shell({ children, wide = false, compact = false, aside }: { chil
             </nav>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            {waiting.length > 0 && (
+              <button type="button" className="chip chip-soft shell-analyzing" disabled={inExam}
+                      onClick={() => nav(waiting.length === 1 ? resultPath(waiting[0].session_id) : '/history')}
+                      title="답변 분석·AI 채점이 서버에서 진행 중이에요. 다른 화면으로 이동해도 계속돼요.">
+                <span className="spinner spinner-xs" aria-hidden="true" />분석 중 {waiting.length}
+              </button>
+            )}
             {aside}
             {nick && (
               <span className="shell-user-badge" title={user?.email ?? undefined}>
@@ -101,6 +122,24 @@ export function Shell({ children, wide = false, compact = false, aside }: { chil
       <main style={{ flex: 1, width: '100%', maxWidth: max, margin: '0 auto', padding: compact ? '0.75rem 1.5rem 0.75rem' : '2rem 1.5rem 4rem', boxSizing: 'border-box' }}>
         {children}
       </main>
+      {toasts.length > 0 && (
+        <div className="toast-stack no-print" role="region" aria-label="알림">
+          {toasts.map((t) => (
+            <div key={t.session_id} className={`toast ${t.ok ? '' : 'toast-warn'}`} role="status">
+              <span style={{ fontWeight: 700 }}>{t.ok ? '리포트가 준비됐어요' : '평가를 마치지 못했어요'}</span>
+              <span className="faint" style={{ fontSize: '0.8125rem' }}>{t.ok ? 'AI 피드백 리포트를 확인해 보세요.' : '리포트 화면에서 다시 평가할 수 있어요.'}</span>
+              <div style={{ display: 'flex', gap: 8, marginTop: 4 }}>
+                <button type="button" className="btn" style={{ minHeight: 32, padding: '0 0.85rem', fontSize: '0.8125rem' }} disabled={inExam}
+                        onClick={() => { dismissToast(t.session_id); nav(resultPath(t.session_id)); }}>
+                  {t.ok ? '리포트 보기' : '확인하기'}
+                </button>
+                <button type="button" className="btn btn-ghost" style={{ minHeight: 32, padding: '0 0.85rem', fontSize: '0.8125rem' }}
+                        onClick={() => dismissToast(t.session_id)} aria-label="알림 닫기">닫기</button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
       <footer className="no-print" style={{ borderTop: '1px solid var(--line)', background: 'var(--panel)' }}>
         <div className="faint" style={{ maxWidth: max, margin: '0 auto', padding: compact ? '0.6rem 1.5rem' : '1.25rem 1.5rem', fontSize: compact ? '0.75rem' : undefined }}>
           OpicTutor · AI 기반 오픽 모의 인터뷰. 예상 등급은 참고용이며 공식 성적이 아니에요.
