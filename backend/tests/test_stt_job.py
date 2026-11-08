@@ -1,4 +1,5 @@
 # AI-assisted: STT 작업의 DB 연결 회귀 테스트는 OpenAI Codex의 도움으로 작성했습니다.
+# 후속 수정: v3 비동기 STT 계약(접수 즉시 전진, 제출 후 STT 대기) 반영은 Claude(Anthropic)의 도움으로 작성되었습니다.
 # OWNER: worker-stt (contracts.yaml ownership)
 from uuid import uuid4
 from threading import Event
@@ -23,16 +24,18 @@ def session():
         cur.execute('DELETE FROM sessions WHERE id=%s',(sid,))
 
 
-def test_real_corrupt_and_silence_keep_current_order(session,tmp_path):
-    for filename,reason in [('silence.wav','silence'),('corrupt.webm','corrupt')]:
+def test_real_corrupt_and_silence_are_final_and_do_not_move_order(session,tmp_path):
+    # v3: 순서는 업로드 접수 때 이미 전진한다. 거부는 재녹음 요청이 아니라 종결 상태(인식 불가 문항)다.
+    for no,(filename,reason) in enumerate([('silence.wav','silence'),('corrupt.webm','corrupt')],1):
         path=tmp_path/filename
         if reason=='silence': wav(path,3)
         else: path.write_bytes(b'corrupt')
         aid=seed_queued_answer(session,str(path))
+        assert db.get_session(session)['current_order_no']==no+1
         job.handle(dict(id=uuid4(),target_id=aid,type='stt',attempts=1,max_attempts=3,payload={'stt_attempt':1},_cancel=Event()))
         answer=db.get_answer(aid)
         assert answer['stt_status']=='rejected' and answer['reject_reason']==reason
-        assert db.get_session(session)['current_order_no']==1
+        assert db.get_session(session)['current_order_no']==no+1
 
 
 def test_processing_answer_is_recovered_and_old_attempt_is_ignored(session,tmp_path,monkeypatch):
@@ -67,4 +70,4 @@ def test_file_publication_race_is_retried_not_rejected(session,tmp_path):
     work['attempts']=2
     job.handle(work)
     assert db.get_answer(aid)['reject_reason']=='silence'
-    assert db.get_session(session)['current_order_no']==1
+    assert db.get_session(session)['current_order_no']==2

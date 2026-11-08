@@ -1,9 +1,10 @@
 # AI-assisted: 이 코드는 OpenAI Codex의 도움으로 작성되었습니다.
+# 후속 수정: v3 stt_progress 응답은 Claude(Anthropic)의 도움으로 작성되었습니다.
 # OWNER: session-api (contracts.yaml ownership)
 from uuid import UUID
 from app import db,tts
 from app.errors import AppError
-from app.schemas.api import SessionOut,AnswerOut,PrepareProgress,HostLineOut
+from app.schemas.api import SessionOut,AnswerOut,PrepareProgress,HostLineOut,SttProgress
 
 REPLAY_LIMIT=1
 RECORD_MIN_MS=2000
@@ -55,7 +56,13 @@ def session_out(sid, authorization: str | None = None):
             failures=s.get('prepare_error_json') or [])
     return SessionOut(session_id=s['id'],status=s['status'],scenario_id=s['scenario_id'],question_count=s['question_count'],
         current_order_no=s['current_order_no'],all_answered=s['current_order_no']>s['question_count'],prepare=prepare,
-        latest_evaluation_status=s.get('latest_evaluation_status'),created_at=s['created_at'],updated_at=s['updated_at'])
+        latest_evaluation_status=s.get('latest_evaluation_status'),stt_progress=progress_for(s),
+        created_at=s['created_at'],updated_at=s['updated_at'])
+
+STT_PROGRESS_STATUSES=('in_progress','submitted','grading','grading_failed','done')
+
+def progress_for(s):
+    return SttProgress(**db.stt_progress(s['id'])) if s['status'] in STT_PROGRESS_STATUSES else None
 
 def answer_out(a, s=None, authorization: str | None = None):
     s=s or require_session(a['session_id'], authorization)

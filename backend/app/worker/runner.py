@@ -1,4 +1,5 @@
 # AI-assisted: 이 코드는 OpenAI Codex의 도움으로 작성했습니다.
+# 후속 수정: v3에서 dead가 된 STT 작업을 답변 failed로 종결하는 안전장치는 Claude(Anthropic)의 도움으로 작성되었습니다.
 # OWNER: worker-stt (contracts.yaml ownership)
 import logging
 import socket
@@ -53,6 +54,11 @@ def execute(job,worker_id,lease_sec,stop):
         error=outcome['exception']
         code=getattr(error,'error_code','HANDLER_NOT_READY' if isinstance(error,NotImplementedError) else 'JOB_INTERNAL')
         status=db.fail_job(job['id'],worker_id,error_code=code,retryable=not isinstance(error,PermanentJobError))
+        if status=='dead' and job['type']=='stt':
+            # v3: 사용자는 이미 다음 문항에 가 있으므로 STT가 queued/processing에 남으면 제출된 세션이 평가로 넘어가지 못한다.
+            # fail_stt는 아직 종결되지 않은 답변에만 반영되고, 마지막 종결이면 평가를 등록한다.
+            try: db.fail_stt(job['target_id'],code if code.startswith('STT_') else 'STT_ENGINE_ERROR')
+            except Exception: log.exception('job=%s stt_dead_finalize_failed',job['id'])
     log.info('job=%s type=%s attempt=%s elapsed=%.2f result=%s',job['id'],job['type'],job['attempts'],time.monotonic()-started,status)
     return status
 

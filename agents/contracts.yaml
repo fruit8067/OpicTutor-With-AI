@@ -8,8 +8,12 @@
 #
 # AI-assisted: this contract was written with help from Claude (Anthropic).
 
-contract_version: 8
+contract_version: 9
 changelog:
+  - "9 (2026-11-08, CR orchestrator-06, develop/v3): 비동기 STT — 답변 접수(create_answer) 트랜잭션에서 바로 순서 전진,
+     STT는 이전 문항·제출 후(submitted)에도 반영, rejected/failed는 종결 상태(평가에서 인식 불가 문항),
+     submit은 STT 완료를 기다리지 않고 submitted로 대기 → 마지막 STT 종결 또는 제출 중 나중 트랜잭션에서 평가 등록·채택 고정.
+     SttProgress 응답 필드, GET /sessions/active 추가. 도메인 DB 스키마·평가 원문 변경 없음."
   - "8 (2026-11-07, CR tts-host-01): 새 TTS 반입은 텍스트 해시별 파일 경로로 저장해 기존 세션 음성을 보존.
      기존 평면 경로·Colab ZIP 입력은 호환 유지. HTTP·DB·공개 함수·평가 원문 변경 없음."
   - "7 (2026-11-07, CR orchestrator-04): 사용자 제공 Pickle URL/model·PICKLE_API_KEY 별칭,
@@ -128,7 +132,8 @@ session_status:
   ready:          전체 문항 + 진행자 대사 음성 연결 완료. 시험 시작 가능
   cancelled:      취소(설정 변경 포함). 종료 상태
   in_progress:    시험 중
-  submitted:      전체 예정 답변 STT 저장 확인, 채택 답변 고정(평가 작업 등록 직전의 짧은 상태)
+  submitted:      전체 문항 답변 접수(또는 건너뜀) 후 제출됨. 남은 STT를 기다린다. STT가 모두 종결되면
+                  같은 트랜잭션에서 채택 답변을 고정하고 평가 작업을 등록해 grading으로 넘어간다(v3)
   grading:        종료 후 종합 평가 중
   grading_failed: 평가 실패. 저장된 전체 답변으로 재평가 가능
   done:           검증된 결과 저장 완료(assessed 또는 insufficient_evidence)
@@ -142,7 +147,7 @@ session_transitions:            # 이 표 밖의 전이는 409 INVALID_STATE
   - [ready, cancelled]
   - [ready, in_progress]          # POST /start
   - [in_progress, submitted]      # POST /submit
-  - [submitted, grading]          # 같은 트랜잭션 안에서 바로 이어짐
+  - [submitted, grading]          # 마지막 STT 종결 트랜잭션 또는 (STT가 먼저 끝났으면) 제출 트랜잭션에서
   - [grading, done]
   - [grading, grading_failed]
   - [grading_failed, grading]     # POST /regrade
@@ -151,9 +156,10 @@ session_transitions:            # 이 표 밖의 전이는 409 INVALID_STATE
 answer_stt_status:
   queued:     업로드 저장 + stt 작업 등록
   processing: 워커가 처리 중
-  done:       텍스트·지표 저장 + 채택 + 순서 전진 완료
-  rejected:   무음·너무 짧음·손상·의미 있는 발화 없음 → 같은 문항 재녹음 필요 (reject_reason)
-  failed:     처리 오류(재시도 소진) → POST /retry-stt로 원음 재처리 가능
+  done:       텍스트·지표 저장 + 채택 (순서 전진은 접수 때 이미 일어남, v3)
+  rejected:   무음·너무 짧음·손상·의미 있는 발화 없음 (reject_reason). 종결 상태 — 평가에서 인식 불가 문항으로 처리(v3)
+  failed:     처리 오류(작업 재시도 3회 소진). 종결 상태 — 평가 등록 전(in_progress/submitted)이면
+              POST /retry-stt로 원음 재처리 가능, 아니면 인식 불가 문항으로 평가(v3)
 
 reject_reasons: [too_short, too_long, silence, no_speech, corrupt, unsupported_format]
 
@@ -560,27 +566,33 @@ module_interfaces:
     def create_answer(*, session_id: UUID, order_no: int, client_request_id: str, audio_path: str,
                       audio_mime: str, audio_bytes: int, audio_hash: str, client_duration_ms: int,
                       answer_id: UUID) -> tuple[dict, bool]
-        # (answer, created). 같은 client_request_id면 기존 반환. 한 트랜잭션 + stt 작업 등록.
+        # (answer, created). 같은 client_request_id면 기존 반환. 한 트랜잭션 + stt 작업 등록 + current_order_no +1(v3).
         # 검사: in_progress, order_no == current_order_no, 같은 문항에 queued/processing 답변 없음
         #       → 위반 시 AppError(INVALID_STATE | ORDER_MISMATCH | ANSWER_PENDING)
     def get_answer(answer_id: UUID) -> dict | None           # session_id, order_no 포함
-    def mark_stt_processing(answer_id: UUID) -> bool
+    def mark_stt_processing(answer_id: UUID) -> bool         # 세션 in_progress|submitted이고 queued일 때만
     def complete_stt(answer_id: UUID, *, text: str, timestamps: list[dict], metrics: dict, stt_version: str) -> dict
-        # 한 트랜잭션: done + is_selected(같은 문항 이전 채택 해제) + current_order_no == 해당 order_no면 +1.
-        # 이미 done이면 아무것도 바꾸지 않고 현재 값 반환(멱등). 반환: {session_status, current_order_no, all_answered}
-    def reject_stt(answer_id: UUID, reason: str) -> None     # rejected (순서 전진 없음)
-    def fail_stt(answer_id: UUID, error_code: str) -> None   # failed (순서 전진 없음)
-    def retry_stt(answer_id: UUID) -> None                   # failed→queued, stt_attempt+1, 작업 등록
+        # 한 트랜잭션: 세션 in_progress|submitted면 문항 위치와 무관하게 done + is_selected(같은 문항 이전 채택 해제)
+        # → maybe_enqueue_evaluation. 이미 done이거나 세션이 그 밖의 상태면 바꾸지 않고 현재 값 반환(늦은 결과 무시).
+        # 반환: {session_status, current_order_no, all_answered, stt_progress}
+    def reject_stt(answer_id: UUID, reason: str) -> None     # rejected(종결) → maybe_enqueue_evaluation
+    def fail_stt(answer_id: UUID, error_code: str) -> None   # failed(종결) → maybe_enqueue_evaluation
+    def retry_stt(answer_id: UUID) -> None                   # 세션 in_progress|submitted: failed→queued, stt_attempt+1, 작업 등록
+    def stt_progress(session_id: UUID) -> dict               # {total, done, pending, unusable} 건너뛰지 않은 접수 문항 기준
+    # 워커: stt 작업이 dead가 되면 fail_stt로 답변을 종결한다(제출된 세션이 영원히 기다리지 않게).
     def skip_question(session_id: UUID, order_no: int) -> dict
         # 한 트랜잭션: in_progress, order_no == current_order_no, queued/processing 답변 없음 확인
         # → skipped_at 기록 + current_order_no +1. 이미 건너뛴 문항이면 바꾸지 않고 현재 값 반환(멱등).
         # 반환: {order_no, session_status, current_order_no, all_answered}
     # 제출·평가
-    def submit_session(session_id: UUID) -> UUID
-        # 한 트랜잭션: 건너뛰지 않은 모든 문항에 is_selected done 답변이 있는지 확인(아니면 AppError NOT_ALL_ANSWERED)
-        # 건너뛴 문항은 selected_answer_ids에 들어가지 않는다.
-        # → selected_answer_ids 고정, submitted_at → evaluations(run_no=1) + evaluate 작업 → grading. evaluation_id 반환.
-        # 이미 submitted/grading/done이면 기존 최신 evaluation_id 반환(멱등).
+    def submit_session(session_id: UUID) -> UUID | None
+        # 한 트랜잭션: current_order_no > question_count이고 건너뛰지 않은 모든 문항에 접수된 답변이 있는지 확인
+        # (아니면 AppError NOT_ALL_ANSWERED). STT 완료 여부는 묻지 않는다(v3).
+        # → submitted, submitted_at → maybe_enqueue_evaluation. 평가가 등록됐으면 evaluation_id, STT 대기 중이면 None.
+        # 이미 submitted/grading/grading_failed/done이면 최신 evaluation_id(없으면 None) 반환(멱등).
+    # maybe_enqueue_evaluation(cur, session) — 세션 잠금 트랜잭션 내부 전용
+        # 세션이 submitted이고 queued/processing 답변이 없을 때만: 문항별 채택 답변(done+is_selected, 없으면 최근 시도의
+        # rejected/failed)을 지금 고정(건너뛴 문항 제외) → selected_answer_ids, evaluations(run_no=1) + evaluate 작업 → grading.
     def create_regrade(session_id: UUID) -> UUID             # grading_failed|done → 새 run_no, 작업 등록, grading
     def get_evaluation(evaluation_id: UUID) -> dict | None
     def get_latest_evaluation(session_id: UUID) -> dict | None
@@ -720,7 +732,7 @@ api:
     - {id: S4,  method: POST, path: "/sessions/{session_id}/cancel", res: SessionOut, errors: [INVALID_STATE]}
     - {id: S5,  method: POST, path: "/sessions/{session_id}/start", res: SessionOut, errors: [INVALID_STATE]}
     - {id: Q1,  method: GET,  path: "/sessions/{session_id}/current", res: CurrentQuestionOut,
-       errors: [INVALID_STATE], note: "in_progress에서만. 모든 답변 저장 완료면 all_answered=true, question=null"}
+       errors: [INVALID_STATE], note: "in_progress에서만. 모든 답변 접수 완료면 all_answered=true, question=null. stt_progress 포함"}
     - {id: Q2,  method: POST, path: "/sessions/{session_id}/questions/{order_no}/replay", res: ReplayOut,
        errors: [REPLAY_LIMIT, ORDER_MISMATCH], note: "다시 듣기 직전에 호출. 첫 재생은 호출하지 않음"}
     - {id: Q3,  method: POST, path: "/sessions/{session_id}/questions/{order_no}/skip", res: SkipOut,
@@ -729,14 +741,19 @@ api:
     - {id: U1,  method: POST, path: "/sessions/{session_id}/answers", req: "multipart: order_no, client_request_id, duration_ms, audio",
        res: AnswerOut, status: 202,
        errors: [INVALID_STATE, ORDER_MISMATCH, ANSWER_PENDING, AUDIO_TOO_SHORT, AUDIO_TOO_LONG, UNSUPPORTED_MEDIA, PAYLOAD_TOO_LARGE],
-       note: "파일은 임시 경로에 쓴 뒤 create_answer 성공 시 최종 경로로 이동. 실패하면 임시 파일 삭제"}
+       note: "파일은 임시 경로에 쓴 뒤 create_answer 성공 시 최종 경로로 이동. 실패하면 임시 파일 삭제.
+              v3: 응답 current_order_no는 이미 다음 문항. 클라이언트는 STT 완료를 기다리지 않고 진행"}
     - {id: U2,  method: GET,  path: "/sessions/{session_id}/answers/{answer_id}", res: AnswerOut, errors: [ANSWER_NOT_FOUND]}
     - {id: U3,  method: POST, path: "/sessions/{session_id}/answers/{answer_id}/retry-stt", res: AnswerOut, status: 202,
        errors: [INVALID_STATE]}
     - {id: E1,  method: POST, path: "/sessions/{session_id}/submit", res: SessionOut, status: 202,
-       errors: [INVALID_STATE, NOT_ALL_ANSWERED]}
+       errors: [INVALID_STATE, NOT_ALL_ANSWERED],
+       note: "v3: STT가 남아 있으면 status=submitted로 응답. 남은 STT가 끝나면 서버가 평가를 자동 등록"}
     - {id: E2,  method: GET,  path: "/sessions/{session_id}/result", res: ResultOut, errors: [INVALID_STATE],
-       note: "AI를 호출하지 않는다. 저장값만 반환"}
+       note: "AI를 호출하지 않는다. 저장값만 반환. submitted(STT 대기)면 evaluation_status=null, stt_progress로 진행 표시"}
+    - {id: H2,  method: GET,  path: /sessions/active, res: ActiveSessionsOut, errors: [UNAUTHORIZED],
+       note: "v3. 로그인 사용자 본인의 in_progress/submitted/grading 세션, 최근 10분 내 끝난 세션, 최신 리포트 세션.
+              헤더 배지·완료 알림용 가벼운 폴링(대기 세션이 있을 때만 5초). /sessions/{session_id}보다 먼저 라우팅"}
     - {id: E3,  method: POST, path: "/sessions/{session_id}/regrade", res: SessionOut, status: 202, errors: [INVALID_STATE]}
     - {id: X1,  method: POST, path: "/sessions/{session_id}/chat", status: 501, errors: [NOT_IMPLEMENTED]}
   static:
@@ -779,12 +796,14 @@ api_schemas:
   PrepareProgress: {total: int, linked: int, failures: "list[PrepareFailure]"}
   SessionOut: {session_id: UUID, status: session_status, scenario_id: str, question_count: int,
                current_order_no: int, all_answered: bool, prepare: "PrepareProgress|null",
-               latest_evaluation_status: "evaluation_status|null", created_at: datetime, updated_at: datetime}
+               latest_evaluation_status: "evaluation_status|null", stt_progress: "SttProgress|null",
+               created_at: datetime, updated_at: datetime}
+  SttProgress: {total: int, done: int, pending: int, unusable: int}   # v3. 건너뛰지 않고 접수된 문항 기준
   QuestionOut: {order_no: int, question_id: str, question_type: str, is_scored: bool, text: str, audio_url: str,
                 duration_sec: "float|null", replay_count: int, replay_limit: int}
   CurrentQuestionOut: {session_status: session_status, total: int, all_answered: bool,
                        question: "QuestionOut|null", pending_answer: "AnswerOut|null",
-                       host_lines: "dict[str, HostLineOut]"}
+                       host_lines: "dict[str, HostLineOut]", stt_progress: "SttProgress|null"}
   ReplayOut: {order_no: int, replay_count: int, replay_limit: int}
   SkipOut: {order_no: int, session_status: session_status, current_order_no: int, all_answered: bool}
   Metrics: {duration_sec: float, speech_sec: float, word_count: int, wpm: float, articulation_wpm: "float|null",
@@ -827,10 +846,15 @@ api_schemas:
                      additional_tasks_needed: "list[AdditionalTask]", limitations: "list[str]",
                      insufficient_reason: "str|null", disclaimer: str}
   ResultItemOut: {order_no: int, question_id: str, question_type: str, question_text: str, is_scored: bool,
-                  stt_text: "str|null", metrics: "Metrics|null", skipped: bool}
+                  stt_text: "str|null", metrics: "Metrics|null", skipped: bool, stt_status: "answer_stt_status|null"}
   ResultOut: {session_status: session_status, evaluation_status: "evaluation_status|null", run_no: "int|null",
               result: "EvaluationResult|null", answers: "list[ResultItemOut]", error_code: "str|null",
-              graded_at: "datetime|null"}
+              graded_at: "datetime|null", stt_progress: "SttProgress|null"}
+  ActiveSessionItemOut: {session_id: UUID, scenario_id: str, status: session_status, question_count: int,
+                         current_order_no: int, latest_evaluation_status: "evaluation_status|null",
+                         stt_progress: SttProgress, created_at: datetime, submitted_at: "datetime|null", updated_at: datetime}
+  ActiveSessionsOut: {items: "list[ActiveSessionItemOut]", recent_finished: "list[ActiveSessionItemOut]",
+                      latest_report_session_id: "UUID|null", in_progress_session_id: "UUID|null"}
 
 # ===========================================================================
 # 10. 평가 LLM 출력 계약 (grader)

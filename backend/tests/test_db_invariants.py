@@ -1,4 +1,5 @@
 # AI-assisted: 이 코드는 OpenAI Codex의 도움으로 작성되었습니다.
+# 후속 수정: v3 비동기 STT 계약(접수 즉시 전진, 제출 후 STT 대기) 반영은 Claude(Anthropic)의 도움으로 작성되었습니다.
 # OWNER: data-layer (contracts.yaml ownership)
 """실제 로컬 PostgreSQL에서 핵심 트랜잭션 불변 조건을 확인한다."""
 from concurrent.futures import ThreadPoolExecutor
@@ -131,17 +132,99 @@ def test_submit_regrade_and_grade_constraints(session):
 def test_pending_retry_and_order(session):
     ready(session)
     aid=answer(session,1)[0]['id']
-    with pytest.raises(AppError,match='ANSWER_PENDING'): answer(session,1)
-    with pytest.raises(AppError,match='ORDER_MISMATCH'): answer(session,2)
+    # 접수 즉시 다음 문항으로 넘어가므로 같은 문항 재업로드·건너뛴 순서 업로드는 모두 순서 오류다.
+    assert db.get_session(session)['current_order_no']==2
+    with pytest.raises(AppError,match='ORDER_MISMATCH'): answer(session,1)
+    with pytest.raises(AppError,match='ORDER_MISMATCH'): answer(session,3)
+    second=answer(session,2)[0]['id']
+    # 이전 문항의 실패 답변도 평가 등록 전이면 원음으로 다시 처리할 수 있다.
     db.fail_stt(aid,'STT_ENGINE_ERROR');db.retry_stt(aid)
     assert db.get_answer(aid)['stt_attempt']==2
     db.reject_stt(aid,'silence')
-    newer=answer(session,1)[0]['id']
-    requests=db.get_session_question(session,1)['client_request_ids']
-    assert set(requests)=={db.get_answer(aid)['client_request_id'],db.get_answer(newer)['client_request_id']}
-    complete(newer)
+    assert complete(second)['current_order_no']==3
     with pytest.raises(AppError): complete(aid)
-    assert db.get_session(session)['current_order_no']==2
+    assert db.get_answer(second)['is_selected'] and db.get_session(session)['current_order_no']==3
+    assert db.stt_progress(session)==dict(total=2,done=1,pending=0,unusable=1)
+
+
+def evaluations(sid):
+    with tx() as cur:
+        cur.execute('SELECT * FROM evaluations WHERE session_id=%s',(sid,))
+        rows=cur.fetchall()
+        cur.execute("SELECT count(*)::int AS n FROM jobs WHERE type='evaluate' AND target_id=ANY(%s)",([r['id'] for r in rows],))
+        return rows,cur.fetchone()['n']
+
+
+def test_submit_waits_for_stt_and_last_result_enqueues_once(session):
+    ready(session)
+    ids=[answer(session,n)[0]['id'] for n in range(1,9)]
+    assert db.submit_session(session) is None
+    assert db.submit_session(session) is None   # 멱등
+    s=db.get_session(session)
+    assert s['status']=='submitted' and s['selected_answer_ids'] is None and evaluations(session)==([],0)
+    # 제출 후에도 워커는 남은 답변을 처리한다.
+    assert db.mark_stt_processing(ids[0])
+    for aid in ids[:6]: complete(aid)
+    db.fail_stt(ids[6],'STT_ENGINE_ERROR')
+    assert db.get_session(session)['status']=='submitted'
+    assert db.stt_progress(session)==dict(total=8,done=6,pending=1,unusable=1)
+    db.reject_stt(ids[7],'silence')               # 마지막 STT 종결 → 같은 트랜잭션에서 평가 등록
+    s=db.get_session(session)
+    rows,jobs=evaluations(session)
+    assert s['status']=='grading' and len(rows)==1 and jobs==1
+    assert set(s['selected_answer_ids'])==set(ids) and rows[0]['selected_answer_ids']==s['selected_answer_ids']
+    snap=db.load_exam_snapshot(session,s['selected_answer_ids'])
+    assert [r['stt_status'] for r in snap][-2:]==['failed','rejected']
+    from app.grading.validate import precheck_snapshot,usable
+    precheck_snapshot(snap)
+    assert [r['order_no'] for r in snap if r['is_scored'] and not usable(r)]==[7,8]
+    assert db.submit_session(session)==rows[0]['id']
+    # 평가가 시작된 뒤 늦게 도착한 결과는 상태를 바꾸지 않는다.
+    with tx() as cur: cur.execute("UPDATE answers SET stt_status='processing' WHERE id=%s",(ids[7],))
+    assert complete(ids[7])['session_status']=='grading'
+    assert db.get_answer(ids[7])['stt_status']=='processing' and evaluations(session)[1]==1
+    with pytest.raises(AppError,match='INVALID_STATE'): db.retry_stt(ids[6])
+
+
+def test_stt_finished_before_submit_enqueues_on_submit(session):
+    ready(session)
+    for n in range(1,8): complete(answer(session,n)[0]['id'])
+    with pytest.raises(AppError,match='NOT_ALL_ANSWERED'): db.submit_session(session)
+    complete(answer(session,8)[0]['id'])
+    assert db.get_session(session)['status']=='in_progress'   # 제출 전에는 평가를 등록하지 않는다.
+    eid=db.submit_session(session)
+    assert eid is not None and db.get_session(session)['status']=='grading' and evaluations(session)[1]==1
+
+
+def test_concurrent_submit_and_last_stt_enqueue_exactly_once(session):
+    ready(session)
+    ids=[answer(session,n)[0]['id'] for n in range(1,9)]
+    for aid in ids[:7]: complete(aid)
+    with ThreadPoolExecutor(max_workers=2) as ex:
+        list(ex.map(lambda f:f(),[lambda:db.submit_session(session),lambda:complete(ids[7])]))
+    rows,jobs=evaluations(session)
+    assert db.get_session(session)['status']=='grading' and len(rows)==1 and jobs==1
+
+
+def test_stuck_dead_stt_job_finalizes_answer(session):
+    from threading import Event
+    from app.worker import runner
+    from app.worker.errors import RetryableJobError
+    ready(session)
+    ids=[answer(session,n)[0]['id'] for n in range(1,9)]
+    for aid in ids[:7]: complete(aid)
+    db.submit_session(session)
+    with tx() as cur:
+        cur.execute("UPDATE jobs SET status='done' WHERE target_id=ANY(%s)",(ids[:7],))
+        cur.execute("UPDATE jobs SET attempts=max_attempts-1 WHERE target_id=%s",(ids[7],))
+    job=db.claim_job(['stt'],'fixture-dead',60)
+    assert job['target_id']==ids[7]
+    def boom(_): raise RetryableJobError('STT_ENGINE_ERROR')
+    original=runner.get_handler
+    runner.get_handler=lambda kind:boom
+    try: assert runner.execute(job,'fixture-dead',60,Event())=='dead'
+    finally: runner.get_handler=original
+    assert db.get_answer(ids[7])['stt_status']=='failed' and db.get_session(session)['status']=='grading'
 
 
 def test_job_claims_and_lease(session):

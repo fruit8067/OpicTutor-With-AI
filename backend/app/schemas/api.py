@@ -1,5 +1,5 @@
 # AI-assisted: 이 코드는 OpenAI Codex의 도움으로 작성되었습니다.
-# 후속 수정: SkipOut·건너뛴 문항 결과 필드는 Claude(Anthropic)의 도움으로 작성되었습니다.
+# 후속 수정: SkipOut·건너뛴 문항 결과 필드와 v3 SttProgress·활성 세션 응답은 Claude(Anthropic)의 도움으로 작성되었습니다.
 # OWNER: bootstrap (contracts.yaml ownership)
 from __future__ import annotations
 from datetime import datetime
@@ -67,6 +67,12 @@ class PrepareProgress(ContractModel):
     linked: int
     failures: list[PrepareFailure]
 
+class SttProgress(ContractModel):
+    total: int      # 건너뛰지 않고 답변이 접수된 문항 수
+    done: int
+    pending: int    # queued + processing
+    unusable: int   # rejected + failed (평가에서 인식 불가 문항)
+
 class SessionOut(ContractModel):
     session_id: UUID
     status: session_status
@@ -76,6 +82,7 @@ class SessionOut(ContractModel):
     all_answered: bool
     prepare: PrepareProgress | None
     latest_evaluation_status: evaluation_status | None
+    stt_progress: SttProgress | None = None
     created_at: datetime
     updated_at: datetime
 
@@ -97,6 +104,7 @@ class CurrentQuestionOut(ContractModel):
     question: QuestionOut | None
     pending_answer: AnswerOut | None
     host_lines: dict[str, HostLineOut]
+    stt_progress: SttProgress | None = None
 
 class ReplayOut(ContractModel):
     order_no: int
@@ -256,6 +264,7 @@ class ResultItemOut(ContractModel):
     stt_text: str | None
     metrics: Metrics | None
     skipped: bool = False
+    stt_status: answer_stt_status | None = None
 
 class ResultOut(ContractModel):
     session_status: session_status
@@ -265,6 +274,7 @@ class ResultOut(ContractModel):
     answers: list[ResultItemOut]
     error_code: str | None
     graded_at: datetime | None
+    stt_progress: SttProgress | None = None
 
 class RegisterIn(ContractModel):
     email: str
@@ -330,3 +340,21 @@ class DeleteSessionOut(ContractModel):
 
 for _name in ['HealthOut', 'ScenarioOut', 'HostLineOut', 'CreateSessionIn', 'PrepareFailure', 'PrepareProgress', 'SessionOut', 'QuestionOut', 'CurrentQuestionOut', 'ReplayOut', 'Metrics', 'AnswerOut', 'Mistake', 'ItemFeedback', 'FeedbackCard', 'DimensionFeedback', 'DimensionFeedbackSet', 'QuoteRef', 'FactEvidence', 'CoverageEntry', 'Coverage', 'SustainedPerformance', 'BreakdownObservation', 'UnusableItem', 'EvaluationScope', 'AdditionalTask', 'EvaluationResult', 'ResultItemOut', 'ResultOut', 'RegisterIn', 'LoginIn', 'UserOut', 'AuthOut', 'LogoutOut', 'SessionHistorySummaryOut', 'SessionHistoryItemOut', 'UserHistoryOut', 'DeleteSessionOut']:
     globals()[_name].model_rebuild()
+
+class ActiveSessionItemOut(ContractModel):
+    session_id: UUID
+    scenario_id: str
+    status: session_status
+    question_count: int
+    current_order_no: int
+    latest_evaluation_status: evaluation_status | None
+    stt_progress: SttProgress
+    created_at: datetime
+    submitted_at: datetime | None
+    updated_at: datetime
+
+class ActiveSessionsOut(ContractModel):
+    items: list[ActiveSessionItemOut]               # in_progress/submitted/grading
+    recent_finished: list[ActiveSessionItemOut]     # 최근 10분 안에 done/grading_failed가 된 세션(완료 알림용)
+    latest_report_session_id: UUID | None
+    in_progress_session_id: UUID | None

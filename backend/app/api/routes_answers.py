@@ -1,4 +1,5 @@
 # AI-assisted: 이 코드는 OpenAI Codex의 도움으로 작성되었습니다.
+# 후속 수정: v3 비동기 STT의 rename 실패 복구 조건은 Claude(Anthropic)의 도움으로 작성되었습니다.
 # OWNER: session-api (contracts.yaml ownership)
 import hashlib
 from pathlib import Path
@@ -50,7 +51,8 @@ async def upload(session_id: UUID,response: Response,order_no: Annotated[int,For
             # DB 접수 후 rename 실패는 같은 Blob/키 재전송으로 원래 답변을 복구한다.
             # 다른 내용이나 이미 저장된 원음을 덮어쓰지 않고 STT retry의 멱등 가드를 사용한다.
             current=await run_in_threadpool(db.get_session,session_id)
-            if current and current['status']=='in_progress' and current['current_order_no']==order_no:
+            # v3: 접수 즉시 순서가 전진하므로 문항 위치가 아니라 STT를 반영할 수 있는 상태인지로 판단한다.
+            if current and current['status'] in ('in_progress','submitted'):
                 stored=Path(row['audio_path'])
                 if stored.resolve().parent!=folder.resolve(): raise AppError('INTERNAL_ERROR')
                 if not stored.is_file():

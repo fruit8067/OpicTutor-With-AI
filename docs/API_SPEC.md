@@ -22,14 +22,16 @@
 | ready | cancelled |
 | ready | in_progress |
 | in_progress | submitted |
-| submitted | grading |
+| submitted | grading (마지막 STT 종결 또는 제출 중 나중 트랜잭션) |
 | grading | done |
 | grading | grading_failed |
 | grading_failed | grading |
 | done | grading |
 
 
-답변 STT 상태는 queued → processing → done/rejected/failed다. done 저장 트랜잭션에서만 현재 문항이 전진한다.
+답변 STT 상태는 queued → processing → done/rejected/failed다. **v3부터 현재 문항은 업로드 접수 트랜잭션에서 바로 전진한다.**
+STT는 이전 문항이거나 제출 후(submitted)여도 반영된다. rejected와 재시도를 소진한 failed는 종결 상태이며, 평가에서 인식 불가 문항으로 처리된다.
+제출(submitted)은 남은 STT를 기다리는 상태다. STT가 모두 종결되면 서버가 그 시점의 채택 답변을 고정하고 평가를 등록해 grading으로 넘긴다.
 평가 상태는 queued/running/done/failed다. 평가 실패는 세션 grading_failed로 나타난다.
 모든 is_scored=false 문항은 문항별 연습 피드백만 제공한다. 영역별 숫자 점수는 없다.
 
@@ -307,7 +309,7 @@ HTTP 202. 파일은 임시 경로에 쓴 뒤 create_answer 성공 시 최종 경
 요청: multipart/form-data의 order_no=1, client_request_id=answer-request-1, duration_ms=3000, audio=<파일>.
 허용 MIME: audio/webm, audio/ogg, audio/wav, audio/mp4. codecs 매개변수는 제외하고 검사한다.
 최대 10MiB, 2초~120초(클라이언트 길이 오차 허용 +5초). 파일은 임시 저장 후 DB 접수 성공 시 최종 경로로 이동한다.
-접수 후에도 STT 완료 전에는 현재 문항을 유지한다. 전사·무음·손상 검사는 워커가 수행한다.
+접수와 동시에 다음 문항으로 넘어간다(v3). 클라이언트는 STT 완료를 기다리지 않는다. 전사·무음·손상 검사는 워커가 수행한다.
 
 응답 예시:
 ```json
@@ -321,7 +323,7 @@ HTTP 202. 파일은 임시 경로에 쓴 뒤 create_answer 성공 시 최종 경
   "stt_text": null,
   "metrics": null,
   "session_status": "in_progress",
-  "current_order_no": 1,
+  "current_order_no": 2,
   "all_answered": false
 }
 ```
@@ -374,6 +376,8 @@ HTTP 202.
 }
 ```
 
+세션이 in_progress 또는 submitted(평가 등록 전)이면 이전 문항의 failed 답변도 재처리할 수 있다.
+
 오류: INVALID_STATE.
 
 ### E1 POST `/sessions/{session_id}/submit`
@@ -397,6 +401,9 @@ HTTP 202.
   "updated_at": "2026-11-06T08:00:00Z"
 }
 ```
+
+모든 문항이 접수되거나 건너뛰어졌으면 STT 완료와 관계없이 제출된다. 남은 STT가 있으면 `status`가 `submitted`이고
+`latest_evaluation_status`가 null이며, `stt_progress`로 진행 상황을 보여 준다. 남은 STT가 끝나면 평가가 자동 등록된다.
 
 오류: INVALID_STATE, NOT_ALL_ANSWERED.
 
@@ -588,6 +595,26 @@ HTTP 202.
 
 오류: INVALID_STATE.
 
+### H2 GET `/sessions/active`
+
+HTTP 200. 로그인 필요(Authorization: Bearer). v3 헤더 배지·완료 알림용 가벼운 폴링 응답이며 본인 세션만 반환한다.
+`items`는 in_progress/submitted/grading 세션, `recent_finished`는 최근 10분 안에 done/grading_failed가 된 세션이다.
+
+응답 예시:
+```json
+{
+  "items": [{"session_id": "00000000-0000-4000-8000-000000000001", "scenario_id": "default", "status": "submitted",
+             "question_count": 8, "current_order_no": 9, "latest_evaluation_status": null,
+             "stt_progress": {"total": 8, "done": 6, "pending": 2, "unusable": 0},
+             "created_at": "2026-11-08T08:00:00Z", "submitted_at": "2026-11-08T08:20:00Z", "updated_at": "2026-11-08T08:20:00Z"}],
+  "recent_finished": [],
+  "latest_report_session_id": "00000000-0000-4000-8000-000000000001",
+  "in_progress_session_id": null
+}
+```
+
+오류: UNAUTHORIZED.
+
 ### X1 POST `/sessions/{session_id}/chat`
 
 HTTP 501.
@@ -703,8 +730,20 @@ HTTP 501.
 | all_answered | bool |
 | prepare | PrepareProgress / null |
 | latest_evaluation_status | evaluation_status / null |
+| stt_progress | SttProgress / null (v3, in_progress 이후) |
 | created_at | datetime |
 | updated_at | datetime |
+
+### SttProgress
+
+건너뛰지 않고 답변이 접수된 문항 기준(v3).
+
+| 필드 | 타입/의미 |
+| --- | --- |
+| total | int, 접수된 문항 수 |
+| done | int |
+| pending | int, queued + processing |
+| unusable | int, rejected + failed (평가에서 인식 불가) |
 
 ### QuestionOut
 
@@ -730,6 +769,7 @@ HTTP 501.
 | question | QuestionOut / null |
 | pending_answer | AnswerOut / null |
 | host_lines | dict[str, HostLineOut] |
+| stt_progress | SttProgress / null (v3) |
 
 ### ReplayOut
 
@@ -939,6 +979,8 @@ HTTP 501.
 | is_scored | bool |
 | stt_text | str |
 | metrics | Metrics |
+| skipped | bool |
+| stt_status | answer_stt_status / null (v3, 인식 불가 표시용) |
 
 ### ResultOut
 
@@ -951,13 +993,15 @@ HTTP 501.
 | answers | list[ResultItemOut] |
 | error_code | str / null |
 | graded_at | datetime / null |
+| stt_progress | SttProgress / null (v3) |
 
 ## 클라이언트 폴링 흐름
 
 설정 → POST /sessions → GET /sessions/{id} 반복 → ready → POST /start
-→ GET /current → TTS 재생 → 녹음 → POST /answers → GET /answers/{answer_id} 반복
-→ done 저장 확인 후 GET /current → 8답변 저장 → POST /submit
-→ GET /result 반복 → evaluation_status=done이면 저장된 결과 표시.
+→ GET /current → TTS 재생 → 녹음 → POST /answers(202, 응답에서 이미 다음 문항) → 바로 다음 문항 재생 (v3)
+→ 8문항 접수 → POST /submit(STT가 남았으면 submitted)
+→ GET /result 반복(submitted면 stt_progress 표시) → 서버가 마지막 STT 종결 시 평가 등록 → evaluation_status=done이면 저장된 결과 표시.
+→ 어느 화면에서든 GET /sessions/active(대기 세션이 있을 때만 5초)로 헤더 배지·완료 알림을 표시한다.
 준비 실패는 동일 세트 prepare/retry, 답변 rejected/failed는 현재 문항에서 재녹음/원음 재처리,
 평가 실패는 전체 답변으로 regrade한다. TTS 실패는 현재 단계에서 복구한다.
 재평가 중 이전 성공 결과는 보존하며 새 결과 성공 저장 후 교체한다.

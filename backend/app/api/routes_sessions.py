@@ -1,14 +1,14 @@
 # AI-assisted: 이 코드는 OpenAI Codex의 도움으로 작성되었습니다.
-# 후속 수정: 문항 건너뛰기(Q3)는 Claude(Anthropic)의 도움으로 작성되었습니다.
+# 후속 수정: 문항 건너뛰기(Q3)와 v3 활성 세션 조회(/sessions/active)는 Claude(Anthropic)의 도움으로 작성되었습니다.
 # OWNER: session-api (contracts.yaml ownership)
 from uuid import UUID
 from fastapi import APIRouter,Header,Response
 from app import db,exam,tts
 from app.errors import AppError
 from app.schemas.api import (CreateSessionIn,SessionOut,CurrentQuestionOut,QuestionOut,ReplayOut,SkipOut,
-    SessionHistorySummaryOut,SessionHistoryItemOut,UserHistoryOut,DeleteSessionOut)
+    SessionHistorySummaryOut,SessionHistoryItemOut,UserHistoryOut,DeleteSessionOut,ActiveSessionsOut)
 from app.exam.scenarios import coverage_for
-from .deps import require_session,require_in_progress,session_out,answer_out,host_lines,REPLAY_LIMIT
+from .deps import require_session,require_in_progress,session_out,answer_out,host_lines,progress_for,REPLAY_LIMIT
 from .routes_auth import optional_current_user,require_current_user
 
 router=APIRouter()
@@ -51,6 +51,13 @@ def get_user_history(authorization: str | None = Header(default=None)):
     )
     return UserHistoryOut(summary=summary,items=items)
 
+# /sessions/{session_id}보다 먼저 등록해야 'active'가 UUID 경로로 해석되지 않는다.
+@router.get('/sessions/active',response_model=ActiveSessionsOut)
+def get_active_sessions(authorization: str | None = Header(default=None)):
+    """헤더 배지·완료 알림용 가벼운 폴링 응답. 로그인 사용자 본인의 세션만 돌려준다."""
+    user=require_current_user(authorization)
+    return ActiveSessionsOut(**db.list_active_sessions(user['id']))
+
 @router.get('/sessions/{session_id}',response_model=SessionOut)
 def get_session(session_id: UUID,authorization: str | None = Header(default=None)):
     return session_out(session_id,authorization)
@@ -92,7 +99,7 @@ def current(session_id: UUID,authorization: str | None = Header(default=None)):
         if a and a['stt_status'] in ('queued','processing','rejected','failed'):
             pending=answer_out({**a,'session_id':session_id,'order_no':q['order_no']},s)
     return CurrentQuestionOut(session_status=s['status'],total=s['question_count'],all_answered=all_answered,
-        question=question,pending_answer=pending,host_lines=host_lines(s))
+        question=question,pending_answer=pending,host_lines=host_lines(s),stt_progress=progress_for(s))
 
 @router.post('/sessions/{session_id}/questions/{order_no}/replay',response_model=ReplayOut)
 def replay(session_id: UUID,order_no: int,authorization: str | None = Header(default=None)):

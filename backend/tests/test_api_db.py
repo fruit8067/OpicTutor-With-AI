@@ -1,4 +1,5 @@
 # AI-assisted: 이 코드는 OpenAI Codex의 도움으로 작성되었습니다.
+# 후속 수정: v3 비동기 STT 계약(접수 즉시 전진, 제출 후 STT 대기) 반영은 Claude(Anthropic)의 도움으로 작성되었습니다.
 # OWNER: session-api (contracts.yaml ownership)
 """실제 PostgreSQL과 HTTP 계층 연결. TTS/STT 계산은 명시적인 fixture로 대체한다."""
 from uuid import uuid4,UUID
@@ -51,10 +52,11 @@ def test_real_db_http_flow(corpus,tmp_path,monkeypatch):
                 return client.post(prefix+'/answers',data={'order_no':order,'client_request_id':request_key,'duration_ms':3000},
                     files={'audio':('fixture.webm',b'fixture audio','audio/webm')})
             first=upload()
-            assert first.status_code==202 and first.json()['current_order_no']==no
+            # v3: STT를 기다리지 않고 접수 즉시 다음 문항으로 넘어간다.
+            assert first.status_code==202 and first.json()['current_order_no']==no+1
             assert upload().status_code==200
-            assert upload(no+1,str(uuid4())).json()['error']['code']=='ORDER_MISMATCH'
-            assert upload(no,str(uuid4())).json()['error']['code']=='ANSWER_PENDING'
+            assert upload(no+2,str(uuid4())).json()['error']['code']=='ORDER_MISMATCH'
+            assert upload(no,str(uuid4())).json()['error']['code']=='ORDER_MISMATCH'
             answer=UUID(first.json()['answer_id'])
             assert Path(db.get_answer(answer)['audio_path']).read_bytes()==b'fixture audio'
             metrics=dict(duration_sec=3,speech_sec=2,word_count=5,wpm=100,articulation_wpm=150,

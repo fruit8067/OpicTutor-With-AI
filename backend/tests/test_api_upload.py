@@ -1,4 +1,5 @@
 # AI-assisted: 이 코드는 OpenAI Codex의 도움으로 작성되었습니다.
+# 후속 수정: v3 접수 즉시 전진 계약 반영은 Claude(Anthropic)의 도움으로 작성되었습니다.
 # OWNER: session-api (contracts.yaml ownership)
 """계약 가짜 구현으로 HTTP 경계와 파일 저장 실패 복구를 검증한다."""
 from datetime import datetime,timezone
@@ -33,8 +34,10 @@ def client(tmp_path,monkeypatch):
         if kwargs['order_no']!=session['current_order_no']: raise AppError('ORDER_MISMATCH')
         if any(a['order_no']==kwargs['order_no'] and a['stt_status']=='queued' for a in answers.values()): raise AppError('ANSWER_PENDING')
         aid=kwargs['answer_id'];row={**kwargs,'id':aid,'attempt_no':1,'stt_status':'queued'}
-        answers[aid]=row;keys[key]=aid;return row,True
+        # v3 계약: 접수 트랜잭션에서 바로 다음 문항으로 전진한다.
+        answers[aid]=row;keys[key]=aid;session['current_order_no']+=1;return row,True
     monkeypatch.setattr(db,'create_answer',create)
+    monkeypatch.setattr(db,'stt_progress',lambda value:dict(total=len(answers),done=0,pending=len(answers),unusable=0))
     monkeypatch.setattr(db,'submit_session',lambda sid:(_ for _ in ()).throw(AppError('NOT_ALL_ANSWERED')))
     return TestClient(app,raise_server_exceptions=False),sid,session,answers,tmp_path
 
@@ -47,11 +50,11 @@ def send(client,sid,data=b'voice',mime='audio/webm',duration=3000,key='one',orde
 def test_upload_accepted_deduplicated_and_polling(client):
     c,sid,session,answers,path=client
     response=send(c,sid,mime='audio/webm;codecs=opus')
-    assert response.status_code==202 and response.json()['current_order_no']==1
+    # STT 완료를 기다리지 않고 업로드 응답에서 이미 다음 문항으로 넘어가 있다.
+    assert response.status_code==202 and response.json()['current_order_no']==2
     aid=response.json()['answer_id'];row=next(iter(answers.values()))
     assert row['audio_hash']==hashlib.sha256(b'voice').hexdigest()
     assert len(list(path.rglob('*.webm')))==1
-    session['current_order_no']=2
     assert send(c,sid).status_code==200
     assert send(c,sid).json()['answer_id']==aid
     assert len(list(path.rglob('*.webm')))==1 and not list(path.rglob('.tmp/*'))
@@ -73,7 +76,8 @@ def test_upload_failures_clean_temp_files(client,kwargs,status,code):
 def test_pending_early_submit_and_reserved_chat(client):
     c,sid,*_=client
     assert send(c,sid).status_code==202
-    assert send(c,sid,key='two').json()['error']['code']=='ANSWER_PENDING'
+    # 이미 다음 문항으로 넘어갔으므로 같은 문항의 새 업로드는 순서 오류다.
+    assert send(c,sid,key='two').json()['error']['code']=='ORDER_MISMATCH'
     assert c.post(f'/api/v1/sessions/{sid}/submit').json()['error']['code']=='NOT_ALL_ANSWERED'
     assert c.post(f'/api/v1/sessions/{sid}/chat').status_code==501
     response=c.post('/api/v1/sessions',json={'client_request_id':'new','mic_check_passed':False})
@@ -103,8 +107,7 @@ def test_upload_state_preflight_does_not_read_audio(client,monkeypatch,state,ord
 def test_preflight_preserves_old_attempt_retransmission(client):
     c,sid,session,answers,path=client
     first=send(c,sid,key='original').json()['answer_id']
-    next(iter(answers.values()))['stt_status']='rejected'
-    assert send(c,sid,key='rerecording').status_code==202
+    assert send(c,sid,key='second',order=2).status_code==202
     session['status']='grading';session['current_order_no']=9
     duplicate=send(c,sid,key='original')
     assert duplicate.status_code==200 and duplicate.json()['answer_id']==first
@@ -128,7 +131,7 @@ def test_same_request_repairs_missing_file_after_publication_failure(client,monk
         patch.setattr(Path,'replace',cannot_publish)
         assert send(c,sid).status_code==500
     original=next(iter(answers.values()))
-    assert original['stt_status']=='failed' and session['current_order_no']==1
+    assert original['stt_status']=='failed' and session['current_order_no']==2
     result=send(c,sid,data=b'voice' if same_blob else b'different blob')
     if retry_failure:
         assert result.status_code==500 and Path(original['audio_path']).is_file()
@@ -140,8 +143,8 @@ def test_same_request_repairs_missing_file_after_publication_failure(client,monk
     assert retried==(['temporary DB failure',original['id']] if retry_failure else ([original['id']] if same_blob else []))
 
 
-@pytest.mark.parametrize('status,order',[('in_progress',2),('grading',9)])
-def test_old_failed_upload_replay_after_advancement_does_not_restart_stt(client,monkeypatch,status,order):
+@pytest.mark.parametrize('status,order',[('grading',9),('done',9),('cancelled',2)])
+def test_old_failed_upload_replay_after_grading_does_not_restart_stt(client,monkeypatch,status,order):
     from pathlib import Path
     c,sid,session,answers,path=client
     def fail(aid,code): answers[aid].update(stt_status='failed',error_code=code)
@@ -151,7 +154,22 @@ def test_old_failed_upload_replay_after_advancement_does_not_restart_stt(client,
         def cannot_publish(*args,**kwargs): raise PermissionError('publication fixture')
         patch.setattr(Path,'replace',cannot_publish)
         assert send(c,sid).status_code==500
+    # v3: in_progress/submitted에서는 순서가 전진했어도 복구한다(위 테스트). 평가가 시작된 뒤에는 재시작하지 않는다.
     session.update(status=status,current_order_no=order)
     response=send(c,sid)
     assert response.status_code==200 and response.json()['stt_status']=='failed'
     assert session['current_order_no']==order and not list(path.rglob('*.webm'))
+
+
+def test_failed_publication_is_repaired_while_waiting_for_stt_after_submit(client,monkeypatch):
+    from pathlib import Path
+    c,sid,session,answers,path=client
+    retried=[]
+    monkeypatch.setattr(db,'fail_stt',lambda aid,code:answers[aid].update(stt_status='failed',error_code=code))
+    monkeypatch.setattr(db,'retry_stt',lambda aid:(retried.append(aid),answers[aid].update(stt_status='queued',error_code=None)))
+    with monkeypatch.context() as patch:
+        patch.setattr(Path,'replace',lambda *a,**k:(_ for _ in ()).throw(PermissionError('fixture')))
+        assert send(c,sid).status_code==500
+    session.update(status='submitted',current_order_no=9)
+    response=send(c,sid)
+    assert response.status_code==200 and response.json()['stt_status']=='queued' and len(retried)==1

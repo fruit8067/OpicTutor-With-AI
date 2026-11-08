@@ -90,7 +90,9 @@ def test_real_db_skip_flow(corpus,tmp_path,monkeypatch):  # noqa: F811
             up=client.post(prefix+'/answers',data={'order_no':no,'client_request_id':key,'duration_ms':3000},
                 files={'audio':('a.webm',b'fixture audio','audio/webm')})
             assert up.status_code==202
-            assert client.post(prefix+f'/questions/{no}/skip').json()['error']['code']=='ANSWER_PENDING'
+            # v3: 업로드 접수와 동시에 다음 문항으로 넘어가므로 답한 문항은 더 이상 건너뛸 수 없다.
+            assert up.json()['current_order_no']==no+1
+            assert client.post(prefix+f'/questions/{no}/skip').json()['error']['code']=='ORDER_MISMATCH'
             db.complete_stt(UUID(up.json()['answer_id']),text='This is a test answer.',timestamps=[],metrics=METRICS,stt_version='fixture')
         assert client.get(prefix+'/current').json()['all_answered']
         assert client.post(prefix+'/submit').status_code==202

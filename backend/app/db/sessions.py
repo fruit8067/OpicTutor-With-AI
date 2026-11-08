@@ -6,6 +6,7 @@ from app.errors import AppError
 from app.schemas.internal import SessionQuestionIn, SessionRow
 from .pool import tx, session_for_update, require_state, idempotency_lock
 from .jobs import enqueue
+from .evaluations import stt_progress_cur
 
 def create_session(*, client_request_id: str | None, scenario_id: str, settings_json: dict,
                    questions: list[SessionQuestionIn], replaces_session_id: UUID | None,
@@ -141,6 +142,29 @@ def list_user_sessions(user_id: UUID, limit: int = 50) -> list[dict]:
             LIMIT %s
         """, (user_id, limit))
         return cur.fetchall()
+
+# v3 전역 분석 상태 조회. Claude(Anthropic)의 도움으로 작성되었습니다.
+ACTIVE_STATUSES=('in_progress','submitted','grading')
+REPORT_STATUSES=('submitted','grading','grading_failed','done')
+
+def list_active_sessions(user_id: UUID, recent_minutes: int = 10) -> dict:
+    """사용자의 진행·분석 중 세션, 최근 끝난 세션, 가장 최근 리포트 세션을 한 번에 돌려준다(헤더 폴링용)."""
+    with tx() as cur:
+        base="""SELECT s.id AS session_id,s.scenario_id,s.status,s.question_count,s.current_order_no,
+            s.created_at,s.submitted_at,s.updated_at,
+            (SELECT status FROM evaluations WHERE session_id=s.id ORDER BY run_no DESC LIMIT 1) AS latest_evaluation_status
+            FROM sessions s WHERE s.user_id=%s AND """
+        cur.execute(base+"s.status=ANY(%s) ORDER BY s.created_at DESC LIMIT 10",(user_id,list(ACTIVE_STATUSES)))
+        active=cur.fetchall()
+        cur.execute(base+"""s.status IN ('done','grading_failed') AND s.updated_at>now()-make_interval(mins=>%s)
+            ORDER BY s.updated_at DESC LIMIT 10""",(user_id,recent_minutes))
+        recent=cur.fetchall()
+        for row in active+recent: row['stt_progress']=stt_progress_cur(cur,row['session_id'])
+        cur.execute("""SELECT id FROM sessions WHERE user_id=%s AND status=ANY(%s)
+            ORDER BY COALESCE(submitted_at,created_at) DESC LIMIT 1""",(user_id,list(REPORT_STATUSES)))
+        latest=cur.fetchone()
+        return {'items':active,'recent_finished':recent,'latest_report_session_id':latest['id'] if latest else None,
+                'in_progress_session_id':next((r['session_id'] for r in active if r['status']=='in_progress'),None)}
 
 def delete_user_session(session_id: UUID, user_id: UUID) -> None:
     with tx() as cur:
