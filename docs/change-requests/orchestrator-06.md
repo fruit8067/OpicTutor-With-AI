@@ -31,7 +31,25 @@ AI-assisted: 이 문서와 관련 구현은 Claude(Anthropic)의 도움으로 �
 
 ## 소유권
 
-여러 소유 경로(data-layer, session-api, worker-stt, bootstrap, frontend, orchestrator)를 함께 바꾸는 교차 작업이므로 오케스트레이터 권한으로 `develop/v3`에서 진행한다. 소유권 검사 결과는 아래에 기록한다.
+여러 소유 경로(data-layer, session-api, worker-stt, bootstrap, frontend, orchestrator)를 함께 바꾸는 교차 작업이므로 오케스트레이터 권한으로 `develop/v3`에서 진행한다.
+
+`python agents/tools/check_ownership.py orchestrator --base d3aa844 --head develop/v3` 결과, 의도한 대로 다음 소유자 경로가 교차 변경으로 보고된다(검사 스크립트는 수정하지 않음).
+
+| 소유자 | 경로 |
+| --- | --- |
+| data-layer | `backend/app/db/{__init__,answers,evaluations,sessions}.py`, `backend/tests/test_db_invariants.py` |
+| session-api | `backend/app/api/{deps,routes_answers,routes_results,routes_sessions}.py`, `backend/tests/{test_api_db,test_api_session_replay,test_api_upload}.py` |
+| worker-stt | `backend/app/worker/runner.py`, `backend/tests/test_stt_job.py` |
+| bootstrap | `backend/app/schemas/api.py`, `frontend/src/api/types.ts`, `docs/API_SPEC.md` |
+| frontend | `frontend/src/{api/client.ts,components/Shell.tsx,index.css,lib/session.ts,lib/useActiveSessions.ts,pages/*.tsx}` |
+
+`main` 병합 시에는 이 CR을 근거로 오케스트레이터가 확인한다.
+
+## 검증 결과 (2026-11-08)
+
+- `pytest`: 165 통과. 5개 실패(`test_db_ingest` 2, `test_grading_eval` 3)는 검증 환경에서 tiktoken 인코딩 파일 다운로드가 차단되어 생긴 것으로, 이 변경 전에도 같은 이유로 실패했다.
+- `npm run lint`(0 warnings), `npm run build` 통과.
+- 브라우저 흐름 점검(Playwright, 가짜 마이크, 6초 지연 가짜 STT, 실패하는 가짜 평가): 녹음을 멈춘 뒤 다음 문항이 뜨기까지 약 3.3초(진행자 "next" 음성 길이)로, STT를 기다리지 않았다. 8문항 제출 후 결과 화면에 "답변 분석 중 7/8", 기록 화면으로 이동하면 헤더 "분석 중 1" 배지가 보였다. 평가가 끝나자 기록 화면에 실패 토스트가 떴고, 토스트에서 리포트로 이동했다. 마지막 답변(가짜 거부)은 `rejected`로 스냅샷에 들어갔다.
 
 ## 남은 위험
 
