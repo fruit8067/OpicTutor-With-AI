@@ -110,5 +110,12 @@ export const regradeSession = regrade;
 /** 서버가 준 /media/... 상대 경로를 API 서버 기준 절대 URL로. */
 export function mediaUrl(path: string | null | undefined): string | null {
   if (!path) return null;
-  try { return new URL(path, API_ORIGIN + '/').toString(); } catch { return null; }
+  try {
+    const u = new URL(path, API_ORIGIN + '/');
+    // AI-assisted(Claude): ngrok 무료 도메인의 브라우저 경고 페이지가 <audio> mp3 응답을 가로채지 않게 쿼리 파라미터를 추가한다.
+    if (u.hostname.includes('ngrok')) {
+      u.searchParams.set('ngrok-skip-browser-warning', '1');
+    }
+    return u.toString();
+  } catch { return null; }
 }
