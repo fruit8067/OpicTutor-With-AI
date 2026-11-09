@@ -2,6 +2,7 @@
 // 후속 수정: 필수 대사 재시도·이탈 후 요청 방지는 OpenAI Codex의 도움으로 작성되었습니다.
 // 후속 수정: 문항 건너뛰기(Q3), 마이크 UX(실시간 음량·무음 경고·장치 선택), Stitch 레이아웃(진행 카드·7:5 작업 영역),
 // v3 비동기 STT(업로드 접수 즉시 다음 문항, 백그라운드 분석 진행 표시)는 Claude(Anthropic)의 도움으로 작성되었습니다.
+// 후속 수정: 시험 중 마이크 비상 전환(장치 변화 감지·MicSwitcher·녹음 취소 후 교체)은 Claude(Anthropic)의 도움으로 작성되었습니다.
 // OWNER: frontend (contracts.yaml ownership)
 //
 // 시험 화면 — 문항 하나의 상태 머신. 서버 상태가 진실이다.
@@ -19,12 +20,14 @@ import type { CurrentQuestionOut, SttProgress } from '../api/types';
 import { Live, Shell } from '../components/Shell';
 import { Host, type HostState } from '../features/host/Host';
 import { MicLevel } from '../components/MicLevel';
+import { MicSwitcher } from '../components/MicSwitcher';
 import { labelOf, REJECT_TEXT, STT_ERROR_TEXT, TYPE_LABEL } from '../lib/messages';
 import { usePlayer, type PlayResult } from '../lib/player';
 import {
-  extFor, micErrorKind, openMic, Recorder, RECORD_MAX_MS, RECORD_MIN_MS, SILENCE_PEAK, SILENCE_WARN_MS, toLevel, VOICE_RMS, type Recording,
+  extFor, isRecordAbort, listMics, micErrorKind, openMic, Recorder, RECORD_MAX_MS, RECORD_MIN_MS, SILENCE_PEAK, SILENCE_WARN_MS,
+  streamAlive, streamDeviceId, streamLabel, toLevel, VOICE_RMS, watchMicDevices, type Recording,
 } from '../lib/recorder';
-import { clearSessionId, loadMicId, loadSessionId, resultPath, routeFor } from '../lib/session';
+import { clearSessionId, loadMicId, loadSessionId, resultPath, routeFor, saveMicId } from '../lib/session';
 import { usePoll } from '../lib/usePoll';
 
 type Phase =
@@ -61,6 +64,10 @@ export default function Exam() {
   const [confirmSkip, setConfirmSkip] = useState(false);
   const [level, setLevel] = useState(0);              // 녹음 중 실시간 음량(0~1)
   const [silent, setSilent] = useState(false);        // 녹음 중 SILENCE_WARN_MS 이상 목소리 없음
+  const [micOpen, setMicOpen] = useState(false);      // 마이크 변경·테스트 패널
+  const [micAlert, setMicAlert] = useState<string | null>(null);
+  const [micDeviceId, setMicDeviceId] = useState<string | null>(() => loadMicId());
+  const [micLabel, setMicLabel] = useState('');
   const rms = useRef(0);
   const lastVoiceAt = useRef(0);
   const retryLine = useRef<(() => Promise<void>) | null>(null);
@@ -76,6 +83,46 @@ export default function Exam() {
   const stopRef = useRef(player.stop);
   useEffect(() => { stopRef.current = player.stop; });
   useEffect(() => { alive.current = true; return () => { alive.current = false; stopRef.current(); stream.current?.getTracks().forEach((t) => t.stop()); }; }, []);
+
+  // 시험 화면이 쓸 마이크 스트림을 정한다. 이 스트림의 장치가 뽑히면 경고하고 마이크 패널을 연다.
+  const adoptStream = useCallback((s: MediaStream) => {
+    stream.current = s;
+    setMicDeviceId(streamDeviceId(s));
+    setMicLabel(streamLabel(s));
+    s.getAudioTracks().forEach((t) => t.addEventListener('ended', () => {
+      if (!alive.current || stream.current !== s) return;
+      setMicAlert('사용 중인 마이크 연결이 끊어졌어요. 다른 마이크를 골라 테스트한 뒤 사용해 주세요.');
+      setMicOpen(true);
+    }, { once: true }));
+  }, []);
+
+  // 마이크 연결·분리 감시: 쓰던 마이크가 사라지면 패널을 열고, 새 마이크가 꽂히면 버튼으로 알린다.
+  const micCount = useRef<number | null>(null);
+  useEffect(() => {
+    const check = async () => {
+      let mics;
+      try { mics = await listMics(); } catch { return; }
+      if (!alive.current) return;
+      const prev = micCount.current;
+      micCount.current = mics.length;
+      const cur = stream.current;
+      if (!cur) {
+        const saved = loadMicId();
+        setMicLabel(mics.find((m) => m.deviceId === saved)?.label ?? '');
+      }
+      if (prev === null) return;                                   // 첫 확인은 기준값만 잡는다
+      const usedId = streamDeviceId(cur);
+      const lost = !!cur && (!streamAlive(cur) || (!!usedId && usedId !== 'default' && !mics.some((m) => m.deviceId === usedId)));
+      if (lost) {
+        setMicAlert('사용 중인 마이크 연결이 끊어졌어요. 다른 마이크를 골라 테스트한 뒤 사용해 주세요.');
+        setMicOpen(true);
+      } else if (mics.length > prev) {
+        setMicAlert('새 마이크가 연결됐어요. 바꾸려면 [마이크 변경·테스트]에서 골라 주세요.');
+      }
+    };
+    void check();
+    return watchMicDevices(() => { void check(); });
+  }, []);
 
   // 업로드가 끝나지 않은 녹음이 있으면 새로고침·닫기 경고
   useEffect(() => {
@@ -239,24 +286,32 @@ export default function Exam() {
     if (phase !== 'awaiting_record' || recordingStarted.current) return;
     recordingStarted.current = true;
     setNote(null); setMicError(null);
-    try { if (!stream.current || !stream.current.getAudioTracks().some((t) => t.readyState === 'live')) stream.current = await openMic(loadMicId()); }
+    try { if (!streamAlive(stream.current)) adoptStream(await openMic(loadMicId())); }
     catch (e) {
       const k = micErrorKind(e);
       recordingStarted.current = false;
-      setMicError(k === 'denied' ? '마이크 권한이 꺼졌어요. 주소창의 사이트 설정에서 마이크를 허용한 뒤 다시 눌러 주세요.' : '마이크를 켜지 못했어요. 연결을 확인하고 다시 눌러 주세요.');
+      setMicError(k === 'denied' ? '마이크 권한이 꺼졌어요. 주소창의 사이트 설정에서 마이크를 허용한 뒤 다시 눌러 주세요.' : '마이크를 켜지 못했어요. [마이크 변경·테스트]에서 다른 마이크를 골라 주세요.');
+      if (k !== 'denied') setMicOpen(true);
       return;
     }
     if (!alive.current || phaseRef.current !== 'awaiting_record') { recordingStarted.current = false; stream.current?.getTracks().forEach((t) => t.stop()); return; }
+    const live = stream.current;
+    if (!live) { recordingStarted.current = false; return; }
     rms.current = 0;
-    const r = new Recorder(stream.current, (v) => { rms.current = v; });
+    const r = new Recorder(live, (v) => { rms.current = v; });
     recorder.current = r;
     setElapsed(0);
     setPhase('recording');
     let rec: Recording;
     try { rec = await r.start(RECORD_MAX_MS); }
-    catch {
-      stream.current?.getTracks().forEach((t) => t.stop()); stream.current = null;
-      if (alive.current) { setMicError('녹음하지 못했어요. 마이크 연결을 확인하고 다시 녹음해 주세요.'); setPhase('awaiting_record'); }
+    catch (e) {
+      if (isRecordAbort(e)) { if (alive.current) setPhase('awaiting_record'); return; }   // 마이크 교체로 녹음을 버림 → 새 스트림은 그대로 둔다
+      if (stream.current === r.source) { stream.current.getTracks().forEach((t) => t.stop()); stream.current = null; }
+      if (alive.current) {
+        setMicError('녹음하지 못했어요. [마이크 변경·테스트]에서 마이크를 확인하고 다시 녹음해 주세요.');
+        setMicOpen(true);
+        setPhase('awaiting_record');
+      }
       return;
     } finally { recordingStarted.current = false; }
     if (!alive.current) return;
@@ -269,6 +324,19 @@ export default function Exam() {
     const job = { rec, reqId: crypto.randomUUID(), orderNo: cur.question.order_no };   // 녹음 1회당 키 1개
     pendingUpload.current = job;
     await upload(job);
+  };
+
+  // 마이크 패널에서 테스트를 마친 스트림으로 바꾼다. 녹음 중이면 지금 녹음은 버리고 같은 문항에 다시 답한다.
+  const switchMic = (next: MediaStream) => {
+    const prev = stream.current;
+    const wasRecording = phaseRef.current === 'recording';
+    if (wasRecording) recorder.current?.cancel();
+    adoptStream(next);
+    if (prev && prev !== next) prev.getTracks().forEach((t) => t.stop());
+    saveMicId(streamDeviceId(next));
+    setMicAlert(null); setMicError(null);
+    const name = streamLabel(next) || '선택한 마이크';
+    setNote({ kind: 'info', text: wasRecording ? `${name}(으)로 바꿨어요. 방금 녹음은 버렸으니 같은 문항에 다시 답해 주세요.` : `${name}(으)로 바꿨어요.` });
   };
 
   const replay = async () => {
@@ -437,6 +505,7 @@ export default function Exam() {
               <div className="notice notice-warn" role="status" style={{ textAlign: 'left', width: '100%', boxSizing: 'border-box', padding: '0.6rem 0.85rem' }}>
                 <strong style={{ display: 'block', fontSize: '0.875rem' }}>목소리가 들리지 않아요. 마이크를 확인해 주세요</strong>
                 <span style={{ fontSize: '0.8125rem' }}>마이크 권한이나 연결 상태, 음소거 버튼을 확인해 주세요.</span>
+                <button type="button" className="btn btn-ghost" style={{ minHeight: 32, padding: '0 0.85rem', fontSize: '0.8125rem', marginTop: 6 }} onClick={() => setMicOpen(true)}>마이크 바꾸기</button>
               </div>
             )}
             <div style={{ display: 'grid', gap: 6, width: '100%', maxWidth: 280 }}>
@@ -476,7 +545,12 @@ export default function Exam() {
               </div>
             )}
 
-            {micError && <p className="notice notice-warn" role="alert" style={{ textAlign: 'left', width: '100%', boxSizing: 'border-box' }}>{micError}</p>}
+            {micError && (
+              <div className="notice notice-warn" role="alert" style={{ textAlign: 'left', width: '100%', boxSizing: 'border-box' }}>
+                <p>{micError}</p>
+                <button type="button" className="btn btn-ghost" style={{ minHeight: 32, padding: '0 0.85rem', fontSize: '0.8125rem', marginTop: 6 }} onClick={() => setMicOpen(true)}>마이크 변경·테스트</button>
+              </div>
+            )}
             {note && <p className={`notice ${note.kind === 'warn' ? 'notice-warn' : ''}`} role={note.kind === 'warn' ? 'alert' : undefined}
                         style={{ textAlign: 'left', width: '100%', boxSizing: 'border-box' }}>{note.text}</p>}
             {phase === 'uploading' && <p className="faint">새로고침하거나 창을 닫으면 아직 보내지 못한 녹음이 사라질 수 있어요.</p>}
@@ -524,6 +598,8 @@ export default function Exam() {
         </section>
       </div>
       <Live>{status}</Live>
+      <MicSwitcher open={micOpen} onOpenChange={setMicOpen} activeDeviceId={micDeviceId} activeLabel={micLabel}
+                   recording={recording} alert={micAlert} onUse={switchMic} />
     </Shell>
   );
 }

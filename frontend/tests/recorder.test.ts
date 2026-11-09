@@ -1,8 +1,9 @@
 // AI-assisted: 녹음 경계 회귀 검증은 OpenAI Codex의 도움으로 작성되었습니다.
+// 후속 수정: 마이크 교체용 녹음 취소(cancel) 검증은 Claude(Anthropic)의 도움으로 작성되었습니다.
 // OWNER: frontend.
 import { afterEach, beforeEach, test } from 'node:test';
 import assert from 'node:assert/strict';
-import { Recorder } from '../src/lib/recorder.ts';
+import { isRecordAbort, Recorder } from '../src/lib/recorder.ts';
 
 let mode = 'normal';
 class Track extends EventTarget {
@@ -60,5 +61,12 @@ test('device removal rejects and releases its listener', async () => {
 test('maximum recording time stops and returns a nonempty recording', async () => {
   const track = new Track(); const value = await recorder(track).start(5);
   assert.ok(value.blob.size > 0); assert.ok(value.durationMs >= 0);
+  assert.equal(track.listeners, 0);
+});
+test('cancel rejects with AbortError, keeps the stream and releases its listener', async () => {
+  const track = new Track(); const r = recorder(track); const pending = r.start(1000);
+  r.cancel();
+  await assert.rejects(pending, (e: unknown) => isRecordAbort(e));
+  assert.equal(track.readyState, 'live');
   assert.equal(track.listeners, 0);
 });

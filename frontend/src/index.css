@@ -312,3 +312,32 @@ p { margin: 0; }
 .toast-warn { border-left-color: var(--rec); }
 @keyframes toast-in { from { transform: translateY(8px); opacity: 0; } to { transform: none; opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .toast { animation: none; } }
+
+/* 시험 중 마이크 비상 전환 버튼·패널 (AI-assisted: Claude). 토스트(오른쪽 아래)와 겹치지 않게 왼쪽 아래에 둔다. */
+.mic-switch { position: fixed; left: 16px; bottom: 16px; z-index: 45; display: grid; gap: 10px; justify-items: start; max-width: calc(100vw - 32px); }
+.mic-fab { display: inline-flex; align-items: center; gap: 8px; min-height: 42px; padding: 0 1rem; border-radius: 999px; font: inherit; font-size: 0.8125rem; font-weight: 600;
+  background: #fff; color: var(--ink); border: 1px solid var(--border-hover); box-shadow: var(--shadow-3); cursor: pointer; position: relative; }
+.mic-fab:hover { border-color: var(--primary); color: var(--primary); }
+.mic-fab[data-alert='true'] { border-color: var(--amber); background: var(--warn-wash); color: #78350f; }
+.mic-fab-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--amber); box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.25); animation: mic-dot 1.2s ease-in-out infinite; }
+@keyframes mic-dot { 50% { transform: scale(0.7); opacity: 0.6; } }
+.mic-panel { width: min(340px, calc(100vw - 32px)); padding: 14px 16px; display: grid; gap: 10px; box-shadow: var(--shadow-3); max-height: calc(100vh - 100px); overflow: auto; }
+.mic-option { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 8px; padding: 7px 10px; border: 1px solid var(--border-subtle); border-radius: 8px; font-size: 0.8125rem; cursor: pointer; }
+.mic-option[data-checked='true'] { border-color: var(--primary); background: var(--primary-surface); }
+
+/* 결과 PDF: 첫 페이지 AI 요청문 + 인쇄 레이아웃 (AI-assisted: Claude) */
+.ai-prompt-body { display: grid; gap: 6px; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border-subtle); font-size: 0.9rem; line-height: 1.6; }
+.ai-prompt-body hr { border: 0; border-top: 1px dashed var(--border-hover); margin: 6px 0; }
+.ai-prompt-lead { font-size: 0.8125rem; color: var(--primary); font-weight: 700; }
+@media print {
+  @page { margin: 12mm; }
+  body { -webkit-print-color-adjust: exact; print-color-adjust: exact; background: #fff !important; }
+  .ai-prompt { break-after: page; box-shadow: none; border: 2px solid var(--primary); }
+  .ai-prompt summary { list-style: none; }
+  .ai-prompt summary::-webkit-details-marker { display: none; }
+  details > summary { list-style: none; }
+  details > summary::-webkit-details-marker { display: none; }
+  .sheet { box-shadow: none !important; }
+  .panel, q, .notice { break-inside: avoid; }
+  h2, h3 { break-after: avoid; }
+}

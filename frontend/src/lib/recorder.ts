@@ -1,6 +1,7 @@
 // AI-assisted: 이 코드는 Claude(Anthropic)의 도움으로 작성되었습니다.
 // 후속 수정: 녹음 오류·장치 해제 복구는 OpenAI Codex의 도움으로 작성되었습니다.
 // 후속 수정: 마이크 장치 선택·실시간 무음 기준·음량 정규화는 Claude(Anthropic)의 도움으로 작성되었습니다.
+// 후속 수정: 시험 중 마이크 교체(장치 변화 감시·녹음 취소)는 Claude(Anthropic)의 도움으로 작성되었습니다.
 // OWNER: frontend (contracts.yaml ownership)
 // 마이크 녹음 도우미: 형식 선택(webm/opus → ogg → mp4), 실시간 음량, 최대 음량, 최대 길이 자동 종료.
 export const RECORD_MIN_MS = 2000;      // contracts policies.record_min_ms
@@ -52,6 +53,20 @@ export async function listMics(): Promise<MicDevice[]> {
   return all.filter((d) => d.kind === 'audioinput' && d.deviceId)
     .map((d, i) => ({ deviceId: d.deviceId, label: d.label || `마이크 ${i + 1}` }));
 }
+/** 마이크 연결·분리(devicechange)를 구독한다. 반환값은 해제 함수. */
+export function watchMicDevices(onChange: () => void): () => void {
+  const md = navigator.mediaDevices;
+  if (!md?.addEventListener) return () => {};
+  md.addEventListener('devicechange', onChange);
+  return () => md.removeEventListener('devicechange', onChange);
+}
+/** 스트림이 아직 소리를 받을 수 있는지(트랙이 끝나지 않았는지) */
+export const streamAlive = (s: MediaStream | null) => !!s && s.getAudioTracks().some((t) => t.readyState === 'live');
+/** 스트림이 쓰는 장치 이름(권한을 받은 뒤에만 채워진다) */
+export const streamLabel = (s: MediaStream | null) => s?.getAudioTracks()[0]?.label ?? '';
+/** 녹음 취소(Recorder.cancel)로 끝난 경우인지 */
+export const isRecordAbort = (e: unknown) => (e as { name?: string })?.name === 'AbortError';
+
 /** 스트림이 실제로 쓰는 장치 ID */
 export const streamDeviceId = (s: MediaStream | null) => s?.getAudioTracks()[0]?.getSettings?.().deviceId ?? null;
 
@@ -88,7 +103,10 @@ export class Recorder {
   private timer = 0;
   readonly mime: string;
   private stream: MediaStream;
+  /** 이 녹음기가 쓰는 스트림(교체 여부 확인용) */
+  get source(): MediaStream { return this.stream; }
   private onLevel?: (rms: number) => void;
+  private abort: () => void = () => {};
 
   constructor(stream: MediaStream, onLevel?: (rms: number) => void) {
     this.stream = stream;
@@ -121,6 +139,7 @@ export class Recorder {
         if (this.rec?.state === 'recording') this.rec.stop();
         reject(error);
       };
+      this.abort = () => fail(Object.assign(new Error('녹음을 취소했어요.'), { name: 'AbortError' }));
       const ended = () => fail(new Error('마이크 연결이 끊어졌어요. 다시 연결한 뒤 녹음해 주세요.'));
       try {
         if (!tracks.some((track) => track.readyState === 'live')) throw new Error('마이크 연결을 확인해 주세요.');
@@ -148,4 +167,7 @@ export class Recorder {
   elapsedMs(): number { return this.rec?.state === 'recording' ? performance.now() - this.started : 0; }
 
   stop() { if (this.rec?.state === 'recording') this.rec.stop(); }
+
+  /** 지금 녹음을 버린다. start()의 Promise는 AbortError로 끝난다(isRecordAbort). 스트림은 닫지 않는다. */
+  cancel() { this.abort(); this.abort = () => {}; }
 }
