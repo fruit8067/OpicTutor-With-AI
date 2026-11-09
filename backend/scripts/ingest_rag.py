@@ -29,14 +29,14 @@ def load_documents():
     return version,docs
 
 def ingest(dry_run=False):
-    if settings.EMBED_DIM != 3072:
-        raise ValueError('계약 v7 DB 벡터 차원은 3072입니다. EMBED_DIM을 확인하세요.')
+    expected_type = f'vector({settings.EMBED_DIM})'
     profile=current_profile()
     version,docs=load_documents()
     with tx() as cur:
         cur.execute("SELECT format_type(atttypid,atttypmod) AS type FROM pg_attribute WHERE attrelid='rag_docs'::regclass AND attname='embedding'")
-        if cur.fetchone()['type']!='vector(3072)':
-            raise ValueError('DB 임베딩 차원이 다릅니다. app.db.init_db() 전진 마이그레이션을 실행하세요.')
+        row = cur.fetchone()
+        if not row or row['type'] != expected_type:
+            raise ValueError(f'DB 임베딩 차원이 다릅니다. (필요: {expected_type}, 현재: {row["type"] if row else "없음"}). app.db.init_db() 전진 마이그레이션을 실행하세요.')
         cur.execute('SELECT id,text,metadata,corpus_version,embedding IS NOT NULL AS embedded FROM rag_docs')
         old={row['id']:row for row in cur.fetchall()}
     def needs_embedding(doc):

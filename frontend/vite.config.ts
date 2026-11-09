@@ -19,8 +19,8 @@ export default defineConfig(({ mode }) => {
         '/api': { target: BACKEND, changeOrigin: true },
         '/media': { target: BACKEND, changeOrigin: true },
       },
-      // Vite는 모르는 Host 헤더를 차단하므로 ngrok 도메인만 허용한다.
-      allowedHosts: ngrok ? ['.ngrok-free.app', '.ngrok-free.dev', '.ngrok.app', '.ngrok.dev', '.ngrok.io'] : undefined,
+      // Vite는 모르는 Host 헤더를 차단하므로 ngrok 도메인을 항상 허용한다.
+      allowedHosts: ['.ngrok-free.app', '.ngrok-free.dev', '.ngrok.app', '.ngrok.dev', '.ngrok.io'],
       // 브라우저는 https://<도메인>:443으로 접속하므로 HMR 웹소켓도 443으로 붙게 한다.
       hmr: ngrok ? { clientPort: 443 } : undefined,
     },

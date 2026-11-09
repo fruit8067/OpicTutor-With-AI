@@ -14,13 +14,28 @@ def embed_texts(texts: list[str]) -> list[list[float]]:
         for attempt in range(3):
             started=time.monotonic()
             try:
-                response=client.embeddings.create(model=settings.EMBED_MODEL,input=batch,dimensions=settings.EMBED_DIM)
-                data=sorted(response.data,key=lambda item:item.index)
-                if ([item.index for item in data]!=list(range(len(batch)))
-                        or any(len(item.embedding)!=settings.EMBED_DIM for item in data)):
-                    raise ValueError('임베딩 응답 개수 또는 차원이 설정과 다릅니다.')
+                try:
+                    response=client.embeddings.create(model=settings.EMBED_MODEL,input=batch,dimensions=settings.EMBED_DIM)
+                except Exception as exc:
+                    if 'dimensions' in str(exc).lower():
+                        response=client.embeddings.create(model=settings.EMBED_MODEL,input=batch)
+                    else:
+                        raise
+                has_indices = all(getattr(item, 'index', None) is not None for item in response.data)
+                if has_indices:
+                    data = sorted(response.data, key=lambda item: item.index)
+                    if [item.index for item in data] != list(range(len(batch))):
+                        raise ValueError('임베딩 응답 개수 또는 인덱스가 설정과 다릅니다.')
+                else:
+                    data = response.data
+                    if len(data) != len(batch):
+                        raise ValueError('임베딩 응답 개수가 설정과 다릅니다.')
+
+                if any(len(item.embedding) != settings.EMBED_DIM for item in data):
+                    raise ValueError('임베딩 응답 차원이 설정과 다릅니다.')
+                total_tokens = getattr(response.usage, 'total_tokens', None) if getattr(response, 'usage', None) else None
                 log_ai_request(job_id=None,purpose='embed',model=settings.EMBED_MODEL,
-                    input_tokens=response.usage.total_tokens,output_tokens=None,latency_ms=int((time.monotonic()-started)*1000),
+                    input_tokens=total_tokens,output_tokens=None,latency_ms=int((time.monotonic()-started)*1000),
                     status='ok',error_code=None)
                 vectors.extend(item.embedding for item in data)
                 break

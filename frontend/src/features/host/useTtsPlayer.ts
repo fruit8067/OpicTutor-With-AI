@@ -6,6 +6,7 @@
 // - play(url) → 'ended' | 'blocked'(autoplay 차단: 화면이 "눌러서 듣기"로 사용자 동작 재시도) | 'error'(로드 실패: 같은 문항 재시도)
 // - speechSynthesis(Web Speech)는 절대 쓰지 않는다. TTS mp3가 없으면 시험을 진행하지 않는 것이 요구사항이다.
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { API_ORIGIN } from '../../api/client';
 
 export type PlayResult = 'ended' | 'blocked' | 'error';
 
@@ -25,7 +26,9 @@ let sharedAudio: HTMLAudioElement | null = null;
 function ensureGraph(): { ctx: AudioContext | null; audio: HTMLAudioElement; analyser: AnalyserNode | null } {
   if (!sharedAudio) {
     sharedAudio = new Audio();
-    sharedAudio.crossOrigin = 'anonymous';
+    if (typeof window !== 'undefined' && window.location.origin !== API_ORIGIN) {
+      sharedAudio.crossOrigin = 'anonymous';
+    }
     sharedAudio.preload = 'auto';
   }
   if (!sharedCtx) {
