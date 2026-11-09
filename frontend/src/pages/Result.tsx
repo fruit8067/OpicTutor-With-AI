@@ -2,13 +2,14 @@
 // 후속 수정: CR frontend-01의 타입 우회 제거는 OpenAI Codex의 도움으로 작성되었습니다.
 // 후속 수정: 건너뛴 문항 표시, 결과 화면 네비게이션 통합 및 Stitch 리포트 디자인 적용을 반영했습니다.
 // 후속 수정: v3 STT 대기(submitted) 진행 표시·분석 중 이동 버튼·인식 불가 문항 표시는 Claude(Anthropic)의 도움으로 작성되었습니다.
+// 후속 수정: PDF 첫 페이지 AI 연습 자료 요청문·인쇄 시 문항 상세 펼침·저장 시각 파일명은 Claude(Anthropic)의 도움으로 작성되었습니다.
 // OWNER: frontend (contracts.yaml ownership)
 //
 // 결과: E2 2초 폴링. submitted → 답변 분석 중(stt_progress), grading → 채점 중(3분 넘으면 안내, 폴링 계속),
 // grading_failed → [다시 평가](E3), done → 보고서. 분석·채점은 서버에서 계속되므로 이 화면을 떠나도 된다.
 // 세션은 주소의 ?session_id=를 우선하고, 없으면 마지막 세션(localStorage)을 쓴다.
 // 서버가 준 값을 그대로 보여 준다. 등급을 계산·보정하지 않고, 숫자 점수·막대·별점을 그리지 않는다.
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ApiError, getResult, regrade } from '../api/client';
 import type { EvaluationResult, ResultItemOut, ResultOut } from '../api/types';
@@ -17,6 +18,7 @@ import { Host } from '../features/host/Host';
 import {
   CONTEXT_LABEL, FACT_LABEL, FACT_STATUS_LABEL, FULFILL_LABEL, FUNCTION_LABEL, GRADING_ERROR_TEXT, labelOf, TIME_LABEL, TYPE_LABEL,
 } from '../lib/messages';
+import { buildGuide, buildPromptText, pdfTitle, TARGET_LEVEL, USER_PROMPT, type PromptContext } from '../lib/aiPrompt';
 import { clearSessionId, loadSessionId, resultPath, routeFor } from '../lib/session';
 import { usePoll } from '../lib/usePoll';
 
@@ -171,11 +173,75 @@ const Quote = ({ children }: { children: ReactNode }) => (
   <q lang="en" style={{ display: 'block', borderLeft: '3px solid var(--primary)', background: 'var(--canvas)', borderRadius: '0 6px 6px 0', padding: '6px 12px', color: 'var(--ink)', quotes: 'none', fontSize: '0.9375rem' }}>{children}</q>
 );
 
+/**
+ * 인쇄(PDF 저장) 준비: 기본 파일명을 저장 시각으로 바꾸고, 접힌 <details>를 모두 펼쳐 전사·고칠 점이 PDF에 들어가게 한다.
+ * 인쇄 버튼과 Ctrl+P(beforeprint) 모두에서 쓰고, 끝나면(afterprint) 원래대로 되돌린다.
+ */
+function usePrintPrep() {
+  const saved = useRef<{ title: string; closed: HTMLDetailsElement[] } | null>(null);
+  const prepare = useCallback(() => {
+    if (saved.current) return;
+    const closed = Array.from(document.querySelectorAll<HTMLDetailsElement>('article details:not([open])'));
+    saved.current = { title: document.title, closed };
+    closed.forEach((d) => { d.open = true; });
+    document.title = pdfTitle();
+  }, []);
+  const restore = useCallback(() => {
+    const s = saved.current;
+    if (!s) return;
+    saved.current = null;
+    s.closed.forEach((d) => { d.open = false; });
+    document.title = s.title;
+  }, []);
+  useEffect(() => {
+    window.addEventListener('beforeprint', prepare);
+    window.addEventListener('afterprint', restore);
+    return () => { window.removeEventListener('beforeprint', prepare); window.removeEventListener('afterprint', restore); restore(); };
+  }, [prepare, restore]);
+  return useCallback(() => { prepare(); window.print(); }, [prepare]);
+}
+
+/** PDF 첫 페이지: 이 PDF를 AI에 첨부할 때 함께 읽힐 요청문. 화면에서는 접어 두고 복사할 수 있게 한다. */
+function AiPromptBlock({ ctx }: { ctx: PromptContext }) {
+  const [copied, setCopied] = useState<'idle' | 'ok' | 'fail'>('idle');
+  const copy = async () => {
+    try { await navigator.clipboard.writeText(buildPromptText(ctx)); setCopied('ok'); }
+    catch { setCopied('fail'); }
+    window.setTimeout(() => setCopied('idle'), 2500);
+  };
+  return (
+    <details className="sheet ai-prompt" style={{ padding: '14px 20px' }}>
+      <summary style={{ cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+        <span style={{ display: 'grid', gap: 2 }}>
+          <strong>AI 연습 자료 요청문</strong>
+          <span className="faint no-print" style={{ fontSize: '0.8125rem' }}>PDF 첫 페이지에 자동으로 들어가요. PDF만 AI에게 첨부하면 이 요청대로 {TARGET_LEVEL} 연습 문장을 만들어 줘요.</span>
+        </span>
+        <button type="button" className="btn btn-ghost no-print" style={{ minHeight: 34, padding: '0 0.9rem', fontSize: '0.8125rem' }}
+                onClick={(e) => { e.preventDefault(); void copy(); }}>
+          {copied === 'ok' ? '복사했어요' : copied === 'fail' ? '복사하지 못했어요' : '요청문 복사'}
+        </button>
+      </summary>
+      <div className="ai-prompt-body">
+        <p className="ai-prompt-lead">To the AI reading this PDF — 아래 요청을 먼저 읽고, 이어지는 진단 리포트를 근거로 답해 줘.</p>
+        {USER_PROMPT.map((l, i) => <p key={`u${i}`} style={{ fontWeight: 600 }}>{l}</p>)}
+        <hr />
+        {buildGuide(ctx).map((l, i) => (l ? <p key={`g${i}`}>{l}</p> : <div key={`g${i}`} style={{ height: 6 }} />))}
+      </div>
+    </details>
+  );
+}
+
 function Report({ r, answers, gradedAt, onNew, onHistory }: { r: EvaluationResult; answers: ResultItemOut[]; gradedAt: string | null; onNew: () => void; onHistory: () => void }) {
   const scope = r.evaluation_scope;
   const tier = r.tier;
   const insufficient = r.assessment_status === 'insufficient_evidence';
   const imHeld = !insufficient && r.base_level === 'IM' && r.estimated_level === null;
+  const printReport = usePrintPrep();
+  const promptCtx: PromptContext = {
+    levelText: insufficient ? '판단 근거 부족' : imHeld ? 'IM(세분화 보류)' : `${r.estimated_level ?? r.base_level ?? '-'}${r.provisional_label ? ` (${r.provisional_label})` : ''}`,
+    headline: r.headline,
+    nextLevelGap: r.next_level_gap,
+  };
   const byOrder = new Map(answers.map((a) => [a.order_no, a]));
   const items = [...r.items].sort((a, b) => a.order_no - b.order_no);
   const scoredItems = items.filter((i) => i.evaluation_role === 'scored');
@@ -194,6 +260,7 @@ function Report({ r, answers, gradedAt, onNew, onHistory }: { r: EvaluationResul
   return (
     <Shell wide>
       <article style={{ display: 'grid', gap: 28 }}>
+        <AiPromptBlock ctx={promptCtx} />
         {/* Top Summary & Breadcrumb Header (Stitch ai_feedback_report) */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: 16, flexWrap: 'wrap' }}>
           <div style={{ display: 'grid', gap: 6 }}>
@@ -210,7 +277,7 @@ function Report({ r, answers, gradedAt, onNew, onHistory }: { r: EvaluationResul
             <button type="button" className="btn btn-ghost" onClick={onHistory}>
               ← 내 시험 기록
             </button>
-            <button type="button" className="btn btn-ghost" onClick={() => window.print()}>
+            <button type="button" className="btn btn-ghost" onClick={printReport} title="저장 시각이 파일명으로 들어가고, 첫 페이지에 AI 요청문이 포함돼요">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><path d="M6 9V2h12v7" /><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" /><rect x="6" y="14" width="12" height="8" /></svg>
               PDF / 인쇄
             </button>
