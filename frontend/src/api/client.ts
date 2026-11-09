@@ -1,5 +1,6 @@
 // AI-assisted: 이 코드는 Claude(Anthropic)의 도움으로 작성되었습니다.
 // 후속 수정: v3 getActiveSessions는 Claude(Anthropic)의 도움으로 작성되었습니다.
+// 후속 수정: ngrok 경고 우회 헤더는 Claude(Anthropic)의 도움으로 작성되었습니다.
 // OWNER: frontend (contracts.yaml ownership)
 //
 // contracts.yaml api.endpoints 전부. 실패 응답 {"error": {code, message, detail}} → ApiError로 throw.
@@ -32,6 +33,8 @@ async function request<R>(method: string, path: string, body?: unknown, init?: R
   let res: Response;
   const headers: Record<string, string> = {};
   if (body !== undefined && !(body instanceof FormData)) headers['Content-Type'] = 'application/json';
+  // AI-assisted(Claude): ngrok 무료 도메인의 브라우저 경고 페이지가 fetch 응답을 가로채지 않게 한다. ngrok 밖에서는 무시되는 헤더.
+  headers['ngrok-skip-browser-warning'] = '1';
   const token = loadAuthToken();
   if (token) headers['Authorization'] = `Bearer ${token}`;
   try {

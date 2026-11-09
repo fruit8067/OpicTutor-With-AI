@@ -119,3 +119,8 @@ CR frontend-01은 PR #28/main 0c4ee09에서 해결됐다. 이 브랜치도 rebas
 ## 사용자 요청에 따른 C 구현 main 병합 (2026-11-07, OpenAI Codex)
 
 A/B 선행 구현이 main에 병합된 뒤 최신 main으로 rebase했다. 사용자의 C 병합 요청에 따라 프런트 PR#24를 반영한다. build/lint와 녹음 Node4개를 다시 통과했고 기존 Chromium15·경계11·실제 C/AB HTTP/DB/OmniVoice8문항 검증은 보존한다. 실제 사람 마이크/공급자 품질·M3·독립 reviewer는 후속 조건이며 구현 병합을 제품 완료로 표시하지 않는다.
+
+
+## ngrok 외부 접속 지원 (2026-11-09, Claude)
+
+`npm run dev:ngrok` 모드 추가(CR frontend-02). Vite가 `/api`·`/media`를 로컬 FastAPI로 프록시하고 ngrok 도메인 Host와 HMR 443을 허용한다. 요청에 `ngrok-skip-browser-warning` 헤더를 추가했다. build 통과, 프록시/호스트 차단/모드별 API 주소를 로컬에서 확인했다. 실제 터널·휴대폰 녹음·경고 페이지 이후 TTS 재생은 미검증.
