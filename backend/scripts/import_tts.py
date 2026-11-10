@@ -144,15 +144,20 @@ def main(argv=None) -> int:
         vid = m["settings_version"]
         dest = tts_dir() / vid
         dest.mkdir(parents=True, exist_ok=True)
+        in_place = root.resolve() == dest.resolve()
         for it in m["items"]:
             kind, ref = split_item_id(it["id"])
             src = source_asset(root, m, it)
-            relative = asset_rel_path(vid, kind, ref, it["text_sha1"])
-            dst = tts_dir() / relative
-            dst.parent.mkdir(parents=True, exist_ok=True)
-            if not (dst.exists() and src.resolve() == dst.resolve()):   # 이미 반입된 폴더를 다시 등록할 때(DB만)
-                shutil.copyfile(src, dst)
-            it["file_path"] = relative
+            if in_place and "file_path" not in it:
+                relative = asset_rel_path(vid, kind, ref)
+            else:
+                relative = asset_rel_path(vid, kind, ref, it["text_sha1"])
+                dst = tts_dir() / relative
+                dst.parent.mkdir(parents=True, exist_ok=True)
+                if not (dst.exists() and src.resolve() == dst.resolve()):   # 이미 반입된 폴더를 다시 등록할 때(DB만)
+                    shutil.copyfile(src, dst)
+                it["file_path"] = relative
+            it["_db_file_path"] = relative
         # 기존 manifest와 합치기(--stale 반입)
         old = {}
         if (dest / "manifest.json").is_file():
@@ -168,7 +173,8 @@ def main(argv=None) -> int:
         for it in m["items"]:
             kind, ref = split_item_id(it["id"])
             db.upsert_tts_asset(kind=kind, ref_id=ref, text_hash=it["text_sha1"], voice_id=vid, settings_version=vid,
-                                file_path=it["file_path"], duration_sec=it.get("_measured") or it.get("seconds"))
+                                file_path=it.get("_db_file_path") or it["file_path"],
+                                duration_sec=it.get("_measured") or it.get("seconds"))
             registered += 1
     e2e = 0
     jobs_meta = {}
@@ -185,12 +191,12 @@ def main(argv=None) -> int:
         level, _, order = ref.partition("_")
         target = BACKEND / "e2e_audio" / level / f"{order}.mp3"
         target.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copyfile(tts_dir() / it["file_path"], target)
+        shutil.copyfile(tts_dir() / (it.get("_db_file_path") or it["file_path"]), target)
         e2e += 1
     if a.activate:
         (tts_dir() / "active_voice.json").write_text(json.dumps({"voice_id": vid}) + "\n", encoding="utf-8")
     total = sum(it.get("_measured", 0) for it in m["items"])
-    size = sum((tts_dir() / i["file_path"]).stat().st_size for i in m["items"])
+    size = sum((tts_dir() / (i.get("_db_file_path") or i["file_path"])).stat().st_size for i in m["items"])
     print(f"voice_id={vid}: 반입 {len(m['items'])}개(총 {total:.0f}초, {size / 1e6:.1f}MB), DB 등록 {registered}개, "
           f"e2e 복사 {e2e}개, 누락 0, 해시 불일치 0{' — 활성화함' if a.activate else ''}")
     return 0

@@ -8,7 +8,8 @@
 import type * as T from './types';
 import { loadAuthToken } from '../lib/session';
 
-export const API_BASE: string = import.meta.env.VITE_API_BASE ?? 'http://127.0.0.1:8000/api/v1';
+// 백엔드는 항상 Vite 프록시(/api, /media)를 통해 단일 오리진으로 호출하여 Mixed Content 및 외부 IP 접속 실패를 방지한다.
+export const API_BASE: string = import.meta.env.VITE_API_BASE ?? '/api/v1';
 export const API_ORIGIN: string = (() => {
   try { return new URL(API_BASE).origin; } catch { return window.location.origin; }
 })();
