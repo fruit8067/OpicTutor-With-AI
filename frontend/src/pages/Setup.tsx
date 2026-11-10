@@ -17,7 +17,7 @@ import { loadMicId, loadSessionId, saveMicId, saveSessionId } from '../lib/sessi
 const MIC_HELP: Record<MicErrorKind, string> = {
   denied: '마이크 권한이 막혀 있어요. 주소창 왼쪽 자물쇠(또는 사이트 설정) 아이콘 → 마이크 → 허용으로 바꾼 뒤 이 페이지를 새로고침해 주세요. Safari는 설정 → 웹사이트 → 마이크에서 바꿀 수 있어요.',
   not_found: '연결된 마이크를 찾지 못했어요. 마이크(또는 이어폰)를 연결하고 다시 시도해 주세요.',
-  unsupported: '이 브라우저는 녹음을 지원하지 않아요. 최신 Chrome·Edge·Firefox·Safari를 사용해 주세요.',
+  unsupported: '녹음에는 HTTPS 연결과 녹음을 지원하는 브라우저가 필요해요. 외부 기기에서는 HTTPS 주소로 접속해 주세요. 최신 Chrome·Edge·Firefox·Safari에서 이용할 수 있어요.',
   other: '마이크를 켜지 못했어요. 다른 프로그램이 마이크를 쓰고 있지 않은지 확인해 주세요.',
 };
 
