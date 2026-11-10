@@ -56,7 +56,10 @@ async function request<R>(method: string, path: string, body?: unknown, init?: R
   }
   if (!res.ok) {
     const err = (data as { error?: { code?: string; message?: string; detail?: Record<string, unknown> } } | null)?.error;
-    throw new ApiError(err?.code ?? 'INTERNAL_ERROR', err?.message ?? '잠시 후 다시 시도해 주세요.', err?.detail ?? {}, res.status);
+    const fallback = res.status === 429
+      ? '단시간에 요청이 많아 일시 제한되었어요(ngrok 무료 플랜 한도). 약 1분 뒤 다시 시도해 주세요.'
+      : '잠시 후 다시 시도해 주세요.';
+    throw new ApiError(err?.code ?? 'INTERNAL_ERROR', err?.message ?? fallback, err?.detail ?? {}, res.status);
   }
   return data as R;
 }
