@@ -42,7 +42,7 @@ def check_interfaces():
     import yaml
     from app.schemas import api
     from app.main import app
-    contract=yaml.safe_load((Path(__file__).resolve().parents[2]/'agents/contracts.yaml').read_text(encoding='utf-8'))
+    contract=yaml.safe_load((Path(__file__).resolve().parents[2]/'backend/app/contracts.yaml').read_text(encoding='utf-8'))
     errors=[];count=0
     modules={'app.errors','app.db','app.db.dev','app.llm.embeddings','app.llm.chat','app.exam','app.stt','app.grading'}
     def shape(node): return ast.dump(node,include_attributes=False) if node is not None else None

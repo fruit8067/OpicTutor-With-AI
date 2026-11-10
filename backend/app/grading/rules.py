@@ -10,7 +10,7 @@ import tiktoken
 
 @lru_cache(maxsize=1)
 def contract():
-    return yaml.safe_load((Path(__file__).resolve().parents[3]/'agents/contracts.yaml').read_text(encoding='utf-8'))
+    return yaml.safe_load((Path(__file__).resolve().parents[1]/'contracts.yaml').read_text(encoding='utf-8'))
 
 
 @lru_cache(maxsize=1)

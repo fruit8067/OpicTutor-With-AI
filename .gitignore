@@ -235,3 +235,6 @@ backend/static/tts/*/*.wav
 # AI-assisted(Claude): 로컬 녹음·디자인 내보내기 파일은 커밋하지 않는다
 *.m4a
 stitch_*.zip
+
+# AI-assisted(Claude): agent 오케스트레이션 프롬프트(yaml)·도구는 로컬 전용, 저장소에 올리지 않는다
+/agents/
