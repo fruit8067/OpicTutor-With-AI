@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --host --port 5173",
     "dev:ngrok": "vite --mode ngrok --host --port 5173 --strictPort",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
