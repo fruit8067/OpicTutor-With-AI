@@ -10,7 +10,7 @@ import yaml
 
 @lru_cache(maxsize=None)
 def get_handler(kind):
-    contract=yaml.safe_load((Path(__file__).resolve().parents[3]/'agents/contracts.yaml').read_text(encoding='utf-8'))
+    contract=yaml.safe_load((Path(__file__).resolve().parents[1]/'contracts.yaml').read_text(encoding='utf-8'))
     module,name=contract['job_types'][kind]['handler'].split(':')
     return getattr(importlib.import_module(module),name)
 

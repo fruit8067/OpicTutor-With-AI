@@ -16,7 +16,7 @@ from test_grading_validate import snapshot, output, validate
 from app.grading import evidence
 from unittest.mock import patch
 
-c = yaml.safe_load((ROOT / 'agents/contracts.yaml').read_text(encoding='utf-8'))
+c = yaml.safe_load((ROOT / 'backend/app/contracts.yaml').read_text(encoding='utf-8'))
 def git(*args):
     return subprocess.check_output(['git', *args], cwd=ROOT).decode('utf-8')
 def emit(name, value):
