@@ -3,6 +3,7 @@
 // 후속 수정: 건너뛴 문항 표시, 결과 화면 네비게이션 통합 및 Stitch 리포트 디자인 적용을 반영했습니다.
 // 후속 수정: v3 STT 대기(submitted) 진행 표시·분석 중 이동 버튼·인식 불가 문항 표시는 Claude(Anthropic)의 도움으로 작성되었습니다.
 // 후속 수정: PDF 첫 페이지 AI 연습 자료 요청문·인쇄 시 문항 상세 펼침·저장 시각 파일명은 Claude(Anthropic)의 도움으로 작성되었습니다.
+// 후속 수정: 예상 등급 옆 9등급 티어 피라미드(LevelPyramid)는 Claude(Anthropic)의 도움으로 작성되었습니다.
 // OWNER: frontend (contracts.yaml ownership)
 //
 // 결과: E2 2초 폴링. submitted → 답변 분석 중(stt_progress), grading → 채점 중(3분 넘으면 안내, 폴링 계속),
@@ -15,6 +16,8 @@ import { ApiError, getResult, regrade } from '../api/client';
 import type { EvaluationResult, ResultItemOut, ResultOut } from '../api/types';
 import { ErrorNote, Live, Shell } from '../components/Shell';
 import { Host } from '../features/host/Host';
+import { LevelPyramid } from '../components/LevelPyramid';
+import { TIER_NAME } from '../lib/tiers';
 import {
   CONTEXT_LABEL, FACT_LABEL, FACT_STATUS_LABEL, FULFILL_LABEL, FUNCTION_LABEL, GRADING_ERROR_TEXT, labelOf, TIME_LABEL, TYPE_LABEL,
 } from '../lib/messages';
@@ -23,8 +26,7 @@ import { clearSessionId, loadSessionId, resultPath, routeFor } from '../lib/sess
 import { usePoll } from '../lib/usePoll';
 
 const SLOW_MS = 180000; // policies.grading_poll_slow_notice_ms
-// contracts.yaml tiers: 서버의 객체를 그대로 사용하고 표시 이름만 매핑한다.
-const TIER_NAME: Record<string, string> = { bronze: '브론즈', silver: '실버', gold: '골드', platinum: '플래티넘', diamond: '다이아몬드' };
+// contracts.yaml tiers: 서버의 객체를 그대로 사용하고 표시 이름만 매핑한다(lib/tiers.ts).
 
 export default function Result() {
   const nav = useNavigate();
@@ -331,6 +333,8 @@ function Report({ r, answers, gradedAt, onNew, onHistory }: { r: EvaluationResul
                   )}
                 </div>
 
+                <div className="report-grade-main">
+                <div style={{ display: 'grid', gap: 12 }}>
                 {insufficient ? (
                   <div style={{ display: 'grid', gap: 8 }}>
                     <p style={{ fontSize: '1.75rem', fontWeight: 700, color: 'var(--ink)' }}>판단 근거가 부족해요</p>
@@ -357,6 +361,9 @@ function Report({ r, answers, gradedAt, onNew, onHistory }: { r: EvaluationResul
                 )}
 
                 <p style={{ fontSize: '1.02rem', fontWeight: 500, color: 'var(--ink)' }}>{r.headline}</p>
+                </div>
+                <LevelPyramid estimated={r.estimated_level} borderline={r.borderline_levels} imHeld={imHeld} insufficient={insufficient} />
+                </div>
 
                 {r.borderline_levels.length > 0 && (
                   <div className="panel" style={{ padding: '10px 14px', fontSize: '0.875rem' }}>
